@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    ViewBag.Title = "Lockout";
+}
+
+<div class="panel-body wrapper-lg">
+    <div class="alert alert-danger">
+        <h4><i class="clip-checkmark-circle-2"></i> Locked Out</h4>
+        <br />
+        This account has been locked out due to invalid login attempts. Please try again later.
+        <br />
+    </div>
+    <div class="text-center">
+        <a href="@Url.Action("Index", "Home") " class="btn btn-primary">Return to Home Page</a>
+    </div>
+</div>

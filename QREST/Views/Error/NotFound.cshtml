@@ -1,0 +1,23 @@
+﻿@{
+    Layout = Request.IsAuthenticated ? "~/Views/Shared/_Layout.cshtml" : "~/Views/Shared/_LayoutPub.cshtml";
+    ViewBag.Title = "Not Found";
+    ViewBag.HideTitle = true;
+}
+
+<section id="content">
+    <div class="bg-primary dk">
+        <div class="text-center wrapper">
+            <div class="m-t-lg m-b-lg">
+                <div class="text-uc h2 font-bold inline">
+                    That page can't be found.
+                </div>
+                <p>
+                    It looks like nothing was found at this location. Click to link below to return to the home page
+                </p>
+            </div>
+            <p class="text-center m-b-l">
+                <a class="btn btn-lg btn-rounded btn-warning m-sm" href="/Dashboard/Index">Home</a>
+            </p>
+        </div>
+    </div>
+</section>

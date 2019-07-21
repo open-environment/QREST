@@ -1,0 +1,1635 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="QRESTModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="T_QREST_APP_SETTINGS">
+          <Key>
+            <PropertyRef Name="SETTING_IDX" />
+          </Key>
+          <Property Name="SETTING_IDX" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SETTING_NAME" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="SETTING_DESC" Type="varchar" MaxLength="500" />
+          <Property Name="SETTING_VALUE" Type="varchar" MaxLength="200" />
+          <Property Name="SETTING_CAT" Type="varchar" MaxLength="20" />
+          <Property Name="MODIFY_USER_IDX" Type="varchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_APP_SETTINGS_CUSTOM">
+          <Key>
+            <PropertyRef Name="SETTING_CUSTOM_IDX" />
+          </Key>
+          <Property Name="SETTING_CUSTOM_IDX" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TERMS_AND_CONDITIONS" Type="varchar(max)" />
+          <Property Name="ANNOUNCEMENTS" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="T_QREST_EMAIL_TEMPLATE">
+          <Key>
+            <PropertyRef Name="EMAIL_TEMPLATE_ID" />
+          </Key>
+          <Property Name="EMAIL_TEMPLATE_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EMAIL_TEMPLATE_NAME" Type="varchar" MaxLength="60" Nullable="false" />
+          <Property Name="EMAIL_TEMPLATE_DESC" Type="varchar" MaxLength="1000" Nullable="false" />
+          <Property Name="SUBJ" Type="varchar" MaxLength="200" />
+          <Property Name="MSG" Type="varchar(max)" />
+          <Property Name="MODIFY_USER_IDX" Type="varchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_MONITORS">
+          <Key>
+            <PropertyRef Name="MONITOR_IDX" />
+          </Key>
+          <Property Name="MONITOR_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="SITE_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PAR_METHOD_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="POC" Type="int" Nullable="false" />
+          <Property Name="DURATION_CODE" Type="varchar" MaxLength="1" />
+          <Property Name="COLLECT_FREQ_CODE" Type="varchar" MaxLength="2" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="COLLECT_UNIT_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="ALERT_MIN_VALUE" Type="float" />
+          <Property Name="ALERT_MAX_VALUE" Type="float" />
+          <Property Name="ALERT_PCT_CHANGE" Type="int" />
+          <Property Name="ALERT_STUCK_REC_COUNT" Type="int" />
+        </EntityType>
+        <EntityType Name="T_QREST_ORG_EMAIL_RULE">
+          <Key>
+            <PropertyRef Name="ORG_ID" />
+            <PropertyRef Name="EMAIL_STRING" />
+          </Key>
+          <Property Name="ORG_ID" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="EMAIL_STRING" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_ORG_USERS">
+          <Key>
+            <PropertyRef Name="ORG_USER_IDX" />
+          </Key>
+          <Property Name="ORG_USER_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ORG_ID" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="USER_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="ACCESS_LEVEL" Type="varchar" MaxLength="1" Nullable="false" />
+          <Property Name="STATUS_IND" Type="varchar" MaxLength="1" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_ORGANIZATIONS">
+          <Key>
+            <PropertyRef Name="ORG_ID" />
+          </Key>
+          <Property Name="ORG_ID" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="ORG_NAME" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="AQS_AGENCY_CODE" Type="varchar" MaxLength="4" />
+          <Property Name="STATE_CD" Type="varchar" MaxLength="5" />
+          <Property Name="EPA_REGION" Type="int" />
+          <Property Name="AQS_NAAS_UID" Type="varchar" MaxLength="100" />
+          <Property Name="AQS_NAAS_PWD" Type="varchar" MaxLength="250" />
+          <Property Name="ACT_IND" Type="bit" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_AQS_AGENCY">
+          <Key>
+            <PropertyRef Name="AQS_AGENCY_CODE" />
+          </Key>
+          <Property Name="AQS_AGENCY_CODE" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="AQS_AGENCY_NAME" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="AQS_AGENCY_TYPE" Type="varchar" MaxLength="1" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_COLLECT_FREQ">
+          <Key>
+            <PropertyRef Name="COLLECT_FREQ_CODE" />
+          </Key>
+          <Property Name="COLLECT_FREQ_CODE" Type="varchar" MaxLength="2" Nullable="false" />
+          <Property Name="COLLECT_FEQ_DESC" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ACT_IND" Type="bit" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_DURATION">
+          <Key>
+            <PropertyRef Name="DURATION_CODE" />
+          </Key>
+          <Property Name="DURATION_CODE" Type="varchar" MaxLength="1" Nullable="false" />
+          <Property Name="DURATION_DESC" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ACT_IND" Type="bit" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_PAR_METHODS">
+          <Key>
+            <PropertyRef Name="PAR_METHOD_IDX" />
+          </Key>
+          <Property Name="PAR_METHOD_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PAR_CODE" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="METHOD_CODE" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="RECORDING_MODE" Type="varchar" MaxLength="20" />
+          <Property Name="COLLECTION_DESC" Type="varchar" MaxLength="200" />
+          <Property Name="ANALYSIS_DESC" Type="varchar" MaxLength="200" />
+          <Property Name="REFERENCE_METHOD_ID" Type="varchar" MaxLength="200" />
+          <Property Name="EQUIVALENT_METHOD" Type="varchar" MaxLength="200" />
+          <Property Name="STD_UNIT_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="FED_MDL" Type="float" />
+          <Property Name="MIN_VALUE" Type="float" />
+          <Property Name="MAX_VALUE" Type="float" />
+          <Property Name="ACT_IND" Type="bit" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_PARAMETERS">
+          <Key>
+            <PropertyRef Name="PAR_CODE" />
+          </Key>
+          <Property Name="PAR_CODE" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="PAR_NAME" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="PAR_NAME_ALT" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="CAS_NUM" Type="varchar" MaxLength="100" />
+          <Property Name="STD_UNIT_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="SHORTLIST_IND" Type="bit" Nullable="false" />
+          <Property Name="ACT_IND" Type="bit" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_REGION">
+          <Key>
+            <PropertyRef Name="EPA_REGION" />
+          </Key>
+          <Property Name="EPA_REGION" Type="int" Nullable="false" />
+          <Property Name="EPA_REGION_NAME" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_STATE">
+          <Key>
+            <PropertyRef Name="STATE_CD" />
+          </Key>
+          <Property Name="STATE_CD" Type="varchar" MaxLength="5" Nullable="false" />
+          <Property Name="STATE_NAME" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_UNITS">
+          <Key>
+            <PropertyRef Name="UNIT_CODE" />
+          </Key>
+          <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="UNIT_DESC" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ACT_IND" Type="bit" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_ROLES">
+          <Key>
+            <PropertyRef Name="ROLE_IDX" />
+          </Key>
+          <Property Name="ROLE_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="ROLE_DESC" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="T_QREST_SITES">
+          <Key>
+            <PropertyRef Name="SITE_IDX" />
+          </Key>
+          <Property Name="SITE_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ORG_ID" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="SITE_ID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="SITE_NAME" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="AQS_SITE_ID" Type="varchar" MaxLength="4" />
+          <Property Name="LATITUDE" Type="decimal" Precision="18" Scale="5" />
+          <Property Name="LONGITUDE" Type="decimal" Precision="18" Scale="5" />
+          <Property Name="ADDRESS" Type="varchar" MaxLength="100" />
+          <Property Name="CITY" Type="varchar" MaxLength="50" />
+          <Property Name="STATE" Type="varchar" MaxLength="2" />
+          <Property Name="ZIP_CODE" Type="varchar" MaxLength="10" />
+          <Property Name="START_DT" Type="datetime2" Precision="0" />
+          <Property Name="END_DT" Type="datetime2" Precision="0" />
+          <Property Name="TELEMETRY_ONLINE_IND" Type="bit" />
+          <Property Name="SITE_COMMENTS" Type="varchar(max)" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_SYS_LOG">
+          <Key>
+            <PropertyRef Name="LOG_ID" />
+          </Key>
+          <Property Name="LOG_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LOG_DT" Type="datetime2" Precision="0" />
+          <Property Name="LOG_TYP" Type="varchar" MaxLength="15" />
+          <Property Name="LOG_USERID" Type="varchar" MaxLength="128" />
+          <Property Name="LOG_MSG" Type="varchar" MaxLength="2000" />
+        </EntityType>
+        <EntityType Name="T_QREST_SYS_LOG_ACTIVITY">
+          <Key>
+            <PropertyRef Name="LOG_ACTIVITY_IDX" />
+          </Key>
+          <Property Name="LOG_ACTIVITY_IDX" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ACTIVITY_DT" Type="datetime2" Precision="0" />
+          <Property Name="ACTIVITY_TYPE" Type="varchar" MaxLength="25" Nullable="false" />
+          <Property Name="ACTIVITY_USER" Type="varchar" MaxLength="256" />
+          <Property Name="ACTIVITY_DESC" Type="varchar" MaxLength="125" />
+          <Property Name="IP_ADDRESS" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="T_QREST_SYS_LOG_EMAIL">
+          <Key>
+            <PropertyRef Name="LOG_EMAIL_ID" />
+          </Key>
+          <Property Name="LOG_EMAIL_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EMAIL_DT" Type="datetime2" Precision="0" />
+          <Property Name="EMAIL_FROM" Type="varchar" MaxLength="200" />
+          <Property Name="EMAIL_TO" Type="varchar" MaxLength="200" />
+          <Property Name="EMAIL_CC" Type="varchar" MaxLength="200" />
+          <Property Name="EMAIL_SUBJ" Type="varchar" MaxLength="200" />
+          <Property Name="EMAIL_MSG" Type="varchar" MaxLength="2000" />
+          <Property Name="EMAIL_TYPE" Type="varchar" MaxLength="15" />
+        </EntityType>
+        <EntityType Name="T_QREST_USER_CLAIMS">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="ClaimType" Type="nvarchar(max)" />
+          <Property Name="ClaimValue" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="T_QREST_USER_LOGINS">
+          <Key>
+            <PropertyRef Name="LoginProvider" />
+            <PropertyRef Name="ProviderKey" />
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="LoginProvider" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="ProviderKey" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_USER_ROLES">
+          <Key>
+            <PropertyRef Name="USER_IDX" />
+            <PropertyRef Name="ROLE_IDX" />
+          </Key>
+          <Property Name="USER_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="ROLE_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_USERS">
+          <Key>
+            <PropertyRef Name="USER_IDX" />
+          </Key>
+          <Property Name="USER_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="256" />
+          <Property Name="EmailConfirmed" Type="bit" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar(max)" />
+          <Property Name="SecurityStamp" Type="nvarchar(max)" />
+          <Property Name="PhoneNumber" Type="nvarchar(max)" />
+          <Property Name="PhoneNumberConfirmed" Type="bit" Nullable="false" />
+          <Property Name="TwoFactorEnabled" Type="bit" Nullable="false" />
+          <Property Name="LockoutEndDateUtc" Type="datetime" />
+          <Property Name="LockoutEnabled" Type="bit" Nullable="false" />
+          <Property Name="AccessFailedCount" Type="int" Nullable="false" />
+          <Property Name="UserName" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="FNAME" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="LNAME" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="TITLE" Type="varchar" MaxLength="50" />
+          <Property Name="LAST_LOGIN_DT" Type="datetime2" Precision="0" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <Association Name="FK__T_QREST_O__AQS_A__153B1FDF">
+          <End Role="T_QREST_REF_AQS_AGENCY" Type="Self.T_QREST_REF_AQS_AGENCY" Multiplicity="0..1" />
+          <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_AQS_AGENCY">
+              <PropertyRef Name="AQS_AGENCY_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="AQS_AGENCY_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__T_QREST_O__EPA_R__1446FBA6">
+          <End Role="T_QREST_REF_REGION" Type="Self.T_QREST_REF_REGION" Multiplicity="0..1" />
+          <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_REGION">
+              <PropertyRef Name="EPA_REGION" />
+            </Principal>
+            <Dependent Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="EPA_REGION" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__T_QREST_O__ORG_I__18178C8A">
+          <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_ORG_EMAIL_RULE" Type="Self.T_QREST_ORG_EMAIL_RULE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_ORG_EMAIL_RULE">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__T_QREST_O__STATE__1352D76D">
+          <End Role="T_QREST_REF_STATE" Type="Self.T_QREST_REF_STATE" Multiplicity="0..1" />
+          <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_STATE">
+              <PropertyRef Name="STATE_CD" />
+            </Principal>
+            <Dependent Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="STATE_CD" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspNetUserClaims_Users_UserId">
+          <End Role="T_QREST_USERS" Type="Self.T_QREST_USERS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_USER_CLAIMS" Type="Self.T_QREST_USER_CLAIMS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_USER_CLAIMS">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspNetUserLogins_Users_UserId">
+          <End Role="T_QREST_USERS" Type="Self.T_QREST_USERS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_USER_LOGINS" Type="Self.T_QREST_USER_LOGINS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_USER_LOGINS">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspNetUserRoles_Roles_RoleId">
+          <End Role="T_QREST_ROLES" Type="Self.T_QREST_ROLES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_USER_ROLES" Type="Self.T_QREST_USER_ROLES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ROLES">
+              <PropertyRef Name="ROLE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_USER_ROLES">
+              <PropertyRef Name="ROLE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspNetUserRoles_Users_UserId">
+          <End Role="T_QREST_USERS" Type="Self.T_QREST_USERS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_USER_ROLES" Type="Self.T_QREST_USER_ROLES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_USER_ROLES">
+              <PropertyRef Name="USER_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_MONITORS_C">
+          <End Role="T_QREST_REF_COLLECT_FREQ" Type="Self.T_QREST_REF_COLLECT_FREQ" Multiplicity="1" />
+          <End Role="T_QREST_MONITORS" Type="Self.T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_COLLECT_FREQ">
+              <PropertyRef Name="COLLECT_FREQ_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="COLLECT_FREQ_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_MONITORS_D">
+          <End Role="T_QREST_REF_DURATION" Type="Self.T_QREST_REF_DURATION" Multiplicity="0..1" />
+          <End Role="T_QREST_MONITORS" Type="Self.T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_DURATION">
+              <PropertyRef Name="DURATION_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="DURATION_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_MONITORS_P">
+          <End Role="T_QREST_REF_PAR_METHODS" Type="Self.T_QREST_REF_PAR_METHODS" Multiplicity="1" />
+          <End Role="T_QREST_MONITORS" Type="Self.T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_PAR_METHODS">
+              <PropertyRef Name="PAR_METHOD_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="PAR_METHOD_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_MONITORS_S">
+          <End Role="T_QREST_SITES" Type="Self.T_QREST_SITES" Multiplicity="1" />
+          <End Role="T_QREST_MONITORS" Type="Self.T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_ORG_USERS_T">
+          <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_ORG_USERS" Type="Self.T_QREST_ORG_USERS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_ORG_USERS">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_ORG_USERS_U">
+          <End Role="T_QREST_USERS" Type="Self.T_QREST_USERS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_ORG_USERS" Type="Self.T_QREST_ORG_USERS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_ORG_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_REF_PAR_METHODS_P">
+          <End Role="T_QREST_REF_PARAMETERS" Type="Self.T_QREST_REF_PARAMETERS" Multiplicity="1" />
+          <End Role="T_QREST_REF_PAR_METHODS" Type="Self.T_QREST_REF_PAR_METHODS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_PARAMETERS">
+              <PropertyRef Name="PAR_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_REF_PAR_METHODS">
+              <PropertyRef Name="PAR_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_REF_PAR_METHODS_U">
+          <End Role="T_QREST_REF_UNITS" Type="Self.T_QREST_REF_UNITS" Multiplicity="0..1" />
+          <End Role="T_QREST_REF_PAR_METHODS" Type="Self.T_QREST_REF_PAR_METHODS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_UNITS">
+              <PropertyRef Name="UNIT_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_REF_PAR_METHODS">
+              <PropertyRef Name="STD_UNIT_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_REF_PARAMETERS_U">
+          <End Role="T_QREST_REF_UNITS" Type="Self.T_QREST_REF_UNITS" Multiplicity="0..1" />
+          <End Role="T_QREST_REF_PARAMETERS" Type="Self.T_QREST_REF_PARAMETERS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_UNITS">
+              <PropertyRef Name="UNIT_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_REF_PARAMETERS">
+              <PropertyRef Name="STD_UNIT_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_SITES_O">
+          <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="1" />
+          <End Role="T_QREST_SITES" Type="Self.T_QREST_SITES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_SITES">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="QRESTModelStoreContainer">
+          <EntitySet Name="T_QREST_APP_SETTINGS" EntityType="Self.T_QREST_APP_SETTINGS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_APP_SETTINGS_CUSTOM" EntityType="Self.T_QREST_APP_SETTINGS_CUSTOM" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_EMAIL_TEMPLATE" EntityType="Self.T_QREST_EMAIL_TEMPLATE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_MONITORS" EntityType="Self.T_QREST_MONITORS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_ORG_EMAIL_RULE" EntityType="Self.T_QREST_ORG_EMAIL_RULE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_ORG_USERS" EntityType="Self.T_QREST_ORG_USERS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_ORGANIZATIONS" EntityType="Self.T_QREST_ORGANIZATIONS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_AQS_AGENCY" EntityType="Self.T_QREST_REF_AQS_AGENCY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_COLLECT_FREQ" EntityType="Self.T_QREST_REF_COLLECT_FREQ" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_DURATION" EntityType="Self.T_QREST_REF_DURATION" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_PAR_METHODS" EntityType="Self.T_QREST_REF_PAR_METHODS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_PARAMETERS" EntityType="Self.T_QREST_REF_PARAMETERS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_REGION" EntityType="Self.T_QREST_REF_REGION" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_STATE" EntityType="Self.T_QREST_REF_STATE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_UNITS" EntityType="Self.T_QREST_REF_UNITS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_ROLES" EntityType="Self.T_QREST_ROLES" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_SITES" EntityType="Self.T_QREST_SITES" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_SYS_LOG" EntityType="Self.T_QREST_SYS_LOG" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_SYS_LOG_ACTIVITY" EntityType="Self.T_QREST_SYS_LOG_ACTIVITY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_SYS_LOG_EMAIL" EntityType="Self.T_QREST_SYS_LOG_EMAIL" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_USER_CLAIMS" EntityType="Self.T_QREST_USER_CLAIMS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_USER_LOGINS" EntityType="Self.T_QREST_USER_LOGINS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_USER_ROLES" EntityType="Self.T_QREST_USER_ROLES" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_USERS" EntityType="Self.T_QREST_USERS" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__T_QREST_O__AQS_A__153B1FDF" Association="Self.FK__T_QREST_O__AQS_A__153B1FDF">
+            <End Role="T_QREST_REF_AQS_AGENCY" EntitySet="T_QREST_REF_AQS_AGENCY" />
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+          </AssociationSet>
+          <AssociationSet Name="FK__T_QREST_O__EPA_R__1446FBA6" Association="Self.FK__T_QREST_O__EPA_R__1446FBA6">
+            <End Role="T_QREST_REF_REGION" EntitySet="T_QREST_REF_REGION" />
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+          </AssociationSet>
+          <AssociationSet Name="FK__T_QREST_O__ORG_I__18178C8A" Association="Self.FK__T_QREST_O__ORG_I__18178C8A">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_ORG_EMAIL_RULE" EntitySet="T_QREST_ORG_EMAIL_RULE" />
+          </AssociationSet>
+          <AssociationSet Name="FK__T_QREST_O__STATE__1352D76D" Association="Self.FK__T_QREST_O__STATE__1352D76D">
+            <End Role="T_QREST_REF_STATE" EntitySet="T_QREST_REF_STATE" />
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspNetUserClaims_Users_UserId" Association="Self.FK_AspNetUserClaims_Users_UserId">
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+            <End Role="T_QREST_USER_CLAIMS" EntitySet="T_QREST_USER_CLAIMS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspNetUserLogins_Users_UserId" Association="Self.FK_AspNetUserLogins_Users_UserId">
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+            <End Role="T_QREST_USER_LOGINS" EntitySet="T_QREST_USER_LOGINS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspNetUserRoles_Roles_RoleId" Association="Self.FK_AspNetUserRoles_Roles_RoleId">
+            <End Role="T_QREST_ROLES" EntitySet="T_QREST_ROLES" />
+            <End Role="T_QREST_USER_ROLES" EntitySet="T_QREST_USER_ROLES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspNetUserRoles_Users_UserId" Association="Self.FK_AspNetUserRoles_Users_UserId">
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+            <End Role="T_QREST_USER_ROLES" EntitySet="T_QREST_USER_ROLES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_MONITORS_C" Association="Self.FK_T_QREST_MONITORS_C">
+            <End Role="T_QREST_REF_COLLECT_FREQ" EntitySet="T_QREST_REF_COLLECT_FREQ" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_MONITORS_D" Association="Self.FK_T_QREST_MONITORS_D">
+            <End Role="T_QREST_REF_DURATION" EntitySet="T_QREST_REF_DURATION" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_MONITORS_P" Association="Self.FK_T_QREST_MONITORS_P">
+            <End Role="T_QREST_REF_PAR_METHODS" EntitySet="T_QREST_REF_PAR_METHODS" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_MONITORS_S" Association="Self.FK_T_QREST_MONITORS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_ORG_USERS_T" Association="Self.FK_T_QREST_ORG_USERS_T">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_ORG_USERS" EntitySet="T_QREST_ORG_USERS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_ORG_USERS_U" Association="Self.FK_T_QREST_ORG_USERS_U">
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+            <End Role="T_QREST_ORG_USERS" EntitySet="T_QREST_ORG_USERS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_REF_PAR_METHODS_P" Association="Self.FK_T_QREST_REF_PAR_METHODS_P">
+            <End Role="T_QREST_REF_PARAMETERS" EntitySet="T_QREST_REF_PARAMETERS" />
+            <End Role="T_QREST_REF_PAR_METHODS" EntitySet="T_QREST_REF_PAR_METHODS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_REF_PAR_METHODS_U" Association="Self.FK_T_QREST_REF_PAR_METHODS_U">
+            <End Role="T_QREST_REF_UNITS" EntitySet="T_QREST_REF_UNITS" />
+            <End Role="T_QREST_REF_PAR_METHODS" EntitySet="T_QREST_REF_PAR_METHODS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_REF_PARAMETERS_U" Association="Self.FK_T_QREST_REF_PARAMETERS_U">
+            <End Role="T_QREST_REF_UNITS" EntitySet="T_QREST_REF_UNITS" />
+            <End Role="T_QREST_REF_PARAMETERS" EntitySet="T_QREST_REF_PARAMETERS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_SITES_O" Association="Self.FK_T_QREST_SITES_O">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="QRESTModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="QRESTEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="T_QREST_APP_SETTINGS" EntityType="QRESTModel.T_QREST_APP_SETTINGS" />
+          <EntitySet Name="T_QREST_APP_SETTINGS_CUSTOM" EntityType="QRESTModel.T_QREST_APP_SETTINGS_CUSTOM" />
+          <EntitySet Name="T_QREST_EMAIL_TEMPLATE" EntityType="QRESTModel.T_QREST_EMAIL_TEMPLATE" />
+          <EntitySet Name="T_QREST_MONITORS" EntityType="QRESTModel.T_QREST_MONITORS" />
+          <EntitySet Name="T_QREST_ORG_EMAIL_RULE" EntityType="QRESTModel.T_QREST_ORG_EMAIL_RULE" />
+          <EntitySet Name="T_QREST_ORG_USERS" EntityType="QRESTModel.T_QREST_ORG_USERS" />
+          <EntitySet Name="T_QREST_ORGANIZATIONS" EntityType="QRESTModel.T_QREST_ORGANIZATIONS" />
+          <EntitySet Name="T_QREST_REF_AQS_AGENCY" EntityType="QRESTModel.T_QREST_REF_AQS_AGENCY" />
+          <EntitySet Name="T_QREST_REF_COLLECT_FREQ" EntityType="QRESTModel.T_QREST_REF_COLLECT_FREQ" />
+          <EntitySet Name="T_QREST_REF_DURATION" EntityType="QRESTModel.T_QREST_REF_DURATION" />
+          <EntitySet Name="T_QREST_REF_PAR_METHODS" EntityType="QRESTModel.T_QREST_REF_PAR_METHODS" />
+          <EntitySet Name="T_QREST_REF_PARAMETERS" EntityType="QRESTModel.T_QREST_REF_PARAMETERS" />
+          <EntitySet Name="T_QREST_REF_REGION" EntityType="QRESTModel.T_QREST_REF_REGION" />
+          <EntitySet Name="T_QREST_REF_STATE" EntityType="QRESTModel.T_QREST_REF_STATE" />
+          <EntitySet Name="T_QREST_REF_UNITS" EntityType="QRESTModel.T_QREST_REF_UNITS" />
+          <EntitySet Name="T_QREST_ROLES" EntityType="QRESTModel.T_QREST_ROLES" />
+          <EntitySet Name="T_QREST_SITES" EntityType="QRESTModel.T_QREST_SITES" />
+          <EntitySet Name="T_QREST_SYS_LOG" EntityType="QRESTModel.T_QREST_SYS_LOG" />
+          <EntitySet Name="T_QREST_SYS_LOG_ACTIVITY" EntityType="QRESTModel.T_QREST_SYS_LOG_ACTIVITY" />
+          <EntitySet Name="T_QREST_SYS_LOG_EMAIL" EntityType="QRESTModel.T_QREST_SYS_LOG_EMAIL" />
+          <EntitySet Name="T_QREST_USER_CLAIMS" EntityType="QRESTModel.T_QREST_USER_CLAIMS" />
+          <EntitySet Name="T_QREST_USER_LOGINS" EntityType="QRESTModel.T_QREST_USER_LOGINS" />
+          <EntitySet Name="T_QREST_USERS" EntityType="QRESTModel.T_QREST_USERS" />
+          <AssociationSet Name="FK_T_QREST_MONITORS_C" Association="QRESTModel.FK_T_QREST_MONITORS_C">
+            <End Role="T_QREST_REF_COLLECT_FREQ" EntitySet="T_QREST_REF_COLLECT_FREQ" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_MONITORS_D" Association="QRESTModel.FK_T_QREST_MONITORS_D">
+            <End Role="T_QREST_REF_DURATION" EntitySet="T_QREST_REF_DURATION" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_MONITORS_P" Association="QRESTModel.FK_T_QREST_MONITORS_P">
+            <End Role="T_QREST_REF_PAR_METHODS" EntitySet="T_QREST_REF_PAR_METHODS" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_MONITORS_S" Association="QRESTModel.FK_T_QREST_MONITORS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK__T_QREST_O__ORG_I__18178C8A" Association="QRESTModel.FK__T_QREST_O__ORG_I__18178C8A">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_ORG_EMAIL_RULE" EntitySet="T_QREST_ORG_EMAIL_RULE" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_ORG_USERS_T" Association="QRESTModel.FK_T_QREST_ORG_USERS_T">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_ORG_USERS" EntitySet="T_QREST_ORG_USERS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_ORG_USERS_U" Association="QRESTModel.FK_T_QREST_ORG_USERS_U">
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+            <End Role="T_QREST_ORG_USERS" EntitySet="T_QREST_ORG_USERS" />
+          </AssociationSet>
+          <AssociationSet Name="FK__T_QREST_O__AQS_A__153B1FDF" Association="QRESTModel.FK__T_QREST_O__AQS_A__153B1FDF">
+            <End Role="T_QREST_REF_AQS_AGENCY" EntitySet="T_QREST_REF_AQS_AGENCY" />
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+          </AssociationSet>
+          <AssociationSet Name="FK__T_QREST_O__EPA_R__1446FBA6" Association="QRESTModel.FK__T_QREST_O__EPA_R__1446FBA6">
+            <End Role="T_QREST_REF_REGION" EntitySet="T_QREST_REF_REGION" />
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+          </AssociationSet>
+          <AssociationSet Name="FK__T_QREST_O__STATE__1352D76D" Association="QRESTModel.FK__T_QREST_O__STATE__1352D76D">
+            <End Role="T_QREST_REF_STATE" EntitySet="T_QREST_REF_STATE" />
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_SITES_O" Association="QRESTModel.FK_T_QREST_SITES_O">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_REF_PAR_METHODS_P" Association="QRESTModel.FK_T_QREST_REF_PAR_METHODS_P">
+            <End Role="T_QREST_REF_PARAMETERS" EntitySet="T_QREST_REF_PARAMETERS" />
+            <End Role="T_QREST_REF_PAR_METHODS" EntitySet="T_QREST_REF_PAR_METHODS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_REF_PAR_METHODS_U" Association="QRESTModel.FK_T_QREST_REF_PAR_METHODS_U">
+            <End Role="T_QREST_REF_UNITS" EntitySet="T_QREST_REF_UNITS" />
+            <End Role="T_QREST_REF_PAR_METHODS" EntitySet="T_QREST_REF_PAR_METHODS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_REF_PARAMETERS_U" Association="QRESTModel.FK_T_QREST_REF_PARAMETERS_U">
+            <End Role="T_QREST_REF_UNITS" EntitySet="T_QREST_REF_UNITS" />
+            <End Role="T_QREST_REF_PARAMETERS" EntitySet="T_QREST_REF_PARAMETERS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspNetUserClaims_Users_UserId" Association="QRESTModel.FK_AspNetUserClaims_Users_UserId">
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+            <End Role="T_QREST_USER_CLAIMS" EntitySet="T_QREST_USER_CLAIMS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspNetUserLogins_Users_UserId" Association="QRESTModel.FK_AspNetUserLogins_Users_UserId">
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+            <End Role="T_QREST_USER_LOGINS" EntitySet="T_QREST_USER_LOGINS" />
+          </AssociationSet>
+          <AssociationSet Name="T_QREST_USER_ROLES" Association="QRESTModel.T_QREST_USER_ROLES">
+            <End Role="T_QREST_ROLES" EntitySet="T_QREST_ROLES" />
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="T_QREST_APP_SETTINGS">
+          <Key>
+            <PropertyRef Name="SETTING_IDX" />
+          </Key>
+          <Property Name="SETTING_IDX" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SETTING_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SETTING_DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="SETTING_VALUE" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="SETTING_CAT" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_APP_SETTINGS_CUSTOM">
+          <Key>
+            <PropertyRef Name="SETTING_CUSTOM_IDX" />
+          </Key>
+          <Property Name="SETTING_CUSTOM_IDX" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TERMS_AND_CONDITIONS" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ANNOUNCEMENTS" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_EMAIL_TEMPLATE">
+          <Key>
+            <PropertyRef Name="EMAIL_TEMPLATE_ID" />
+          </Key>
+          <Property Name="EMAIL_TEMPLATE_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EMAIL_TEMPLATE_NAME" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="EMAIL_TEMPLATE_DESC" Type="String" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="SUBJ" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="MSG" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_MONITORS">
+          <Key>
+            <PropertyRef Name="MONITOR_IDX" />
+          </Key>
+          <Property Name="MONITOR_IDX" Type="Guid" Nullable="false" />
+          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="PAR_METHOD_IDX" Type="Guid" Nullable="false" />
+          <Property Name="POC" Type="Int32" Nullable="false" />
+          <Property Name="DURATION_CODE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="COLLECT_FREQ_CODE" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_REF_COLLECT_FREQ" Relationship="QRESTModel.FK_T_QREST_MONITORS_C" FromRole="T_QREST_MONITORS" ToRole="T_QREST_REF_COLLECT_FREQ" />
+          <NavigationProperty Name="T_QREST_REF_DURATION" Relationship="QRESTModel.FK_T_QREST_MONITORS_D" FromRole="T_QREST_MONITORS" ToRole="T_QREST_REF_DURATION" />
+          <NavigationProperty Name="T_QREST_REF_PAR_METHODS" Relationship="QRESTModel.FK_T_QREST_MONITORS_P" FromRole="T_QREST_MONITORS" ToRole="T_QREST_REF_PAR_METHODS" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_MONITORS" ToRole="T_QREST_SITES" />
+          <Property Name="COLLECT_UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="ALERT_MIN_VALUE" Type="Double" />
+          <Property Name="ALERT_MAX_VALUE" Type="Double" />
+          <Property Name="ALERT_PCT_CHANGE" Type="Int32" />
+          <Property Name="ALERT_STUCK_REC_COUNT" Type="Int32" />
+        </EntityType>
+        <EntityType Name="T_QREST_ORG_EMAIL_RULE">
+          <Key>
+            <PropertyRef Name="ORG_ID" />
+            <PropertyRef Name="EMAIL_STRING" />
+          </Key>
+          <Property Name="ORG_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="EMAIL_STRING" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK__T_QREST_O__ORG_I__18178C8A" FromRole="T_QREST_ORG_EMAIL_RULE" ToRole="T_QREST_ORGANIZATIONS" />
+        </EntityType>
+        <EntityType Name="T_QREST_ORG_USERS">
+          <Key>
+            <PropertyRef Name="ORG_USER_IDX" />
+          </Key>
+          <Property Name="ORG_USER_IDX" Type="Guid" Nullable="false" />
+          <Property Name="ORG_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="USER_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="ACCESS_LEVEL" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS_IND" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_ORG_USERS_T" FromRole="T_QREST_ORG_USERS" ToRole="T_QREST_ORGANIZATIONS" />
+          <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.FK_T_QREST_ORG_USERS_U" FromRole="T_QREST_ORG_USERS" ToRole="T_QREST_USERS" />
+        </EntityType>
+        <EntityType Name="T_QREST_ORGANIZATIONS">
+          <Key>
+            <PropertyRef Name="ORG_ID" />
+          </Key>
+          <Property Name="ORG_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="ORG_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_AGENCY_CODE" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="STATE_CD" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="EPA_REGION" Type="Int32" />
+          <Property Name="AQS_NAAS_UID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_NAAS_PWD" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ACT_IND" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_ORG_EMAIL_RULE" Relationship="QRESTModel.FK__T_QREST_O__ORG_I__18178C8A" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_ORG_EMAIL_RULE" />
+          <NavigationProperty Name="T_QREST_ORG_USERS" Relationship="QRESTModel.FK_T_QREST_ORG_USERS_T" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_ORG_USERS" />
+          <NavigationProperty Name="T_QREST_REF_AQS_AGENCY" Relationship="QRESTModel.FK__T_QREST_O__AQS_A__153B1FDF" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_REF_AQS_AGENCY" />
+          <NavigationProperty Name="T_QREST_REF_REGION" Relationship="QRESTModel.FK__T_QREST_O__EPA_R__1446FBA6" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_REF_REGION" />
+          <NavigationProperty Name="T_QREST_REF_STATE" Relationship="QRESTModel.FK__T_QREST_O__STATE__1352D76D" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_REF_STATE" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_SITES" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_AQS_AGENCY">
+          <Key>
+            <PropertyRef Name="AQS_AGENCY_CODE" />
+          </Key>
+          <Property Name="AQS_AGENCY_CODE" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_AGENCY_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_AGENCY_TYPE" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK__T_QREST_O__AQS_A__153B1FDF" FromRole="T_QREST_REF_AQS_AGENCY" ToRole="T_QREST_ORGANIZATIONS" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_COLLECT_FREQ">
+          <Key>
+            <PropertyRef Name="COLLECT_FREQ_CODE" />
+          </Key>
+          <Property Name="COLLECT_FREQ_CODE" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="COLLECT_FEQ_DESC" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ACT_IND" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_C" FromRole="T_QREST_REF_COLLECT_FREQ" ToRole="T_QREST_MONITORS" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_DURATION">
+          <Key>
+            <PropertyRef Name="DURATION_CODE" />
+          </Key>
+          <Property Name="DURATION_CODE" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="DURATION_DESC" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ACT_IND" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_D" FromRole="T_QREST_REF_DURATION" ToRole="T_QREST_MONITORS" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_PAR_METHODS">
+          <Key>
+            <PropertyRef Name="PAR_METHOD_IDX" />
+          </Key>
+          <Property Name="PAR_METHOD_IDX" Type="Guid" Nullable="false" />
+          <Property Name="PAR_CODE" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="METHOD_CODE" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="RECORDING_MODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="COLLECTION_DESC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ANALYSIS_DESC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="REFERENCE_METHOD_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="EQUIVALENT_METHOD" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="STD_UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="FED_MDL" Type="Double" />
+          <Property Name="MIN_VALUE" Type="Double" />
+          <Property Name="MAX_VALUE" Type="Double" />
+          <Property Name="ACT_IND" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_P" FromRole="T_QREST_REF_PAR_METHODS" ToRole="T_QREST_MONITORS" />
+          <NavigationProperty Name="T_QREST_REF_PARAMETERS" Relationship="QRESTModel.FK_T_QREST_REF_PAR_METHODS_P" FromRole="T_QREST_REF_PAR_METHODS" ToRole="T_QREST_REF_PARAMETERS" />
+          <NavigationProperty Name="T_QREST_REF_UNITS" Relationship="QRESTModel.FK_T_QREST_REF_PAR_METHODS_U" FromRole="T_QREST_REF_PAR_METHODS" ToRole="T_QREST_REF_UNITS" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_PARAMETERS">
+          <Key>
+            <PropertyRef Name="PAR_CODE" />
+          </Key>
+          <Property Name="PAR_CODE" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="PAR_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PAR_NAME_ALT" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CAS_NUM" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="STD_UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="SHORTLIST_IND" Type="Boolean" Nullable="false" />
+          <Property Name="ACT_IND" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_REF_PAR_METHODS" Relationship="QRESTModel.FK_T_QREST_REF_PAR_METHODS_P" FromRole="T_QREST_REF_PARAMETERS" ToRole="T_QREST_REF_PAR_METHODS" />
+          <NavigationProperty Name="T_QREST_REF_UNITS" Relationship="QRESTModel.FK_T_QREST_REF_PARAMETERS_U" FromRole="T_QREST_REF_PARAMETERS" ToRole="T_QREST_REF_UNITS" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_REGION">
+          <Key>
+            <PropertyRef Name="EPA_REGION" />
+          </Key>
+          <Property Name="EPA_REGION" Type="Int32" Nullable="false" />
+          <Property Name="EPA_REGION_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK__T_QREST_O__EPA_R__1446FBA6" FromRole="T_QREST_REF_REGION" ToRole="T_QREST_ORGANIZATIONS" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_STATE">
+          <Key>
+            <PropertyRef Name="STATE_CD" />
+          </Key>
+          <Property Name="STATE_CD" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="STATE_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK__T_QREST_O__STATE__1352D76D" FromRole="T_QREST_REF_STATE" ToRole="T_QREST_ORGANIZATIONS" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_UNITS">
+          <Key>
+            <PropertyRef Name="UNIT_CODE" />
+          </Key>
+          <Property Name="UNIT_CODE" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="UNIT_DESC" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ACT_IND" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_REF_PAR_METHODS" Relationship="QRESTModel.FK_T_QREST_REF_PAR_METHODS_U" FromRole="T_QREST_REF_UNITS" ToRole="T_QREST_REF_PAR_METHODS" />
+          <NavigationProperty Name="T_QREST_REF_PARAMETERS" Relationship="QRESTModel.FK_T_QREST_REF_PARAMETERS_U" FromRole="T_QREST_REF_UNITS" ToRole="T_QREST_REF_PARAMETERS" />
+        </EntityType>
+        <EntityType Name="T_QREST_ROLES">
+          <Key>
+            <PropertyRef Name="ROLE_IDX" />
+          </Key>
+          <Property Name="ROLE_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="ROLE_DESC" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.T_QREST_USER_ROLES" FromRole="T_QREST_ROLES" ToRole="T_QREST_USERS" />
+        </EntityType>
+        <EntityType Name="T_QREST_SITES">
+          <Key>
+            <PropertyRef Name="SITE_IDX" />
+          </Key>
+          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="ORG_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="SITE_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SITE_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_SITE_ID" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="LATITUDE" Type="Decimal" Precision="18" Scale="5" />
+          <Property Name="LONGITUDE" Type="Decimal" Precision="18" Scale="5" />
+          <Property Name="ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CITY" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="STATE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="ZIP_CODE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="START_DT" Type="DateTime" Precision="0" />
+          <Property Name="END_DT" Type="DateTime" Precision="0" />
+          <Property Name="TELEMETRY_ONLINE_IND" Type="Boolean" />
+          <Property Name="SITE_COMMENTS" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_MONITORS" />
+          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_SITES" ToRole="T_QREST_ORGANIZATIONS" />
+        </EntityType>
+        <EntityType Name="T_QREST_SYS_LOG">
+          <Key>
+            <PropertyRef Name="LOG_ID" />
+          </Key>
+          <Property Name="LOG_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LOG_DT" Type="DateTime" Precision="0" />
+          <Property Name="LOG_TYP" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="LOG_USERID" Type="String" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="LOG_MSG" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_SYS_LOG_ACTIVITY">
+          <Key>
+            <PropertyRef Name="LOG_ACTIVITY_IDX" />
+          </Key>
+          <Property Name="LOG_ACTIVITY_IDX" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ACTIVITY_DT" Type="DateTime" Precision="0" />
+          <Property Name="ACTIVITY_TYPE" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="ACTIVITY_USER" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
+          <Property Name="ACTIVITY_DESC" Type="String" MaxLength="125" FixedLength="false" Unicode="false" />
+          <Property Name="IP_ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_SYS_LOG_EMAIL">
+          <Key>
+            <PropertyRef Name="LOG_EMAIL_ID" />
+          </Key>
+          <Property Name="LOG_EMAIL_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EMAIL_DT" Type="DateTime" Precision="0" />
+          <Property Name="EMAIL_FROM" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="EMAIL_TO" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="EMAIL_CC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="EMAIL_SUBJ" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="EMAIL_MSG" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="EMAIL_TYPE" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_USER_CLAIMS">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="ClaimType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ClaimValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.FK_AspNetUserClaims_Users_UserId" FromRole="T_QREST_USER_CLAIMS" ToRole="T_QREST_USERS" />
+        </EntityType>
+        <EntityType Name="T_QREST_USER_LOGINS">
+          <Key>
+            <PropertyRef Name="LoginProvider" />
+            <PropertyRef Name="ProviderKey" />
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="LoginProvider" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="ProviderKey" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.FK_AspNetUserLogins_Users_UserId" FromRole="T_QREST_USER_LOGINS" ToRole="T_QREST_USERS" />
+        </EntityType>
+        <EntityType Name="T_QREST_USERS">
+          <Key>
+            <PropertyRef Name="USER_IDX" />
+          </Key>
+          <Property Name="USER_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="EmailConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SecurityStamp" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumberConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="TwoFactorEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="LockoutEndDateUtc" Type="DateTime" Precision="3" />
+          <Property Name="LockoutEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="AccessFailedCount" Type="Int32" Nullable="false" />
+          <Property Name="UserName" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="FNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="LNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="TITLE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LAST_LOGIN_DT" Type="DateTime" Precision="0" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_ORG_USERS" Relationship="QRESTModel.FK_T_QREST_ORG_USERS_U" FromRole="T_QREST_USERS" ToRole="T_QREST_ORG_USERS" />
+          <NavigationProperty Name="T_QREST_USER_CLAIMS" Relationship="QRESTModel.FK_AspNetUserClaims_Users_UserId" FromRole="T_QREST_USERS" ToRole="T_QREST_USER_CLAIMS" />
+          <NavigationProperty Name="T_QREST_USER_LOGINS" Relationship="QRESTModel.FK_AspNetUserLogins_Users_UserId" FromRole="T_QREST_USERS" ToRole="T_QREST_USER_LOGINS" />
+          <NavigationProperty Name="T_QREST_ROLES" Relationship="QRESTModel.T_QREST_USER_ROLES" FromRole="T_QREST_USERS" ToRole="T_QREST_ROLES" />
+        </EntityType>
+        <Association Name="FK_T_QREST_MONITORS_C">
+          <End Type="QRESTModel.T_QREST_REF_COLLECT_FREQ" Role="T_QREST_REF_COLLECT_FREQ" Multiplicity="1" />
+          <End Type="QRESTModel.T_QREST_MONITORS" Role="T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_COLLECT_FREQ">
+              <PropertyRef Name="COLLECT_FREQ_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="COLLECT_FREQ_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_MONITORS_D">
+          <End Type="QRESTModel.T_QREST_REF_DURATION" Role="T_QREST_REF_DURATION" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_MONITORS" Role="T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_DURATION">
+              <PropertyRef Name="DURATION_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="DURATION_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_MONITORS_P">
+          <End Type="QRESTModel.T_QREST_REF_PAR_METHODS" Role="T_QREST_REF_PAR_METHODS" Multiplicity="1" />
+          <End Type="QRESTModel.T_QREST_MONITORS" Role="T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_PAR_METHODS">
+              <PropertyRef Name="PAR_METHOD_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="PAR_METHOD_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_MONITORS_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1" />
+          <End Type="QRESTModel.T_QREST_MONITORS" Role="T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__T_QREST_O__ORG_I__18178C8A">
+          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_ORG_EMAIL_RULE" Role="T_QREST_ORG_EMAIL_RULE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_ORG_EMAIL_RULE">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_ORG_USERS_T">
+          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_ORG_USERS" Role="T_QREST_ORG_USERS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_ORG_USERS">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_ORG_USERS_U">
+          <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_ORG_USERS" Role="T_QREST_ORG_USERS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_ORG_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__T_QREST_O__AQS_A__153B1FDF">
+          <End Type="QRESTModel.T_QREST_REF_AQS_AGENCY" Role="T_QREST_REF_AQS_AGENCY" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_AQS_AGENCY">
+              <PropertyRef Name="AQS_AGENCY_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="AQS_AGENCY_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__T_QREST_O__EPA_R__1446FBA6">
+          <End Type="QRESTModel.T_QREST_REF_REGION" Role="T_QREST_REF_REGION" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_REGION">
+              <PropertyRef Name="EPA_REGION" />
+            </Principal>
+            <Dependent Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="EPA_REGION" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__T_QREST_O__STATE__1352D76D">
+          <End Type="QRESTModel.T_QREST_REF_STATE" Role="T_QREST_REF_STATE" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_STATE">
+              <PropertyRef Name="STATE_CD" />
+            </Principal>
+            <Dependent Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="STATE_CD" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_SITES_O">
+          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1" />
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_SITES">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_REF_PAR_METHODS_P">
+          <End Type="QRESTModel.T_QREST_REF_PARAMETERS" Role="T_QREST_REF_PARAMETERS" Multiplicity="1" />
+          <End Type="QRESTModel.T_QREST_REF_PAR_METHODS" Role="T_QREST_REF_PAR_METHODS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_PARAMETERS">
+              <PropertyRef Name="PAR_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_REF_PAR_METHODS">
+              <PropertyRef Name="PAR_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_REF_PAR_METHODS_U">
+          <End Type="QRESTModel.T_QREST_REF_UNITS" Role="T_QREST_REF_UNITS" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_REF_PAR_METHODS" Role="T_QREST_REF_PAR_METHODS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_UNITS">
+              <PropertyRef Name="UNIT_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_REF_PAR_METHODS">
+              <PropertyRef Name="STD_UNIT_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_REF_PARAMETERS_U">
+          <End Type="QRESTModel.T_QREST_REF_UNITS" Role="T_QREST_REF_UNITS" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_REF_PARAMETERS" Role="T_QREST_REF_PARAMETERS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_UNITS">
+              <PropertyRef Name="UNIT_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_REF_PARAMETERS">
+              <PropertyRef Name="STD_UNIT_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspNetUserClaims_Users_UserId">
+          <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_USER_CLAIMS" Role="T_QREST_USER_CLAIMS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_USER_CLAIMS">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspNetUserLogins_Users_UserId">
+          <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_USER_LOGINS" Role="T_QREST_USER_LOGINS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_USER_LOGINS">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="T_QREST_USER_ROLES">
+          <End Type="QRESTModel.T_QREST_ROLES" Role="T_QREST_ROLES" Multiplicity="*" />
+          <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="*" />
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="QRESTModelStoreContainer" CdmEntityContainer="QRESTEntities">
+          <EntitySetMapping Name="T_QREST_APP_SETTINGS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_APP_SETTINGS">
+              <MappingFragment StoreEntitySet="T_QREST_APP_SETTINGS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="SETTING_CAT" ColumnName="SETTING_CAT" />
+                <ScalarProperty Name="SETTING_VALUE" ColumnName="SETTING_VALUE" />
+                <ScalarProperty Name="SETTING_DESC" ColumnName="SETTING_DESC" />
+                <ScalarProperty Name="SETTING_NAME" ColumnName="SETTING_NAME" />
+                <ScalarProperty Name="SETTING_IDX" ColumnName="SETTING_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_APP_SETTINGS_CUSTOM">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_APP_SETTINGS_CUSTOM">
+              <MappingFragment StoreEntitySet="T_QREST_APP_SETTINGS_CUSTOM">
+                <ScalarProperty Name="ANNOUNCEMENTS" ColumnName="ANNOUNCEMENTS" />
+                <ScalarProperty Name="TERMS_AND_CONDITIONS" ColumnName="TERMS_AND_CONDITIONS" />
+                <ScalarProperty Name="SETTING_CUSTOM_IDX" ColumnName="SETTING_CUSTOM_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_EMAIL_TEMPLATE">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_EMAIL_TEMPLATE">
+              <MappingFragment StoreEntitySet="T_QREST_EMAIL_TEMPLATE">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="MSG" ColumnName="MSG" />
+                <ScalarProperty Name="SUBJ" ColumnName="SUBJ" />
+                <ScalarProperty Name="EMAIL_TEMPLATE_DESC" ColumnName="EMAIL_TEMPLATE_DESC" />
+                <ScalarProperty Name="EMAIL_TEMPLATE_NAME" ColumnName="EMAIL_TEMPLATE_NAME" />
+                <ScalarProperty Name="EMAIL_TEMPLATE_ID" ColumnName="EMAIL_TEMPLATE_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_MONITORS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_MONITORS">
+              <MappingFragment StoreEntitySet="T_QREST_MONITORS">
+                <ScalarProperty Name="ALERT_STUCK_REC_COUNT" ColumnName="ALERT_STUCK_REC_COUNT" />
+                <ScalarProperty Name="ALERT_PCT_CHANGE" ColumnName="ALERT_PCT_CHANGE" />
+                <ScalarProperty Name="ALERT_MAX_VALUE" ColumnName="ALERT_MAX_VALUE" />
+                <ScalarProperty Name="ALERT_MIN_VALUE" ColumnName="ALERT_MIN_VALUE" />
+                <ScalarProperty Name="COLLECT_UNIT_CODE" ColumnName="COLLECT_UNIT_CODE" />
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="COLLECT_FREQ_CODE" ColumnName="COLLECT_FREQ_CODE" />
+                <ScalarProperty Name="DURATION_CODE" ColumnName="DURATION_CODE" />
+                <ScalarProperty Name="POC" ColumnName="POC" />
+                <ScalarProperty Name="PAR_METHOD_IDX" ColumnName="PAR_METHOD_IDX" />
+                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_ORG_EMAIL_RULE">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_ORG_EMAIL_RULE">
+              <MappingFragment StoreEntitySet="T_QREST_ORG_EMAIL_RULE">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="EMAIL_STRING" ColumnName="EMAIL_STRING" />
+                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_ORG_USERS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_ORG_USERS">
+              <MappingFragment StoreEntitySet="T_QREST_ORG_USERS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="STATUS_IND" ColumnName="STATUS_IND" />
+                <ScalarProperty Name="ACCESS_LEVEL" ColumnName="ACCESS_LEVEL" />
+                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
+                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
+                <ScalarProperty Name="ORG_USER_IDX" ColumnName="ORG_USER_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_ORGANIZATIONS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_ORGANIZATIONS">
+              <MappingFragment StoreEntitySet="T_QREST_ORGANIZATIONS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
+                <ScalarProperty Name="AQS_NAAS_PWD" ColumnName="AQS_NAAS_PWD" />
+                <ScalarProperty Name="AQS_NAAS_UID" ColumnName="AQS_NAAS_UID" />
+                <ScalarProperty Name="EPA_REGION" ColumnName="EPA_REGION" />
+                <ScalarProperty Name="STATE_CD" ColumnName="STATE_CD" />
+                <ScalarProperty Name="AQS_AGENCY_CODE" ColumnName="AQS_AGENCY_CODE" />
+                <ScalarProperty Name="ORG_NAME" ColumnName="ORG_NAME" />
+                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_AQS_AGENCY">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_AQS_AGENCY">
+              <MappingFragment StoreEntitySet="T_QREST_REF_AQS_AGENCY">
+                <ScalarProperty Name="AQS_AGENCY_TYPE" ColumnName="AQS_AGENCY_TYPE" />
+                <ScalarProperty Name="AQS_AGENCY_NAME" ColumnName="AQS_AGENCY_NAME" />
+                <ScalarProperty Name="AQS_AGENCY_CODE" ColumnName="AQS_AGENCY_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_COLLECT_FREQ">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_COLLECT_FREQ">
+              <MappingFragment StoreEntitySet="T_QREST_REF_COLLECT_FREQ">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
+                <ScalarProperty Name="COLLECT_FEQ_DESC" ColumnName="COLLECT_FEQ_DESC" />
+                <ScalarProperty Name="COLLECT_FREQ_CODE" ColumnName="COLLECT_FREQ_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_DURATION">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_DURATION">
+              <MappingFragment StoreEntitySet="T_QREST_REF_DURATION">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
+                <ScalarProperty Name="DURATION_DESC" ColumnName="DURATION_DESC" />
+                <ScalarProperty Name="DURATION_CODE" ColumnName="DURATION_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_PAR_METHODS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_PAR_METHODS">
+              <MappingFragment StoreEntitySet="T_QREST_REF_PAR_METHODS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
+                <ScalarProperty Name="MAX_VALUE" ColumnName="MAX_VALUE" />
+                <ScalarProperty Name="MIN_VALUE" ColumnName="MIN_VALUE" />
+                <ScalarProperty Name="FED_MDL" ColumnName="FED_MDL" />
+                <ScalarProperty Name="STD_UNIT_CODE" ColumnName="STD_UNIT_CODE" />
+                <ScalarProperty Name="EQUIVALENT_METHOD" ColumnName="EQUIVALENT_METHOD" />
+                <ScalarProperty Name="REFERENCE_METHOD_ID" ColumnName="REFERENCE_METHOD_ID" />
+                <ScalarProperty Name="ANALYSIS_DESC" ColumnName="ANALYSIS_DESC" />
+                <ScalarProperty Name="COLLECTION_DESC" ColumnName="COLLECTION_DESC" />
+                <ScalarProperty Name="RECORDING_MODE" ColumnName="RECORDING_MODE" />
+                <ScalarProperty Name="METHOD_CODE" ColumnName="METHOD_CODE" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="PAR_METHOD_IDX" ColumnName="PAR_METHOD_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_PARAMETERS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_PARAMETERS">
+              <MappingFragment StoreEntitySet="T_QREST_REF_PARAMETERS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
+                <ScalarProperty Name="SHORTLIST_IND" ColumnName="SHORTLIST_IND" />
+                <ScalarProperty Name="STD_UNIT_CODE" ColumnName="STD_UNIT_CODE" />
+                <ScalarProperty Name="CAS_NUM" ColumnName="CAS_NUM" />
+                <ScalarProperty Name="PAR_NAME_ALT" ColumnName="PAR_NAME_ALT" />
+                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_REGION">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_REGION">
+              <MappingFragment StoreEntitySet="T_QREST_REF_REGION">
+                <ScalarProperty Name="EPA_REGION_NAME" ColumnName="EPA_REGION_NAME" />
+                <ScalarProperty Name="EPA_REGION" ColumnName="EPA_REGION" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_STATE">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_STATE">
+              <MappingFragment StoreEntitySet="T_QREST_REF_STATE">
+                <ScalarProperty Name="STATE_NAME" ColumnName="STATE_NAME" />
+                <ScalarProperty Name="STATE_CD" ColumnName="STATE_CD" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_UNITS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_UNITS">
+              <MappingFragment StoreEntitySet="T_QREST_REF_UNITS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
+                <ScalarProperty Name="UNIT_DESC" ColumnName="UNIT_DESC" />
+                <ScalarProperty Name="UNIT_CODE" ColumnName="UNIT_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_ROLES">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_ROLES">
+              <MappingFragment StoreEntitySet="T_QREST_ROLES">
+                <ScalarProperty Name="ROLE_DESC" ColumnName="ROLE_DESC" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ROLE_IDX" ColumnName="ROLE_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_SITES">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITES">
+              <MappingFragment StoreEntitySet="T_QREST_SITES">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="SITE_COMMENTS" ColumnName="SITE_COMMENTS" />
+                <ScalarProperty Name="TELEMETRY_ONLINE_IND" ColumnName="TELEMETRY_ONLINE_IND" />
+                <ScalarProperty Name="END_DT" ColumnName="END_DT" />
+                <ScalarProperty Name="START_DT" ColumnName="START_DT" />
+                <ScalarProperty Name="ZIP_CODE" ColumnName="ZIP_CODE" />
+                <ScalarProperty Name="STATE" ColumnName="STATE" />
+                <ScalarProperty Name="CITY" ColumnName="CITY" />
+                <ScalarProperty Name="ADDRESS" ColumnName="ADDRESS" />
+                <ScalarProperty Name="LONGITUDE" ColumnName="LONGITUDE" />
+                <ScalarProperty Name="LATITUDE" ColumnName="LATITUDE" />
+                <ScalarProperty Name="AQS_SITE_ID" ColumnName="AQS_SITE_ID" />
+                <ScalarProperty Name="SITE_NAME" ColumnName="SITE_NAME" />
+                <ScalarProperty Name="SITE_ID" ColumnName="SITE_ID" />
+                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
+                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_SYS_LOG">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SYS_LOG">
+              <MappingFragment StoreEntitySet="T_QREST_SYS_LOG">
+                <ScalarProperty Name="LOG_MSG" ColumnName="LOG_MSG" />
+                <ScalarProperty Name="LOG_USERID" ColumnName="LOG_USERID" />
+                <ScalarProperty Name="LOG_TYP" ColumnName="LOG_TYP" />
+                <ScalarProperty Name="LOG_DT" ColumnName="LOG_DT" />
+                <ScalarProperty Name="LOG_ID" ColumnName="LOG_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_SYS_LOG_ACTIVITY">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SYS_LOG_ACTIVITY">
+              <MappingFragment StoreEntitySet="T_QREST_SYS_LOG_ACTIVITY">
+                <ScalarProperty Name="IP_ADDRESS" ColumnName="IP_ADDRESS" />
+                <ScalarProperty Name="ACTIVITY_DESC" ColumnName="ACTIVITY_DESC" />
+                <ScalarProperty Name="ACTIVITY_USER" ColumnName="ACTIVITY_USER" />
+                <ScalarProperty Name="ACTIVITY_TYPE" ColumnName="ACTIVITY_TYPE" />
+                <ScalarProperty Name="ACTIVITY_DT" ColumnName="ACTIVITY_DT" />
+                <ScalarProperty Name="LOG_ACTIVITY_IDX" ColumnName="LOG_ACTIVITY_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_SYS_LOG_EMAIL">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SYS_LOG_EMAIL">
+              <MappingFragment StoreEntitySet="T_QREST_SYS_LOG_EMAIL">
+                <ScalarProperty Name="EMAIL_TYPE" ColumnName="EMAIL_TYPE" />
+                <ScalarProperty Name="EMAIL_MSG" ColumnName="EMAIL_MSG" />
+                <ScalarProperty Name="EMAIL_SUBJ" ColumnName="EMAIL_SUBJ" />
+                <ScalarProperty Name="EMAIL_CC" ColumnName="EMAIL_CC" />
+                <ScalarProperty Name="EMAIL_TO" ColumnName="EMAIL_TO" />
+                <ScalarProperty Name="EMAIL_FROM" ColumnName="EMAIL_FROM" />
+                <ScalarProperty Name="EMAIL_DT" ColumnName="EMAIL_DT" />
+                <ScalarProperty Name="LOG_EMAIL_ID" ColumnName="LOG_EMAIL_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_USER_CLAIMS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_USER_CLAIMS">
+              <MappingFragment StoreEntitySet="T_QREST_USER_CLAIMS">
+                <ScalarProperty Name="ClaimValue" ColumnName="ClaimValue" />
+                <ScalarProperty Name="ClaimType" ColumnName="ClaimType" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_USER_LOGINS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_USER_LOGINS">
+              <MappingFragment StoreEntitySet="T_QREST_USER_LOGINS">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="ProviderKey" ColumnName="ProviderKey" />
+                <ScalarProperty Name="LoginProvider" ColumnName="LoginProvider" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_USERS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_USERS">
+              <MappingFragment StoreEntitySet="T_QREST_USERS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="LAST_LOGIN_DT" ColumnName="LAST_LOGIN_DT" />
+                <ScalarProperty Name="TITLE" ColumnName="TITLE" />
+                <ScalarProperty Name="LNAME" ColumnName="LNAME" />
+                <ScalarProperty Name="FNAME" ColumnName="FNAME" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="AccessFailedCount" ColumnName="AccessFailedCount" />
+                <ScalarProperty Name="LockoutEnabled" ColumnName="LockoutEnabled" />
+                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
+                <ScalarProperty Name="TwoFactorEnabled" ColumnName="TwoFactorEnabled" />
+                <ScalarProperty Name="PhoneNumberConfirmed" ColumnName="PhoneNumberConfirmed" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="T_QREST_USER_ROLES" TypeName="QRESTModel.T_QREST_USER_ROLES" StoreEntitySet="T_QREST_USER_ROLES">
+            <EndProperty Name="T_QREST_USERS">
+              <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
+            </EndProperty>
+            <EndProperty Name="T_QREST_ROLES">
+              <ScalarProperty Name="ROLE_IDX" ColumnName="ROLE_IDX" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

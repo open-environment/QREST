@@ -1,0 +1,80 @@
+﻿@model QREST.Models.vmSiteOrgList
+@{
+    ViewBag.Title = "Organizations";
+    ViewBag.SubTitle = "Tribal organizations I have access to";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Organizations
+        <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
+    </header>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Agency Name</th>
+                        <th>Access Level</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+
+            // datatable initialization
+            $("#gridData").DataTable({
+                "responsive": true,
+                "processing": false,
+                "orderMulti": false,
+                "paging": false,
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("OrgListData", "Site")",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columnDefs":
+                    [{
+                        "targets": [0],
+                        "orderable" : false
+                        },
+                    ],
+                "order": [[1, "asc"]],
+                "columns": [
+                    {
+                        "render": function (data, type, row) {
+                            var myUrl = "@(Url.Action("OrgEdit","Site"))" + "/" + row.ORG_ID;
+                            return '<a href="' + myUrl + '" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>';
+                        }
+                    },
+                    { "data": "ORG_ID", "name": "ORG_ID", "autoWidth": true },
+                    { "data": "ORG_NAME", "name": "ORG_NAME", "autoWidth": true },
+                    { "data": "ACCESS_LEVEL", "name": "ACCESS_LEVEL", "autoWidth": true },
+                    { "data": "STATUS_IND", "name": "STATUS_IND", "autoWidth": true }
+                ],
+                "createdRow": function (row, data, dataIndex) {
+                    $('td:eq(0)', row).css('width', '90px');
+                    $('td:eq(0)', row).css('min-width', '90px');
+                    $('td:eq(0)', row).css('padding-right', '0px');
+                    $('td:eq(0)', row).css('white-space', 'nowrap');
+                }
+            });
+
+        });
+
+    </script>
+}

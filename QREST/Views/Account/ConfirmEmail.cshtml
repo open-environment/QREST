@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    ViewBag.Title = "Email Confirmed";
+}
+
+<div class="panel-body wrapper-lg">
+    <div class="alert alert-success">
+        <h4><i class="clip-checkmark-circle-2"></i> Email Confirmed</h4>
+        <br />
+        Thank you for confirming your email. 
+        <br />
+    </div>
+    <div class="text-center">
+        <a href="@Url.Action("Login", "Account", routeValues: null) " class="btn btn-primary">Click Here to Log In</a>
+    </div>
+</div>

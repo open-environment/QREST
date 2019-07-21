@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="59cc253d1b1b4cd38f5bd9300befcb2a" Name="Diagram1">
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_SETTINGS" Width="1.5" PointX="7.75" PointY="0.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_SETTINGS_CUSTOM" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_EMAIL_TEMPLATE" Width="1.5" PointX="9.75" PointY="0.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_MONITORS" Width="1.5" PointX="7.5" PointY="4" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORG_EMAIL_RULE" Width="1.5" PointX="5.25" PointY="13" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORG_USERS" Width="1.5" PointX="8.25" PointY="8.625" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORGANIZATIONS" Width="1.5" PointX="3" PointY="5" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_AQS_AGENCY" Width="1.5" PointX="0.75" PointY="3.125" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_COLLECT_FREQ" Width="1.5" PointX="5.25" PointY="9.125" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_DURATION" Width="1.5" PointX="5.25" PointY="16.5" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PAR_METHODS" Width="1.5" PointX="5.25" PointY="19.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PARAMETERS" Width="1.5" PointX="3" PointY="20.5" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_REGION" Width="1.5" PointX="0.75" PointY="6.5" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_STATE" Width="1.5" PointX="0.75" PointY="9.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_UNITS" Width="1.5" PointX="0.75" PointY="20.875" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ROLES" Width="1.5" PointX="3.75" PointY="27.375" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITES" Width="1.5" PointX="5.25" PointY="3.375" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG" Width="1.5" PointX="9.75" PointY="4.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG_ACTIVITY" Width="1.5" PointX="10.75" PointY="7.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG_EMAIL" Width="1.5" PointX="10.75" PointY="10.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_CLAIMS" Width="1.5" PointX="8.25" PointY="26" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_LOGINS" Width="1.5" PointX="8.25" PointY="28.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_USERS" Width="1.5" PointX="6" PointY="25.375" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_C" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_D" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_P" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_S" />
+        <AssociationConnector Association="QRESTModel.FK__T_QREST_O__ORG_I__18178C8A" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_ORG_USERS_T" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_ORG_USERS_U" />
+        <AssociationConnector Association="QRESTModel.FK__T_QREST_O__AQS_A__153B1FDF" />
+        <AssociationConnector Association="QRESTModel.FK__T_QREST_O__EPA_R__1446FBA6" />
+        <AssociationConnector Association="QRESTModel.FK__T_QREST_O__STATE__1352D76D" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_SITES_O" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_REF_PAR_METHODS_P" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_REF_PAR_METHODS_U" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_REF_PARAMETERS_U" />
+        <AssociationConnector Association="QRESTModel.FK_AspNetUserClaims_Users_UserId" />
+        <AssociationConnector Association="QRESTModel.FK_AspNetUserLogins_Users_UserId" />
+        <AssociationConnector Association="QRESTModel.T_QREST_USER_ROLES" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

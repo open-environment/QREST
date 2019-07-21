@@ -1,0 +1,98 @@
+﻿@model QREST.Models.RegisterViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    ViewBag.Title = "Register";
+   
+}
+
+@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @id = "norepostform", @class = "panel-body wrapper-md", @style = "padding-top:0; padding-bottom:0", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary("", new { @class = "text-danger" })
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Email, new { @class = "control-label" })
+        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @maxlength = "150" })
+        @Html.ValidationMessageFor(m => m.Email)
+        <span class="help-block"><i class="fa fa-info-circle"></i> Registration is only available for approved tribal agencies. Please register using your government-issued email.</span>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Password, new { @class = "control-label" })
+        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Password)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "control-label" })
+        @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.ConfirmPassword)
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.FirstName, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", @maxlength = "40" })
+                @Html.ValidationMessageFor(m => m.FirstName)
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.LastName, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", @maxlength = "40" })
+                @Html.ValidationMessageFor(m => m.LastName)
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Which Agency</label>
+        <i class=" m-l-xs fa fa-question-circle" data-toggle="tooltip" data-placement="top" data-original-title="If your agency is not listed, please contact ITEP to onboard your agency to QREST."></i>
+        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Agencies, "-Please Select-", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.selOrgID)
+    </div>
+
+
+    <div class="checkbox">
+        <label>
+            <input id="terms" name="terms" type="checkbox" value="false">
+            I accept the Terms And Conditions
+        </label>
+    </div>
+    <div class="panel-group accordion-custom accordion-teal" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true">
+                        <i class="clip-arrow-down"></i>
+                        Terms and Conditions <span style="font-size:10px">(click to view)</span>
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse" aria-expanded="true" style="">
+                <div class="panel-body" style="max-height: 120px; overflow-y: scroll;">
+                    <p>@Html.Raw(Model.termsConditions)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <input id="btnSubmit" type="submit" class="btn btn-primary" value="Register" disabled="disabled" />
+        @Html.ActionLink("Already have an account?", "Login", new object { }, new { @class = "pull-right m-t-xs" })
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#terms').click(function () {
+                if ($(this).is(':checked')) {
+                    $('#btnSubmit').removeAttr('disabled');
+                } else {
+                    $('#btnSubmit').attr('disabled', 'disabled');
+                }
+            });
+        });
+    </script>
+}

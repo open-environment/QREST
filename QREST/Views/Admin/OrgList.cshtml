@@ -1,0 +1,98 @@
+﻿@model QREST.Models.vmAdminOrgList
+@{
+    ViewBag.Title = "Organizations";
+    ViewBag.SubTitle = "Manage tribal organizations";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Organizations
+        <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
+    </header>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Agency Name</th>
+                        <th>State</th>
+                        <th>EPA Region</th>
+                        <th>AQS Agency Code</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="m-t-sm">
+            <a href="@(Url.Action("OrgEdit","Admin"))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>
+        </div>
+    </div>
+</section>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/datatables")
+    @Scripts.Render("~/bundles/confirm-delete")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+
+            // datatable initialization
+            $("#gridData").DataTable({
+                "responsive": true,
+                "processing": false,
+                "orderMulti": false,
+                "paging": false,
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("OrgListData", "Admin")",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columnDefs":
+                    [{
+                        "targets": [0],
+                        "orderable" : false
+                        },
+                    ],
+                "order": [[1, "asc"]],
+                "columns": [
+                    {
+                        "render": function (data, type, row) {
+                            var myUrl = "@(Url.Action("OrgEdit","Admin"))" + "/" + row.ORG_ID;
+                            return '<a href="' + myUrl + '" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
+                                + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
+                                + row.ORG_ID + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/OrgDelete"><b>Confirm Delete</b></div></div>';
+                        }
+                    },
+                    { "data": "ORG_ID", "name": "ORG_ID", "autoWidth": true },
+                    { "data": "ORG_NAME", "name": "ORG_NAME", "autoWidth": true },
+                    { "data": "STATE_CD", "name": "STATE_CD", "autoWidth": true },
+                    { "data": "EPA_REGION", "name": "EPA_REGION", "autoWidth": true },
+                    { "data": "AQS_AGENCY_CODE", "name": "AQS_AGENCY_CODE", "autoWidth": true },
+                    {
+                        "data": "CREATE_DT",
+                        "name": "CREATE_DT",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY hh:mm A");
+                        }
+                    }
+                ],
+                "createdRow": function (row, data, dataIndex) {
+                    $('td:eq(0)', row).css('width', '90px');
+                    $('td:eq(0)', row).css('min-width', '90px');
+                    $('td:eq(0)', row).css('padding-right', '0px');
+                    $('td:eq(0)', row).css('white-space', 'nowrap');
+                }
+            });
+
+        });
+
+    </script>
+}

@@ -1,0 +1,93 @@
+﻿@model QREST.Models.vmAdminImport
+@{
+    ViewBag.Title = "Import Data";
+    ViewBag.SubTitle = "Import the latest reference data from AQS. Import csv files can be found: <a href='https://www.epa.gov/aqs/aqs-code-list' target='_blank'>HERE</a>";
+}
+
+@using (Html.BeginForm("ImportData", "Admin", null, FormMethod.Post, new { enctype = "multipart/form-data", @id = "norepostform" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+    <input type="file" class="filestyle" data-icon="false" data-classButton="btn btn-dark" data-classInput="form-control inline input-s" id="postedFile" name="postedFile">
+    <div class="form-group">
+        <input id="btnUpload" type="submit" value="Upload" class="btn btn-primary" />
+    </div>
+}
+
+@if (Model.ImportType != null)
+{
+    <h4>@Model.ImportType Import Summary</h4>
+}
+
+@if (Model.ErrorCount != null && Model.ErrorCount > 0)
+{
+    <div class="alert alert-danger">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        @Model.ErrorCount records encountered an error when attempting to import.
+    </div>
+}
+@if (Model.ExistCount != null && Model.ExistCount > 0)
+{
+    <div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        @Model.ExistCount records already existed in the QREST database and were therefore not imported.
+    </div>
+}
+@if (Model.InsertCount != null && Model.InsertCount > 0)
+{
+    <div class="alert alert-success">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        @Model.InsertCount new records were imported into QREST.
+    </div>
+}
+@if (Model.InsertCount == 0 && Model.ExistCount == 0 && Model.ErrorCount == 0)
+{
+    <div class="alert alert-danger">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        This file cannot be read for import.
+    </div>
+}
+
+
+@if (Model.agencies != null)
+{
+    <h3>Validation Summary</h3>
+    <span class="">Some records have import validation errors. Please fix and reimport the entire data set.</span>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered" data-ride="datatables">
+                    <tr>
+                        <th>Validation Message</th>
+                        <th>Agency Code</th>
+                        <th>Agency Name</th>
+                        <th>Agency Type</th>
+                    </tr>
+                    @foreach (var item in Model.agencies)
+                    {
+                        <tr class="@(item.VALIDATE_CD ? "success":"danger")">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.VALIDATE_MSG)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_REF_AQS_AGENCY.AQS_AGENCY_CODE)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_REF_AQS_AGENCY.AQS_AGENCY_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_REF_AQS_AGENCY.AQS_AGENCY_TYPE)
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/filestyle")
+
+}

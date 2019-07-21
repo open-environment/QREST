@@ -1,0 +1,17 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    ViewBag.Title = "Successfully Registered";
+}
+
+<div class="panel-body wrapper-lg">
+        <div class="alert alert-success">
+            <h4><i class="clip-checkmark-circle-2"></i> Email Verification Required!</h4>
+            <br />
+            You will need to verify your account. Please <b>check your email</b> and <b>click the link in the email</b> to verify your account.
+            <br />
+        </div>
+        <div class="text-center">
+            <a href="@Url.Action("Index", "Home") " class="btn btn-primary">Return to Home Page</a>
+        </div>
+</div>
+

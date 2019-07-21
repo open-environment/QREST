@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="description" content="qrest, aqs, air quality, tribes, tribal environmental" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>QREST - @ViewBag.Title</title>
+    <link rel="icon" href="@Url.Content("~/Content/favicon.ico")">
+    <link rel="icon" type="image/png" sizes="32x32" href="@Url.Content("~/Content/favicon-32x32.png")">
+    <link rel="icon" type="image/png" sizes="16x16" href="@Url.Content("~/Content/favicon-16x16.png")">
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <header id="header" class="navbar navbar-fixed-top bg-white box-shadow b-b b-light" data-spy="affix" data-offset-top="1">
+        <div class="container">
+            <div class="navbar-header">
+                <a href='@Url.Action("Index", "Home")' class="navbar-brand"><img src="~/Content/Images/itep_logo_120.png" class="m-r-sm">QREST</a>
+                <button class="btn btn-link visible-xs" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        @Html.ActionLink("Home", "Index", "Home")
+                    </li>
+                    <li>
+                        @Html.ActionLink("Sign In", "Index", "Dashboard")
+                    </li>
+                    <li>
+                        <div class="m-t-sm">
+                            @Html.ActionLink("Create an Account", "Register", "Account", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    @RenderBody()
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/toastr")
+    @Scripts.Render("~/bundles/app")
+
+    @Html.Partial("_Alerts")
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,122 @@
+﻿@model QREST.Models.vmAdminUserList
+@{
+    ViewBag.Title = "Users";
+    ViewBag.SubTitle = "Manage application users";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Users
+        <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
+    </header>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th></th>
+                        <th>User Name</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/datatables")
+    @Scripts.Render("~/bundles/confirm-delete")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+
+            // datatable initialization
+            $("#gridData").DataTable({
+                "responsive": true,
+                "processing": false,
+                "orderMulti": false,
+                "paging": false,
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("UserListData", "Admin")",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columnDefs":
+                    [{
+                        "targets": [0],
+                        "visible": false,
+                    },
+                    {
+                        "targets": [1],
+                        "orderable" : false
+                        },
+                    ],
+                "columns": [
+                    { "data": "USER_IDX", "name": "USER_IDX", "autoWidth": true },
+                    {
+                        "render": function (data, type, row) {
+                            var myUrl = "@(Url.Action("UserEdit","Admin"))" + "/" + row.USER_IDX;
+                            return '<a href="' + myUrl + '" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
+                                                            + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
+                                                            + row.USER_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/UserDelete"><b>Confirm Delete</b></div></div>';
+                        }
+                    },
+                    { "data": "Email", "name": "Email", "autoWidth": true },
+                    { "data": "FNAME", "name": "FNAME", "autoWidth": true },
+                    { "data": "LNAME", "name": "LNAME", "autoWidth": true },
+                    {
+                        "data": "CREATE_DT",
+                        "name": "CREATE_DT",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY hh:mm A");
+                        }
+                    },
+                    {
+                        "data": "LAST_LOGIN_DT",
+                        "name": "LAST_LOGIN_DT",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY hh:mm A");
+                        }
+                    },
+                    {
+                        "render": function (data, type, row) {
+                            var xxx = '<span class="label label-success"> Active</span>';
+                            if (row.LockoutEnd != null) {
+                                xxx = '<span class="label label-warning"> Locked Out</span>';
+                            }
+                            else {
+                                if (row.EmailConfirmed == false) {
+                                    xxx = '<span class="label label-warning"> Awaiting Email Confirmation</span>';
+                                }
+                            }
+                            return xxx;
+                        }
+                    }
+//                    { "data": "EmailConfirmed", "name": "EmailConfirmed", "autoWidth": true },
+
+                ],
+                "createdRow": function (row, data, dataIndex) {
+                    $('td:eq(0)', row).css('width', '90px');
+                    $('td:eq(0)', row).css('min-width', '90px');
+                    $('td:eq(0)', row).css('padding-right', '0px');
+                    $('td:eq(0)', row).css('white-space', 'nowrap');
+                }
+            });
+
+        });
+
+    </script>
+}

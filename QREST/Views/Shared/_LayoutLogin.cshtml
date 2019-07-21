@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="bg-dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="description" content="qrest, aqs, air quality, tribes, tribal environmental" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>QREST</title>
+    <link rel="icon" href="@Url.Content("~/Content/favicon.ico")" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <section id="content" class="m-t-lg wrapper-md animated fadeInUp">
+        <div class="container @(ViewBag.Wide=="Y" ? "" : "aside-xxl") " style="display: block;">
+            <a class="navbar-brand block" href="@Url.Action("Index", "Home")">QREST</a>
+            <section class="panel panel-default bg-white">
+                <header class="panel-heading text-center">
+                    <strong>@ViewBag.Title</strong>
+                    <div class="panel-tools pull-right">
+                        <a class="btn btn-xs btn-link btn-danger" href="@Url.Action("Index", "Home")">
+                            <i class="fa fa-close"></i>
+                        </a>
+                    </div>
+                </header>
+                @RenderBody()
+            </section>
+        </div>
+    </section>
+    <!-- footer -->
+    <footer id="footer">
+        <div class="text-center padder">
+            <p>
+                &copy; @DateTime.Now.Year - QREST - <a href="http://www.qrest.online/" target="_blank">QREST Home</a>
+            </p>
+        </div>
+    </footer>
+    <!-- / footer -->
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/toastr")
+    @Scripts.Render("~/bundles/app")
+
+    @Html.Partial("_Alerts")
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

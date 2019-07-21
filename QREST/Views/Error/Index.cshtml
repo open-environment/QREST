@@ -1,0 +1,20 @@
+﻿@{
+    Layout = Request.IsAuthenticated ? "~/Views/Shared/_Layout.cshtml" : "~/Views/Shared/_LayoutPub.cshtml";
+    ViewBag.Title = "CPS Error Page";
+}
+<section id="content">
+    <div class="bg-vcco dk" style="height: 100vh;">
+        <div class="text-center wrapper">
+            <div class="m-t-lg m-b-lg">
+                <div class="text-uc h4 font-bold inline">
+                    An Error has occurred.
+                </div>
+            </div>
+            <p class="text-center m-b-l">
+                <a class="btn btn-lg btn-rounded btn-warning b-white m-sm" href="/Dashboard/Index">Home</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+

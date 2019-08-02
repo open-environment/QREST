@@ -25,7 +25,7 @@
                 </thead>
                 @foreach (var item in Model.ImportMonitors)
                 {
-                    <tr>
+                    @*<tr>
                         <td>
                             @Html.DisplayFor(modelItem => item.ORG_ID)
                         </td>
@@ -45,7 +45,7 @@
                                 <span class="label label-danger"> Already in QREST - will not be imported</span>
                             }
                         </td>
-                    </tr>
+                    </tr>*@
                 }
             </table>
         </div>

@@ -3,17 +3,16 @@
     ViewBag.Title = "Global Config";
     ViewBag.SubTitle = "This page allows application administrators to edit global application settings.";
 }
-<div class="panel-group accordion-custom accordion-teal" id="accordion">
+<div class="panel-group" id="accordion">
     <section class="panel panel-qrest">
-        <header class="panel-heading font-bold">
+        <header class="panel-heading font-bold accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true">
             Settings
         </header>
-        <div id="collapseOne" class="panel-collapse panel-body" aria-expanded="false" style="height: 0px;">
+        <div id="collapseOne" class="panel-collapse collapse in panel-body" aria-expanded="true">
             <div class="table-responsive">
                 <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th></th>
                             <th>Setting Name</th>
                             <th>Setting Description</th>
@@ -23,13 +22,7 @@
                         {
                             <tr>
                                 <td>
-                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
-                                    @Html.HiddenFor(modelItem => item.SETTING_IDX)
-                                    @Html.HiddenFor(modelItem => item.SETTING_NAME)
-                                    @if (item.ENCRYPT_IND != true)
-                                    {
-                                        @Html.HiddenFor(modelItem => item.SETTING_VALUE)
-                                    }
+                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-primary modal-it" data-toggle="modal" data-id="@item.SETTING_IDX" data-name="@item.SETTING_NAME" data-value="@(item.ENCRYPT_IND==true ? "" : item.SETTING_VALUE)"><i class="glyphicon glyphicon-pencil"></i></a>
                                     @Html.HiddenFor(modelItem => item.ENCRYPT_IND)
                                 </td>
                                 <td>
@@ -72,9 +65,7 @@
     </section>
     <section class="panel panel-qrest">
         <header class="panel-heading font-bold accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false">
-            <a class="accordion-toggle collapsed" >
-                Announcements
-            </a>
+            Announcements
         </header>
         <div id="collapseThree" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
             <div class="panel-body">
@@ -83,7 +74,7 @@
                     @Html.AntiForgeryToken()
                     <div class="form-group">
                         @*@Html.EditorFor(model => model.Announcements)
-                        @Html.ValidationMessageFor(model => model.Announcements)*@
+                            @Html.ValidationMessageFor(model => model.Announcements)*@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
@@ -96,6 +87,8 @@
     </section>
 
 </div>
+
+
 <!-- START MODAL FORM  -->
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
@@ -139,57 +132,8 @@
 <!-- END MODAL FORM -->
 
 @section Scripts {
-    @Scripts.Render("~/bundles/datatables")
-    @Scripts.Render("~/bundles/confirm-delete")
-
     <script type="text/javascript">
         $(document).ready(function () {
-
-            // datatable initialization
-            $("#gridData").DataTable({
-                "responsive": true,
-                "processing": true,
-                "orderMulti": false,
-                "paging": false,
-                "info": false,
-                "searching": false,
-                "ajax": {
-                    "url": "@Url.Action("AppSettingsData", "Admin")",
-                    "type": "POST",
-                    "datatype": "json"
-                },
-                "columnDefs":
-                    [{
-                        "targets": [0],
-                        "visible": false,
-                    },
-                    {
-                        "targets": [1],
-                        "orderable" : false
-                    }],
-                "columns": [
-                    { "data": "SETTING_IDX", "name": "SETTING_IDX", "autoWidth": true },
-                    {
-                        "render": function (data, type, row) {
-                            return '<a href="#modal-form" class="btn btn-rounded btn-xs btn-primary modal-it" data-toggle="modal" data-id="'
-                                + row.SETTING_IDX + '" data-name="'
-                                + row.SETTING_NAME + '" data-value="'
-                                + row.SETTING_VALUE + '" style="display: inline-block;"><i class="fa fa-pencil"></i> Edit</a><div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
-                                + row.SETTING_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/AppSettingDelete"><b>Confirm Delete</b></div></div>';
-                        }
-                    },
-                    { "data": "SETTING_NAME", "name": "SETTING_NAME", "autoWidth": true },
-                    { "data": "SETTING_DESC", "name": "SETTING_DESC", "autoWidth": true },
-                    { "data": "SETTING_VALUE", "name": "SETTING_VALUE", "autoWidth": true }
-                ],
-                "createdRow": function (row, data, dataIndex) {
-                    $('td:eq(0)', row).css('width', '90px');
-                    $('td:eq(0)', row).css('min-width', '90px');
-                    $('td:eq(0)', row).css('padding-right', '0px');
-                    $('td:eq(0)', row).css('white-space', 'nowrap');
-                }
-            });
-
 
             $(document).on('click', '.modal-it', function () {
                 $('#edit_app_setting_SETTING_IDX').val($(this).attr('data-id'));

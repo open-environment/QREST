@@ -16,6 +16,7 @@
           <Property Name="SETTING_CAT" Type="varchar" MaxLength="20" />
           <Property Name="MODIFY_USER_IDX" Type="varchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="ENCRYPT_IND" Type="bit" />
         </EntityType>
         <EntityType Name="T_QREST_APP_SETTINGS_CUSTOM">
           <Key>
@@ -749,6 +750,7 @@
           <Property Name="SETTING_CAT" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <Property Name="ENCRYPT_IND" Type="Boolean" />
         </EntityType>
         <EntityType Name="T_QREST_APP_SETTINGS_CUSTOM">
           <Key>
@@ -1287,6 +1289,7 @@
           <EntitySetMapping Name="T_QREST_APP_SETTINGS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_APP_SETTINGS">
               <MappingFragment StoreEntitySet="T_QREST_APP_SETTINGS">
+                <ScalarProperty Name="ENCRYPT_IND" ColumnName="ENCRYPT_IND" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="SETTING_CAT" ColumnName="SETTING_CAT" />

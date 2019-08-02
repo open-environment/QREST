@@ -56,20 +56,12 @@ namespace QREST.Controllers
             // GET: /Admin/AppSettings
         public ActionResult AppSettings()
         {
-            var model = new vmAdminAppSettings();
+            var model = new vmAdminAppSettings {
+                T_VCCB_APP_SETTINGS = db_Ref.GetT_QREST_APP_SETTING_list()
+            };
             return View(model);
         }
 
-
-        [HttpPost]
-        public ActionResult AppSettingsData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
-            var data = db_Ref.GetT_QREST_APP_SETTING_list();
-            var recordsTotal = data.Count();
-
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
 
 
         [HttpPost, ValidateAntiForgeryToken]

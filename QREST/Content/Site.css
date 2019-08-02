@@ -241,3 +241,76 @@ table.dataTable.no-footer {
         padding-top: 40px;
     }
 }
+
+
+/* ---------------------------------------------------------------------- */
+/*	Accordion
+ /* ---------------------------------------------------------------------- */
+.accordion-custom .panel {
+    background-color: #FFFFFF;
+    border: none;
+    border-radius: 0 0 0 0;
+    box-shadow: none;
+}
+
+.accordion-custom .panel-heading {
+    padding: 0;
+    background-image: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.accordion-custom .panel-body {
+    border: none !important;
+}
+
+.accordion-custom .panel-heading .accordion-toggle {
+    background-color: #cccccc;
+    color: #606060;
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1;
+    padding: 10px;
+    position: relative;
+}
+
+    .accordion-custom .panel-heading .accordion-toggle:hover, .accordion-custom .panel-heading .accordion-toggle:focus {
+        text-decoration: none;
+    }
+
+    .accordion-custom .panel-heading .accordion-toggle.collapsed {
+        background-color: #F3F3F3;
+        border-color: #D9D9D9;
+        border-width: 0 0 0 1px;
+        color: #606060;
+        font-weight: normal;
+    }
+
+    .accordion-custom .panel-heading .accordion-toggle > .icon-arrow:before {
+        content: "\f078";
+    }
+
+    .accordion-custom .panel-heading .accordion-toggle.collapsed > .icon-arrow:before {
+        content: "\f054" !important;
+    }
+
+.accordion-custom.panel-group .panel-heading .accordion-toggle > .icon-arrow {
+    font-size: 11px;
+    padding: 0 5px;
+}
+
+.accordion-custom.panel-group .panel-heading .accordion-toggle.collapsed > .icon-arrow {
+    opacity: 0.75;
+}
+
+.accordion-teal .panel-heading .accordion-toggle {
+    background: #F3F7F8;
+    border-left: 2px solid #569099;
+    color: #437278;
+}
+
+    .accordion-teal .panel-heading .accordion-toggle.collapsed {
+        background: #F3F7F8;
+        border-left: none;
+    }

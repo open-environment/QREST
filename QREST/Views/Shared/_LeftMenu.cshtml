@@ -5,12 +5,12 @@
         <header class="header bg-vcco text-center clearfix">
             <div class="btn-group hidden-nav-xs">
                 @*<a href="#" class="btn btn-sm btn-dark disabled" title="New claim">Claim</a>
-                <div class="input-group">
-                    <input type="text" class="form-control input-sm" placeholder="enter claim" maxlength="6" />
-                    <span class="input-group-btn">
-                        <button class="btn btn-vcco input-sm" type="button">Go</button>
-                    </span>
-                </div>*@
+                    <div class="input-group">
+                        <input type="text" class="form-control input-sm" placeholder="enter claim" maxlength="6" />
+                        <span class="input-group-btn">
+                            <button class="btn btn-vcco input-sm" type="button">Go</button>
+                        </span>
+                    </div>*@
             </div>
         </header>
         <section class="w-f scrollable" style="top:33px;">
@@ -125,58 +125,58 @@
 
                     @if (User.IsInRole("ADMIN"))
                     {
-                    <li class="leftmenuhead">
-                        <a href="#pages">
-                            <i class="fa fa-gears icon">
-                                <b class="bg-primary"></b>
-                            </i>
-                            <span class="pull-right">
-                                <i class="fa fa-angle-down text"></i>
-                                <i class="fa fa-angle-up text-active"></i>
-                            </span>
-                            <span>Admin</span>
-                        </a>
-                        <ul class="nav lt">
-                            <li class="@Html.ActivePage("Admin", "OrgList,OrgEdit")">
-                                <a href="@Url.Action("OrgList", "Admin")">
-                                    <i class="fa fa-angle-right"></i>
-                                    <span class="title">Organizations</span>
-                                </a>
-                            </li>
-                            <li class="@Html.ActivePage("Admin", "UserList,UserEdit")">
-                                <a href="@Url.Action("UserList", "Admin")">
-                                    <i class="fa fa-angle-right"></i>
-                                    <span class="title">Users</span>
-                                </a>
-                            </li>
-                            <li class="@Html.ActivePage("Admin", "AppSettings")">
-                                <a href="@Url.Action("AppSettings", "Admin")">
-                                    <i class="fa fa-angle-right"></i>
-                                    <span class="title">Global Config</span>
-                                </a>
-                            </li>
-                            <li class="@Html.ActivePage("Admin", "EmailConfig")">
-                                <a href="@Url.Action("EmailConfig", "Admin")">
-                                    <i class="fa fa-angle-right"></i>
-                                    <span class="title">Email Config</span>
-                                </a>
-                            </li>
-                            <li class="@Html.ActivePage("Admin", "LogError,LogActivity,LogEmail")">
-                                <a href="@Url.Action("LogError", "Admin")">
-                                    <i class="fa fa-angle-right"></i>
-                                    <span class="title">Logging</span>
-                                </a>
-                            </li>
-                            <li class="@Html.ActivePage("Admin", "ImportData")">
-                                <a href="@Url.Action("ImportData", "Admin")">
-                                    <i class="fa fa-angle-right"></i>
-                                    <span class="title">Import Ref Data</span>
-                                </a>
-                            </li>
+                        <li class="leftmenuhead">
+                            <a href="#pages">
+                                <i class="fa fa-gears icon">
+                                    <b class="bg-primary"></b>
+                                </i>
+                                <span class="pull-right">
+                                    <i class="fa fa-angle-down text"></i>
+                                    <i class="fa fa-angle-up text-active"></i>
+                                </span>
+                                <span>Admin</span>
+                            </a>
+                            <ul class="nav lt">
+                                <li class="@Html.ActivePage("Admin", "OrgList,OrgEdit")">
+                                    <a href="@Url.Action("OrgList", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Organizations</span>
+                                    </a>
+                                </li>
+                                <li class="@Html.ActivePage("Admin", "UserList,UserEdit")">
+                                    <a href="@Url.Action("UserList", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Users</span>
+                                    </a>
+                                </li>
+                                <li class="@Html.ActivePage("Admin", "AppSettings")">
+                                    <a href="@Url.Action("AppSettings", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Global Config</span>
+                                    </a>
+                                </li>
+                                <li class="@Html.ActivePage("Admin", "EmailConfig")">
+                                    <a href="@Url.Action("EmailConfig", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Email Config</span>
+                                    </a>
+                                </li>
+                                <li class="@Html.ActivePage("Admin", "LogError,LogActivity,LogEmail")">
+                                    <a href="@Url.Action("LogError", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Logging</span>
+                                    </a>
+                                </li>
+                                <li class="@Html.ActivePage("Admin", "ImportData")">
+                                    <a href="@Url.Action("ImportData", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Import Ref Data</span>
+                                    </a>
+                                </li>
 
 
-                        </ul>
-                    </li>
+                            </ul>
+                        </li>
                     }
                 </ul>
             </nav>
@@ -188,6 +188,9 @@
                 <i class="fa fa-angle-left text"></i>
                 <i class="fa fa-angle-right text-active"></i>
             </a>
+            <div class="btn-group hidden-nav-xs">
+                <a href="@Url.Action("Map", "Home")" class="btn btn-sm btn-rounded btn-default">Public Site <i class="fa fa-share-square-o"></i></a>
+            </div>
         </footer>
     </section>
 </aside>

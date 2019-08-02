@@ -70,6 +70,14 @@
             </table>
         </div>
         <a href="@(Url.Action("SiteEdit","Site"))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
+        @if (Model.ddl_Organization != null && Model.ddl_Organization.Count() == 1)
+        {
+            <a href="@(Url.Action("SiteImport", "Site", new { id = Model.ddl_Organization.FirstOrDefault().Value }))" class="btn btn-sm btn-warning btn-rounded pull-right"><i class="fa fa-plus"></i> Import Sites from AQS</a>
+        }
+        else
+        {
+            <a href="@(Url.Action("SiteImport", "Site"))" class="btn btn-sm btn-warning btn-rounded pull-right"><i class="fa fa-plus"></i> Import Sites from AQS</a>
+        }
     </div>
 </section>
 

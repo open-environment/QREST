@@ -225,6 +225,7 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="TELEMETRY_SOURCE" Type="varchar" MaxLength="150" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG">
           <Key>
@@ -985,6 +986,7 @@
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_MONITORS" />
           <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_SITES" ToRole="T_QREST_ORGANIZATIONS" />
+          <Property Name="TELEMETRY_SOURCE" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG">
           <Key>
@@ -1497,6 +1499,7 @@
           <EntitySetMapping Name="T_QREST_SITES">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITES">
               <MappingFragment StoreEntitySet="T_QREST_SITES">
+                <ScalarProperty Name="TELEMETRY_SOURCE" ColumnName="TELEMETRY_SOURCE" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />

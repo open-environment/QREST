@@ -141,10 +141,13 @@ namespace QREST.Models
     // ******************************** LOGGING***********************************
     //****************************************************************************
     public class vmAdminLogError
-    {
-        public List<T_QREST_SYS_LOG> T_QREST_SYS_LOG  { get; set; }
-    }
+    {}
 
+    public class vmAdminLogEmail
+    {}
+
+    public class vmAdminLogActivity
+    {}
 
 
     //****************************************************************************

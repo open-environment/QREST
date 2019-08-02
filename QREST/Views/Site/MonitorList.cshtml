@@ -20,7 +20,7 @@
 
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">
-        Sites
+        Monitors
         <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
     </header>
     <div class="panel-body">
@@ -40,10 +40,10 @@
                 {
                     <tr>
                         <td>
-                            <a href="@(Url.Action("MonitorEdit","Site", new { id = item.MONITOR_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
+                            <a href="@(Url.Action("MonitorEdit","Site", new { id = item.T_QREST_MONITORS.MONITOR_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
                             <div class="delete-section" style="display:inline-block">
                                 <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.MONITOR_IDX" data-delete-p="/Site/MonitorDelete"><b>Confirm Delete</b></div>
+                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete"><b>Confirm Delete</b></div>
                             </div>
                         </td>
                         <td>
@@ -59,13 +59,13 @@
                             @Html.DisplayFor(modelItem => item.METHOD_CODE)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.POC)
+                            @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.POC)
                         </td>
                     </tr>
                 }
             </table>
         </div>
-        <a href="@(Url.Action("SiteEdit","Site"))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
+        <a href="@(Url.Action("MonitorEdit","Site"))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
     </div>
 </section>
 

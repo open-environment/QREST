@@ -51,8 +51,8 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.11.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlAgilityPack.1.11.9\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="HtmlAgilityPack, Version=1.11.11.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.11.11\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.2\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
@@ -291,6 +291,7 @@
     <Content Include="App_Data\3_createFunctions.sql" />
     <Content Include="App_Data\2_createTables.sql" />
     <Content Include="App_Data\4_populateData.sql" />
+    <Content Include="App_Data\5_populateDataLocal.sql" />
     <Content Include="App_Logic\DataAccessLayer\QRESTModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>QRESTModel.edmx</DependentUpon>
@@ -307,6 +308,7 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\datepicker.min.css" />
     <Content Include="Content\favicon-16x16.png" />
     <Content Include="Content\favicon-32x32.png" />
     <Content Include="Content\favicon.ico" />
@@ -354,6 +356,8 @@
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\cleave.min.js" />
+    <Content Include="Scripts\cleave.qrest.js" />
     <Content Include="Scripts\confirm-delete.js" />
     <Content Include="Scripts\dataTables\DataTables-1.10.18\css\dataTables.bootstrap.css" />
     <Content Include="Scripts\dataTables\DataTables-1.10.18\css\dataTables.bootstrap.min.css" />
@@ -379,6 +383,7 @@
     <Content Include="Scripts\dataTables\datatables.min.css" />
     <Content Include="Scripts\dataTables\plugins\datetime.js" />
     <Content Include="Scripts\dataTables\plugins\moment.js" />
+    <Content Include="Scripts\datepicker.min.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
     <Content Include="Scripts\jquery-3.3.1.slim.js" />
@@ -455,6 +460,10 @@
     <Content Include="Views\Data\QCList.cshtml" />
     <Content Include="Views\Data\QCEntry.cshtml" />
     <Content Include="Views\Site\OrgList.cshtml" />
+    <Content Include="Views\Admin\LogEmail.cshtml" />
+    <Content Include="Views\Admin\LogActivity.cshtml" />
+    <Content Include="Views\Site\SiteImport.cshtml" />
+    <Content Include="Views\Site\MonitorImport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Docs\" />

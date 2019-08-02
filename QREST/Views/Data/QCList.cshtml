@@ -31,7 +31,9 @@
                         <th>Organization</th>
                         <th>Site</th>
                         <th>Parameter</th>
+                        <th>Assessment Type</th>
                         <th>QC Date</th>
+                        <th>Submission Status</th>
                     </tr>
                 </thead>
                 @*@foreach (var item in Model.T_QREST_SITES)
@@ -66,7 +68,7 @@
                     }*@
             </table>
         </div>
-        <a href="@(Url.Action("SiteEdit","Site"))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> New</a>
+        <a href="@(Url.Action("QCEntry","Data"))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> New</a>
     </div>
 </section>
 

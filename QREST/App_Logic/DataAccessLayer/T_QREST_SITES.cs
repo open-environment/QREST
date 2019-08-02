@@ -39,6 +39,7 @@ namespace QREST.App_Logic.DataAccessLayer
         public Nullable<System.DateTime> CREATE_DT { get; set; }
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
+        public string TELEMETRY_SOURCE { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }

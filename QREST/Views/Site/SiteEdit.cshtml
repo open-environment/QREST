@@ -113,16 +113,14 @@
                     </div>
                     <p>
                         <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
-                        <a class=" btn btn-default" href="@Url.Action("SiteList" )">Back to List</a>
+                        <a class=" btn btn-default" href="@Url.Action("SiteList")">Back to List</a>
                     </p>
                 </div>
             </section>
         </div>
 
-    }
-
-    @if (Model.SITE_IDX != null)
-    {
+        if (Model.SITE_IDX != null)
+        {
         <div class="col-md-6">
             <section class="panel panel-qrest">
                 <header class="panel-heading font-bold">Site Monitors</header>
@@ -174,15 +172,37 @@
                         </div>
                     }
                     <div class="m-t-sm">
-                        <a href="@(Url.Action("MonitorEdit","Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>
+                        <a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>
+                        @*<a href="@(Url.Action("MonitorImport", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded pull-right">Import Monitors from AQS</a>*@
                     </div>
-
-
                 </div>
             </section>
-        </div>
-    }
 
+            <section class="panel panel-qrest">
+                <header class="panel-heading font-bold">Automatic Data Retrieval</header>
+                <div class="panel-body">
+                    <div class="row">
+                        <div id="telemetrySource" class="col-md-12">
+                            <div class="form-group ">
+                                @Html.CheckBoxFor(model => model.TELEMETRY_ONLINE_IND, new { @class = "checkbox-inline" })
+                                <label>Enable Automatic Data Retrieval</label>
+                                @Html.ValidationMessageFor(model => model.TELEMETRY_ONLINE_IND)
+                            </div>
+                        </div>
+                        <div id="telemetrySource" class="col-md-12">
+                            <div class="form-group">
+                                <label>Telemetry Source</label>
+                                @Html.TextBoxFor(model => model.TELEMETRY_SOURCE, new { @class = "form-control", @maxlength = "150" })
+                                @Html.ValidationMessageFor(model => model.TELEMETRY_SOURCE)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+        }
+    }
 </div>
 
 

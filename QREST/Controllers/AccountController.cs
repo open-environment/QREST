@@ -189,7 +189,7 @@ namespace QREST.Controllers
                 if (result.Succeeded)
                 {
                     //if first user, initialize with ADMIN role
-                    if (UserManager.Users.Count() ==1)
+                    if (UserManager.Users.Count() == 1)
                         UserManager.AddToRole(user.Id, "ADMIN");
 
                     // Generate secure verification link for email

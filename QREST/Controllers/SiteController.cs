@@ -7,6 +7,8 @@ using QREST.Models;
 using Microsoft.AspNet.Identity;
 using QREST.App_Logic.DataAccessLayer;
 using QREST.App_Logic.BusinessLogicLayer;
+using System.Net;
+using System.IO;
 
 namespace QREST.Controllers
 {
@@ -105,7 +107,8 @@ namespace QREST.Controllers
                 model.ZIP_CODE = _site.ZIP_CODE;
                 model.START_DT = _site.START_DT;
                 model.END_DT = _site.END_DT;
-                model.TELEMETRY_ONLINE_IND = _site.TELEMETRY_ONLINE_IND;
+                model.TELEMETRY_ONLINE_IND = _site.TELEMETRY_ONLINE_IND ?? false;
+                model.TELEMETRY_SOURCE = _site.TELEMETRY_SOURCE;
                 model.SITE_COMMENTS = _site.SITE_COMMENTS;
 
                 //monitor
@@ -140,7 +143,7 @@ namespace QREST.Controllers
 
                 int SuccInd = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID,
                     model.LATITUDE, model.LONGITUDE, model.ADDRESS, model.CITY, model.STATE, model.ZIP_CODE,
-                    model.START_DT, model.END_DT, model.TELEMETRY_ONLINE_IND, model.SITE_COMMENTS, UserIDX);
+                    model.START_DT, model.END_DT, model.TELEMETRY_ONLINE_IND, model.TELEMETRY_SOURCE, model.SITE_COMMENTS, UserIDX);
 
                 if (SuccInd>0)
                     TempData["Success"] = "Record updated";
@@ -151,8 +154,164 @@ namespace QREST.Controllers
 
             model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX);
             return View(model);
-
         }
+
+        public ActionResult SiteImport(string selOrgID)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            var model = new vmSiteSiteImport
+            {
+                selOrgID = selOrgID,
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX),
+                ImportSites = new List<T_QREST_SITES>()
+            };
+
+            //if no org specified but user has access to one only, then set it
+            if (model.ddl_Organization.Count() == 1 && model.selOrgID == null)
+                model.selOrgID = model.ddl_Organization.FirstOrDefault().Value;
+
+            if (model.selOrgID == null)
+                //if user hasn't selected an org, return view now
+                return View(model);
+            else
+            {
+                // check security (whether can update)
+                if (db_Account.CanAccessThisOrg(UserIDX, model.selOrgID, true) == false)
+                {
+                    TempData["Error"] = "You don't have rights to edit this agency.";
+                    return RedirectToAction("SiteList", "Site");
+                }
+
+
+                //lookup to get the AQS Tribal Code for 
+                T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(model.selOrgID);
+                if (_org == null)
+                {
+                    TempData["Error"] = "Organization not found";
+                    return View(model);
+                }
+                else if (_org.AQS_AGENCY_CODE?.Length < 3)
+                {
+                    TempData["Error"] = "You must specify an AQS Code for the agency before importing sites from AQS.";
+                    return View(model);
+                }
+
+                //grab remote CSV file from EPA AQS
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
+                try
+                {
+                    HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                    using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
+                    {
+                        string currentLine;
+                        while ((currentLine = csvreader.ReadLine()) != null)
+                        {
+                            //split row's columns into string array
+                            string[] cols = currentLine.Split('"');
+                            if (cols.Length > 0) //skip blank rows
+                            {
+                                if (cols[9] != "None")
+                                {
+                                    string tribCode = cols[9];
+
+                                    if (_org.AQS_AGENCY_CODE == tribCode)
+                                    {
+                                        string siteID = cols[5];
+                                        string siteName = cols[7];
+                                        T_QREST_SITES s = new T_QREST_SITES
+                                        {
+                                            SITE_IDX = Guid.NewGuid(),
+                                            ORG_ID = model.selOrgID,
+                                            SITE_ID = siteID,
+                                            SITE_NAME = siteName,
+                                            AQS_SITE_ID = siteID,
+                                            CREATE_DT = System.DateTime.Now,
+                                            CREATE_USER_IDX = UserIDX
+                                        };
+
+                                        //check if QREST already has the site.
+                                        T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, siteID);
+                                        if (_existSite != null)
+                                            s.SITE_COMMENTS = "U";
+                                        else
+                                            s.SITE_COMMENTS = "I";
+
+                                        model.ImportSites.Add(s);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch {
+                    TempData["Error"] = "Unable to connect to AQS, please try again later.";
+                    return View(model);
+                }
+            }
+
+            return View(model); ;
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult SiteImport(vmSiteSiteImport model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //if user hasn't selected an org, return view now
+            if (model.selOrgID == null)
+            {
+                TempData["Error"] = "Organization not found";
+                return View(model);
+            }
+
+            // check security (whether can update)
+            if (db_Account.CanAccessThisOrg(UserIDX, model.selOrgID, true) == false)
+            {
+                TempData["Error"] = "You don't have rights to edit this agency.";
+                return RedirectToAction("SiteList", "Site");
+            }
+
+            //lookup to get the AQS Tribal Code for 
+            T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(model.selOrgID);
+            if (_org == null)
+            {
+                TempData["Error"] = "Organization not found";
+                return View(model);
+            }
+
+            //grab remote CSV file from EPA AQS
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
+            HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+            using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
+            {
+                string currentLine;
+                while ((currentLine = csvreader.ReadLine()) != null)
+                {
+                    //split row's columns into string array
+                    string[] cols = currentLine.Split('"');
+                    if (cols.Length > 0) //skip blank rows
+                    {
+                        if (cols[9] != "None")
+                        {
+                            if (_org.AQS_AGENCY_CODE == cols[9])
+                            {
+                                //check if QREST already has the site.
+                                T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
+                                if (_existSite == null)
+                                    db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], null, null, null, null, null, null, null, null, null, null, null, UserIDX);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return RedirectToAction("SiteList", new { selOrgID = model.selOrgID });
+        }
+
+
 
 
         [HttpPost]
@@ -293,6 +452,86 @@ namespace QREST.Controllers
 
             return View(model);
         }
+
+
+        public ActionResult MonitorImport(Guid id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            var model = new vmSiteMonitorImport
+            {
+                siteIDX = id,
+                ImportMonitors = new List<T_QREST_MONITORS>()
+            };
+
+            //lookup site
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id);
+            if (id == null)
+                //if user hasn't selected a site, return view now
+                return View(model);
+            else
+            {
+
+                // check security (whether can update)
+                if (db_Account.CanAccessThisOrg(UserIDX, _site.ORG_ID, true) == false)
+                {
+                    TempData["Error"] = "You don't have rights to edit this agency.";
+                    return RedirectToAction("SiteList", "Site");
+                }
+
+
+                //lookup to get the AQS Tribal Code for 
+                T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(_site.ORG_ID);
+
+                if (_org.AQS_AGENCY_CODE?.Length < 3)
+                {
+                    TempData["Error"] = "You must specify an AQS Code for the agency before importing sites from AQS.";
+                    return RedirectToAction("OrgEdit","Site");
+                }
+
+                //grab remote CSV file from EPA AQS
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/MonitorsV4.txt");
+                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
+                {
+                    string currentLine;
+                    while ((currentLine = csvreader.ReadLine()) != null)
+                    {
+                        //split row's columns into string array
+                        string[] cols = currentLine.Split('"');
+                        if (cols.Length > 0) //skip blank rows
+                        {
+                            string AQSsiteID = cols[5];
+                            string tribCode = cols[11];
+
+                            if (_org.AQS_AGENCY_CODE == tribCode && _site.AQS_SITE_ID == AQSsiteID)
+                            {
+                                string parCD = cols[7];
+                                string POC = cols[9];
+                                T_QREST_MONITORS m = new T_QREST_MONITORS
+                                {
+                                    MONITOR_IDX = Guid.NewGuid(),
+                                    SITE_IDX = _site.SITE_IDX,
+                                    PAR_METHOD_IDX = Guid.Empty,
+                                    POC = POC.ConvertOrDefault<int>(),
+                                    CREATE_DT = System.DateTime.Now,
+                                    CREATE_USER_IDX = UserIDX
+                                };
+
+                                //check if QREST already has the site.
+                                T_QREST_MONITORS _existMonitor = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(_site.SITE_IDX, parCD.ConvertOrDefault<Guid>(), POC.ConvertOrDefault<int>());
+                                m.MODIFY_USER_IDX = _existMonitor != null ? "U" : "I";
+                                model.ImportMonitors.Add(m);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return View(model); ;
+        }
+
+
 
         [HttpPost]
         public JsonResult MonitorDelete(string id)

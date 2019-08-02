@@ -379,11 +379,68 @@ namespace QREST.Controllers
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-            var data = db_Ref.GetT_QREST_SYS_LOG(null, null, pageSize, start, orderCol, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_count(null, null);
+            //date filters
+            DateTime? minDate = Request.Form.GetValues("mini")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
+            DateTime? maxDate = Request.Form.GetValues("maxi")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
+
+            var data = db_Ref.GetT_QREST_SYS_LOG(minDate, maxDate, pageSize, start, orderCol, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_count(minDate, maxDate);
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
+
+
+        public ActionResult LogEmail()
+        {
+            var model = new vmAdminLogEmail();
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult LogEmailData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            //date filters
+            DateTime? minDate = Request.Form.GetValues("mini")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
+            DateTime? maxDate = Request.Form.GetValues("maxi")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
+
+            var data = db_Ref.GetT_QREST_SYS_LOG_EMAIL(minDate, maxDate, pageSize, start, orderCol, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_EMAILcount(minDate, maxDate);
+
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
+        public ActionResult LogActivity()
+        {
+            var model = new vmAdminLogActivity();
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult LogActivityData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            //date filters
+            DateTime? minDate = Request.Form.GetValues("mini")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
+            DateTime? maxDate = Request.Form.GetValues("maxi")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
+
+            var data = db_Ref.GetT_QREST_SYS_LOG_ACTIVITY(minDate, maxDate, pageSize, start, orderCol, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_ACTIVITYcount(minDate, maxDate);
+
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
 
 
         //************************************* IMPORT DATA ************************************************************

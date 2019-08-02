@@ -461,8 +461,10 @@ namespace QREST.App_Logic.DataAccessLayer
                     if (e == null)
                     {
                         insInd = true;
-                        e = new T_QREST_REF_AQS_AGENCY();
-                        e.AQS_AGENCY_CODE = aQS_AGENCY_CODE;
+                        e = new T_QREST_REF_AQS_AGENCY
+                        {
+                            AQS_AGENCY_CODE = aQS_AGENCY_CODE
+                        };
                     }
 
                     if (aQS_AGENCY_NAME != null) e.AQS_AGENCY_NAME = aQS_AGENCY_NAME;
@@ -536,10 +538,12 @@ namespace QREST.App_Logic.DataAccessLayer
                     if (e == null)
                     {
                         insInd = true;
-                        e = new T_QREST_REF_COLLECT_FREQ();
-                        e.COLLECT_FREQ_CODE = cOLLECT_FREQ_CODE;
-                        e.CREATE_DT = System.DateTime.Now;
-                        e.CREATE_USER_IDX = cREATE_USER;
+                        e = new T_QREST_REF_COLLECT_FREQ
+                        {
+                            COLLECT_FREQ_CODE = cOLLECT_FREQ_CODE,
+                            CREATE_DT = System.DateTime.Now,
+                            CREATE_USER_IDX = cREATE_USER
+                        };
                     }
                     else
                     {
@@ -1072,7 +1076,7 @@ namespace QREST.App_Logic.DataAccessLayer
 
                     return (from a in ctx.T_QREST_SYS_LOG
                             join d in ctx.T_QREST_USERS on a.LOG_USERID equals d.USER_IDX
-                                into lj from d in lj.DefaultIfEmpty() //left join on duration
+                                into lj from d in lj.DefaultIfEmpty() //left join on user
                             where a.LOG_DT >= DateFromDt
                             && a.LOG_DT <= DateToDt
                             select new LogDisplayType {
@@ -1172,6 +1176,53 @@ namespace QREST.App_Logic.DataAccessLayer
             }
         }
 
+        public static List<T_QREST_SYS_LOG_ACTIVITY> GetT_QREST_SYS_LOG_ACTIVITY(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
+                    DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
+
+                    string orderCol = (orderBy == 3 ? "ACTIVITY_TYPE" : "LOG_ACTIVITY_IDX");
+
+                    return (from a in ctx.T_QREST_SYS_LOG_ACTIVITY
+                            where a.ACTIVITY_DT >= DateFromDt
+                            && a.ACTIVITY_DT <= DateToDt
+                            orderby a.LOG_ACTIVITY_IDX descending
+                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    throw ex;
+                }
+            }
+        }
+
+        public static int GetT_QREST_SYS_LOG_ACTIVITYcount(DateTime? DateFrom, DateTime? DateTo)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
+                    DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
+
+                    var xxx = (from a in ctx.T_QREST_SYS_LOG_ACTIVITY
+                               where a.ACTIVITY_DT >= DateFromDt
+                               && a.ACTIVITY_DT <= DateToDt
+                               select a).Count();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
 
 
         //*****************SYS_LOG_EMAIL **********************************
@@ -1203,7 +1254,7 @@ namespace QREST.App_Logic.DataAccessLayer
             }
         }
 
-        public static List<T_QREST_SYS_LOG_EMAIL> GetT_QREST_SYS_EMAIL_LOG(DateTime? DateFrom, DateTime? DateTo)
+        public static List<T_QREST_SYS_LOG_EMAIL> GetT_QREST_SYS_LOG_EMAIL(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, int orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1212,15 +1263,40 @@ namespace QREST.App_Logic.DataAccessLayer
                     DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
                     DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
+                    string orderCol = (orderBy == 3 ? "EMAIL_SUBJ" : "LOG_EMAIL_ID");
+
                     return (from a in ctx.T_QREST_SYS_LOG_EMAIL
                             where a.EMAIL_DT >= DateFromDt
                             && a.EMAIL_DT <= DateToDt
                             orderby a.LOG_EMAIL_ID descending
-                            select a).ToList();
+                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
                     logEF.LogEFException(ex);
+                    throw ex;
+                }
+            }
+        }
+
+        public static int GetT_QREST_SYS_LOG_EMAILcount(DateTime? DateFrom, DateTime? DateTo)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
+                    DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
+
+                    var xxx = (from a in ctx.T_QREST_SYS_LOG_EMAIL
+                               where a.EMAIL_DT >= DateFromDt
+                               && a.EMAIL_DT <= DateToDt
+                               select a).Count();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
                     throw ex;
                 }
             }

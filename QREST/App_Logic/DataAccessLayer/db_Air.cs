@@ -12,6 +12,7 @@ namespace QREST.App_Logic.DataAccessLayer
         public string SITE_ID { get; set; }
         public string PAR_NAME { get; set; }
         public string METHOD_CODE { get; set; }
+        public string ORG_ID { get; set; }
     }
 
     public class db_Air
@@ -92,14 +93,36 @@ namespace QREST.App_Logic.DataAccessLayer
             }
         }
 
-        public static int InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, decimal? lATITUDE, decimal? lONGITUDE, 
-            string aDDRESS, string cITY, string sTATE, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, bool? tELEMETRY_ONLINE_IND, string sITE_COMMENTS, string cREATE_USER)
+        public static T_QREST_SITES GetT_QREST_SITES_ByOrgandAQSID(string OrgID, string aqsSiteID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    Boolean insInd = false;
+                    var xxx = (from a in ctx.T_QREST_SITES
+                               where a.ORG_ID == OrgID
+                               && a.AQS_SITE_ID == aqsSiteID
+                               select a).FirstOrDefault();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, decimal? lATITUDE, decimal? lONGITUDE, 
+            string aDDRESS, string cITY, string sTATE, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, bool? tELEMETRY_ONLINE_IND, string tELEMETRY_SOURCE, 
+            string sITE_COMMENTS, string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    bool insInd = false;
 
                     T_QREST_SITES e = (from c in ctx.T_QREST_SITES
                                        where c.SITE_IDX == sITE_IDX
@@ -132,6 +155,7 @@ namespace QREST.App_Logic.DataAccessLayer
                     if (sTART_DT != null) e.START_DT = sTART_DT;
                     if (eND_DT != null) e.END_DT = eND_DT;
                     if (tELEMETRY_ONLINE_IND != null) e.TELEMETRY_ONLINE_IND = tELEMETRY_ONLINE_IND;
+                    if (tELEMETRY_SOURCE != null) e.TELEMETRY_SOURCE = tELEMETRY_SOURCE;
                     if (sITE_COMMENTS != null) e.SITE_COMMENTS = sITE_COMMENTS;
 
                     if (insInd)
@@ -223,6 +247,28 @@ namespace QREST.App_Logic.DataAccessLayer
             }
         }
 
+        public static T_QREST_MONITORS GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(Guid SiteIDX, Guid ParMethodIDX, int POC)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_MONITORS
+                               where a.SITE_IDX == SiteIDX
+                               && a.PAR_METHOD_IDX == ParMethodIDX
+                               && a.POC == POC
+                               select a).FirstOrDefault();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static List<SiteMonitorDisplayType> GetT_QREST_MONITORS_Display_bySiteIDX(Guid? SiteIDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -284,7 +330,8 @@ namespace QREST.App_Logic.DataAccessLayer
                                    T_QREST_MONITORS = m,
                                    SITE_ID = a.SITE_ID,
                                    METHOD_CODE = r.METHOD_CODE,
-                                   PAR_NAME = p.PAR_NAME
+                                   PAR_NAME = p.PAR_NAME,
+                                   ORG_ID = a.ORG_ID
                                }).ToList();
 
                     return xxx;

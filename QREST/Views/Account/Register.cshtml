@@ -12,7 +12,7 @@
 
     <div class="form-group">
         @Html.LabelFor(m => m.Email, new { @class = "control-label" })
-        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @maxlength = "150" })
+        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @maxlength = "150", @autofocus = "autofocus" })
         @Html.ValidationMessageFor(m => m.Email)
         <span class="help-block"><i class="fa fa-info-circle"></i> Registration is only available for approved tribal agencies. Please register using your government-issued email.</span>
     </div>

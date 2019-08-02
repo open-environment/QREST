@@ -24,7 +24,6 @@ namespace QREST.Models
 
     public class vmSiteSiteEdit
     {
-        //public T_QREST_SITES T_QREST_SITES { get; set; }
         public Guid? SITE_IDX { get; set; }
 
         [Required]
@@ -45,9 +44,9 @@ namespace QREST.Models
         public string ZIP_CODE { get; set; }
         public DateTime? START_DT { get; set; }
         public DateTime? END_DT { get; set; }
-        public bool? TELEMETRY_ONLINE_IND { get; set; }
+        public bool TELEMETRY_ONLINE_IND { get; set; }
         public string SITE_COMMENTS { get; set; }
-
+        public string TELEMETRY_SOURCE { get; set; }
 
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
 
@@ -55,6 +54,13 @@ namespace QREST.Models
         //monitors
         public List<SiteMonitorDisplayType> monitors { get; set; }
 
+    }
+
+    public class vmSiteSiteImport
+    {
+        public string selOrgID { get; set; }
+        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+        public List<T_QREST_SITES> ImportSites { get; set; }
     }
 
 
@@ -96,5 +102,12 @@ namespace QREST.Models
             ddl_Ref_Duration = ddlHelpers.get_ddl_ref_duration();
             ddl_Ref_Coll_Freq = ddlHelpers.get_ddl_ref_coll_freq();
         }
+    }
+
+    public class vmSiteMonitorImport
+    {
+        public Guid siteIDX { get; set; }
+        public string siteName { get; set; }
+        public List<T_QREST_MONITORS> ImportMonitors { get; set; }
     }
 }

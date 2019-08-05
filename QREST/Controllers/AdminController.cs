@@ -56,13 +56,24 @@ namespace QREST.Controllers
             // GET: /Admin/AppSettings
         public ActionResult AppSettings()
         {
-            var model = new vmAdminAppSettings {
-                T_VCCB_APP_SETTINGS = db_Ref.GetT_QREST_APP_SETTING_list()
-            };
-            return View(model);
+            T_QREST_APP_SETTINGS_CUSTOM custSettings = db_Ref.GetT_QREST_APP_SETTING_CUSTOM();
+
+            if (custSettings != null)
+            {
+                var model = new vmAdminAppSettings
+                {
+                    T_VCCB_APP_SETTINGS = db_Ref.GetT_QREST_APP_SETTING_list(),
+                    TermsAndConditions = custSettings.TERMS_AND_CONDITIONS,
+                    Announcements = custSettings.ANNOUNCEMENTS
+                };
+                return View(model);
+            }
+            else
+            {
+                TempData["Error"] = "Unable to load custom settings";
+                return View();
+            }
         }
-
-
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult AppSettings(vmAdminAppSettings model)
@@ -79,6 +90,60 @@ namespace QREST.Controllers
             }
 
             return RedirectToAction("AppSettings");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult CustomSettings(vmAdminAppSettings model)
+        {
+            if (ModelState.IsValid)
+            {
+                int SuccID = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(model.TermsAndConditions ?? "", null);
+                if (SuccID > 0)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("AppSettings");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult CustomSettingsAnnounce(vmAdminAppSettings model)
+        {
+            if (ModelState.IsValid)
+            {
+                int SuccID = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(null, model.Announcements ?? "");
+                if (SuccID > 0)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("AppSettings");
+        }
+
+
+        //************************************* EMAIL CONFIG************************************************************
+        // GET: /Admin/EmailConfig
+        public ActionResult EmailConfig(int? id)
+        {
+            var model = new vmAdminEmailConfig {
+                T_QREST_EMAIL_TEMPLATE = db_Ref.GetT_QREST_EMAIL_TEMPLATE()
+            };
+
+            var xxx = db_Ref.GetT_QREST_EMAIL_TEMPLATE_ByID(id ?? -1);
+            if (xxx == null)
+                xxx = db_Ref.GetT_QREST_EMAIL_TEMPLATE_ByID(model.T_QREST_EMAIL_TEMPLATE[0].EMAIL_TEMPLATE_ID);
+
+            if (xxx != null)
+            {
+                model.editID = xxx.EMAIL_TEMPLATE_ID;
+                model.editDESC = xxx.EMAIL_TEMPLATE_DESC;
+                model.editSUBJ = xxx.SUBJ;
+                model.editMSG = xxx.MSG;
+            }
+
+            return View(model);
         }
 
 
@@ -332,11 +397,7 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult EmailConfig()
-        {
-            var model = new vmAdminEmailConfig();
-            return View(model);
-        }
+
 
 
         public ActionResult DocConfig()

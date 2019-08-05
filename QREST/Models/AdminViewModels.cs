@@ -1,6 +1,7 @@
 ﻿using QREST.App_Logic.DataAccessLayer;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
@@ -12,12 +13,32 @@ namespace QREST.Models
     {
         public List<T_QREST_APP_SETTINGS> T_VCCB_APP_SETTINGS { get; set; }
         public T_QREST_APP_SETTINGS edit_app_setting { get; set; }
+
+        [DisplayName("Terms & Conditions")]
+        [UIHint("wsywigeditor"), AllowHtml]
+        [StringLength(6000)]
+        public string TermsAndConditions { get; set; }
+
+        [DisplayName("Announcements")]
+        [UIHint("wsywigeditor"), AllowHtml]
+        [StringLength(6000)]
+        public string Announcements { get; set; }
+
     }
 
 
 
     public class vmAdminEmailConfig
     {
+        public List<T_QREST_EMAIL_TEMPLATE> T_QREST_EMAIL_TEMPLATE { get; set; }
+
+        public int? editID { get; set; }
+        public string editDESC { get; set; }
+        public string editSUBJ { get; set; }
+
+        [UIHint("wsywigeditor"), AllowHtml]
+        [StringLength(6000)]
+        public string editMSG { get; set; }
     }
 
 

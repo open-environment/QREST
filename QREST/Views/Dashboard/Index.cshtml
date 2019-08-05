@@ -2,7 +2,6 @@
     ViewBag.Title = "Dashboard";
 }
 
-
 @*<div class="row">
         <div class="col-lg-3 col-md-6">
             <a href="@Url.Action("AppWiz1", "App", new { id = 2 })">
@@ -26,6 +25,15 @@
             </a>
         </div>
     </div>*@
+
+
+@if (!string.IsNullOrEmpty(Model.Announcement))
+{
+    <div class="alert alert-block alert-info fade in">
+        <button data-dismiss="alert" class="close" type="button">×</button>
+        @Html.Raw(HttpUtility.HtmlDecode(Model.Announcement))
+    </div>
+}
 
 
 <section class="panel panel-default">

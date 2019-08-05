@@ -47,12 +47,12 @@
         </header>
         <div id="collapseTwo" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
             <div class="panel-body">
-                @using (Html.BeginForm("CustomSettings", "Admin", FormMethod.Post))
+                @using (Html.BeginForm("CustomSettingsTerms", "Admin", FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
                     <div class="form-group">
-                        @*@Html.EditorFor(model => model.TermsAndConditions)
-                            @Html.ValidationMessageFor(model => model.TermsAndConditions)*@
+                        @Html.EditorFor(model => model.TermsAndConditions)
+                        @Html.ValidationMessageFor(model => model.TermsAndConditions)
                     </div>
                     <div class="row">
                         <div class="col-md-12">
@@ -73,8 +73,8 @@
                 {
                     @Html.AntiForgeryToken()
                     <div class="form-group">
-                        @*@Html.EditorFor(model => model.Announcements)
-                            @Html.ValidationMessageFor(model => model.Announcements)*@
+                        @Html.EditorFor(model => model.Announcements)
+                        @Html.ValidationMessageFor(model => model.Announcements)
                     </div>
                     <div class="row">
                         <div class="col-md-12">

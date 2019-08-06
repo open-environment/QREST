@@ -589,10 +589,10 @@
     <Content Include="Views\Admin\LogActivity.cshtml" />
     <Content Include="Views\Site\SiteImport.cshtml" />
     <Content Include="Views\Site\MonitorImport.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\wsywigeditor.cshtml" />
     <Content Include="Scripts\tinymce\skins\ui\oxide\fonts\tinymce-mobile.woff" />
     <Content Include="Scripts\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
     <Content Include="Scripts\tinymce\langs\readme.md" />
-    <Content Include="Views\Shared\EditorTemplates\wsywigeditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Docs\" />

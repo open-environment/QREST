@@ -50,7 +50,7 @@ namespace QREST.App_Logic.BusinessLogicLayer
                     //************** SEND EMAIL EITHER USING SENDGRID OR LOCAL SMTP ******
                     bool SendStatus = false;
                     if (mailServer == "smtp.sendgrid.net")
-                        SendStatus = SendGridEmail(from, to, cc, bcc, subj, body, smtpUserPwd).GetAwaiter().GetResult();
+                        SendStatus = SendGridEmail(from, to, cc, bcc, subj, null, smtpUserPwd, body).GetAwaiter().GetResult();
                     else
                         SendStatus = SendSMTPEmail(from, to, cc, bcc, attach, attachFileName, mailServer, subj, body);
 
@@ -143,15 +143,11 @@ namespace QREST.App_Logic.BusinessLogicLayer
                 if (response.StatusCode == HttpStatusCode.Accepted)
                     return true;
                 else if (response.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Sendgrid call fails authorization.");
-                    return false;
-                }
+                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Sendgrid call fails authorization");
                 else
-                {
-                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Unknown error.");
-                    return false;
-                }
+                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Unknown send error");
+
+                return false;
                 //************************************************************************************
 
             }
@@ -159,10 +155,8 @@ namespace QREST.App_Logic.BusinessLogicLayer
             {
                 if (ex.InnerException != null)
                     db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", ex.InnerException.ToString());
-                else if (ex.Message != null)
-                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", ex.Message.ToString());
-                else
-                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Unknown error");
+                else 
+                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", ex.Message ?? "Unknown exception");
 
                 return false;
             }

@@ -38,6 +38,15 @@
           <Property Name="MODIFY_USER_IDX" Type="varchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
+        <EntityType Name="T_QREST_HELP_DOCS">
+          <Key>
+            <PropertyRef Name="HELP_IDX" />
+          </Key>
+          <Property Name="HELP_IDX" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HELP_TITLE" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="HELP_HTML" Type="varchar(max)" Nullable="false" />
+          <Property Name="SORT_SEQ" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="T_QREST_MONITORS">
           <Key>
             <PropertyRef Name="MONITOR_IDX" />
@@ -548,6 +557,7 @@
           <EntitySet Name="T_QREST_APP_SETTINGS" EntityType="Self.T_QREST_APP_SETTINGS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_APP_SETTINGS_CUSTOM" EntityType="Self.T_QREST_APP_SETTINGS_CUSTOM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_EMAIL_TEMPLATE" EntityType="Self.T_QREST_EMAIL_TEMPLATE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_HELP_DOCS" EntityType="Self.T_QREST_HELP_DOCS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_MONITORS" EntityType="Self.T_QREST_MONITORS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_ORG_EMAIL_RULE" EntityType="Self.T_QREST_ORG_EMAIL_RULE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_ORG_USERS" EntityType="Self.T_QREST_ORG_USERS" Schema="dbo" store:Type="Tables" />
@@ -738,6 +748,7 @@
             <End Role="T_QREST_ROLES" EntitySet="T_QREST_ROLES" />
             <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
           </AssociationSet>
+          <EntitySet Name="T_QREST_HELP_DOCS" EntityType="QRESTModel.T_QREST_HELP_DOCS" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -1280,6 +1291,15 @@
           <End Type="QRESTModel.T_QREST_ROLES" Role="T_QREST_ROLES" Multiplicity="*" />
           <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="*" />
         </Association>
+        <EntityType Name="T_QREST_HELP_DOCS">
+          <Key>
+            <PropertyRef Name="HELP_IDX" />
+          </Key>
+          <Property Name="HELP_IDX" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HELP_TITLE" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="HELP_HTML" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="SORT_SEQ" Type="Int32" Nullable="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1615,6 +1635,16 @@
               <ScalarProperty Name="ROLE_IDX" ColumnName="ROLE_IDX" />
             </EndProperty>
           </AssociationSetMapping>
+          <EntitySetMapping Name="T_QREST_HELP_DOCS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_HELP_DOCS">
+              <MappingFragment StoreEntitySet="T_QREST_HELP_DOCS">
+                <ScalarProperty Name="SORT_SEQ" ColumnName="SORT_SEQ" />
+                <ScalarProperty Name="HELP_HTML" ColumnName="HELP_HTML" />
+                <ScalarProperty Name="HELP_TITLE" ColumnName="HELP_TITLE" />
+                <ScalarProperty Name="HELP_IDX" ColumnName="HELP_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

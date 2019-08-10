@@ -197,6 +197,9 @@
     <Compile Include="App_Logic\DataAccessLayer\T_QREST_EMAIL_TEMPLATE.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="App_Logic\DataAccessLayer\T_QREST_HELP_DOCS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="App_Logic\DataAccessLayer\T_QREST_MONITORS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
@@ -270,7 +273,6 @@
     <Compile Include="Controllers\DataController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\SharedController.cs" />
     <Compile Include="Controllers\SiteController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -282,7 +284,6 @@
     <Compile Include="Models\ddlHelpers.cs" />
     <Compile Include="Models\HomeViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
-    <Compile Include="Models\SharedViewModels.cs" />
     <Compile Include="Models\SiteViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -576,7 +577,6 @@
     <Content Include="Views\Admin\LogError.cshtml" />
     <Content Include="Views\Admin\OrgEdit.cshtml" />
     <Content Include="Views\Admin\ImportData.cshtml" />
-    <Content Include="Views\Shared\_PartialOrgHeader.cshtml" />
     <Content Include="Views\Home\Map.cshtml" />
     <Content Include="Views\Account\MyProfile.cshtml" />
     <Content Include="Views\Site\SiteEdit.cshtml" />
@@ -593,6 +593,8 @@
     <Content Include="Scripts\tinymce\skins\ui\oxide\fonts\tinymce-mobile.woff" />
     <Content Include="Scripts\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
     <Content Include="Scripts\tinymce\langs\readme.md" />
+    <Content Include="Views\Home\Help.cshtml" />
+    <Content Include="Views\Admin\HelpConfig.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Docs\" />

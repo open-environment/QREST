@@ -22,8 +22,6 @@ namespace QREST.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
@@ -39,6 +37,13 @@ namespace QREST.Controllers
             return View();
         }
 
+
+        public ActionResult Help()
+        {
+            var model = new vmHomeHelp();
+            model.HelpTopics = db_Ref.GetT_QREST_HELP_DOCS();
+            return View(model);
+        }
 
 
 

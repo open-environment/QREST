@@ -27,8 +27,6 @@
                 </a>
             </div>
 
-            @*@Html.Action("_PartialOrgHeader", "Shared")*@
-
             <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user">
                 <li class="hidden-xs">
                     <a href="#" class="dropdown-toggle dk" data-toggle="dropdown">
@@ -84,7 +82,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="docs.html">Help</a>
+                                    <a href="@Url.Action("Help", "Home")" target="_blank">Help</a>
                                 </li>
                                 <li class="divider"></li>
                                 <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
@@ -106,7 +104,7 @@
         <section>
             <section class="hbox stretch">
                 <!-- start: LEFT MENU -->
-                @if (Request.IsAuthenticated)
+                @if (Request.IsAuthenticated && ViewBag.HideLeft != true)
                 {
                     @Html.Partial("_LeftMenu")
                 }
@@ -116,10 +114,13 @@
                     <section class="vbox">
                         <section class="scrollable padder">
                             <!--breadcrumbs -->
-                            <ul class="breadcrumb no-border no-radius b-b b-light pull-in">
-                                <li><a href="@Url.Action("Index", "Dashboard")"><i class="fa fa-home"></i> Home</a></li>
-                                <li class="active">@ViewBag.Title</li>
-                            </ul>
+                            @if (ViewBag.HideCrumbs != true)
+                            {
+                                <ul class="breadcrumb no-border no-radius b-b b-light pull-in">
+                                    <li><a href="@Url.Action("Index", "Dashboard")"><i class="fa fa-home"></i> Home</a></li>
+                                    <li class="active">@ViewBag.Title</li>
+                                </ul>
+                            }
                             <!-- page title-->
                             @if (ViewBag.HideTitle != true)
                             {

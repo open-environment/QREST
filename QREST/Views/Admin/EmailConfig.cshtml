@@ -3,7 +3,7 @@
     ViewBag.Title = "Email Template Configuration";
 }
 
-<section class="hbox stretch">
+<section class="hbox">
     <aside class="aside-md bg-white b-r" id="subNav">
         <div class="wrapper b-b header bg-dark">Email Templates</div>
         <ul class="nav">
@@ -16,50 +16,38 @@
         </ul>
     </aside>
     <aside>
-        <section class="vbox">
-            <header class="header bg-dark b-b clearfix">
-                <div class="row m-t-sm">
-                    <div class="col-sm-8 m-b-xs">
-                        Details
+        <div class="wrapper b-b header bg-dark">Details</div>
+        <section class="panel m-b-none">
+            <div class="panel-body">
+                @using (Html.BeginForm("EmailConfig", "Admin", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.editID)
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                Email Subject
+                                @Html.TextBoxFor(model => model.editSUBJ, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.editSUBJ)
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </header>
-            <section class="scrollable  w-f">
-                <section class="panel panel-default">
-                    <div class="panel-body">
-                        @using (Html.BeginForm("EmailConfig", "Admin", FormMethod.Post))
-                        {
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.editID)
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        Email Subject
-                                        @Html.TextBoxFor(model => model.editSUBJ, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.editSUBJ)
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                Email Body
+                                @Html.EditorFor(model => model.editMSG, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.editMSG)
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        Email Body
-                                        @Html.EditorFor(model => model.editMSG, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.editMSG)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </div>
-                        }
+                        </div>
                     </div>
-
-</section>
-            </section>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                }
+            </div>
         </section>
     </aside>
 </section>
-

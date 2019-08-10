@@ -42,6 +42,18 @@ namespace QREST.Models
     }
 
 
+    public class vmAdminHelpConfig
+    {
+        public List<T_QREST_HELP_DOCS> HelpTopics { get; set; }
+        public T_QREST_HELP_DOCS EditHelp { get; set; }
+
+        [UIHint("wsywigeditor"), AllowHtml]
+        [StringLength(6000)]
+        public string editHelpHtml { get; set; }
+
+    }
+
+
     public class vmAdminDocConfig
     {
     }

@@ -49,5 +49,6 @@ namespace QREST.App_Logic.DataAccessLayer
         public virtual DbSet<T_QREST_USER_CLAIMS> T_QREST_USER_CLAIMS { get; set; }
         public virtual DbSet<T_QREST_USER_LOGINS> T_QREST_USER_LOGINS { get; set; }
         public virtual DbSet<T_QREST_USERS> T_QREST_USERS { get; set; }
+        public virtual DbSet<T_QREST_HELP_DOCS> T_QREST_HELP_DOCS { get; set; }
     }
 }

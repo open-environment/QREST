@@ -270,6 +270,81 @@ namespace QREST.App_Logic.DataAccessLayer
         }
 
 
+        //*****************HELP_DOCS **********************************
+        public static List<T_QREST_HELP_DOCS> GetT_QREST_HELP_DOCS()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+
+                try
+                {
+                    return (from a in ctx.T_QREST_HELP_DOCS
+                            orderby a.SORT_SEQ
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static T_QREST_HELP_DOCS GetT_QREST_HELP_DOCS_ByID(int id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_HELP_DOCS
+                            where a.HELP_IDX == id
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int InsertUpdateT_QREST_HELP_DOCS(int? hELP_IDX, string hELP_TITLE, string hELP_HTML, int? sORT_SEQ)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    Boolean insInd = false;
+
+                    T_QREST_HELP_DOCS e = (from c in ctx.T_QREST_HELP_DOCS
+                                                where c.HELP_IDX == hELP_IDX
+                                                select c).FirstOrDefault();
+
+                    //insert case
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_HELP_DOCS();
+                    }
+
+                    if (hELP_TITLE != null) e.HELP_TITLE = hELP_TITLE;
+                    if (hELP_HTML != null) e.HELP_HTML = hELP_HTML;
+                    if (sORT_SEQ != null) e.SORT_SEQ = sORT_SEQ ?? 1;
+
+                    if (insInd)
+                        ctx.T_QREST_HELP_DOCS.Add(e);
+
+                    ctx.SaveChanges();
+                    return e.HELP_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
 
         //***************** ORGANZIATIONS ******************************
         public static List<T_QREST_ORGANIZATIONS> GetT_QREST_ORGANIZATIONS(bool actInd)

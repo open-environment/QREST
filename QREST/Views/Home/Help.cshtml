@@ -1,0 +1,50 @@
+﻿@model QREST.Models.vmHomeHelp
+@{
+    ViewBag.HideTitle = true;
+    ViewBag.HideLeft = true;
+    ViewBag.HideCrumbs = true;
+}
+
+<div class="hbox stretch">
+    <aside class="bg-light aside b-r animated fadeInLeftBig">
+        <section class="vbox">
+            <header class="header b-b navbar">
+                <a class="btn btn-link pull-right visible-xs" data-toggle="class:show" data-target=".nav-primary"> <i class="fa fa-bars"></i> </a>
+                <a href="index.html" class="navbar-brand">QREST Help</a>
+            </header>
+            <section class="scrollable">
+                <nav class="nav-primary hidden-xs nav-docs">
+                    <ul class="nav">
+                        @foreach (var item in Model.HelpTopics)
+                        {
+                            <li>
+                                <a href="#@item.HELP_TITLE.Replace(" ","-")">@item.HELP_TITLE</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </section>
+        </section>
+    </aside>
+       
+    <section id="content">
+        <section class="vbox">
+            <section class="scrollable bg-light lter" data-spy="scroll" data-target=".nav-primary">
+                <section id="docs">
+                    <div class="clearfix padder">
+
+                        @foreach (var item in Model.HelpTopics)
+                        {
+                            <h3 id="@item.HELP_TITLE.Replace(" ","-")" class="text-info">
+                                @item.HELP_TITLE
+                            </h3>
+                            <div class="line"></div>
+                            @Html.Raw(HttpUtility.HtmlDecode(item.HELP_HTML))
+                        }
+
+                    </div>
+                </section>
+            </section>
+        </section>
+    </section>
+</div>

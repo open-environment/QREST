@@ -25,14 +25,25 @@
                     <li>
                         @Html.ActionLink("Home", "Index", "Home")
                     </li>
-                    <li>
-                        @Html.ActionLink("Sign In", "Index", "Dashboard")
-                    </li>
-                    <li>
-                        <div class="m-t-sm">
-                            @Html.ActionLink("Create an Account", "Register", "Account", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
-                        </div>
-                    </li>
+                    @if (!Request.IsAuthenticated)
+                    {
+                        <li>
+                            @Html.ActionLink("Sign In", "Index", "Dashboard")
+                        </li>
+                        <li>
+                            <div class="m-t-sm">
+                                @Html.ActionLink("Create an Account", "Register", "Account", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <div class="m-t-sm">
+                                @Html.ActionLink("Secure Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
+                            </div>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>

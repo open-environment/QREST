@@ -18,6 +18,13 @@ INSERT INTO T_QREST_APP_SETTINGS_CUSTOM ([TERMS_AND_CONDITIONS],[ANNOUNCEMENTS])
 <p><strong>Privacy Statement</strong><br> Personal identifying information you provide will be used for the expressed purpose of registration to this site and for updating and correcting agency information as necessary. This information will not be made available for other purposes unless required by law. Your information will not be sold or otherwise transferred to an outside third party.</p>','');
 
 
+--****************ONLINE HELP*****************************************************************************************
+INSERT INTO T_QREST_HELP_DOCS(HELP_TITLE,SORT_SEQ,HELP_HTML) values ('Users Guide',1,'<p>The QREST User''s Guide can be found here: <a href="#">User''s Guide</a></p>');
+INSERT INTO T_QREST_HELP_DOCS(HELP_TITLE,SORT_SEQ,HELP_HTML) values ('FAQ',2,'<p>May be provided later.</p>');
+INSERT INTO T_QREST_HELP_DOCS(HELP_TITLE,SORT_SEQ,HELP_HTML) values ('Tutorial Videos',3,'<p>May be provided later.</p>');
+
+
+
 --****************T_PRT_REF_EMAIL_TEMPLATE ************************************************************************************
 INSERT INTO T_QREST_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('EMAIL_CONFIRM','Sent to users to allow them to confirm their email address as part of activating their account.','Verify Your Email','Please verify your QREST account by clicking this link: <a href=''{callbackUrl}''>Verify Account</a>');
 INSERT INTO T_QREST_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('RESET_PASSWORD','Reset a user''s password','QREST - Reset Password','Please reset your QREST password by clicking here: <a href=''{callbackUrl}''>Reset Password</a>');

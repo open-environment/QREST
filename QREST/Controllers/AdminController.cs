@@ -122,6 +122,22 @@ namespace QREST.Controllers
             return RedirectToAction("AppSettings");
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult CustomSettingsTerms(vmAdminAppSettings model)
+        {
+            if (ModelState.IsValid)
+            {
+                int SuccID = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(model.TermsAndConditions ?? "", null);
+                if (SuccID > 0)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("AppSettings");
+        }
+
+
 
         //************************************* EMAIL CONFIG************************************************************
         // GET: /Admin/EmailConfig
@@ -144,6 +160,63 @@ namespace QREST.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult EmailConfig(vmAdminEmailConfig model)
+        {
+            if (ModelState.IsValid)
+            {
+                string UserIDX = User.Identity.GetUserId();
+
+                int SuccID = db_Ref.InsertUpdateT_QREST_EMAIL_TEMPLATE(model.editID, model.editSUBJ, model.editMSG, UserIDX);
+                if (SuccID > 0)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("EmailConfig", new { id = model.editID });
+        }
+
+
+
+
+
+        //************************************* HELP CONFIG************************************************************
+        // GET: /Admin/HelpConfig
+        public ActionResult HelpConfig(int? id)
+        {
+            var model = new vmAdminHelpConfig
+            {
+                HelpTopics = db_Ref.GetT_QREST_HELP_DOCS()
+            };
+
+            model.EditHelp = db_Ref.GetT_QREST_HELP_DOCS_ByID(id ?? -1);
+            if (model.EditHelp == null)
+                model.EditHelp = db_Ref.GetT_QREST_HELP_DOCS_ByID(model.HelpTopics[0].HELP_IDX);
+
+            model.editHelpHtml = model.EditHelp.HELP_HTML;
+
+            return View(model);
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult HelpConfig(vmAdminHelpConfig model)
+        {
+            if (ModelState.IsValid)
+            {
+                string UserIDX = User.Identity.GetUserId();
+
+                model.EditHelp.HELP_IDX = db_Ref.InsertUpdateT_QREST_HELP_DOCS(model.EditHelp.HELP_IDX, model.EditHelp.HELP_TITLE, model.editHelpHtml, model.EditHelp.SORT_SEQ);
+                if (model.EditHelp.HELP_IDX > 0)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("HelpConfig", new { id = model.EditHelp.HELP_IDX });
         }
 
 

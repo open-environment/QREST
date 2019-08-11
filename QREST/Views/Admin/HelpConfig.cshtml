@@ -3,9 +3,9 @@
     ViewBag.Title = "Oneline Help Configuration";
 }
 
-<section class="hbox stretch">
-    <aside class="aside-md bg-white b-r" id="subNav">
-        <div class="wrapper b-b header bg-dark">Help Topics</div>
+<section class="hbox">
+    <section class="aside-md panel panel-qrest" id="subNav" style="border-radius: 4px 0px 0px 4px;">
+        <header class="panel-heading font-bold" style="border-right: 1px solid #fff">Help Topics</header>
         <ul class="nav">
             @foreach (var item in Model.HelpTopics)
             {
@@ -14,59 +14,47 @@
                 </li>
             }
         </ul>
-    </aside>
-    <aside>
-        <section class="vbox">
-            <header class="header bg-dark b-b clearfix">
-                <div class="row m-t-sm">
-                    <div class="col-sm-8 m-b-xs">
-                        Details
+    </section>
+    <section class="panel panel-qrest" style="border-radius: 0px 4px 4px 0px;">
+        <header class="panel-heading font-bold">Details</header>
+
+        <div class="panel-body">
+            @using (Html.BeginForm("HelpConfig", "Admin", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.EditHelp.HELP_IDX)
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            Help Topic Name
+                            @Html.TextBoxFor(model => model.EditHelp.HELP_TITLE, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.EditHelp.HELP_TITLE)
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            Sort Sequence
+                            @Html.TextBoxFor(model => model.EditHelp.SORT_SEQ, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.EditHelp.SORT_SEQ)
+                        </div>
                     </div>
                 </div>
-            </header>
-            <section class="scrollable w-f">
-                <section class="panel panel-default">
-                    <div class="panel-body">
-                        @using (Html.BeginForm("HelpConfig", "Admin", FormMethod.Post))
-                        {
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.EditHelp.HELP_IDX)
-                            <div class="row">
-                                <div class="col-md-9">
-                                    <div class="form-group">
-                                        Help Topic Name
-                                        @Html.TextBoxFor(model => model.EditHelp.HELP_TITLE, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.EditHelp.HELP_TITLE)
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        Sort Sequence
-                                        @Html.TextBoxFor(model => model.EditHelp.SORT_SEQ, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.EditHelp.SORT_SEQ)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        Email Body
-                                        @Html.EditorFor(model => model.editHelpHtml, new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.EditHelp.HELP_HTML)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </div>
-                        }
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            Email Body
+                            @Html.EditorFor(model => model.editHelpHtml, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.EditHelp.HELP_HTML)
+                        </div>
                     </div>
-
-                </section>
-            </section>
-        </section>
-    </aside>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
 </section>
 

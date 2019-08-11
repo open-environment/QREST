@@ -4,7 +4,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using QREST.Models;
-using QREST.App_Logic.DataAccessLayer;
 using Microsoft.AspNet.Identity;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.Owin;
@@ -12,6 +11,7 @@ using QREST.App_Logic.BusinessLogicLayer;
 using System.IO;
 using System.Data;
 using System.Text.RegularExpressions;
+using QRESTModel.DAL;
 
 namespace QREST.Controllers
 {

@@ -163,103 +163,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_Logic\BusinessLogicLayer\EncryptionAES.cs" />
-    <Compile Include="App_Logic\BusinessLogicLayer\GetIP.cs" />
-    <Compile Include="App_Logic\BusinessLogicLayer\HTMLHelpers.cs" />
-    <Compile Include="App_Logic\BusinessLogicLayer\UtilsEmail.cs" />
-    <Compile Include="App_Logic\BusinessLogicLayer\UtilsText.cs" />
-    <Compile Include="App_Logic\DataAccessLayer\db_Account.cs" />
-    <Compile Include="App_Logic\DataAccessLayer\db_Ref.cs" />
-    <Compile Include="App_Logic\DataAccessLayer\db_Air.cs" />
-    <Compile Include="App_Logic\DataAccessLayer\EFExtension.cs" />
-    <Compile Include="App_Logic\DataAccessLayer\logEF.cs" />
-    <Compile Include="App_Logic\DataAccessLayer\QRESTModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>QRESTModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\QRESTModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\QRESTModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>QRESTModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_APP_SETTINGS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_APP_SETTINGS_CUSTOM.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_EMAIL_TEMPLATE.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_HELP_DOCS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_MONITORS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_ORGANIZATIONS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_ORG_EMAIL_RULE.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_ORG_USERS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_REF_AQS_AGENCY.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_REF_COLLECT_FREQ.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_REF_DURATION.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_REF_PARAMETERS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_REF_PAR_METHODS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_REF_REGION.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_REF_STATE.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_REF_UNITS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_ROLES.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_SITES.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_SYS_LOG.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_SYS_LOG_ACTIVITY.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_SYS_LOG_EMAIL.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_USERS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_USER_CLAIMS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="App_Logic\DataAccessLayer\T_QREST_USER_LOGINS.cs">
-      <DependentUpon>QRESTModel.tt</DependentUpon>
-    </Compile>
+    <Compile Include="App_Logic\EncryptionAES.cs" />
+    <Compile Include="App_Logic\GetIP.cs" />
+    <Compile Include="App_Logic\HTMLHelpers.cs" />
+    <Compile Include="App_Logic\UtilsEmail.cs" />
+    <Compile Include="App_Logic\UtilsText.cs" />
     <Compile Include="App_Start\AuthorizeAttribute.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CustomPasswordValidator.cs" />
@@ -289,21 +197,6 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\1_createDatabase.sql" />
-    <Content Include="App_Data\3_createFunctions.sql" />
-    <Content Include="App_Data\2_createTables.sql" />
-    <Content Include="App_Data\4_populateData.sql" />
-    <Content Include="App_Data\5_populateDataLocal.sql" />
-    <Content Include="App_Logic\DataAccessLayer\QRESTModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>QRESTModel.edmx</DependentUpon>
-      <LastGenOutput>QRESTModel.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="App_Logic\DataAccessLayer\QRESTModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>QRESTModel.edmx</DependentUpon>
-      <LastGenOutput>QRESTModel.cs</LastGenOutput>
-    </Content>
     <Content Include="Content\animate.css" />
     <Content Include="Content\app.css" />
     <Content Include="Content\bootstrap-theme.css" />
@@ -340,13 +233,6 @@
     <Content Include="fonts\opensans-webfont.woff" />
     <Content Include="Content\toastr.scss" />
     <Content Include="Content\toastr.less" />
-    <EntityDeploy Include="App_Logic\DataAccessLayer\QRESTModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>QRESTModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="App_Logic\DataAccessLayer\QRESTModel.edmx.diagram">
-      <DependentUpon>QRESTModel.edmx</DependentUpon>
-    </Content>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
@@ -595,10 +481,10 @@
     <Content Include="Scripts\tinymce\langs\readme.md" />
     <Content Include="Views\Home\Help.cshtml" />
     <Content Include="Views\Admin\HelpConfig.cshtml" />
+    <Content Include="Views\Home\Terms.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Docs\" />
-    <Folder Include="Views\Base\" />
+    <Folder Include="Content\Docs\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -607,6 +493,12 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\QRESTModel\QRESTModel.csproj">
+      <Project>{499f2c39-41b7-4573-b033-c79f25c272c9}</Project>
+      <Name>QRESTModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -1,7 +1,6 @@
-﻿using QREST.App_Logic.DataAccessLayer;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
+using QRESTModel.DAL;
 
 namespace QREST.Models
 {
@@ -13,4 +12,8 @@ namespace QREST.Models
         public List<T_QREST_HELP_DOCS> HelpTopics { get; set; }
     }
 
+
+    public class vmHomeTerms {
+        public string TermsAndConditions { get; set; }
+    }
 }

@@ -1,4 +1,4 @@
-﻿using QREST.App_Logic.DataAccessLayer;
+﻿using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

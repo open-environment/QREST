@@ -1,5 +1,4 @@
 ﻿using QREST.App_Logic.BusinessLogicLayer;
-using QREST.App_Logic.DataAccessLayer;
 using QREST.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System;
-
+using QRESTModel.DAL;
 
 namespace QREST.Controllers
 {
@@ -196,19 +195,45 @@ namespace QREST.Controllers
                     bool succInd = await SendEmailConfirmationTokenAsync(user.Id, model.Email, "EMAIL_CONFIRM");
                     if (succInd)
                     {
-                        //add user to organization if supplied (as pending)
+                        //************************************************************
+                        //**************** USER / ORG ASSOCIATION ********************
+                        //************************************************************
                         if (model.selOrgID != null)
                         {
-                            Guid? SuccID = db_Account.InsertUpdateT_QREST_ORG_USERS(user.Email, model.selOrgID, "U", "P", null);
+                            string regStatus = "P";  //default org registration status is pending
+
+                            //if user has matching email domain for the org, then automatically authorize (no need for pending)
+                            T_QREST_ORGANIZATIONS oe = db_Ref.GetT_QREST_ORGANIZATION_ByOrg_Email(model.selOrgID, model.Email);
+                            if (oe != null)
+                                regStatus = "A";
+
+
+                            Guid? OrgUserID = db_Account.InsertUpdateT_QREST_ORG_USERS(user.Id, model.selOrgID, "U", regStatus, null);
 
                             //notify organization admins (via email)
-                            if (SuccID != Guid.Empty && SuccID != null)
+                            if (OrgUserID != Guid.Empty && OrgUserID != null)
                             {
                                 List<UserOrgDisplayType> OrgAdmins = db_Account.GetT_QREST_ORG_USERS_ByOrgID(model.selOrgID, "A", "A");
-                                foreach (UserOrgDisplayType OrgAdmin in OrgAdmins)
+                                if (OrgAdmins != null && OrgAdmins.Count > 0)
                                 {
-                                    var emailParams = new Dictionary<string, string> { { "UserName", OrgAdmin.USER_NAME }, { "orgName", OrgAdmin.ORG_ID } };
-                                    UtilsEmail.SendEmail(null, OrgAdmin.USER_EMAIL, null, null, null, null, "ACCESS_REQUEST", emailParams);
+                                    foreach (UserOrgDisplayType OrgAdmin in OrgAdmins)
+                                    {
+                                        var emailParams = new Dictionary<string, string> { { "UserName", OrgAdmin.USER_NAME }, { "orgName", OrgAdmin.ORG_ID } };
+                                        UtilsEmail.SendEmail(null, OrgAdmin.USER_EMAIL, null, null, null, null, "ACCESS_REQUEST", emailParams);
+                                    }
+                                }
+                                else  //there are no org admins, so send email to global admins
+                                {
+
+                                    List<T_QREST_USERS> _admins = db_Account.GetT_QREST_USERSInRole("ADMIN");
+                                    if (_admins != null)
+                                    {
+                                        foreach (T_QREST_USERS _admin in _admins)
+                                        {
+                                            var emailParams = new Dictionary<string, string> { { "UserName", _admin.UserName }, { "orgName", model.selOrgID } };
+                                            UtilsEmail.SendEmail(null, _admin.Email, null, null, null, null, "ACCESS_REQUEST", emailParams);
+                                        }
+                                    }
                                 }
                             }
                         }

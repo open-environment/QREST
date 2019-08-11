@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using QREST.App_Logic.DataAccessLayer;
+using QRESTModel.DAL;
 
 namespace QREST.Models
 {

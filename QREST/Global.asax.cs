@@ -6,7 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using QREST.App_Logic.DataAccessLayer;
+using QRESTModel.DAL;
 using QREST.Controllers;
 using Microsoft.AspNet.Identity;
 

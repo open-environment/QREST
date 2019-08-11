@@ -7,8 +7,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using QREST.App_Logic.BusinessLogicLayer;
-using QREST.App_Logic.DataAccessLayer;
 using QREST.Models;
+using QRESTModel.DAL;
 
 namespace QREST.Controllers
 {
@@ -45,6 +45,15 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
+
+        public ActionResult Terms ()
+        {
+            var model = new vmHomeTerms();
+            T_QREST_APP_SETTINGS_CUSTOM cust = db_Ref.GetT_QREST_APP_SETTING_CUSTOM();
+            model.TermsAndConditions = cust.TERMS_AND_CONDITIONS;
+            return View(model);
+        }
 
 
     }

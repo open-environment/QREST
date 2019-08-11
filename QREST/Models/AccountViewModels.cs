@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using CompareAttribute = System.ComponentModel.DataAnnotations.CompareAttribute;
-using QREST.App_Logic.DataAccessLayer;
+using QRESTModel.DAL;
 
 
 namespace QREST.Models

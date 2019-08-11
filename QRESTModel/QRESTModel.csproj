@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{499F2C39-41B7-4573-B033-C79F25C272C9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>QRESTModel</RootNamespace>
+    <AssemblyName>QRESTModel</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BLL\Utils.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="DAL\db_Account.cs" />
+    <Compile Include="DAL\db_Air.cs" />
+    <Compile Include="DAL\db_Ref.cs" />
+    <Compile Include="DAL\LinqExtensions.cs" />
+    <Compile Include="DAL\logEF.cs" />
+    <Compile Include="DAL\QRESTModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QRESTModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\QRESTModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\QRESTModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QRESTModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_APP_SETTINGS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_APP_SETTINGS_CUSTOM.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_EMAIL_TEMPLATE.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_HELP_DOCS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_MONITORS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_ORGANIZATIONS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_ORG_EMAIL_RULE.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_ORG_USERS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_AQS_AGENCY.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_ASSESS_TYPE.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_COLLECT_FREQ.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_DURATION.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_PARAMETERS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_PAR_METHODS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_REGION.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_STATE.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_UNITS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_ROLES.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_SITES.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_SYS_LOG.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_SYS_LOG_ACTIVITY.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_SYS_LOG_EMAIL.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_USERS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_USER_CLAIMS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_USER_LOGINS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_Data\1_createDatabase.sql" />
+    <Content Include="App_Data\2_createTables.sql" />
+    <Content Include="App_Data\3_createFunctions.sql" />
+    <Content Include="App_Data\4_populateData.sql" />
+    <Content Include="App_Data\5_populateDataLocal.sql" />
+    <Content Include="DAL\QRESTModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>QRESTModel.Context.cs</LastGenOutput>
+      <DependentUpon>QRESTModel.edmx</DependentUpon>
+    </Content>
+    <Content Include="DAL\QRESTModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>QRESTModel.edmx</DependentUpon>
+      <LastGenOutput>QRESTModel.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EntityDeploy Include="DAL\QRESTModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>QRESTModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config" />
+    <None Include="DAL\QRESTModel.edmx.diagram">
+      <DependentUpon>QRESTModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

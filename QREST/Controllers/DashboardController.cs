@@ -1,10 +1,10 @@
-﻿using QREST.App_Logic.DataAccessLayer;
-using QREST.Models;
+﻿using QREST.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using QRESTModel.DAL;
 
 namespace QREST.Controllers
 {

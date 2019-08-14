@@ -31,7 +31,7 @@ GO
 IF EXISTS (SELECT * FROM sys.server_principals WHERE name = N'qrest_login')
 DROP LOGIN [qrest_login]
 
-use [QREST]
+use [QREST]  --ni Azure you may need to manually switch in SSMS
 
 Create login qrest_login with password='B$57WjpN!17h';
 EXEC sp_defaultdb @loginame='qrest_login', @defdb='QREST' 

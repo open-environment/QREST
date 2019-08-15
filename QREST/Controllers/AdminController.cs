@@ -599,9 +599,7 @@ namespace QREST.Controllers
                     string currentLine;
                     while ((currentLine = csvreader.ReadLine()) != null)
                     {
-
                         //split row's columns into string array
-
                         Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
                         string[] cols = CSVParser.Split(currentLine);
                         cols = cols.Select(x => x.Replace("\"", "")).ToArray();   //remove double quotes
@@ -633,8 +631,6 @@ namespace QREST.Controllers
                                 //**********************************************************
                                 //NOT HEADER ROW - READING IN VALUES
                                 //**********************************************************
-
-                                //************************** IMPORTING AGENCY ***********************************************
                                 if (importType == "AGENCY")
                                 {
                                     T_QREST_REF_AQS_AGENCY _data = db_Ref.GetT_QREST_REF_AQS_AGENCY_ByID(cols[0]);
@@ -721,7 +717,7 @@ namespace QREST.Controllers
                                         T_QREST_REF_UNITS _unit = db_Ref.GetT_QREST_REF_UNITS_ByDesc(cols[14]);
                                         if (_unit != null)
                                         {
-                                            bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_PAR_METHODS(null, cols[1], cols[2], cols[3], cols[4], cols[5], cols[7], cols[8], _unit.UNIT_CODE, cols[9].ConvertOrDefault<double?>(), cols[10].ConvertOrDefault<double?>(), cols[11].ConvertOrDefault<double?>(), true, UserIDX);
+                                            bool SuccID = db_Ref.InsertT_QREST_REF_PAR_METHODS(null, cols[1], cols[2], cols[3], cols[4], cols[5], cols[7], cols[8], _unit.UNIT_CODE, cols[9].ConvertOrDefault<double?>(), cols[10].ConvertOrDefault<double?>(), cols[11].ConvertOrDefault<double?>(), UserIDX);
                                             if (SuccID)
                                                 insCount++;
                                             else
@@ -734,14 +730,8 @@ namespace QREST.Controllers
                                         existCount++;
                                 }
                             }
-
-
-
                         }
-
-
                     }
-
                 }
             }
             else

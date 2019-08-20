@@ -218,7 +218,7 @@ namespace QREST.Controllers
                                 {
                                     foreach (UserOrgDisplayType OrgAdmin in OrgAdmins)
                                     {
-                                        var emailParams = new Dictionary<string, string> { { "UserName", OrgAdmin.USER_NAME }, { "orgName", OrgAdmin.ORG_ID } };
+                                        var emailParams = new Dictionary<string, string> { { "UserName", model.Email }, { "orgName", OrgAdmin.ORG_ID } };
                                         UtilsEmail.SendEmail(null, OrgAdmin.USER_EMAIL, null, null, null, null, "ACCESS_REQUEST", emailParams);
                                     }
                                 }
@@ -230,7 +230,7 @@ namespace QREST.Controllers
                                     {
                                         foreach (T_QREST_USERS _admin in _admins)
                                         {
-                                            var emailParams = new Dictionary<string, string> { { "UserName", _admin.UserName }, { "orgName", model.selOrgID } };
+                                            var emailParams = new Dictionary<string, string> { { "UserName", model.Email }, { "orgName", model.selOrgID } };
                                             UtilsEmail.SendEmail(null, _admin.Email, null, null, null, null, "ACCESS_REQUEST", emailParams);
                                         }
                                     }

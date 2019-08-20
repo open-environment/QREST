@@ -166,8 +166,9 @@
     padding: 12px 12px;
 }
 
-
-/* modal: center and compress */
+/* ---------------------------------------------------------------------- */
+/* modal: (center and compress) */
+/* ---------------------------------------------------------------------- */
 .modal {
     text-align: center;
 }
@@ -203,14 +204,9 @@
 }
 
 
-
+/* ---------------------------------------------------------------------- */
 /* data tables custom styling */
-table.dataTable thead .sorting_asc:after {
-    color: green !important;
-}
-table.dataTable thead .sorting_desc:after {
-    color: green !important;
-}
+/* ---------------------------------------------------------------------- */
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
@@ -224,9 +220,7 @@ table.dataTable.no-footer {
 }
 
 
-.reg-type > .radio input:checked {
-    background-color:red;
-}
+
 
 
 
@@ -250,6 +244,19 @@ table.dataTable.no-footer {
     text-decoration: none;
     background-color: #d2d2d2;
 }
+
+
+/* ---------------------------------------------------------------------- */
+/*	Checkbox
+ /* ---------------------------------------------------------------------- */
+.checkbox-lg {
+    height:20px;
+    width:20px
+}
+.label-lg {
+    font-size: 1.1em;
+}
+
 
 /* ---------------------------------------------------------------------- */
 /*	Accordion

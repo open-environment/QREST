@@ -403,6 +403,32 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static int DeleteT_QREST_MONITORS(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    //don't delete if there is data for the monitor
+                    //List<T_QREST_MONITORS> _mon = GetT_QREST_MONITORS_bySiteIDX(id);
+                    //if (_mon == null || _mon.Count == 0)
+                    //{
+                        T_QREST_MONITORS rec = new T_QREST_MONITORS { MONITOR_IDX = id };
+                        ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                        ctx.SaveChanges();
+
+                        return 1;
+                    //}
+                    //else
+                    //    return -1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
 
     }
 }

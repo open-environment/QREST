@@ -754,7 +754,7 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    return (from a in ctx.T_QREST_REF_PAR_METHODS
+                    return (from a in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking()
                             where a.PAR_CODE == parCD
                             && a.METHOD_CODE == methodCD
                             select a).FirstOrDefault();
@@ -767,46 +767,22 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool InsertUpdatetT_QREST_REF_PAR_METHODS(Guid? pAR_METHOD_IDX, string pAR_CODE, string mETHOD_CODE, string rECORDING_MODE, string cOLLECTION_DESC, string aNALYSIS_DESC,
-            string rEFERENCE_METHOD_ID, string eQUIVALENT_METHOD, string sTD_UNIT_CODE, double? fED_MDL, double? mIN_VALUE, double? mAX_VALUE, bool? aCT_IND, string cREATE_USER)
+        public static bool InsertT_QREST_REF_PAR_METHODS(Guid? pAR_METHOD_IDX, string pAR_CODE, string mETHOD_CODE, string rECORDING_MODE, string cOLLECTION_DESC, string aNALYSIS_DESC,
+            string rEFERENCE_METHOD_ID, string eQUIVALENT_METHOD, string sTD_UNIT_CODE, double? fED_MDL, double? mIN_VALUE, double? mAX_VALUE, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    bool insInd = false;
 
-                    T_QREST_REF_PAR_METHODS e = null;
-
-                    //first try to get from IDX
-                    if (pAR_METHOD_IDX != null)
-                        e = (from c in ctx.T_QREST_REF_PAR_METHODS
-                             where c.PAR_METHOD_IDX == pAR_METHOD_IDX
-                             select c).FirstOrDefault();
-
-                    //then get from par and method
-                    if (e == null)
-                        e = (from c in ctx.T_QREST_REF_PAR_METHODS
-                             where c.PAR_CODE == pAR_CODE
-                             && c.METHOD_CODE == mETHOD_CODE
-                             select c).FirstOrDefault();
-
-                    //then 
-                    if (e == null)
-                    {
-                        insInd = true;
-                        e = new T_QREST_REF_PAR_METHODS();
-                        e.PAR_METHOD_IDX = Guid.NewGuid();
-                        e.PAR_CODE = pAR_CODE;
-                        e.METHOD_CODE = mETHOD_CODE;
-                        e.CREATE_DT = System.DateTime.Now;
-                        e.CREATE_USER_IDX = cREATE_USER;
-                    }
-                    else
-                    {
-                        e.MODIFY_DT = System.DateTime.Now;
-                        e.MODIFY_USER_IDX = cREATE_USER;
-                    }
+                    T_QREST_REF_PAR_METHODS e = new T_QREST_REF_PAR_METHODS {
+                        PAR_METHOD_IDX = Guid.NewGuid(),
+                        PAR_CODE = pAR_CODE,
+                        METHOD_CODE = mETHOD_CODE,
+                        CREATE_DT = System.DateTime.Now,
+                        CREATE_USER_IDX = cREATE_USER,
+                        ACT_IND = true
+                    };
 
                     if (rECORDING_MODE != null) e.RECORDING_MODE = rECORDING_MODE;
                     if (cOLLECTION_DESC != null) e.COLLECTION_DESC = cOLLECTION_DESC;
@@ -817,11 +793,8 @@ namespace QRESTModel.DAL
                     if (fED_MDL != null) e.FED_MDL = fED_MDL;
                     if (mIN_VALUE != null) e.MIN_VALUE = mIN_VALUE;
                     if (mAX_VALUE != null) e.MAX_VALUE = mAX_VALUE;
-                    if (aCT_IND != null) e.ACT_IND = aCT_IND ?? true;
 
-                    if (insInd)
-                        ctx.T_QREST_REF_PAR_METHODS.Add(e);
-
+                    ctx.T_QREST_REF_PAR_METHODS.Add(e);
                     ctx.SaveChanges();
                     return true;
                 }
@@ -1058,7 +1031,7 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    return (from a in ctx.T_QREST_REF_UNITS
+                    return (from a in ctx.T_QREST_REF_UNITS.AsNoTracking()
                             where a.UNIT_DESC == desc
                             select a).FirstOrDefault();
                 }

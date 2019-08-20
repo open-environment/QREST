@@ -542,7 +542,7 @@ namespace QREST.Controllers
             else
             {
                 Guid idg = new Guid(id);
-                int SuccID = db_Air.DeleteT_QREST_SITES(idg);
+                int SuccID = db_Air.DeleteT_QREST_MONITORS(idg);
                 if (SuccID == 1)
                     return Json("Success");
                 else if (SuccID == -1)

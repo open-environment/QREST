@@ -9,7 +9,7 @@ namespace QREST_BrowserUnitTests
 {
 	public static class BrowserProperties
 	{
-		public static IWebDriver SetTestDriver( string browserType, string browserVersion, string os, string osVersion, string resolution, string testName, string browserStackDebug)
+		public static IWebDriver SetTestDriver( string browserType, string browserVersion, string os, string osVersion, string resolution, string testName, string browserStackDebug, string browserStackUser, string browserStackKey)
 		{
 			IWebDriver driver;
 			DesiredCapabilities capability = new DesiredCapabilities();
@@ -18,8 +18,8 @@ namespace QREST_BrowserUnitTests
 			capability.SetCapability("os", os);
 			capability.SetCapability("os_version", osVersion);
 			capability.SetCapability("resolution", resolution);
-			capability.SetCapability("browserstack.user", ConfigurationManager.AppSettings["browserStackUser"]);
-			capability.SetCapability("browserstack.key", ConfigurationManager.AppSettings["browserStackKey"]);
+			capability.SetCapability("browserstack.user", browserStackUser);
+			capability.SetCapability("browserstack.key", browserStackKey);
 			capability.SetCapability("name", testName);
 			capability.SetCapability("browserstack.debug", browserStackDebug);
 
@@ -46,5 +46,6 @@ namespace QREST_BrowserUnitTests
 				
 			}
 		}
+
 	}
 }

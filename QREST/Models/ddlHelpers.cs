@@ -20,14 +20,22 @@ namespace QREST.Models
                 Text = x.ORG_NAME
             });
         }
-
-
+        
         public static IEnumerable<SelectListItem> get_ddl_state()
         {
             return db_Ref.GetT_QREST_REF_STATE().Select(x => new SelectListItem
             {
                 Value = x.STATE_CD,
                 Text = x.STATE_NAME
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_county(string StateCd)
+        {
+            return db_Ref.GetT_QREST_REF_COUNTY_ByState(StateCd).Select(x => new SelectListItem
+            {
+                Value = x.COUNTY_CD,
+                Text = x.COUNTY_NAME
             });
         }
 
@@ -48,8 +56,7 @@ namespace QREST.Models
                 Text = "(" + x.AQS_AGENCY_CODE + ") " + x.AQS_AGENCY_NAME
             });
         }
-
-
+        
         public static IEnumerable<SelectListItem> get_ddl_my_organizations(string UserIDX)
         {
             return db_Account.GetT_QREST_ORG_USERS_byUSER_IDX(UserIDX, "A").Select(x => new SelectListItem
@@ -58,7 +65,24 @@ namespace QREST.Models
                 Text = x.ORG_NAME
             });
         }
+        
+        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string UserIDX)
+        {
+            return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(null, UserIDX).Select(x => new SelectListItem
+            {
+                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
+                Text = x.ORG_ID + " | Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME
+            });
+        }
 
+        public static IEnumerable<SelectListItem> get_ddl_ref_assess_type()
+        {
+            return db_Ref.GetT_QREST_REF_ASSESS_TYPE().Select(x => new SelectListItem
+            {
+                Value = x.ASSESSMENT_TYPE,
+                Text = x.ASSESSMENT_TYPE
+            });
+        }
 
         public static IEnumerable<SelectListItem> get_ddl_ref_coll_freq()
         {
@@ -68,8 +92,7 @@ namespace QREST.Models
                 Text = x.COLLECT_FEQ_DESC
             });
         }
-
-
+        
         public static IEnumerable<SelectListItem> get_ddl_ref_duration()
         {
             return db_Ref.GetT_QREST_REF_DURATION().Select(x => new SelectListItem
@@ -96,8 +119,7 @@ namespace QREST.Models
             _list.Add(new SelectListItem() { Value = "R", Text = "Read Only" });
             return _list;
         }
-
-
+        
         public static IEnumerable<SelectListItem> get_ddl_users(bool ConfirmedOnly)
         {
             return db_Account.GetT_QREST_USERS(ConfirmedOnly).Select(x => new SelectListItem
@@ -106,6 +128,7 @@ namespace QREST.Models
                 Text = x.FNAME + " " + x.LNAME
             });
         }
+
 
     }
 }

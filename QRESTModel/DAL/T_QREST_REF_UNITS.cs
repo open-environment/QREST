@@ -17,6 +17,7 @@ namespace QRESTModel.DAL
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public T_QREST_REF_UNITS()
         {
+            this.T_QREST_QC_ASSESSMENT = new HashSet<T_QREST_QC_ASSESSMENT>();
             this.T_QREST_REF_PAR_METHODS = new HashSet<T_QREST_REF_PAR_METHODS>();
             this.T_QREST_REF_PARAMETERS = new HashSet<T_QREST_REF_PARAMETERS>();
         }
@@ -29,6 +30,8 @@ namespace QRESTModel.DAL
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_QC_ASSESSMENT> T_QREST_QC_ASSESSMENT { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_REF_PAR_METHODS> T_QREST_REF_PAR_METHODS { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

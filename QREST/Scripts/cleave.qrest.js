@@ -17,6 +17,16 @@
         });
     });
 
+
+    //time entry
+    $('.time-cleave').toArray().forEach(function (field) {
+        new Cleave(field, {
+            time: true,
+            timePattern: ['h', 'm']
+        });
+    });
+
+
     //zip entry
     $('.zip-cleave').toArray().forEach(function (field) {
         new Cleave(field, {

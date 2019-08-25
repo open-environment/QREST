@@ -16,6 +16,20 @@ namespace QRESTModel.DAL
         public string ORG_ID { get; set; }
     }
 
+    public class QcAssessmentDisplay
+    {
+        public Guid? QC_ASSESS_IDX { get; set; }
+        public Guid? MONITOR_IDX { get; set; }
+        public DateTime? ASSESSMENT_DT { get; set; }
+        public string ASSESSMENT_TYPE { get; set; }
+        public string ASSESSED_BY { get; set; }
+        public string SITE_ID { get; set; }
+        public string PAR_NAME { get; set; }
+        public string ORG_ID { get; set; }
+
+    }
+
+
     public class db_Air
     {
         //*****************SITES**********************************
@@ -41,6 +55,34 @@ namespace QRESTModel.DAL
                                select a).ToList();
 
                     return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a count of the list of sites a user has access to, optionally filtered by org
+        /// </summary>
+        /// <param name="OrgID"></param>
+        /// <param name="UserIDX"></param>
+        /// <returns></returns>
+        public static int? GetT_QREST_SITES_ByUser_OrgID_count(string OrgID, string UserIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_SITES.AsNoTracking()
+                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
+                               where u.USER_IDX == UserIDX
+                               && u.STATUS_IND == "A"
+                               && (OrgID != null ? a.ORG_ID == OrgID : true)
+                               orderby a.SITE_ID
+                               select a).Count();
                 }
                 catch (Exception ex)
                 {
@@ -116,7 +158,7 @@ namespace QRESTModel.DAL
         }
 
         public static int InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, decimal? lATITUDE, decimal? lONGITUDE,
-            string aDDRESS, string cITY, string sTATE, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, bool? tELEMETRY_ONLINE_IND, string tELEMETRY_SOURCE,
+            string aDDRESS, string cITY, string sTATE, string cOUNTY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, bool? tELEMETRY_ONLINE_IND, string tELEMETRY_SOURCE,
             string sITE_COMMENTS, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -151,7 +193,8 @@ namespace QRESTModel.DAL
                     if (lONGITUDE != null) e.LONGITUDE = lONGITUDE;
                     if (aDDRESS != null) e.ADDRESS = aDDRESS;
                     if (cITY != null) e.CITY = cITY;
-                    if (sTATE != null) e.STATE = sTATE;
+                    if (sTATE != null) e.STATE_CD = sTATE;
+                    if (cOUNTY != null) e.COUNTY_CD = cOUNTY;
                     if (zIP_CODE != null) e.ZIP_CODE = zIP_CODE;
                     if (sTART_DT != null) e.START_DT = sTART_DT;
                     if (eND_DT != null) e.END_DT = eND_DT;
@@ -351,6 +394,29 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static int? GetT_QREST_MONITORS_ByUser_OrgID_Count(string OrgID, string UserIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from m in ctx.T_QREST_MONITORS.AsNoTracking()
+                               join a in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals a.SITE_IDX
+                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
+                               where u.USER_IDX == UserIDX
+                               && u.STATUS_IND == "A"
+                               && (OrgID != null ? a.ORG_ID == OrgID : true)
+                               select m).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
         public static int InsertUpdatetT_QREST_MONITORS(Guid? mONITOR_IDX, Guid? sITE_IDX, Guid? pAR_METHOD_IDX, int? pOC, string dURATION_CODE, string cOLLECT_FREQ_CODE,
             string cOLLECT_UNIT_CODE, double? aLERT_MIN_VALUE, double? aLERT_MAX_VALUE, int? aLERT_PCT_CHANGE, int? aLERT_STUCK_REC_COUNT, string cREATE_USER)
         {
@@ -429,6 +495,113 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
+        //*****************QC_ASSESSMENT**********************************
+        public static Guid? InsertUpdatetT_QREST_QC_ASSESSMENT(Guid? qC_ASSESS_IDX, Guid? mONITOR_IDX, DateTime? aSSESSMENT_DT, string aSSESSMENT_TYPE,
+            string uNIT_CODE, int? aSSESSMENT_NUM, string aSSESSED_BY, string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    Boolean insInd = false;
+
+                    T_QREST_QC_ASSESSMENT e = (from c in ctx.T_QREST_QC_ASSESSMENT
+                                               where c.QC_ASSESS_IDX == qC_ASSESS_IDX
+                                               select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_QC_ASSESSMENT();
+                        e.QC_ASSESS_IDX = Guid.NewGuid();
+                        e.CREATE_DT = System.DateTime.Now;
+                        e.CREATE_USER_IDX = cREATE_USER;
+                    }
+                    else
+                    {
+                        e.MODIFY_DT = System.DateTime.Now;
+                        e.MODIFY_USER_IDX = cREATE_USER;
+                    }
+
+                    if (mONITOR_IDX != null) e.MONITOR_IDX = mONITOR_IDX.ConvertOrDefault<Guid>();
+                    if (aSSESSMENT_DT != null) e.ASSESSMENT_DT = aSSESSMENT_DT.GetValueOrDefault();
+                    if (aSSESSMENT_TYPE != null) e.ASSESSMENT_TYPE = aSSESSMENT_TYPE;
+                    if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
+                    if (aSSESSMENT_NUM != null) e.ASSESSMENT_NUM = aSSESSMENT_NUM ?? 1;
+                    if (aSSESSED_BY != null) e.ASSESSED_BY = aSSESSED_BY;
+
+                    if (insInd)
+                        ctx.T_QREST_QC_ASSESSMENT.Add(e);
+
+                    ctx.SaveChanges();
+                    return e.QC_ASSESS_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static List<QcAssessmentDisplay> GetT_QREST_QC_ASSESSMENT_Search(string orgIDX, Guid? SiteIDX, Guid? MonitorIDX, int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    string orderCol = (orderBy == 3 ? "ASSESSMENT_DT" : "ASSESSMENT_DT");
+
+                    var xxx = (from a in ctx.T_QREST_QC_ASSESSMENT.AsNoTracking()
+                               join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
+                               join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                               join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX                              
+                               where (MonitorIDX != null ? a.MONITOR_IDX == MonitorIDX : true)
+                               && (SiteIDX != null ? m.SITE_IDX == SiteIDX : true)
+                               && (orgIDX != null ? s.ORG_ID == orgIDX : true)
+                               select new QcAssessmentDisplay {
+                                   QC_ASSESS_IDX = a.QC_ASSESS_IDX,
+                                   MONITOR_IDX = a.MONITOR_IDX,
+                                   ASSESSMENT_DT = a.ASSESSMENT_DT,
+                                   ASSESSMENT_TYPE = a.ASSESSMENT_TYPE,
+                                   ASSESSED_BY = a.ASSESSED_BY,
+                                   SITE_ID = s.SITE_ID,
+                                   PAR_NAME = "(" + pm.PAR_CODE + ")",
+                                   ORG_ID = s.ORG_ID
+                               }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static T_QREST_QC_ASSESSMENT GetT_QREST_QC_ASSESSMENT_ByID(Guid? AssessIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_QC_ASSESSMENT.AsNoTracking()
+                               where a.QC_ASSESS_IDX == AssessIDX 
+                               select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
 
     }
 }

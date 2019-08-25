@@ -3,21 +3,27 @@
     ViewBag.Title = "Quality Control Checks";
     ViewBag.SubTitle = "The table lists all field QC checks that have been conducted";
 }
-
-@if (Model.ddl_Organization != null && Model.ddl_Organization.Count() > 1)
-{
-    using (Html.BeginForm("SiteList", "Site", FormMethod.Post, new { @class = "form-horizontal" }))
-    {
-        <div class="form-group">
-            <label class="col-sm-2 control-label">
-                Organization:
-            </label>
-            <div class="col-sm-6">
-                @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "", new { @class = "form-control", @onchange = "document.location.href = '/Data/QCList?selOrgID=' + this.options[this.selectedIndex].value;" })
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Filter Organization</label>
+                @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
             </div>
         </div>
-    }
-}
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Site</label>
+                @*@Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "", new { @class = "form-control" })*@
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Monitor</label>
+                @*@Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "", new { @class = "form-control" })*@
+            </div>
+        </div>
+    </div>
+
 
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">QC Checks</header>
@@ -31,41 +37,12 @@
                         <th>Organization</th>
                         <th>Site</th>
                         <th>Parameter</th>
-                        <th>Assessment Type</th>
+                        <th>QC Type</th>
                         <th>QC Date</th>
-                        <th>Submission Status</th>
+                        <th>AQS Status</th>
                     </tr>
                 </thead>
-                @*@foreach (var item in Model.T_QREST_SITES)
-                    {
-                        <tr>
-                            <td>
-                                <a href="@(Url.Action("SiteEdit","Site", new { id = item.SITE_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
-                                <div class="delete-section" style="display:inline-block">
-                                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SITE_IDX" data-delete-p="/Site/SiteDelete"><b>Confirm Delete</b></div>
-                                </div>
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.ORG_ID)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.SITE_ID)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.SITE_NAME)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.AQS_SITE_ID)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.ADDRESS)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.SITE_COMMENTS)
-                            </td>
-                        </tr>
-                    }*@
+
             </table>
         </div>
         <a href="@(Url.Action("QCEntry","Data"))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> New</a>
@@ -75,6 +52,77 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
+    @Scripts.Render("~/bundles/datatables")
 
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+
+            // datatable initialization
+            var table = $("#gridData").DataTable({
+                "responsive": true,
+                "serverSide": true,
+                "processing": true,
+                "orderMulti": false,
+                "lengthChange": false,
+                "paging": true,
+                "pageLength": 25,
+                "pagingType": "full_numbers",
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("QCListData", "Data")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "data": function (d) {
+                        return $.extend({}, d, {
+                            "p_org": $('#selOrgID').val(),
+                            "p_site": $('#selSite').val(),
+                            "p_mon" : $('#selMon').val()
+                        });
+                    }
+                },
+                "order": [[0, "desc"]],
+                "columns": [
+                    {
+                        "render": function (data, type, row) {
+                            var myUrl = "@(Url.Action("QCEntry","Data"))" + "/" + row.QC_ASSESS_IDX;
+                            return '<a href="' + myUrl + '" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
+                                                            + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
+                                                            + row.QC_ASSESS_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Data/QCDelete"><b>Confirm Delete</b></div></div>';
+                        }
+                    },
+                    { "data": "ORG_ID", "name": "ORG_ID", "autoWidth": true },
+                    { "data": "SITE_ID", "name": "SITE_ID", "autoWidth": true },
+                    { "data": "PAR_NAME", "name": "PAR_NAME", "autoWidth": true },
+                    { "data": "ASSESSMENT_TYPE", "name": "ASSESSMENT_TYPE", "autoWidth": true },
+                    {
+                        "data": "ASSESSMENT_DT",
+                        "name": "ASSESSMENT_DT",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY hh:mm A ");
+                        }
+                    }
+                ],
+                fnDrawCallback: function (oSettings) {
+                    var totalPages = this.api().page.info().pages;
+                    if (totalPages == 1) {
+                        jQuery('.dataTables_paginate').hide();
+                    }
+                    else {
+                        jQuery('.dataTables_paginate').show();
+                    }
+                }
+            });
+
+            //date filter click
+            $('#btnGo').on('click', function () {
+                table.draw();
+            })
+        });
+
+    </script>
 }
 

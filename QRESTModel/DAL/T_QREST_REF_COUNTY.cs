@@ -12,22 +12,20 @@ namespace QRESTModel.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class T_QREST_REF_STATE
+    public partial class T_QREST_REF_COUNTY
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public T_QREST_REF_STATE()
+        public T_QREST_REF_COUNTY()
         {
-            this.T_QREST_ORGANIZATIONS = new HashSet<T_QREST_ORGANIZATIONS>();
-            this.T_QREST_REF_COUNTY = new HashSet<T_QREST_REF_COUNTY>();
+            this.T_QREST_SITES = new HashSet<T_QREST_SITES>();
         }
     
         public string STATE_CD { get; set; }
-        public string STATE_NAME { get; set; }
-        public string STATE_ABBR { get; set; }
+        public string COUNTY_CD { get; set; }
+        public string COUNTY_NAME { get; set; }
     
+        public virtual T_QREST_REF_STATE T_QREST_REF_STATE { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<T_QREST_ORGANIZATIONS> T_QREST_ORGANIZATIONS { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<T_QREST_REF_COUNTY> T_QREST_REF_COUNTY { get; set; }
+        public virtual ICollection<T_QREST_SITES> T_QREST_SITES { get; set; }
     }
 }

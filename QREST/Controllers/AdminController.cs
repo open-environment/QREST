@@ -623,6 +623,8 @@ namespace QREST.Controllers
                                     importType = "PARAMETERS";
                                 else if (cols[0] == "Parameter" && cols[2] == "Method Code")
                                     importType = "METHODS";
+                                else if (cols[0] == "State Code")
+                                    importType = "STATES COUNTIES";
 
                                 headInd = false;
                             }
@@ -723,6 +725,24 @@ namespace QREST.Controllers
                                             else
                                                 errorCount++;
                                         }
+                                        else
+                                            errorCount++;
+                                    }
+                                    else
+                                        existCount++;
+                                }
+                                else if (importType == "STATES COUNTIES")
+                                {
+                                    //first check if state exists
+                                    db_Ref.InsertUpdatetT_QREST_REF_STATE(cols[0], cols[1], cols[2]);
+
+                                    //next update county
+                                    T_QREST_REF_COUNTY _data = db_Ref.GetT_QREST_REF_COUNTY_ByID(cols[0],cols[3]);
+                                    if (_data == null)
+                                    {
+                                        bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_COUNTY(cols[0], cols[3], cols[4]);
+                                        if (SuccID)
+                                            insCount++;
                                         else
                                             errorCount++;
                                     }

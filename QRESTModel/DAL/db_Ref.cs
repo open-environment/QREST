@@ -271,6 +271,7 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************HELP_DOCS **********************************
         public static List<T_QREST_HELP_DOCS> GetT_QREST_HELP_DOCS()
         {
@@ -345,6 +346,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
 
         //***************** ORGANZIATIONS ******************************
@@ -563,6 +565,27 @@ namespace QRESTModel.DAL
 
 
 
+        //***************** REF_ASSESS_TYPE ******************************
+        public static List<T_QREST_REF_ASSESS_TYPE> GetT_QREST_REF_ASSESS_TYPE()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_ASSESS_TYPE
+                            orderby a.ASSESSMENT_TYPE
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+
         //***************** REF_COLLECT_FREQ ******************************
         public static List<T_QREST_REF_COLLECT_FREQ> GetT_QREST_REF_COLLECT_FREQ()
         {
@@ -633,6 +656,85 @@ namespace QRESTModel.DAL
 
                     if (insInd)
                         ctx.T_QREST_REF_COLLECT_FREQ.Add(e);
+
+                    ctx.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+
+
+        //***************** REF_COUNTY ******************************
+        public static T_QREST_REF_COUNTY GetT_QREST_REF_COUNTY_ByID(string StateCd, string CountyCd)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_COUNTY
+                            where a.COUNTY_CD == CountyCd
+                            && a.STATE_CD == StateCd
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<T_QREST_REF_COUNTY> GetT_QREST_REF_COUNTY_ByState(string StateCd)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_COUNTY
+                            where a.STATE_CD == StateCd
+                            orderby a.COUNTY_CD
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static bool InsertUpdatetT_QREST_REF_COUNTY(string sTATE_CD, string cOUNTY_CD, string cOUNTY_NAME)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    Boolean insInd = false;
+
+                    T_QREST_REF_COUNTY e = (from c in ctx.T_QREST_REF_COUNTY
+                                            where c.STATE_CD == sTATE_CD
+                                            && c.COUNTY_CD == cOUNTY_CD
+                                           select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_REF_COUNTY();
+                        e.STATE_CD = sTATE_CD;
+                        e.COUNTY_CD = cOUNTY_CD;
+                    }
+
+                    if (cOUNTY_NAME != null) e.COUNTY_NAME = cOUNTY_NAME;
+
+                    if (insInd)
+                        ctx.T_QREST_REF_COUNTY.Add(e);
 
                     ctx.SaveChanges();
                     return true;
@@ -986,6 +1088,36 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static bool InsertUpdatetT_QREST_REF_STATE(string sTATE_CD, string sTATE_NAME, string sTATE_ABBR)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_REF_STATE e = (from c in ctx.T_QREST_REF_STATE
+                                           where c.STATE_CD == sTATE_CD
+                                           select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        e = new T_QREST_REF_STATE();
+                        e.STATE_CD = sTATE_CD;
+                        e.STATE_NAME = sTATE_NAME;
+                        e.STATE_ABBR = sTATE_ABBR;
+                        ctx.T_QREST_REF_STATE.Add(e);
+                        ctx.SaveChanges();
+                    }
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
 
 
         //***************** REF_UNITS ******************************
@@ -1278,6 +1410,7 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************SYS_LOG_EMAIL **********************************
         public static int CreateT_QREST_SYS_LOG_EMAIL(string eMAIL_FROM, string eMAIL_TO, string eMAIL_CC, string eMAIL_SUBJ, string eMAIL_MSG, string eMAIL_TYPE)
         {
@@ -1354,7 +1487,6 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
 
     }
 }

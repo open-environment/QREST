@@ -18,7 +18,7 @@ namespace QRESTModel.DAL
         public QRESTEntities()
             : base("name=QRESTEntities")
         {
-            base.Configuration.ProxyCreationEnabled = false;
+            this.Configuration.LazyLoadingEnabled = false;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -34,9 +34,11 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_ORG_EMAIL_RULE> T_QREST_ORG_EMAIL_RULE { get; set; }
         public virtual DbSet<T_QREST_ORG_USERS> T_QREST_ORG_USERS { get; set; }
         public virtual DbSet<T_QREST_ORGANIZATIONS> T_QREST_ORGANIZATIONS { get; set; }
+        public virtual DbSet<T_QREST_QC_ASSESSMENT> T_QREST_QC_ASSESSMENT { get; set; }
         public virtual DbSet<T_QREST_REF_AQS_AGENCY> T_QREST_REF_AQS_AGENCY { get; set; }
         public virtual DbSet<T_QREST_REF_ASSESS_TYPE> T_QREST_REF_ASSESS_TYPE { get; set; }
         public virtual DbSet<T_QREST_REF_COLLECT_FREQ> T_QREST_REF_COLLECT_FREQ { get; set; }
+        public virtual DbSet<T_QREST_REF_COUNTY> T_QREST_REF_COUNTY { get; set; }
         public virtual DbSet<T_QREST_REF_DURATION> T_QREST_REF_DURATION { get; set; }
         public virtual DbSet<T_QREST_REF_PAR_METHODS> T_QREST_REF_PAR_METHODS { get; set; }
         public virtual DbSet<T_QREST_REF_PARAMETERS> T_QREST_REF_PARAMETERS { get; set; }

@@ -8,6 +8,9 @@ namespace QREST.Models
     public class vmDashboardIndex
     {
         public string Announcement { get; set; }
+        public int? MySiteCount { get; set; }
+        public int? MyMonitorCount { get; set; }
+        public int? MyAlertCount { get; set; }
 
     }
 }

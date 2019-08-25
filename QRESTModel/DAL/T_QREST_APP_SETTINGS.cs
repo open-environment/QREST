@@ -19,8 +19,8 @@ namespace QRESTModel.DAL
         public string SETTING_DESC { get; set; }
         public string SETTING_VALUE { get; set; }
         public string SETTING_CAT { get; set; }
+        public Nullable<bool> ENCRYPT_IND { get; set; }
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
-        public Nullable<bool> ENCRYPT_IND { get; set; }
     }
 }

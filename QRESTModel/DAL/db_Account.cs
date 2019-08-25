@@ -52,7 +52,7 @@ namespace QRESTModel.DAL
                                 select u).ToList();
                     else
                         return (from u in ctx.T_QREST_USERS.AsNoTracking()
-                                join uo in ctx.T_QREST_ORG_USERS on u.USER_IDX equals uo.USER_IDX
+                                join uo in ctx.T_QREST_ORG_USERS.AsNoTracking() on u.USER_IDX equals uo.USER_IDX
                                 where uo.ORG_ID == OrgID
                                 select u).ToList();
 

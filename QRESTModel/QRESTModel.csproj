@@ -96,6 +96,9 @@
     <Compile Include="DAL\T_QREST_ORG_USERS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\T_QREST_QC_ASSESSMENT.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\T_QREST_REF_AQS_AGENCY.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
@@ -103,6 +106,9 @@
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_REF_COLLECT_FREQ.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_COUNTY.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_REF_DURATION.cs">

@@ -1,7 +1,150 @@
-﻿
+﻿@model QREST.Models.vmDataQCEntry
 @{
-    ViewBag.Title = "QCEntry";
+    ViewBag.Title = "Quality Control Data Entry";
 }
 
-<h2>QCEntry</h2>
+<div class="row">
 
+    @using (Html.BeginForm("QCEntry", "Data", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.QC_ASSESS_IDX)
+
+        <div class="col-md-12">
+            <section class="panel panel-qrest">
+                <header class="panel-heading font-bold">Basic Info</header>
+                <div class="panel-body">
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Select Monitor</label>
+                                @Html.DropDownListFor(model => model.MONITOR_IDX, Model.ddl_Monitor, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.MONITOR_IDX)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Assessment Date</label>
+                                @Html.TextBoxFor(model => model.ASSESSMENT_DT, new { @class = "form-control date-cleave", @maxlength = "10", @autocomplete="off", @placeholder="mm/dd/yyyy" })
+                                @Html.TextBoxFor(model => model.ASSESSMENT_TM, new { @class = "form-control ", @maxlength = "5", @autocomplete="off", @placeholder="hh:mm" })
+                                @Html.ValidationMessageFor(model => model.ASSESSMENT_DT)
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Assessment Type</label>
+                                @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.ASSESSMENT_TYPE)
+                            </div>
+                        </div>
+                    </div>
+                    <p>
+                        <button id="btnSave" type="submit" disabled class="btn btn-primary">Continue</button>
+                        <a class=" btn btn-default" href="@Url.Action("QCList")">Back to List</a>
+                    </p>
+
+                    <div class="line line-dashed line-lg pull-in"></div>
+
+                    <h4>continue button</h4>
+                    @*<div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    @Html.TextBoxFor(model => model.ADDRESS, new { @class = "form-control", @maxlength = "100" })
+                                    @Html.ValidationMessageFor(model => model.ADDRESS)
+                                </div>
+                            </div>
+                        </div>*@
+
+                    <p>
+                        <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
+                        <a class=" btn btn-default" href="@Url.Action("QCList")">Back to List</a>
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        if (Model.QC_ASSESS_IDX != null)
+        {
+            <div class="col-md-12">
+                <section class="panel panel-qrest">
+                    <header class="panel-heading font-bold">Assessment Details</header>
+                    <div class="panel-body">
+
+                        @*@if (Model.Assessment != null)
+                            {
+
+                                <div class="table-responsive">
+                                    <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 120px;"></th>
+                                                <th>Parameter</th>
+                                                <th>Method Code</th>
+                                                <th>POC</th>
+                                                <th>Duration Code</th>
+                                                <th>Collection Frequency</th>
+                                            </tr>
+                                        </thead>
+                                        @foreach (var item in Model.monitors)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <a href="@(Url.Action("MonitorEdit", "Site", new { id = item.T_QREST_MONITORS.MONITOR_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
+                                                    <div class="delete-section" style="display:inline-block">
+                                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete"><b>Confirm Delete</b></div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.PAR_NAME)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.METHOD_CODE)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.POC)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.DURATION_CODE)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.COLLECT_FREQ_CODE)
+                                                </td>
+                                            </tr>
+                                        }
+                                    </table>
+                                </div>
+                            }*@
+
+                        @*<a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>*@
+                    </div>
+                </section>
+
+
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/cleave")
+    @Scripts.Render("~/bundles/areyousure")
+
+    <script type="text/javascript">
+        // Enable dirtyforms
+        $('#norepostform').dirtyForms();
+        // Enable/disable the submit button when the state transitions between dirty and clean.
+        $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
+            if (ev.type === 'dirty') {
+                $("#btnSave").prop("disabled", false);
+            } else {
+                $("#btnSave").prop("disabled", true);
+            }
+        });
+    </script>
+}

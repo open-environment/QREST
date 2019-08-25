@@ -14,7 +14,7 @@
             if (Model != null)
             {
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label>Org ID</label>
                             @if (Model.ORG_ID != null)
@@ -28,7 +28,7 @@
                             @Html.ValidationMessageFor(model => model.ORG_ID)
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="form-group">
                             <label>Org Name</label>
                             @Html.TextBoxFor(model => model.ORG_NAME, new { @class = "form-control" })
@@ -39,21 +39,21 @@
             }
 
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label>State</label>
                         @Html.DropDownListFor(model => model.STATE_CD, Model.ddl_State, "", new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.STATE_CD)
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label>EPA Region</label>
                         @Html.DropDownListFor(model => model.EPA_REGION, Model.ddl_Region, "", new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.EPA_REGION)
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label>AQS Agency Code</label>
                         @Html.DropDownListFor(model => model.AQS_AGENCY_CODE, Model.ddl_AqsAgency, "", new { @class = "form-control" })

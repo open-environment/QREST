@@ -88,8 +88,8 @@
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
-    <Reference Include="SendGrid, Version=9.11.0.0, Culture=neutral, PublicKeyToken=4f047e93159395ca, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sendgrid.9.11.0\lib\net452\SendGrid.dll</HintPath>
+    <Reference Include="SendGrid, Version=9.12.0.0, Culture=neutral, PublicKeyToken=4f047e93159395ca, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sendgrid.9.12.0\lib\net452\SendGrid.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -209,7 +209,6 @@
     <Content Include="Content\favicon.ico" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\Images\itep_logo_120.png" />
-    <Content Include="Content\Images\logo.png" />
     <Content Include="Content\Images\main.png" />
     <Content Include="Content\Images\phone-1.png" />
     <Content Include="Content\Images\phone-2.png" />
@@ -477,12 +476,12 @@
     <Content Include="Views\Site\SiteImport.cshtml" />
     <Content Include="Views\Site\MonitorImport.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\wsywigeditor.cshtml" />
-    <Content Include="Scripts\tinymce\skins\ui\oxide\fonts\tinymce-mobile.woff" />
-    <Content Include="Scripts\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
-    <Content Include="Scripts\tinymce\langs\readme.md" />
     <Content Include="Views\Home\Help.cshtml" />
     <Content Include="Views\Admin\HelpConfig.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
+    <Content Include="Scripts\tinymce\skins\ui\oxide\fonts\tinymce-mobile.woff" />
+    <Content Include="Scripts\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
+    <Content Include="Scripts\tinymce\langs\readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Docs\" />

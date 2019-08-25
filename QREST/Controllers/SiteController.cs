@@ -83,7 +83,8 @@ namespace QREST.Controllers
             string UserIDX = User.Identity.GetUserId();
 
             var model = new vmSiteSiteEdit {
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX)
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX),
+                ddl_State = ddlHelpers.get_ddl_state()
             };
 
             T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id ?? Guid.Empty);
@@ -114,6 +115,10 @@ namespace QREST.Controllers
 
                 //monitor
                 model.monitors = db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(model.SITE_IDX);
+
+                //county
+                if (model.STATE_CD != null)
+                    model.ddl_County = ddlHelpers.get_ddl_county(model.STATE_CD);
             }
             else if (id != null)
             {
@@ -142,9 +147,9 @@ namespace QREST.Controllers
                 }
 
 
-                int SuccInd = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID,
-                    model.LATITUDE, model.LONGITUDE, model.ADDRESS, model.CITY, model.STATE, model.ZIP_CODE,
-                    model.START_DT, model.END_DT, model.TELEMETRY_ONLINE_IND, model.TELEMETRY_SOURCE, model.SITE_COMMENTS, UserIDX);
+                int SuccInd = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
+                    model.LATITUDE, model.LONGITUDE, model.ADDRESS ?? "", model.CITY ?? "", model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.ZIP_CODE ?? "",
+                    model.START_DT, model.END_DT, model.TELEMETRY_ONLINE_IND, model.TELEMETRY_SOURCE ?? "", model.SITE_COMMENTS ?? "", UserIDX);
 
                 if (SuccInd>0)
                     TempData["Success"] = "Record updated";
@@ -156,6 +161,7 @@ namespace QREST.Controllers
             model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX);
             return View(model);
         }
+
 
         public ActionResult SiteImport(string selOrgID)
         {
@@ -220,6 +226,8 @@ namespace QREST.Controllers
                                     {
                                         string siteID = cols[5];
                                         string siteName = cols[7];
+                                        string state = cols[1];
+                                        string county = cols[3];
                                         T_QREST_SITES s = new T_QREST_SITES
                                         {
                                             SITE_IDX = Guid.NewGuid(),
@@ -227,6 +235,8 @@ namespace QREST.Controllers
                                             SITE_ID = siteID,
                                             SITE_NAME = siteName,
                                             AQS_SITE_ID = siteID,
+                                            STATE_CD = state,
+                                            COUNTY_CD = county,
                                             CREATE_DT = System.DateTime.Now,
                                             CREATE_USER_IDX = UserIDX
                                         };
@@ -301,7 +311,7 @@ namespace QREST.Controllers
                                 //check if QREST already has the site.
                                 T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
                                 if (_existSite == null)
-                                    db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], null, null, null, null, null, null, null, null, null, null, null, UserIDX);
+                                    db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], null, null, null, null, cols[1], cols[3], null, null, null, null, null, null, UserIDX);
                             }
                         }
                     }
@@ -311,8 +321,6 @@ namespace QREST.Controllers
 
             return RedirectToAction("SiteList", new { selOrgID = model.selOrgID });
         }
-
-
 
 
         [HttpPost]
@@ -332,6 +340,7 @@ namespace QREST.Controllers
                     return Json("Unable to find site to delete.");
             }
         }
+
 
 
         //**********************MONITORS **************************************
@@ -533,7 +542,6 @@ namespace QREST.Controllers
         }
 
 
-
         [HttpPost]
         public JsonResult MonitorDelete(string id)
         {
@@ -568,6 +576,9 @@ namespace QREST.Controllers
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
+
+
+
 
 
     }

@@ -1,32 +1,8 @@
-﻿@{
+﻿@model QREST.Models.vmDashboardIndex
+@{
     ViewBag.Title = "Dashboard";
+    ViewBag.PageConfig = true;
 }
-
-@*<div class="row">
-        <div class="col-lg-3 col-md-6">
-            <a href="@Url.Action("AppWiz1", "App", new { id = 2 })">
-                <div class="panel panel-yellow">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-edit fa-5x"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="font-16-to-20">Monitor</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <span class="pull-left font-bold">Continue Application</span>
-                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                        <div class="clearfix"></div>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>*@
-
-
 @if (!string.IsNullOrEmpty(Model.Announcement))
 {
     <div class="alert alert-block alert-info fade in">
@@ -40,31 +16,11 @@
     <div class="row m-l-none m-r-none bg-light lter">
         <div class="col-sm-6 col-md-3 padder-v b-r b-light">
             <span class="fa-stack fa-2x pull-left m-r-sm">
-                <i class="fa fa-circle fa-stack-2x text-info"></i>
-                <i class="fa fa-map-marker fa-stack-1x text-white"></i>
-            </span>
-            <a class="clear" href="#">
-                <span class="h3 block m-t-xs"><strong>2</strong></span>
-                <small class="text-muted text-uc">Air Monitoring Sites</small>
-            </a>
-        </div>
-        <div class="col-sm-6 col-md-3 padder-v b-r b-light lt">
-            <span class="fa-stack fa-2x pull-left m-r-sm">
-                <i class="fa fa-circle fa-stack-2x text-warning"></i>
-                <i class="fa fa-search fa-stack-1x text-white"></i>
-            </span>
-            <a class="clear" href="#">
-                <span class="h3 block m-t-xs"><strong id="bugs">7</strong></span>
-                <small class="text-muted text-uc">Monitors</small>
-            </a>
-        </div>
-        <div class="col-sm-6 col-md-3 padder-v b-r b-light">
-            <span class="fa-stack fa-2x pull-left m-r-sm">
                 <i class="fa fa-circle fa-stack-2x text-danger"></i>
                 <i class="fa fa-warning fa-stack-1x text-white"></i>
             </span>
             <a class="clear" href="#">
-                <span class="h3 block m-t-xs"><strong id="firers">23</strong></span>
+                <span class="h3 block m-t-xs"><strong id="firers">@Model.MyAlertCount</strong></span>
                 <small class="text-muted text-uc">Alerts</small>
             </a>
         </div>
@@ -73,11 +29,32 @@
                 <i class="fa fa-circle fa-stack-2x icon-muted"></i>
                 <i class="fa fa-clock-o fa-stack-1x text-white"></i>
             </span>
-            <a class="clear" href="#">
+            <a class="clear" href="@Url.Action("SiteList", "Site")">
                 <span class="h3 block m-t-xs"><strong>31:50</strong></span>
                 <small class="text-muted text-uc">Last Poll</small>
             </a>
         </div>
+        <div class="col-sm-6 col-md-3 padder-v b-r b-light">
+            <span class="fa-stack fa-2x pull-left m-r-sm">
+                <i class="fa fa-circle fa-stack-2x text-info"></i>
+                <i class="fa fa-map-marker fa-stack-1x text-white"></i>
+            </span>
+            <a class="clear" href="@Url.Action("SiteList", "Site")">
+                <span class="h3 block m-t-xs"><strong>@Model.MySiteCount</strong></span>
+                <small class="text-muted text-uc">Air Monitoring Sites</small>
+            </a>
+        </div>
+        <div class="col-sm-6 col-md-3 padder-v b-r b-light lt">
+            <span class="fa-stack fa-2x pull-left m-r-sm">
+                <i class="fa fa-circle fa-stack-2x text-warning"></i>
+                <i class="fa fa-search fa-stack-1x text-white"></i>
+            </span>
+            <a class="clear" href="@Url.Action("MonitorList", "Site")">
+                <span class="h3 block m-t-xs"><strong id="bugs">@Model.MyMonitorCount</strong></span>
+                <small class="text-muted text-uc">Monitors</small>
+            </a>
+        </div>
+
     </div>
 </section>
 <div class="row">

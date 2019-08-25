@@ -40,7 +40,8 @@ namespace QREST.Models
         public decimal? LONGITUDE { get; set; }
         public string ADDRESS { get; set; }
         public string CITY { get; set; }
-        public string STATE { get; set; }
+        public string STATE_CD { get; set; }
+        public string COUNTY_CD { get; set; }
         public string ZIP_CODE { get; set; }
         public DateTime? START_DT { get; set; }
         public DateTime? END_DT { get; set; }
@@ -49,6 +50,8 @@ namespace QREST.Models
         public string TELEMETRY_SOURCE { get; set; }
 
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+        public IEnumerable<SelectListItem> ddl_State { get; set; }
+        public IEnumerable<SelectListItem> ddl_County { get; set; }
 
 
         //monitors

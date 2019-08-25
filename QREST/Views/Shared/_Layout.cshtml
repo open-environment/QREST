@@ -128,6 +128,10 @@
                             @if (ViewBag.HideTitle != true)
                             {
                             <div class="m-b-md">
+                                @if (ViewBag.PageConfig == true)
+                                {
+                                    <a href="#" data-toggle="tooltip" data-placement="left" data-original-title="Page Config" class="pull-right"><i class="fa fa-cog fa-2x text-dark "></i></a>
+                                }
                                 <h3 class="m-b-none m-t-sm">@ViewBag.Title</h3>
                                 <span style="font-size:9pt; font-style:italic">@Html.Raw(ViewBag.SubTitle)</span>
                             </div>
@@ -137,22 +141,10 @@
                         </section>
                     </section>
                 </section>
-
-
-
             </section>
         </section>
-
-
-        @*<div class="container body-content">
-                <hr />
-                <footer>
-                    <p>&copy; @DateTime.Now.Year - QREST - <a href="http://www.qrest.org/" target="_blank">QREST Home</a></p>
-                </footer>
-            </div>*@
     </div>
-
-
+    
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/toastr")

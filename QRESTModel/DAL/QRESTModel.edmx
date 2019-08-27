@@ -329,6 +329,23 @@
           <Property Name="ProviderKey" Type="nvarchar" MaxLength="128" Nullable="false" />
           <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
         </EntityType>
+        <EntityType Name="T_QREST_USER_NOTIFICATION">
+          <Key>
+            <PropertyRef Name="NOTIFICATION_IDX" />
+          </Key>
+          <Property Name="NOTIFICATION_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="USER_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="NOTIFY_DT" Type="datetime2" Precision="0" Nullable="false" />
+          <Property Name="NOTIFY_TYPE" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="NOTIFY_TITLE" Type="varchar" MaxLength="50" />
+          <Property Name="NOTIFY_DESC" Type="varchar" MaxLength="200" />
+          <Property Name="READ_IND" Type="bit" />
+          <Property Name="FROM_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_USERIDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USERIDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
         <EntityType Name="T_QREST_USER_ROLES">
           <Key>
             <PropertyRef Name="USER_IDX" />
@@ -669,6 +686,7 @@
           <EntitySet Name="T_QREST_SYS_LOG_EMAIL" EntityType="Self.T_QREST_SYS_LOG_EMAIL" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USER_CLAIMS" EntityType="Self.T_QREST_USER_CLAIMS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USER_LOGINS" EntityType="Self.T_QREST_USER_LOGINS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_USER_NOTIFICATION" EntityType="Self.T_QREST_USER_NOTIFICATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USER_ROLES" EntityType="Self.T_QREST_USER_ROLES" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USERS" EntityType="Self.T_QREST_USERS" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__T_QREST_O__AQS_A__7C055DC1" Association="Self.FK__T_QREST_O__AQS_A__7C055DC1">
@@ -876,6 +894,7 @@
             <End Role="T_QREST_ROLES" EntitySet="T_QREST_ROLES" />
             <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
           </AssociationSet>
+          <EntitySet Name="T_QREST_USER_NOTIFICATION" EntityType="QRESTModel.T_QREST_USER_NOTIFICATION" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -1524,6 +1543,23 @@
           <End Type="QRESTModel.T_QREST_ROLES" Role="T_QREST_ROLES" Multiplicity="*" />
           <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="*" />
         </Association>
+        <EntityType Name="T_QREST_USER_NOTIFICATION">
+          <Key>
+            <PropertyRef Name="NOTIFICATION_IDX" />
+          </Key>
+          <Property Name="NOTIFICATION_IDX" Type="Guid" Nullable="false" />
+          <Property Name="USER_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="NOTIFY_DT" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="NOTIFY_TYPE" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="NOTIFY_TITLE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NOTIFY_DESC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="READ_IND" Type="Boolean" />
+          <Property Name="FROM_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1910,6 +1946,24 @@
               <ScalarProperty Name="ROLE_IDX" ColumnName="ROLE_IDX" />
             </EndProperty>
           </AssociationSetMapping>
+          <EntitySetMapping Name="T_QREST_USER_NOTIFICATION">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_USER_NOTIFICATION">
+              <MappingFragment StoreEntitySet="T_QREST_USER_NOTIFICATION">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USERIDX" ColumnName="MODIFY_USERIDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USERIDX" ColumnName="CREATE_USERIDX" />
+                <ScalarProperty Name="FROM_USER_IDX" ColumnName="FROM_USER_IDX" />
+                <ScalarProperty Name="READ_IND" ColumnName="READ_IND" />
+                <ScalarProperty Name="NOTIFY_DESC" ColumnName="NOTIFY_DESC" />
+                <ScalarProperty Name="NOTIFY_TITLE" ColumnName="NOTIFY_TITLE" />
+                <ScalarProperty Name="NOTIFY_TYPE" ColumnName="NOTIFY_TYPE" />
+                <ScalarProperty Name="NOTIFY_DT" ColumnName="NOTIFY_DT" />
+                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
+                <ScalarProperty Name="NOTIFICATION_IDX" ColumnName="NOTIFICATION_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

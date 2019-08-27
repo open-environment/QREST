@@ -18,7 +18,6 @@ namespace QRESTModel.DAL
         public QRESTEntities()
             : base("name=QRESTEntities")
         {
-            this.Configuration.LazyLoadingEnabled = false;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -53,5 +52,6 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_USER_CLAIMS> T_QREST_USER_CLAIMS { get; set; }
         public virtual DbSet<T_QREST_USER_LOGINS> T_QREST_USER_LOGINS { get; set; }
         public virtual DbSet<T_QREST_USERS> T_QREST_USERS { get; set; }
+        public virtual DbSet<T_QREST_USER_NOTIFICATION> T_QREST_USER_NOTIFICATION { get; set; }
     }
 }

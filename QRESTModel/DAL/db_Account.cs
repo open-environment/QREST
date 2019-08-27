@@ -519,6 +519,57 @@ namespace QRESTModel.DAL
 
 
 
+        //***************** T_QREST_ORG_NOTIFICATION ***************************************        
+        public static Guid? InsertUpdateT_QREST_USER_NOTIFICATION(Guid? nOTIFICATION_IDX, string uSER_IDX, DateTime? nOTIFY_DT, string nOTIFY_TYPE, string nOTIFY_TITLE, string nOTIFY_DESC, 
+            string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    bool insInd = false;
+
+                    T_QREST_USER_NOTIFICATION e = (from c in ctx.T_QREST_USER_NOTIFICATION
+                                                   where c.NOTIFICATION_IDX == nOTIFICATION_IDX
+                                                   select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_USER_NOTIFICATION
+                        {
+                            NOTIFICATION_IDX = Guid.NewGuid(),
+                            USER_IDX = uSER_IDX,
+                            NOTIFY_DT = nOTIFY_DT.GetValueOrDefault(),
+                            CREATE_DT = System.DateTime.Now,
+                            CREATE_USERIDX = cREATE_USER,
+                            READ_IND = false
+                        };
+                    }
+                    else
+                    {
+                        e.MODIFY_DT = System.DateTime.Now;
+                        e.MODIFY_USERIDX = cREATE_USER;
+                    }
+
+                    if (nOTIFY_TYPE != null) e.NOTIFY_TYPE = nOTIFY_TYPE;
+                    if (nOTIFY_TITLE != null) e.NOTIFY_TITLE = nOTIFY_TITLE;
+                    if (nOTIFY_DESC != null) e.NOTIFY_DESC = nOTIFY_DESC;
+
+                    if (insInd)
+                        ctx.T_QREST_USER_NOTIFICATION.Add(e);
+
+                    ctx.SaveChanges();
+                    return e.NOTIFICATION_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
     }
 }

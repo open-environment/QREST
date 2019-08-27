@@ -153,6 +153,9 @@
     <Compile Include="DAL\T_QREST_USER_LOGINS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\T_QREST_USER_NOTIFICATION.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

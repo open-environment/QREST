@@ -486,20 +486,20 @@ GO
 /***************************************  NOTIFICATION  ************************************************/
 /*******************************************************************************************************/
 
---CREATE TABLE [dbo].[T_QREST_USER_NOTIFICATION](
---    [NOTIFICATION_IDX] [uniqueidentifier] NOT NULL,
---	[USER_IDX] nvarchar(128) NOT NULL,
---	[NOTIFY_DT] [datetime2](0) NOT NULL,
---	[NOTIFY_TYPE] [varchar](10) NOT NULL,
---	[NOTIFY_TITLE] [varchar](50),
---	[NOTIFY_DESC] [varchar](200),
---	[READ_IND] bit,
---	[FROM_USER_IDX] nvarchar(128),
---	[CREATE_USERIDX] nvarchar(128),
---	[CREATE_DT] [datetime2](0),
---	[MODIFY_USERIDX] nvarchar(128),
---	[MODIFY_DT] [datetime2](0),
--- CONSTRAINT [PK_T_QREST_USER_NOTIFICATION] PRIMARY KEY CLUSTERED ([NOTIFICATION_IDX] ASC)
--- ) on [PRIMARY]
+CREATE TABLE [dbo].[T_QREST_USER_NOTIFICATION](
+    [NOTIFICATION_IDX] [uniqueidentifier] NOT NULL,
+	[USER_IDX] nvarchar(128) NOT NULL,
+	[NOTIFY_DT] [datetime2](0) NOT NULL,
+	[NOTIFY_TYPE] [varchar](10) NOT NULL,
+	[NOTIFY_TITLE] [varchar](50),
+	[NOTIFY_DESC] [varchar](200),
+	[READ_IND] bit,
+	[FROM_USER_IDX] nvarchar(128),
+	[CREATE_USERIDX] nvarchar(128),
+	[CREATE_DT] [datetime2](0),
+	[MODIFY_USERIDX] nvarchar(128),
+	[MODIFY_DT] [datetime2](0),
+ CONSTRAINT [PK_T_QREST_USER_NOTIFICATION] PRIMARY KEY CLUSTERED ([NOTIFICATION_IDX] ASC)
+ ) on [PRIMARY]
 
 

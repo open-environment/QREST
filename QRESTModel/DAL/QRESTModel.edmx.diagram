@@ -53,6 +53,7 @@
         <AssociationConnector Association="QRESTModel.FK_AspNetUserClaims_Users_UserId" />
         <AssociationConnector Association="QRESTModel.FK_AspNetUserLogins_Users_UserId" />
         <AssociationConnector Association="QRESTModel.T_QREST_USER_ROLES" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_NOTIFICATION" Width="1.5" PointX="15.375" PointY="9.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

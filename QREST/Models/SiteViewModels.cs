@@ -111,6 +111,6 @@ namespace QREST.Models
     {
         public Guid siteIDX { get; set; }
         public string siteName { get; set; }
-        public List<T_QREST_MONITORS> ImportMonitors { get; set; }
+        public List<SiteMonitorDisplayType> ImportMonitors { get; set; }
     }
 }

@@ -12,7 +12,7 @@
 <body>
     <section id="content" class="m-t-lg wrapper-md animated fadeInUp">
         <div class="container @(ViewBag.Wide=="Y" ? "" : "aside-xxl") " style="display: block;">
-            <a class="navbar-brand block" href="@Url.Action("Index", "Home")">QREST</a>
+            <a class="navbar-brand block" href="@Url.Action("Index", "Home")" data-toggle="tooltip" data-original-title="Quality Review and Exchange System for Tribes">QREST</a>
             <section class="panel panel-default bg-white">
                 <header class="panel-heading text-center">
                     <strong>@ViewBag.Title</strong>

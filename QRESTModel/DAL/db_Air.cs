@@ -14,6 +14,7 @@ namespace QRESTModel.DAL
         public string PAR_NAME { get; set; }
         public string METHOD_CODE { get; set; }
         public string ORG_ID { get; set; }
+        public bool monSelInd { get; set; }
     }
 
     public class QcAssessmentDisplay

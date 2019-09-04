@@ -709,7 +709,6 @@ namespace QRESTModel.DAL
             }
         }
 
-
         public static bool InsertUpdatetT_QREST_REF_COUNTY(string sTATE_CD, string cOUNTY_CD, string cOUNTY_NAME)
         {
             using (QRESTEntities ctx = new QRESTEntities())

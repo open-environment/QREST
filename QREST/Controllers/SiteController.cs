@@ -5,14 +5,16 @@ using System.Web;
 using System.Web.Mvc;
 using QREST.Models;
 using Microsoft.AspNet.Identity;
-//using QREST.App_Logic.DataAccessLayer;
 using QRESTModel.DAL;
 using QREST.App_Logic.BusinessLogicLayer;
 using System.Net;
 using System.IO;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace QREST.Controllers
 {
+    [Authorize]
     public class SiteController : Controller
     {
        
@@ -464,31 +466,34 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult MonitorImport(Guid id)
+        public ActionResult MonitorImport(Guid? id)
         {
             string UserIDX = User.Identity.GetUserId();
 
-            var model = new vmSiteMonitorImport
-            {
-                siteIDX = id,
-                ImportMonitors = new List<T_QREST_MONITORS>()
-            };
 
             //lookup site
-            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id);
-            if (id == null)
-                //if user hasn't selected a site, return view now
-                return View(model);
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id ?? Guid.Empty);
+            if (_site == null)
+            //site not found - return to site list
+            {
+                TempData["Error"] = "Site must be specified.";
+                return RedirectToAction("SiteList", "Site");
+            }
             else
             {
+                //dont attempt import if missing information
+                if (_site.COUNTY_CD == null || _site.STATE_CD == null || _site.AQS_SITE_ID == null)
+                {
+                    TempData["Error"] = "You must set the county and state code for the site before importing monitors.";
+                    return RedirectToAction("SiteEdit", "Site", new { id = _site.SITE_IDX });
+                }
 
                 // check security (whether can update)
                 if (db_Account.CanAccessThisOrg(UserIDX, _site.ORG_ID, true) == false)
                 {
-                    TempData["Error"] = "You don't have rights to edit this agency.";
+                    TempData["Error"] = "You don't have rights to edit sites for this agency.";
                     return RedirectToAction("SiteList", "Site");
                 }
-
 
                 //lookup to get the AQS Tribal Code for 
                 T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(_site.ORG_ID);
@@ -499,46 +504,100 @@ namespace QREST.Controllers
                     return RedirectToAction("OrgEdit","Site");
                 }
 
-                //grab remote CSV file from EPA AQS
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/MonitorsV4.txt");
-                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-                using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
+                var model = new vmSiteMonitorImport
                 {
-                    string currentLine;
-                    while ((currentLine = csvreader.ReadLine()) != null)
+                    siteIDX = _site.SITE_IDX,
+                    siteName = _site.SITE_NAME,
+                    ImportMonitors = new List<SiteMonitorDisplayType>()
+                };
+
+                //grab remote JSON file from EPA AQS API
+                using (var httpClient = new HttpClient())
+                {
+                    var json = httpClient.GetStringAsync("https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=" + _site.STATE_CD  + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID).Result;
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    var data1 = stuff.Data;
+
+                    foreach (var item in stuff.Data)
                     {
-                        //split row's columns into string array
-                        string[] cols = currentLine.Split('"');
-                        if (cols.Length > 0) //skip blank rows
+                        string _parcode = item.parameter_code;
+                        string _method_code = item.last_method_code;
+                        T_QREST_REF_PAR_METHODS _refMeth = db_Ref.GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(_parcode, _method_code);
+
+                        T_QREST_MONITORS m = new T_QREST_MONITORS
                         {
-                            string AQSsiteID = cols[5];
-                            string tribCode = cols[11];
+                            MONITOR_IDX = Guid.NewGuid(),
+                            SITE_IDX = _site.SITE_IDX,
+                            PAR_METHOD_IDX = _refMeth.PAR_METHOD_IDX,
+                            POC = item.poc,
+                            CREATE_DT = System.DateTime.Now,
+                            CREATE_USER_IDX = UserIDX
+                        };
 
-                            if (_org.AQS_AGENCY_CODE == tribCode && _site.AQS_SITE_ID == AQSsiteID)
-                            {
-                                string parCD = cols[7];
-                                string POC = cols[9];
-                                T_QREST_MONITORS m = new T_QREST_MONITORS
-                                {
-                                    MONITOR_IDX = Guid.NewGuid(),
-                                    SITE_IDX = _site.SITE_IDX,
-                                    PAR_METHOD_IDX = Guid.Empty,
-                                    POC = POC.ConvertOrDefault<int>(),
-                                    CREATE_DT = System.DateTime.Now,
-                                    CREATE_USER_IDX = UserIDX
-                                };
+                        SiteMonitorDisplayType md = new SiteMonitorDisplayType
+                        {
+                            T_QREST_MONITORS = m,
+                            SITE_ID = _site.STATE_CD + "-" + _site.COUNTY_CD + "-" + _site.AQS_SITE_ID,
+                            PAR_NAME = _parcode + " - " + item.parameter_name,
+                            METHOD_CODE = _method_code + " - " + item.last_method_description,
+                            ORG_ID = _site.ORG_ID
+                        };
 
-                                //check if QREST already has the site.
-                                T_QREST_MONITORS _existMonitor = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(_site.SITE_IDX, parCD.ConvertOrDefault<Guid>(), POC.ConvertOrDefault<int>());
-                                m.MODIFY_USER_IDX = _existMonitor != null ? "U" : "I";
-                                model.ImportMonitors.Add(m);
-                            }
-                        }
+                        //check if QREST already has the monitor
+                        T_QREST_MONITORS _existMonitor = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(_site.SITE_IDX, _refMeth.PAR_METHOD_IDX, (int)item.poc);
+                        m.MODIFY_USER_IDX = _existMonitor != null ? "U" : "I";
+                        model.ImportMonitors.Add(md);
                     }
+                }
+
+                return View(model); ;
+            }
+
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult MonitorImport(vmSiteMonitorImport model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //if user hasn't selected an org, return view now
+            if (model.siteIDX == null)
+            {
+                TempData["Error"] = "Site not found";
+                return View(model);
+            }
+
+            //// check security (whether can update)
+            //if (db_Account.CanAccessThisOrg(UserIDX, model.selOrgID, true) == false)
+            //{
+            //    TempData["Error"] = "You don't have rights to edit this agency.";
+            //    return RedirectToAction("SiteList", "Site");
+            //}
+
+            ////lookup to get the AQS Tribal Code for 
+            //T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(model.selOrgID);
+            //if (_org == null)
+            //{
+            //    TempData["Error"] = "Organization not found";
+            //    return View(model);
+            //}
+
+            int i = 0;
+            foreach (var item in model.ImportMonitors)
+            {
+                if (item.T_QREST_MONITORS.MONITOR_IDX != null && item.monSelInd == true)
+                {
+                    i++;
+                    db_Air.InsertUpdatetT_QREST_MONITORS(null, model.siteIDX, item.T_QREST_MONITORS.PAR_METHOD_IDX, item.T_QREST_MONITORS.POC,
+                        "1", "1", null, null, null, null, null, UserIDX);
                 }
             }
 
-            return View(model); ;
+            if (i==0)
+                TempData["Error"] = "You must select records to import.";
+
+            return RedirectToAction("SiteEdit", new { id = model.siteIDX });
         }
 
 
@@ -576,10 +635,6 @@ namespace QREST.Controllers
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
-
-
-
-
 
     }
 

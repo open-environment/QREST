@@ -53,7 +53,7 @@
     <!-- start: USER ROLE ASSIGNMENT -->
     <div class="col-md-6">
         <section class="panel panel-qrest">
-            <div class="panel-heading">User Role Assignment</div>
+            <div class="panel-heading font-bold">Global Role Assignment</div>
             <div class="panel-body">
                 @using (Html.BeginForm("UserRoleEdit", "Admin", FormMethod.Post, new { @class = "" }))
                 {
@@ -93,7 +93,7 @@
     <!-- USER ORGANIZATIONS -->
     <div class="col-md-6">
         <section class="panel panel-qrest">
-            <div class="panel-heading">User Organizations</div>
+            <div class="panel-heading font-bold">User Organizations</div>
             <div class="panel-body">
                 <div class="table-responsive">
                     @if (Model.user_orgs != null)
@@ -125,29 +125,29 @@
                                 <td>
                                     @if (item.ACCESS_LEVEL == "A")
                                     {
-                                        <span class="label label-success"> Admin</span>
+                                        <span class="badge bg-success"> Admin</span>
                                     }
                                     else if (item.ACCESS_LEVEL == "U")
                                     {
-                                        <span class="label label-info"> User</span>
+                                        <span class="badge bg-info"> User</span>
                                     }
                                     else if (item.ACCESS_LEVEL == "R")
                                     {
-                                        <span class="label label-warning"> Read Only</span>
+                                        <span class="badge bg-warning"> Read Only</span>
                                     }
                                 </td>
                                 <td>
                                     @if (item.STATUS_IND == "A")
                                     {
-                                        <span class="label label-success"> Active</span>
+                                        <span class="badge bg-success"> Active</span>
                                     }
                                     else if (item.STATUS_IND == "P")
                                     {
-                                        <span class="label label-warning"> Pending</span>
+                                        <span class="badge bg-warning"> Pending</span>
                                     }
                                     else
                                     {
-                                        <span class="label label-danger"> Rejected</span>
+                                        <span class="badge bg-danger"> Rejected</span>
                                     }
                                 </td>
                             </tr>

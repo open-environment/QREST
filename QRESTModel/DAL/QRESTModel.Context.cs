@@ -18,6 +18,7 @@ namespace QRESTModel.DAL
         public QRESTEntities()
             : base("name=QRESTEntities")
         {
+            this.Configuration.LazyLoadingEnabled = false;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

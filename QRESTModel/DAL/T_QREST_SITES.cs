@@ -18,6 +18,8 @@ namespace QRESTModel.DAL
         public T_QREST_SITES()
         {
             this.T_QREST_MONITORS = new HashSet<T_QREST_MONITORS>();
+            this.T_QREST_SITE_NOTIFY = new HashSet<T_QREST_SITE_NOTIFY>();
+            this.T_QREST_SITE_POLL_CONFIG = new HashSet<T_QREST_SITE_POLL_CONFIG>();
         }
     
         public System.Guid SITE_IDX { get; set; }
@@ -35,12 +37,13 @@ namespace QRESTModel.DAL
         public string ZIP_CODE { get; set; }
         public Nullable<System.DateTime> START_DT { get; set; }
         public Nullable<System.DateTime> END_DT { get; set; }
-        public Nullable<bool> TELEMETRY_ONLINE_IND { get; set; }
-        public string TELEMETRY_SOURCE { get; set; }
-        public Nullable<int> TELEMETRY_PORT { get; set; }
-        public string TELEMETRY_USERNAME { get; set; }
-        public string TELEMETRY_PASSWORD { get; set; }
+        public Nullable<bool> POLLING_ONLINE_IND { get; set; }
+        public string POLLING_FREQ_TYPE { get; set; }
+        public Nullable<int> POLLING_FREQ_NUM { get; set; }
+        public Nullable<System.DateTime> POLLING_LAST_RUN_DT { get; set; }
+        public Nullable<System.DateTime> POLLING_NEXT_RUN_DT { get; set; }
         public Nullable<bool> AIRNOW_IND { get; set; }
+        public Nullable<bool> AQS_IND { get; set; }
         public string SITE_COMMENTS { get; set; }
         public string CREATE_USER_IDX { get; set; }
         public Nullable<System.DateTime> CREATE_DT { get; set; }
@@ -51,5 +54,9 @@ namespace QRESTModel.DAL
         public virtual ICollection<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }
         public virtual T_QREST_ORGANIZATIONS T_QREST_ORGANIZATIONS { get; set; }
         public virtual T_QREST_REF_COUNTY T_QREST_REF_COUNTY { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_SITE_NOTIFY> T_QREST_SITE_NOTIFY { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_SITE_POLL_CONFIG> T_QREST_SITE_POLL_CONFIG { get; set; }
     }
 }

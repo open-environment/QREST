@@ -1,6 +1,121 @@
-﻿
+﻿@model QREST.Models.vmAccountMyProfile
+
 @{
     ViewBag.Title = "My Profile";
 }
 
+@using (Html.BeginForm("MyProfile", "Account", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+{
+    @Html.AntiForgeryToken()
 
+    if (Model != null)
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <section class="panel panel-qrest">
+                    <header class="panel-heading font-bold">My Profile</header>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>First Name</label>
+                                    @Html.TextBoxFor(model => model.FNAME, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.FNAME)
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Last Name</label>
+                                    @Html.TextBoxFor(model => model.LNAME, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.LNAME)
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    @Html.TextBoxFor(model => model.EMAIL, new { @class = "form-control", @readonly = "readonly" })
+                                    @Html.ValidationMessageFor(model => model.EMAIL)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+            <div class="col-md-6">
+                <section class="panel panel-qrest">
+                    <header class="panel-heading font-bold">Notification Preferences</header>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group ">
+                                    @Html.CheckBoxFor(model => model.NOTIFY_APP_IND, new { @class = "checkbox-inline checkbox-lg" })
+                                    <label class="label-lg font-bold">In-App Notification</label>
+                                    @Html.ValidationMessageFor(model => model.NOTIFY_APP_IND)
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group ">
+                                    @Html.CheckBoxFor(model => model.NOTIFY_EMAIL_IND, new { @class = "checkbox-inline checkbox-lg" })
+                                    <label class="label-lg font-bold">Email Notification</label>
+                                    @Html.ValidationMessageFor(model => model.NOTIFY_EMAIL_IND)
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group ">
+                                    @Html.CheckBoxFor(model => model.NOTIFY_SMS_IND, new { @class = "checkbox-inline checkbox-lg", @data_toggle = "collapse", @data_target = "#phoneCollapse" })
+                                    <label class="label-lg font-bold">Text Message (SMS) Notification</label>
+                                    @Html.ValidationMessageFor(model => model.NOTIFY_SMS_IND)
+                                </div>
+                            </div>
+                            <div id="phoneCollapse" class="col-md-9 collapse @(Model.NOTIFY_SMS_IND==true? "in" : "")">
+                                <div class="form-group">
+                                    <label>Cell Phone</label>
+                                    <div class="input-group">
+                                        @Html.TextBoxFor(model => model.PhoneNumber, new { @class = "form-control phone-10" })
+                                        <span class="input-group-btn"> <a class="btn btn-default btn-dark" href="@Url.Action("TestSMS","Account")">Send Test Msg</a> </span>
+
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.PhoneNumber)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+
+        </div>
+        <p>
+            <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
+            <a class=" btn btn-default" href="@Url.Action("Index","Dashboard")">Back to Dashboard</a>
+        </p>
+
+    }
+}
+
+@section scripts {
+    @Scripts.Render("~/bundles/cleave")
+    @Scripts.Render("~/bundles/areyousure")
+
+    <script type="text/javascript">
+        // Enable dirtyforms
+        $('#norepostform').dirtyForms();
+        // Enable/disable the submit button when the state transitions between dirty and clean.
+        $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
+            if (ev.type === 'dirty') {
+                $("#btnSave").prop("disabled", false);
+            } else {
+                $("#btnSave").prop("disabled", true);
+            }
+        });
+
+        $(document).ready(function () {
+
+
+        });
+    </script>
+
+
+}

@@ -28,6 +28,7 @@ namespace QRESTModel.DAL
     
         public virtual DbSet<T_QREST_APP_SETTINGS> T_QREST_APP_SETTINGS { get; set; }
         public virtual DbSet<T_QREST_APP_SETTINGS_CUSTOM> T_QREST_APP_SETTINGS_CUSTOM { get; set; }
+        public virtual DbSet<T_QREST_APP_TASKS> T_QREST_APP_TASKS { get; set; }
         public virtual DbSet<T_QREST_EMAIL_TEMPLATE> T_QREST_EMAIL_TEMPLATE { get; set; }
         public virtual DbSet<T_QREST_HELP_DOCS> T_QREST_HELP_DOCS { get; set; }
         public virtual DbSet<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }
@@ -46,13 +47,16 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_REF_STATE> T_QREST_REF_STATE { get; set; }
         public virtual DbSet<T_QREST_REF_UNITS> T_QREST_REF_UNITS { get; set; }
         public virtual DbSet<T_QREST_ROLES> T_QREST_ROLES { get; set; }
+        public virtual DbSet<T_QREST_SITE_NOTIFY> T_QREST_SITE_NOTIFY { get; set; }
+        public virtual DbSet<T_QREST_SITE_POLL_CONFIG> T_QREST_SITE_POLL_CONFIG { get; set; }
+        public virtual DbSet<T_QREST_SITE_POLL_CONFIG_DTL> T_QREST_SITE_POLL_CONFIG_DTL { get; set; }
         public virtual DbSet<T_QREST_SITES> T_QREST_SITES { get; set; }
         public virtual DbSet<T_QREST_SYS_LOG> T_QREST_SYS_LOG { get; set; }
         public virtual DbSet<T_QREST_SYS_LOG_ACTIVITY> T_QREST_SYS_LOG_ACTIVITY { get; set; }
         public virtual DbSet<T_QREST_SYS_LOG_EMAIL> T_QREST_SYS_LOG_EMAIL { get; set; }
         public virtual DbSet<T_QREST_USER_CLAIMS> T_QREST_USER_CLAIMS { get; set; }
         public virtual DbSet<T_QREST_USER_LOGINS> T_QREST_USER_LOGINS { get; set; }
-        public virtual DbSet<T_QREST_USERS> T_QREST_USERS { get; set; }
         public virtual DbSet<T_QREST_USER_NOTIFICATION> T_QREST_USER_NOTIFICATION { get; set; }
+        public virtual DbSet<T_QREST_USERS> T_QREST_USERS { get; set; }
     }
 }

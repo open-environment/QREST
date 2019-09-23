@@ -117,6 +117,10 @@
     color: #806a96;
 }*/
 
+.text-grey {
+    color: #aaaaaa;
+}
+
 .panel-qrest {
     border-color: #41586e;
     border-radius: 4px;
@@ -218,7 +222,9 @@ table.dataTable.no-footer {
     float: left !important;
 }
 
-
+.table-clickable tr {
+    cursor: pointer;
+}
 
 
 

@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using QREST.Models;
-using Microsoft.AspNet.Identity;
-using QRESTModel.DAL;
-using QREST.App_Logic.BusinessLogicLayer;
-using System.Net;
-using System.IO;
-using System.Net.Http;
+﻿using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
+using QREST.App_Logic.BusinessLogicLayer;
+using QREST.Models;
+using QRESTModel.DAL;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Mvc;
 
 namespace QREST.Controllers
 {
@@ -31,21 +30,10 @@ namespace QREST.Controllers
         public ActionResult OrgList()
         {
             string UserIDX = User.Identity.GetUserId();
-
             var model = new vmSiteOrgList();
-
-            //List<T_QREST_ORGANIZATIONS> _orgs = db_Ref.GetT_QREST_ORGANIZATIONS_ByUser(UserIDX, false);
-            //if (_orgs != null)
-            //{
-            //    //if only 1 organization, redirect to edit page
-            //    if (_orgs.Count == 1)
-            //        return RedirectToAction("OrgEdit");
-
-            //    model.orgs = _orgs;                
-            //}
-
             return View(model);
         }
+
 
         [HttpPost]
         public ActionResult OrgListData()
@@ -58,6 +46,93 @@ namespace QREST.Controllers
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
 
+
+        public ActionResult OrgEdit(string id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            if (db_Account.IsAnOrgAdmin(UserIDX, id))
+            {
+                var model = new vmSiteOrgEdit();
+                model.ddl_User = ddlHelpers.get_ddl_users(false);
+
+                var _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(id);
+                if (_org != null)
+                {
+                    model.ORG_ID = _org.ORG_ID;
+                    model.ORG_NAME = _org.ORG_NAME;
+                    model.STATE_CD = _org.STATE_CD;
+                    model.EPA_REGION = _org.EPA_REGION;
+                    model.AQS_AGENCY_CODE = _org.AQS_AGENCY_CODE;
+                    model.SELF_REG_IND = _org.SELF_REG_IND ?? true;
+                    model.edit_org_id = _org.ORG_ID;
+                    model.edit_typ = "org";
+
+                    model.org_users = db_Account.GetT_QREST_ORG_USERS_ByOrgID(model.ORG_ID, null, null);
+                }
+
+                return View(model);
+            }
+            else
+            {
+                TempData["Error"] = "You are not an Admin for this organization.";
+                return RedirectToAction("Dashboard", "Index");
+            }
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult OrgEdit(vmSiteOrgEdit model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+            if (db_Account.IsAnOrgAdmin(UserIDX, model.ORG_ID))
+            {
+                if (ModelState.IsValid)
+                {
+                    int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
+                        model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "");
+
+                    if (SuccID == 1)
+                        TempData["Success"] = "Record updated";
+                    else
+                        TempData["Error"] = "Error updating record.";
+
+                }
+
+                //repopulate model
+                model.org_users = db_Account.GetT_QREST_ORG_USERS_ByOrgID(model.ORG_ID, null, null);
+                model.ddl_User = ddlHelpers.get_ddl_users(false);
+                return View(model);
+            }
+            else
+            {
+                TempData["Error"] = "You are not an Admin for this organization.";
+                return RedirectToAction("Dashboard", "Index");
+            }
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult OrgEditUser(vmAdminOrgEditUser model)
+        {
+            if (ModelState.IsValid)
+            {
+                Guid? SuccID = db_Account.InsertUpdateT_QREST_ORG_USERS(model.edit_user_idx, model.edit_org_id, model.edit_org_user_access_level, model.edit_org_user_status, "");
+
+                if (SuccID != null)
+                    TempData["Success"] = "Record updated";
+                else
+                    TempData["Error"] = "Error updating record.";
+            }
+            else
+                TempData["Error"] = "Error updating record.";
+
+
+            if (model.edit_typ == "org")
+                return RedirectToAction("OrgEdit", "Site", new { id = model.edit_org_id });
+            else
+                return RedirectToAction("UserEdit", "Site", new { id = model.edit_user_idx });
+        }
 
 
 
@@ -84,10 +159,7 @@ namespace QREST.Controllers
         {
             string UserIDX = User.Identity.GetUserId();
 
-            var model = new vmSiteSiteEdit {
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX),
-                ddl_State = ddlHelpers.get_ddl_state()
-            };
+            var model = new vmSiteSiteEdit(); 
 
             T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id ?? Guid.Empty);
             if (_site != null)
@@ -99,11 +171,14 @@ namespace QREST.Controllers
                     return RedirectToAction("SiteList", "Site");
                 }
 
+                //EDIT CASE
                 model.SITE_IDX = _site.SITE_IDX;
                 model.ORG_ID = _site.ORG_ID;
                 model.SITE_ID = _site.SITE_ID;
                 model.SITE_NAME = _site.SITE_NAME;
                 model.AQS_SITE_ID = _site.AQS_SITE_ID;
+                model.STATE_CD = _site.STATE_CD;
+                model.COUNTY_CD = _site.COUNTY_CD;
                 model.LATITUDE = _site.LATITUDE;
                 model.LONGITUDE = _site.LONGITUDE;
                 model.ADDRESS = _site.ADDRESS;
@@ -111,26 +186,35 @@ namespace QREST.Controllers
                 model.ZIP_CODE = _site.ZIP_CODE;
                 model.START_DT = _site.START_DT;
                 model.END_DT = _site.END_DT;
-                model.TELEMETRY_ONLINE_IND = _site.TELEMETRY_ONLINE_IND ?? false;
-                model.TELEMETRY_SOURCE = _site.TELEMETRY_SOURCE;
+                model.POLLING_ONLINE_IND = _site.POLLING_ONLINE_IND ?? false;
+                model.AIRNOW_IND = _site.AIRNOW_IND ?? false;
+                model.AQS_IND = _site.AQS_IND ?? false;
                 model.SITE_COMMENTS = _site.SITE_COMMENTS;
 
-                //monitor
-                model.monitors = db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(model.SITE_IDX);
-
-                //county
-                if (model.STATE_CD != null)
-                    model.ddl_County = ddlHelpers.get_ddl_county(model.STATE_CD);
             }
             else if (id != null)
             {
-                //fail if user supplied SiteIDX but doesn't exist
+                //reject if user supplied SiteIDX but doesn't exist
                 TempData["Error"] = "Site not found.";
                 return RedirectToAction("SiteList", "Site");
             }
-            
 
+            InitializeSiteEditModel(model, UserIDX);
             return View(model);
+        }
+
+
+        private static void InitializeSiteEditModel(vmSiteSiteEdit model, string UserIDX)
+        {
+            model.ddl_State = ddlHelpers.get_ddl_state();
+            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX);
+            model.monitors = db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(model.SITE_IDX);
+            model.notifiees = db_Air.GetT_QREST_SITE_NOTIFY_BySiteID(model.SITE_IDX);
+            model.ddl_User = ddlHelpers.get_ddl_users(true);
+
+            //county
+            if (model.STATE_CD != null)
+                model.ddl_County = ddlHelpers.get_ddl_county(model.STATE_CD);
         }
 
 
@@ -144,24 +228,64 @@ namespace QREST.Controllers
                 // check security (whether can update)
                 if (db_Account.CanAccessThisOrg(UserIDX, model.ORG_ID, true) == false)
                 {
-                    TempData["Error"] = "Access Denied.";
+                    TempData["Error"] = "Access Denied";
                     return RedirectToAction("SiteList", "Site");
                 }
 
 
-                int SuccInd = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
-                    model.LATITUDE, model.LONGITUDE, model.ADDRESS ?? "", model.CITY ?? "", model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.ZIP_CODE ?? "",
-                    model.START_DT, model.END_DT, model.TELEMETRY_ONLINE_IND, model.TELEMETRY_SOURCE ?? "", model.SITE_COMMENTS ?? "", UserIDX);
+                Guid? SuccId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
+                    model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
+                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.SITE_COMMENTS ?? "", UserIDX);
 
-                if (SuccInd>0)
+                if (SuccId != null)
+                {
                     TempData["Success"] = "Record updated";
+                    return RedirectToAction("SiteEdit", "Site", new { id = SuccId });
+                }
                 else
                     TempData["Error"] = "Error updating record.";
 
             }
 
-            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX);
+            InitializeSiteEditModel(model, UserIDX);
             return View(model);
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult SiteEditNotifyUser(vmSiteEditNotifyUser model)
+        {
+            if (ModelState.IsValid)
+            {
+                string UserIDX = User.Identity.GetUserId();
+
+                Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_NOTIFY(null, model.SITE_IDX, model.edit_notify_user_idx.ToString(), UserIDX);
+
+                if (SuccID != null)
+                    TempData["Success"] = "Record updated";
+                else
+                    TempData["Error"] = "Error updating record.";
+            }
+            else
+                TempData["Error"] = "Error updating record";
+
+            return RedirectToAction("SiteEdit", "Site", new { id = model.SITE_IDX });
+        }
+
+        [HttpPost]
+        public JsonResult SiteNotifyDelete(string id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                Guid idg = new Guid(id);
+                int SuccID = db_Air.DeleteT_QREST_SITE_NOTIFY(idg);
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to find record to delete.");
+            }
         }
 
 
@@ -313,7 +437,8 @@ namespace QREST.Controllers
                                 //check if QREST already has the site.
                                 T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
                                 if (_existSite == null)
-                                    db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], null, null, null, null, cols[1], cols[3], null, null, null, null, null, null, UserIDX);
+                                    db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null, 
+                                        null, null, null, false, null, null, null, null, false, false, null, UserIDX);
                             }
                         }
                     }
@@ -342,6 +467,36 @@ namespace QREST.Controllers
                     return Json("Unable to find site to delete.");
             }
         }
+
+
+        public ActionResult SitePollConfig(Guid? id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            var model = new vmSiteSitePollConfig();
+
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id ?? Guid.Empty);
+            if (_site != null)
+            {
+                //reject if user doesn't have access to org
+                if (db_Account.CanAccessThisOrg(UserIDX, _site.ORG_ID, false) == false)
+                {
+                    TempData["Error"] = "Access Denied.";
+                    return RedirectToAction("SiteList", "Site");
+                }
+
+
+            }
+            else if (id != null)
+            {
+                //reject if user supplied SiteIDX but doesn't exist
+                TempData["Error"] = "Site not found.";
+                return RedirectToAction("SiteList", "Site");
+            }
+
+            return View(model);
+        }
+
 
 
 
@@ -410,7 +565,7 @@ namespace QREST.Controllers
                     model.COLLECT_UNIT_CODE = _monitor.T_QREST_MONITORS.COLLECT_UNIT_CODE;
                     model.ALERT_MIN_VALUE = _monitor.T_QREST_MONITORS.ALERT_MIN_VALUE;
                     model.ALERT_MAX_VALUE = _monitor.T_QREST_MONITORS.ALERT_MAX_VALUE;
-                    model.ALERT_PCT_CHANGE = _monitor.T_QREST_MONITORS.ALERT_PCT_CHANGE;
+                    model.ALERT_AMT_CHANGE = _monitor.T_QREST_MONITORS.ALERT_AMT_CHANGE;
                     model.ALERT_STUCK_REC_COUNT = _monitor.T_QREST_MONITORS.ALERT_STUCK_REC_COUNT;
 
                 }
@@ -449,11 +604,14 @@ namespace QREST.Controllers
                 //*************** VALIDATION END *********************************
 
 
-                int SuccInd = db_Air.InsertUpdatetT_QREST_MONITORS(model.MONITOR_IDX, model.SITE_IDX, model.PAR_METHOD_IDX, model.POC, model.DURATION_CODE, model.COLLECT_FREQ_CODE, 
-                    model.COLLECT_UNIT_CODE, model.ALERT_MIN_VALUE, model.ALERT_MAX_VALUE, model.ALERT_PCT_CHANGE, model.ALERT_STUCK_REC_COUNT, UserIDX);
+                Guid? SuccInd = db_Air.InsertUpdatetT_QREST_MONITORS(model.MONITOR_IDX, model.SITE_IDX, model.PAR_METHOD_IDX, model.POC, model.DURATION_CODE, model.COLLECT_FREQ_CODE, 
+                    model.COLLECT_UNIT_CODE, model.ALERT_MIN_VALUE, model.ALERT_MAX_VALUE, model.ALERT_AMT_CHANGE, model.ALERT_STUCK_REC_COUNT, UserIDX);
 
-                if (SuccInd > 0)
+                if (SuccInd != null)
+                {
                     TempData["Success"] = "Record updated";
+                    return RedirectToAction("MonitorEdit", new { id = SuccInd });
+                }
                 else
                     TempData["Error"] = "Error updating record.";
 
@@ -482,9 +640,9 @@ namespace QREST.Controllers
             else
             {
                 //dont attempt import if missing information
-                if (_site.COUNTY_CD == null || _site.STATE_CD == null || _site.AQS_SITE_ID == null)
+                if (_site.COUNTY_CD == null || _site.STATE_CD == null || string.IsNullOrEmpty(_site.AQS_SITE_ID))
                 {
-                    TempData["Error"] = "You must set the county and state code for the site before importing monitors.";
+                    TempData["Error"] = "You must set the county, state code, and AQS Site ID for the site before importing monitors.";
                     return RedirectToAction("SiteEdit", "Site", new { id = _site.SITE_IDX });
                 }
 

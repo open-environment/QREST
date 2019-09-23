@@ -18,6 +18,7 @@ namespace QRESTModel.DAL
         public T_QREST_REF_DURATION()
         {
             this.T_QREST_MONITORS = new HashSet<T_QREST_MONITORS>();
+            this.T_QREST_SITE_POLL_CONFIG = new HashSet<T_QREST_SITE_POLL_CONFIG>();
         }
     
         public string DURATION_CODE { get; set; }
@@ -30,5 +31,7 @@ namespace QRESTModel.DAL
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_SITE_POLL_CONFIG> T_QREST_SITE_POLL_CONFIG { get; set; }
     }
 }

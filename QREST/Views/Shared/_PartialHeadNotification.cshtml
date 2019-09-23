@@ -1,0 +1,33 @@
+﻿@model QREST.Models.vmSharedNotificationHeader
+
+@if (Model != null && Request.IsAuthenticated)
+{
+    <li class="hidden-xs">
+        <a href="#" class="dropdown-toggle dk" data-toggle="dropdown">
+            <i class="fa fa-bell"></i>
+            <span class="badge badge-sm up bg-danger m-l-n-sm count" style="display: inline-block;">@Model.NotifyCount</span>
+        </a>
+        <section class="dropdown-menu aside-xl">
+            <section class="panel bg-white">
+                <div class="panel-heading b-light bg-light">
+                    <strong>You have @Model.NotifyCount unread notifications</strong>
+                </div>
+                <div class="list-group list-group-alt animated fadeInRight">
+
+                    @foreach (var item in Model.Notifications)
+                    {
+                        <a href="@Url.Action("Notifications", "Account")" class="media list-group-item" style="display: block;">
+                            <span class="pull-left thumb-sm text-center"><i class="fa fa-envelope-o fa-2x text-success"></i></span>
+                            <span class="media-body block m-b-none">@item.NOTIFY_TITLE<br><small class="text-muted">@item.NOTIFY_DESC</small></span>
+                        </a>
+                    }
+                </div>
+                <div class="panel-footer text-sm">
+                    <a href="@Url.Action("MyProfile", "Account")" class="pull-right"><i class="fa fa-cog"></i></a>
+                    <a href="@Url.Action("Notifications", "Account")">See all your notifications</a>
+                </div>
+            </section>
+        </section>
+    </li>
+}
+

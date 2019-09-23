@@ -34,6 +34,7 @@ namespace QRESTModel.DAL
         public Nullable<System.DateTime> CREATE_DT { get; set; }
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
+        public Nullable<bool> SELF_REG_IND { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_ORG_EMAIL_RULE> T_QREST_ORG_EMAIL_RULE { get; set; }

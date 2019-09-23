@@ -10,6 +10,7 @@ using System.Web;
 using System.Web.Mvc;
 using System;
 using QRESTModel.DAL;
+using QRESTModel.BLL;
 
 namespace QREST.Controllers
 {
@@ -96,7 +97,11 @@ namespace QREST.Controllers
                         return View(model);
                     }
                     else
+                    {
+                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("LOGIN", user.Id, System.DateTime.Now, "User logged in", "");
+
                         return RedirectToLocal(returnUrl);
+                    }
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -153,7 +158,7 @@ namespace QREST.Controllers
             return View(new RegisterViewModel()
             {
                 termsConditions = db_Ref.GetT_QREST_APP_SETTING_CUSTOM()?.TERMS_AND_CONDITIONS,
-                ddl_Agencies = ddlHelpers.get_ddl_organizations(true)
+                ddl_Agencies = ddlHelpers.get_ddl_organizations(true, true)
             });
         }
 
@@ -170,6 +175,9 @@ namespace QREST.Controllers
                     Email = model.Email,
                     FNAME = model.FirstName,
                     LNAME = model.LastName,
+                    NOTIFY_APP_IND = true,
+                    NOTIFY_EMAIL_IND = true,
+                    NOTIFY_SMS_IND = false,
                     CREATE_USER_IDX = "SYSTEM",
                     CREATE_DT = System.DateTime.Now
                 };
@@ -207,32 +215,34 @@ namespace QREST.Controllers
                             if (oe != null)
                                 regStatus = "A";
 
-
+                            //associate the user with the organization
                             Guid? OrgUserID = db_Account.InsertUpdateT_QREST_ORG_USERS(user.Id, model.selOrgID, "U", regStatus, null);
 
                             //notify organization admins (via email)
                             if (OrgUserID != Guid.Empty && OrgUserID != null)
                             {
+                                //find if any org admins exist
                                 List<UserOrgDisplayType> OrgAdmins = db_Account.GetT_QREST_ORG_USERS_ByOrgID(model.selOrgID, "A", "A");
                                 if (OrgAdmins != null && OrgAdmins.Count > 0)
                                 {
+                                    string fullUrl = this.Url.Action("OrgEdit", "Site", new { id = model.selOrgID }, this.Request.Url.Scheme);
+                                    fullUrl = "<a href='" + fullUrl + "'>" + fullUrl + "</a>";
+                                    var emailParams = new Dictionary<string, string> { { "UserName", model.Email }, { "orgName", model.selOrgID }, { "siteUrl", fullUrl } };
+
                                     foreach (UserOrgDisplayType OrgAdmin in OrgAdmins)
-                                    {
-                                        var emailParams = new Dictionary<string, string> { { "UserName", model.Email }, { "orgName", OrgAdmin.ORG_ID } };
-                                        UtilsEmail.SendEmail(null, OrgAdmin.USER_EMAIL, null, null, null, null, "ACCESS_REQUEST", emailParams);
-                                    }
+                                        UtilsNotify.NotifyUser(OrgAdmin.USER_IDX, null, null, null, null, "ACCESS_REQUEST", emailParams, null);
                                 }
                                 else  //there are no org admins, so send email to global admins
                                 {
+                                    string fullUrl = this.Url.Action("OrgEdit", "Admin", new { id = model.selOrgID }, this.Request.Url.Scheme);
+                                    fullUrl = "<a href='" + fullUrl + "'>" + fullUrl + "</a>";
+                                    var emailParams = new Dictionary<string, string> { { "UserName", model.Email }, { "orgName", model.selOrgID }, { "siteUrl", fullUrl } };
 
                                     List<T_QREST_USERS> _admins = db_Account.GetT_QREST_USERSInRole("ADMIN");
                                     if (_admins != null)
                                     {
                                         foreach (T_QREST_USERS _admin in _admins)
-                                        {
-                                            var emailParams = new Dictionary<string, string> { { "UserName", model.Email }, { "orgName", model.selOrgID } };
-                                            UtilsEmail.SendEmail(null, _admin.Email, null, null, null, null, "ACCESS_REQUEST", emailParams);
-                                        }
+                                            UtilsNotify.NotifyUser(_admin.USER_IDX, null, null, null, null, "ACCESS_REQUEST", emailParams, null);
                                     }
                                 }
                             }
@@ -251,7 +261,7 @@ namespace QREST.Controllers
             }
 
             // If we got this far, something failed, redisplay form
-            model.ddl_Agencies = ddlHelpers.get_ddl_organizations(true);
+            model.ddl_Agencies = ddlHelpers.get_ddl_organizations(true, true);
             model.termsConditions = db_Ref.GetT_QREST_APP_SETTING_CUSTOM()?.TERMS_AND_CONDITIONS;
             return View(model);
         }
@@ -425,19 +435,127 @@ namespace QREST.Controllers
         }
 
 
+        [Authorize]
         public ActionResult MyProfile()
         {
-            var model = new vmAccountMyProfile();
-            return View(model);
+            string UserIDX = User.Identity.GetUserId();
+            var user = UserManager.FindById(UserIDX);
+
+            if (user != null)
+            {
+                var model = new vmAccountMyProfile {
+                    FNAME = user.FNAME,
+                    LNAME = user.LNAME,
+                    EMAIL = user.Email,
+                    NOTIFY_APP_IND = user.NOTIFY_APP_IND ?? false,
+                    NOTIFY_EMAIL_IND = user.NOTIFY_EMAIL_IND ?? false,
+                    NOTIFY_SMS_IND = user.NOTIFY_SMS_IND ?? false,
+                    PhoneNumber = user.PhoneNumber,
+                    PhoneNumberConfirmed = user.PhoneNumberConfirmed
+                };
+                return View(model);
+            }
+            else
+                return RedirectToAction("Index", "Dashboard");
+
         }
 
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult MyProfile(vmAccountMyProfile model)
         {
-            return View();
+            if (model.NOTIFY_SMS_IND == true && model.PhoneNumber == null)
+            {
+                ModelState.AddModelError("PhoneNumber", "You must supply a phone number.");
+            }
+
+
+            if (ModelState.IsValid)
+            {
+                string UserIDX = User.Identity.GetUserId();
+                var user = UserManager.FindById(UserIDX);
+
+                user.FNAME = model.FNAME;
+                user.LNAME = model.LNAME;
+                user.NOTIFY_APP_IND = model.NOTIFY_APP_IND;
+                user.NOTIFY_EMAIL_IND = model.NOTIFY_EMAIL_IND;
+                user.NOTIFY_SMS_IND = model.NOTIFY_SMS_IND;
+                user.PhoneNumber = model.PhoneNumber ?? "";
+                user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
+
+                UserManager.Update(user);
+
+                TempData["Success"] = "Profile updated";
+            }
+
+            return View(model);
         }
+
+
+        [Authorize]
+        public ActionResult TestSMS()
+        {
+            string UserIDX = User.Identity.GetUserId();
+            bool SuccInd = UtilsSMS.sendSMS(UserIDX, "This is a test message from QREST. You can now receive QREST alerts directly to your phone.");
+            if (SuccInd)
+                TempData["Success"] = "Text message sent.";
+            else
+                TempData["Error"] = "Unable to send text message.";
+
+            return RedirectToAction("MyProfile");
+        }
+
+        [Authorize]
+        public ActionResult Notifications()
+        {
+            string UserIDX = User.Identity.GetUserId();
+            var model = new vmAccountNotifications();
+            model.notifications = db_Account.GetT_QREST_USER_NOTIFICATION_ByUserID(UserIDX);
+            return View(model);
+        }
+
+
+        public ActionResult NotificationDelete2(Guid? id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //CHECK PERMISSIONS
+            T_QREST_USER_NOTIFICATION n = db_Account.GetT_QREST_USER_NOTIFICATION_ByID(id.GetValueOrDefault());
+            if (n != null && UserIDX == n.USER_IDX)
+            {
+                int SuccID = db_Account.DeleteT_QREST_USER_NOTIFICATION(id.GetValueOrDefault());
+                if (SuccID > 0)
+                    TempData["Success"] = "Deleted";
+                else
+                    TempData["Error"] = "Unable to delete notification";
+            }
+
+            return RedirectToAction("Notifications", "Account");
+        }
+
+
+        // POST: /Forum/PostAnswer
+        [HttpPost]
+        public JsonResult NotificationRead(Guid? id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //CHECK PERMISSIONS
+            T_QREST_USER_NOTIFICATION n = db_Account.GetT_QREST_USER_NOTIFICATION_ByID(id.GetValueOrDefault());
+            if (n != null && UserIDX == n.USER_IDX)
+            {
+                Guid? SuccID = db_Account.InsertUpdateT_QREST_USER_NOTIFICATION(n.NOTIFICATION_IDX, null, null, null, null, null, true, UserIDX);
+                if (SuccID != null)
+                    return Json(new { msg = "Success" });
+            }
+
+            //return ERROR
+            return Json(new { msg = "Unable to mark read." });
+
+        }
+
 
 
 

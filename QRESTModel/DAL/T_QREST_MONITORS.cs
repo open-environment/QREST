@@ -18,6 +18,7 @@ namespace QRESTModel.DAL
         public T_QREST_MONITORS()
         {
             this.T_QREST_QC_ASSESSMENT = new HashSet<T_QREST_QC_ASSESSMENT>();
+            this.T_QREST_SITE_POLL_CONFIG_DTL = new HashSet<T_QREST_SITE_POLL_CONFIG_DTL>();
         }
     
         public System.Guid MONITOR_IDX { get; set; }
@@ -29,7 +30,7 @@ namespace QRESTModel.DAL
         public string COLLECT_UNIT_CODE { get; set; }
         public Nullable<double> ALERT_MIN_VALUE { get; set; }
         public Nullable<double> ALERT_MAX_VALUE { get; set; }
-        public Nullable<int> ALERT_PCT_CHANGE { get; set; }
+        public Nullable<double> ALERT_AMT_CHANGE { get; set; }
         public Nullable<int> ALERT_STUCK_REC_COUNT { get; set; }
         public string CREATE_USER_IDX { get; set; }
         public Nullable<System.DateTime> CREATE_DT { get; set; }
@@ -42,5 +43,7 @@ namespace QRESTModel.DAL
         public virtual T_QREST_SITES T_QREST_SITES { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_QC_ASSESSMENT> T_QREST_QC_ASSESSMENT { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_SITE_POLL_CONFIG_DTL> T_QREST_SITE_POLL_CONFIG_DTL { get; set; }
     }
 }

@@ -22,7 +22,19 @@ namespace QREST.Models
 
     public class vmAccountMyProfile
     {
+        public string FNAME { get; set; }
+        public string LNAME { get; set; }
+        public string EMAIL { get; set; }
+        public bool NOTIFY_APP_IND { get; set; }
+        public bool NOTIFY_EMAIL_IND { get; set; }
+        public bool NOTIFY_SMS_IND { get; set; }
+        public string PhoneNumber { get; set; }
+        public bool PhoneNumberConfirmed { get; set; }
+    }
 
+    public class vmAccountNotifications
+    {
+        public List<T_QREST_USER_NOTIFICATION> notifications { get; set; }
     }
 
     public class LoginViewModel

@@ -22,47 +22,15 @@
                     <i class="fa fa-bars"></i>
                 </a>
                 <a href="@Url.Action("Index", "Dashboard")" class="navbar-brand" data-toggle="tooltip" data-original-title="Quality Review and Exchange System for Tribes" data-placement="bottom" data-container="body"><img src="~/Content/Images/itep_logo_120.png" class="m-r-sm">QREST</a>
-                <a class="btn btn-link visible-xs" data-toggle="dropdown" data-target=".nav-user">
+                <a class="btn btn-link visible-xs dropdown-toggle" data-toggle="dropdown" data-target=".nav-user">
                     <i class="fa fa-cog"></i>
                 </a>
             </div>
 
             <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user">
-                @if (Request.IsAuthenticated)
-                {
-                    <li class="hidden-xs">
-                        <a href="#" class="dropdown-toggle dk" data-toggle="dropdown">
-                            <i class="fa fa-bell"></i>
-                            <span class="badge badge-sm up bg-danger m-l-n-sm count" style="display: inline-block;">3</span>
-                        </a>
-                        <section class="dropdown-menu aside-xl">
-                            <section class="panel bg-white">
-                                <div class="panel-heading b-light bg-light">
-                                    <strong>You have 3 notifications</strong>
-                                </div>
-                                <div class="list-group list-group-alt animated fadeInRight">
-                                    <a href="#" class="media list-group-item" style="display: block;"><span class="pull-left thumb-sm text-center"><i class="fa fa-envelope-o fa-2x text-success"></i></span><span class="media-body block m-b-none">Sophi sent you a email<br><small class="text-muted">1 minutes ago</small></span></a>
-                                    <a href="#" class="media list-group-item">
-                                        <span class="media-body block m-b-none">
-                                            Use awesome animate.css<br>
-                                            <small class="text-muted">10 minutes ago</small>
-                                        </span>
-                                    </a>
-                                    <a href="#" class="media list-group-item">
-                                        <span class="media-body block m-b-none">
-                                            1.0 initial released<br>
-                                            <small class="text-muted">1 hour ago</small>
-                                        </span>
-                                    </a>
-                                </div>
-                                <div class="panel-footer text-sm">
-                                    <a href="#" class="pull-right"><i class="fa fa-cog"></i></a>
-                                    <a href="#notes" data-toggle="class:show animated fadeInRight">See all the notifications</a>
-                                </div>
-                            </section>
-                        </section>
-                    </li>
-                }
+
+                @Html.Action("_PartialHeadNotification", "Shared")
+
                 <li class="dropdown">
                     @if (Request.IsAuthenticated)
                     {
@@ -78,11 +46,8 @@
                                 <li>
                                     <a href="@Url.Action("MyProfile", "Account")">Profile</a>
                                 </li>
-                                <li>
-                                    <a href="#">
-                                        <span class="badge bg-danger pull-right">3</span>
-                                        Notifications
-                                    </a>
+                                <li class="hidden-sm hidden-md hidden-lg">
+                                    <a href="@Url.Action("Notifications", "Account")">Notifications</a>
                                 </li>
                                 <li>
                                     <a href="@Url.Action("Help", "Home")" target="_blank">Help</a>
@@ -130,7 +95,7 @@
                             <div class="m-b-md">
                                 @if (ViewBag.PageConfig == true)
                                 {
-                                    <a href="#" data-toggle="tooltip" data-placement="left" data-original-title="Page Config" class="pull-right"><i class="fa fa-cog fa-2x text-dark "></i></a>
+                                    <a href="#notes" data-toggle="class:show animated fadeInRight" data-placement="left" data-original-title="Page Config" class="pull-right"><i class="fa fa-cog fa-2x text-dark "></i></a>
                                 }
                                 <h3 class="m-b-none m-t-sm">@ViewBag.Title</h3>
                                 <span style="font-size:9pt; font-style:italic">@Html.Raw(ViewBag.SubTitle)</span>
@@ -141,6 +106,11 @@
                         </section>
                     </section>
                 </section>
+
+                <!-- DASHBOARD CONFIG -->
+                <aside class="bg-light lter b-l aside-md hide hide" id="notes">
+                    <div class="wrapper"><h4>Dashboard Config</h4></div>
+                </aside>
             </section>
         </section>
     </div>

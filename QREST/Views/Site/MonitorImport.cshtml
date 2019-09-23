@@ -36,7 +36,7 @@
                             @Html.HiddenFor(x => Model.ImportMonitors[i].T_QREST_MONITORS.POC)
                             <tr>
                                 <td>
-                                    @if (Model.ImportMonitors[i].T_QREST_MONITORS.MODIFY_USER_IDX=="I")
+                                    @if (Model.ImportMonitors[i].T_QREST_MONITORS.MODIFY_USER_IDX == "I")
                                     {
                                         @Html.EditorFor(model => model.ImportMonitors[i].monSelInd)
                                     }
@@ -71,6 +71,12 @@
                 <a href="@(Url.Action("SiteEdit", "Site", new { id = Model.siteIDX }))" class="btn btn-sm btn-default pull-right"><i class="fa fa-chevron-left"></i> Return to Site Edit</a>
             }
         }
+        else
+        {
+            <h4 class="alert-danger">No monitors found to import from AQS</h4>
+            <a href="@(Url.Action("SiteEdit", "Site", new { id = Model.siteIDX }))" class="btn btn-sm btn-default pull-right"><i class="fa fa-chevron-left"></i> Return to Site Edit</a>
+        }
+
     </div>
 </section>
 

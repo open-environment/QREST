@@ -1,12 +1,20 @@
-﻿@model QREST.Models.vmAdminOrgEdit
+﻿@using QREST.App_Logic.BusinessLogicLayer
+@model QREST.Models.vmAdminOrgEdit
 @{
-    ViewBag.Title = "Edit Organization";
+    if (Model.ORG_ID == null)
+    {
+        ViewBag.Title = "Add Organization";
+    }
+    else
+    {
+        ViewBag.Title = "Edit Organization";
+    }
 }
 
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">Organization Details</header>
     <div class="panel-body">
-        @using (Html.BeginForm("OrgEdit","Admin", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+        @using (Html.BeginForm("OrgEdit", "Admin", FormMethod.Post, new { @id = "norepostform", role = "form" }))
         {
             @Html.AntiForgeryToken()
             @Html.ValidationSummary("", new { @class = "text-danger" })
@@ -16,7 +24,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Org ID</label>
+                            @Html.LabelForRequired(m => m.ORG_ID, "Org ID", new { @class = "control-label" })
                             @if (Model.ORG_ID != null)
                             {
                                 @Html.TextBoxFor(model => model.ORG_ID, new { @class = "form-control", @readonly = "readonly" })
@@ -30,7 +38,7 @@
                     </div>
                     <div class="col-md-8">
                         <div class="form-group">
-                            <label>Org Name</label>
+                            @Html.LabelForRequired(m => m.ORG_NAME, "Org Name", new { @class = "control-label" })
                             @Html.TextBoxFor(model => model.ORG_NAME, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.ORG_NAME)
                         </div>
@@ -60,8 +68,17 @@
                         @Html.ValidationMessageFor(model => model.AQS_AGENCY_CODE)
                     </div>
                 </div>
-            </div>
 
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        @Html.CheckBoxFor(model => model.SELF_REG_IND, new { @class = "checkbox-inline checkbox-lg" })
+                        <label class="label-lg font-bold">Allow Self Registration</label>
+                        @Html.ValidationMessageFor(model => model.SELF_REG_IND)
+                    </div>
+                </div>
+            </div>
             <p>
                 <button id="btnSave" type="submit" disabled class="btn btn-sm btn-primary">Save</button>
                 <a class=" btn btn-sm btn-default" href="@Url.Action("OrgList" )">Back to List</a>
@@ -186,7 +203,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="btnSave" type="submit" class="btn btn-primary" >Save</button>
+                    <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
                     <button class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
@@ -202,7 +219,7 @@
     <script type="text/javascript">
         // Enable dirtyforms
         $('#norepostform').dirtyForms();
-        // Enable/disable the submit button when the state transitions between dirty and clean. 
+        // Enable/disable the submit button when the state transitions between dirty and clean.
         $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
             if (ev.type === 'dirty') {
                 $("#btnSave").prop("disabled", false);

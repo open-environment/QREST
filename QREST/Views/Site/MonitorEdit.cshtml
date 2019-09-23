@@ -18,40 +18,47 @@
 
                     @if (Model != null)
                     {
-                        <div class="row">
-                            @if (Model.MONITOR_IDX == null)
-                            {
-                                <div class="col-md-12">
-                                    <label>Parameter / Method</label>
-                                    <div class="input-group m-b">
-                                        <span class="input-group-btn">
-                                            <a id="add-it" href="#modal-form" data-toggle="modal" class="btn btn-info"><i class="fa fa-plus"></i> Search</a>
-                                        </span>
-                                        <input id="txtParMethodTemp" type="text" class="form-control" readonly="readonly">
-                                    </div>
+                    <div class="row">
+                        @if (Model.MONITOR_IDX == null)
+                        {
+                            <div class="col-md-9">
+                                <label>Parameter / Method</label>
+                                <div class="input-group m-b">
+                                    <span class="input-group-btn">
+                                        <a id="add-it" href="#modal-form" data-toggle="modal" class="btn btn-info"><i class="fa fa-plus"></i> Search</a>
+                                    </span>
+                                    <input id="txtParMethodTemp" type="text" class="form-control" readonly="readonly">
                                 </div>
-                            }
-                            else
-                            {
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Parameter</label>
-                                        @Html.TextBoxFor(model => model.PAR_NAME, new { @class = "form-control", @readonly = "readonly" })
-                                    </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Parameter</label>
+                                    @Html.TextBoxFor(model => model.PAR_NAME, new { @class = "form-control", @readonly = "readonly" })
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Method</label>
-                                        @Html.TextBoxFor(model => model.METHOD_CODE, new { @class = "form-control", @readonly = "readonly" })
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Method</label>
+                                    @Html.TextBoxFor(model => model.METHOD_CODE, new { @class = "form-control", @readonly = "readonly" })
                                 </div>
-                            }
+                            </div>
+                        }
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Data Collection Unit</label>
+                                @Html.DropDownListFor(model => model.COLLECT_UNIT_CODE, Model.ddl_Unit, "", new { @class = "form-control" })
+                            </div>
                         </div>
+
+                    </div>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>POC</label>
-                                    @Html.TextBoxFor(model => model.POC, new { @class = "form-control", @maxlength = "100" })
+                                    @Html.TextBoxFor(model => model.POC, new { @class = "form-control", @maxlength = "4" })
                                     @Html.ValidationMessageFor(model => model.POC)
                                 </div>
                             </div>
@@ -79,65 +86,64 @@
                 <a class=" btn btn-default" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX } )">Back to Site List</a>
             </p>
         </div>
+
+        @if (Model != null && Model.MONITOR_IDX != null)
+        {
         <div class="col-md-6">
             <section class="panel panel-qrest">
                 <header class="panel-heading font-bold">Alerts</header>
                 <div class="panel-body">
-
-                    @if (Model != null)
-                    {
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Min</label>
-                                    <div class="input-group m-b">
-                                        @Html.TextBoxFor(model => model.ALERT_MIN_VALUE, new { @class = "form-control", @maxlength = "6" })
-                                        <span class="input-group-addon">mph</span>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.ALERT_MIN_VALUE)
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Min</label>
+                                <div class="input-group m-b">
+                                    @Html.TextBoxFor(model => model.ALERT_MIN_VALUE, new { @class = "form-control", @maxlength = "6" })
+                                    <span id="unit1"  class="input-group-addon"></span>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Max</label>
-                                    <div class="input-group m-b">
-                                        @Html.TextBoxFor(model => model.ALERT_MAX_VALUE, new { @class = "form-control", @maxlength = "6" })
-                                        <span class="input-group-addon">mph</span>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.ALERT_MAX_VALUE)
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Percent Change</label>
-                                    <div class="input-group m-b">
-                                        @Html.TextBoxFor(model => model.ALERT_PCT_CHANGE, new { @class = "form-control", @maxlength = "5" })
-                                        <span class="input-group-addon">%</span>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.ALERT_PCT_CHANGE)
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label># Stuck Values</label>
-                                    @Html.TextBoxFor(model => model.ALERT_STUCK_REC_COUNT, new { @class = "form-control", @maxlength = "2" })
-                                    @Html.ValidationMessageFor(model => model.ALERT_STUCK_REC_COUNT)
-                                </div>
+                                @Html.ValidationMessageFor(model => model.ALERT_MIN_VALUE)
                             </div>
                         </div>
-                    }
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Max</label>
+                                <div class="input-group m-b">
+                                    @Html.TextBoxFor(model => model.ALERT_MAX_VALUE, new { @class = "form-control", @maxlength = "6" })
+                                    <span id="unit2"  class="input-group-addon">unit</span>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.ALERT_MAX_VALUE)
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Amount Change</label>
+                                <div class="input-group m-b">
+                                    @Html.TextBoxFor(model => model.ALERT_AMT_CHANGE, new { @class = "form-control", @maxlength = "5" })
+                                    <span id="unit3" class="input-group-addon">unit</span>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.ALERT_AMT_CHANGE)
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label># Stuck Values</label>
+                                @Html.TextBoxFor(model => model.ALERT_STUCK_REC_COUNT, new { @class = "form-control", @maxlength = "2" })
+                                @Html.ValidationMessageFor(model => model.ALERT_STUCK_REC_COUNT)
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
         </div>
+        }
     </div>
 
 }
 
 <!-- START MODAL FORM  -->
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
-    <div class="modal-dialog" style="width:900px">
+    <div class="modal-dialog" style="width:90%">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 style="float: left" class="modal-title">Search and Select AQS Parameter / Method</h4>
@@ -154,9 +160,12 @@
                                 <th></th>
                                 <th>Par</th>
                                 <th>Par Name</th>
+                                <th>Recording Mode</th>
                                 <th>Method</th>
                                 <th>Collection</th>
-                                <th>Recording Mode</th>
+                                <th>Analysis</th>
+                                <th>Ref Method</th>
+                                <th>Equivalent Method</th>
                             </tr>
                         </thead>
                     </table>
@@ -222,14 +231,18 @@
                         "render": function (data, type, row) {
                             return '<a data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX
                                 + '" data-par="' + row.PAR_NAME
+                                + '" data-unit="' + row.T_QREST_REF_PAR_METHODS.STD_UNIT_CODE
                                 + '" data-meth="' + row.T_QREST_REF_PAR_METHODS.METHOD_CODE + '" class="btn btn-rounded btn-xs btn-primary par-meth-sel" style="display: inline-block;"> <i class="fa fa-plus"></i> Select</a>';
                         }
                     },
                     { "data": "T_QREST_REF_PAR_METHODS.PAR_CODE", "name": "T_QREST_REF_PAR_METHODS.PAR_CODE", "autoWidth": true },
                     { "data": "PAR_NAME", "name": "PAR_NAME", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.RECORDING_MODE", "name": "T_QREST_REF_PAR_METHODS.RECORDING_MODE", "autoWidth": true },
                     { "data": "T_QREST_REF_PAR_METHODS.METHOD_CODE", "name": "T_QREST_REF_PAR_METHODS.METHOD_CODE", "autoWidth": true },
                     { "data": "T_QREST_REF_PAR_METHODS.COLLECTION_DESC", "name": "T_QREST_REF_PAR_METHODS.COLLECTION_DESC", "autoWidth": true },
-                    { "data": "T_QREST_REF_PAR_METHODS.RECORDING_MODE", "name": "T_QREST_REF_PAR_METHODS.RECORDING_MODE", "autoWidth": true }
+                    { "data": "T_QREST_REF_PAR_METHODS.ANALYSIS_DESC", "name": "T_QREST_REF_PAR_METHODS.ANALYSIS_DESC", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.REFERENCE_METHOD_ID", "name": "T_QREST_REF_PAR_METHODS.REFERENCE_METHOD_ID", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD", "name": "T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD", "autoWidth": true }
                 ],
                 "createdRow": function (row, data, dataIndex) {
                     $('td:eq(0)', row).css('width', '90px');
@@ -243,10 +256,28 @@
             $(document).on("click", ".par-meth-sel", function () {
                 $('#PAR_METHOD_IDX').val($(this).data('id'));
                 $('#txtParMethodTemp').val($(this).data('par') + " / " + $(this).data('meth'));
-
+                $('#COLLECT_UNIT_CODE').val($(this).data('unit'));
 
                 $('#modal-form').modal('toggle');
             });
+
+
+            //set units
+            var unit = $("#COLLECT_UNIT_CODE option:selected").text();
+            $("#unit1").text(unit);
+            $("#unit2").text(unit);
+            $("#unit3").text(unit);
+
+
+
+        });
+
+        $("#COLLECT_UNIT_CODE").change(function () {
+            var unit = $("#COLLECT_UNIT_CODE option:selected").text();
+            $("#unit1").text(unit);
+            $("#unit2").text(unit);
+            $("#unit3").text(unit);
+
         });
     </script>
 

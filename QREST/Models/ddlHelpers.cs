@@ -12,9 +12,9 @@ namespace QREST.Models
         /// </summary>
         /// <param name="activeInd"></param>
         /// <returns></returns>
-        public static IEnumerable<SelectListItem> get_ddl_organizations(bool activeInd)
+        public static IEnumerable<SelectListItem> get_ddl_organizations(bool activeInd, bool selfRegOnly)
         {
-            return db_Ref.GetT_QREST_ORGANIZATIONS(activeInd).Select(x => new SelectListItem
+            return db_Ref.GetT_QREST_ORGANIZATIONS(activeInd, selfRegOnly).Select(x => new SelectListItem
             {
                 Value = x.ORG_ID,
                 Text = x.ORG_NAME
@@ -26,7 +26,7 @@ namespace QREST.Models
             return db_Ref.GetT_QREST_REF_STATE().Select(x => new SelectListItem
             {
                 Value = x.STATE_CD,
-                Text = x.STATE_NAME
+                Text = x.STATE_CD + " - " + x.STATE_NAME
             });
         }
 
@@ -35,7 +35,7 @@ namespace QREST.Models
             return db_Ref.GetT_QREST_REF_COUNTY_ByState(StateCd).Select(x => new SelectListItem
             {
                 Value = x.COUNTY_CD,
-                Text = x.COUNTY_NAME
+                Text = x.COUNTY_CD + " - " + x.COUNTY_NAME
             });
         }
 
@@ -99,6 +99,15 @@ namespace QREST.Models
             {
                 Value = x.DURATION_CODE,
                 Text = x.DURATION_DESC
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_ref_units()
+        {
+            return db_Ref.GetT_QREST_REF_UNITS().Select(x => new SelectListItem
+            {
+                Value = x.UNIT_CODE,
+                Text = x.UNIT_DESC
             });
         }
 

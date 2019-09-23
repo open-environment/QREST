@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QRESTModel.BLL
 {
-    public static class Utils
+    public static class UtilsText
     {
         /// <summary>
         ///  Generic data type converter 

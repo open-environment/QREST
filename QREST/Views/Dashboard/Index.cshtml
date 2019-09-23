@@ -17,11 +17,11 @@
         <div class="col-sm-6 col-md-3 padder-v b-r b-light">
             <span class="fa-stack fa-2x pull-left m-r-sm">
                 <i class="fa fa-circle fa-stack-2x text-danger"></i>
-                <i class="fa fa-warning fa-stack-1x text-white"></i>
+                <i class="fa fa-bell fa-stack-1x text-white"></i>
             </span>
-            <a class="clear" href="#">
+            <a class="clear" href="@Url.Action("Notifications", "Account")">
                 <span class="h3 block m-t-xs"><strong id="firers">@Model.MyAlertCount</strong></span>
-                <small class="text-muted text-uc">Alerts</small>
+                <small class="text-muted text-uc">Notifications</small>
             </a>
         </div>
         <div class="col-sm-6 col-md-3 padder-v b-r b-light lt">
@@ -30,7 +30,7 @@
                 <i class="fa fa-clock-o fa-stack-1x text-white"></i>
             </span>
             <a class="clear" href="@Url.Action("SiteList", "Site")">
-                <span class="h3 block m-t-xs"><strong>31:50</strong></span>
+                <span class="h3 block m-t-xs"><strong>N/A</strong></span>
                 <small class="text-muted text-uc">Last Poll</small>
             </a>
         </div>
@@ -41,7 +41,7 @@
             </span>
             <a class="clear" href="@Url.Action("SiteList", "Site")">
                 <span class="h3 block m-t-xs"><strong>@Model.MySiteCount</strong></span>
-                <small class="text-muted text-uc">Air Monitoring Sites</small>
+                <small class="text-muted text-uc">My Air Sites</small>
             </a>
         </div>
         <div class="col-sm-6 col-md-3 padder-v b-r b-light lt">
@@ -51,7 +51,7 @@
             </span>
             <a class="clear" href="@Url.Action("MonitorList", "Site")">
                 <span class="h3 block m-t-xs"><strong id="bugs">@Model.MyMonitorCount</strong></span>
-                <small class="text-muted text-uc">Monitors</small>
+                <small class="text-muted text-uc">My Monitors</small>
             </a>
         </div>
 
@@ -62,12 +62,9 @@
         <section class="panel panel-default">
             <header class="panel-heading font-bold">Map Showing My Sites</header>
             <div class="panel-body">
-                <div id="flot-1ine" style="height: 330px; padding: 0px; position: relative;">
-                    <canvas class="flot-base" width="754" height="210" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 754px; height: 210px;"></canvas>
-                    <div class="flot-text" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; font-size: smaller; color: rgb(84, 84, 84);">
-                    </div>
-                    <canvas class="flot-overlay" width="754" height="210" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 754px; height: 210px;"></canvas>
-                </div>
+
+                <div id="map_canvas" style="width: 100%; height: 400px;"></div>
+
             </div>
         </section>
     </div>
@@ -155,5 +152,56 @@
             }
         });
     </script>
+
+    <script src="https://js.arcgis.com/3.25/"></script>
+    @if (Model != null)
+    {
+        @*<script type="text/javascript">
+            function LoadMap() {
+                var map;
+                require(["esri/map",
+                    "esri/geometry/Point",
+                    "esri/symbols/SimpleMarkerSymbol",
+                    "esri/graphic",
+                    "esri/Color", "dojo/domReady!"
+                ],
+                    function (Map,
+                        Point,
+                        SimpleMarkerSymbol,
+                        Graphic,
+                        Color
+                    ) {
+                        map = new Map("map_canvas", {
+                            basemap: "topo"
+                        });
+                        //define marker style
+                        var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([255, 0, 0, 2]));
+                        //map.on("load", showMap);
+                        //map.on("click", addPoint);
+                        function showMap() {
+                            map.graphics.clear();
+                            if ($("#longitude").val() != 0 && $("#latitude").val() != 0) {
+                                var p = new Point($("#longitude").val(), $("#latitude").val());
+                                map.graphics.add(new Graphic(p, s));
+                                map.centerAndZoom(p, 9);
+                            }
+                            else {
+                                var p = new Point(-95.96826, 36.14520);
+                                map.centerAndZoom(p, 9);
+                            }
+                        }
+                        //when map is clicked, add or move point on map and (re)populate pop modal textboxes
+                        function addPoint(evt) {
+                            map.graphics.clear();
+                            map.graphics.add(new Graphic(evt.mapPoint, s));
+                            $("#txtLat1").val(evt.mapPoint.getLatitude().toFixed(5));
+                            $("#txtLong1").val(evt.mapPoint.getLongitude().toFixed(5));
+                        }
+                    });
+            }
+
+            LoadMap();
+        </script>*@
+    }
 }
 

@@ -32,7 +32,7 @@
                             <li class="@Html.ActivePage("Site", "OrgList,OrgEdit")">
                                 <a href="@Url.Action("OrgList", "Site")">
                                     <i class="fa fa-angle-right"></i>
-                                    <span class="title">Agencies</span>
+                                    <span class="title">Organizations</span>
                                 </a>
                             </li>
                             <li class="@Html.ActivePage("Site", "SiteList,SiteEdit,SiteImport")">
@@ -51,7 +51,7 @@
                     </li>
                     <li class="leftmenuhead">
                         <a href="#layout">
-                            <i class="fa fa-flask icon">
+                            <i class="fa fa-cloud icon">
                                 <b class="bg-warning"></b>
                             </i>
                             <span class="pull-right">
@@ -87,27 +87,27 @@
                             <span>Reports</span>
                         </a>
                         <ul class="nav lt">
-                            <li class="@Html.ActivePage("Reports", "Summary")">
-                                <a href="@Url.Action("Summary", "Reports")">
+                            <li class="@Html.ActivePage("Reports", "Index")">
+                                <a href="@Url.Action("Index", "Reports")">
                                     <i class="fa fa-angle-right"></i>
-                                    <span class="title">Raw Data</span>
+                                    <span class="title">Reports</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="#table">
                                     <i class="fa fa-angle-down text"></i>
                                     <i class="fa fa-angle-up text-active"></i>
-                                    <span>Export</span>
+                                    <span>Data Export</span>
                                 </a>
                                 <ul class="nav bg">
-                                    <li class="@Html.ActivePage("Reports", "ExportSites")">
-                                        <a href="@Url.Action("ExportSites", "Reports")">
+                                    <li class="@Html.ActivePage("Reports", "Index")">
+                                        <a href="@Url.Action("Index", "Reports")">
                                             <i class="fa fa-angle-right"></i>
                                             <span class="title">Sites</span>
                                         </a>
                                     </li>
-                                    <li class="@Html.ActivePage("Reports", "ExportResults")">
-                                        <a href="@Url.Action("ExportResults", "Reports")">
+                                    <li class="@Html.ActivePage("Reports", "Index")">
+                                        <a href="@Url.Action("Index", "Reports")">
                                             <i class="fa fa-angle-right"></i>
                                             <span class="title">Results</span>
                                         </a>
@@ -115,9 +115,9 @@
                                 </ul>
                             </li>
                             <li>
-                                <a href="chart.html">
+                                <a href="@Url.Action("Index", "Reports")">
                                     <i class="fa fa-angle-right"></i>
-                                    <span>Chart</span>
+                                    <span>Charts</span>
                                 </a>
                             </li>
                         </ul>

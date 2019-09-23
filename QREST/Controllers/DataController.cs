@@ -112,5 +112,12 @@ namespace QREST.Controllers
             return View(model);
 
         }
+
+
+        public ActionResult Raw()
+        {
+            return View();
+        }
+
     }
 }

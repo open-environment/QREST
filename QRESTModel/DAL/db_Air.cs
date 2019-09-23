@@ -11,8 +11,10 @@ namespace QRESTModel.DAL
     {
         public T_QREST_MONITORS T_QREST_MONITORS { get; set; }
         public string SITE_ID { get; set; }
+        public string PAR_CODE { get; set; }
         public string PAR_NAME { get; set; }
         public string METHOD_CODE { get; set; }
+        public string COLLECTION_DESC { get; set; }
         public string ORG_ID { get; set; }
         public bool monSelInd { get; set; }
     }
@@ -27,6 +29,13 @@ namespace QRESTModel.DAL
         public string SITE_ID { get; set; }
         public string PAR_NAME { get; set; }
         public string ORG_ID { get; set; }
+
+    }
+
+    public class SiteNotifyDisplay
+    {
+        public T_QREST_SITE_NOTIFY T_QREST_SITE_NOTIFY { get; set; }
+        public string UserName { get; set; }
 
     }
 
@@ -158,8 +167,31 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static int InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, decimal? lATITUDE, decimal? lONGITUDE,
-            string aDDRESS, string cITY, string sTATE, string cOUNTY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, bool? tELEMETRY_ONLINE_IND, string tELEMETRY_SOURCE,
+        public static List<T_QREST_SITES> GetT_QREST_SITES_ReadyToPoll()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
+                               where a.POLLING_ONLINE_IND == true 
+                               && a.POLLING_NEXT_RUN_DT < System.DateTime.Now
+                               orderby a.SITE_ID
+                               select a).ToList();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static Guid? InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, string sTATE, string cOUNTY, 
+            decimal? lATITUDE, decimal? lONGITUDE, string eLEVATION, string aDDRESS, string cITY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, 
+            bool? pOLLING_ONLINE_IND, string pOLLING_FREQ_TYPE, int? pOLLING_FREQ_NUM, DateTime? pOLLING_LAST_RUN_DT, DateTime? pOLLING_NEXT_RUN_DT, bool? aIRNOW_IND, bool? aQS_IND,
             string sITE_COMMENTS, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -190,29 +222,38 @@ namespace QRESTModel.DAL
                     if (sITE_ID != null) e.SITE_ID = sITE_ID;
                     if (sITE_NAME != null) e.SITE_NAME = sITE_NAME;
                     if (aQS_SITE_ID != null) e.AQS_SITE_ID = aQS_SITE_ID;
+                    if (sTATE != null) e.STATE_CD = sTATE;
+                    if (sTATE == "") e.STATE_CD = null;
+                    if (cOUNTY != null) e.COUNTY_CD = cOUNTY;
+                    if (cOUNTY == "") e.COUNTY_CD = null;
                     if (lATITUDE != null) e.LATITUDE = lATITUDE;
                     if (lONGITUDE != null) e.LONGITUDE = lONGITUDE;
+                    if (eLEVATION != null) e.ELEVATION = eLEVATION;
                     if (aDDRESS != null) e.ADDRESS = aDDRESS;
                     if (cITY != null) e.CITY = cITY;
-                    if (sTATE != null) e.STATE_CD = sTATE;
-                    if (cOUNTY != null) e.COUNTY_CD = cOUNTY;
                     if (zIP_CODE != null) e.ZIP_CODE = zIP_CODE;
                     if (sTART_DT != null) e.START_DT = sTART_DT;
                     if (eND_DT != null) e.END_DT = eND_DT;
-                    if (tELEMETRY_ONLINE_IND != null) e.TELEMETRY_ONLINE_IND = tELEMETRY_ONLINE_IND;
-                    if (tELEMETRY_SOURCE != null) e.TELEMETRY_SOURCE = tELEMETRY_SOURCE;
+
+                    if (pOLLING_ONLINE_IND != null) e.POLLING_ONLINE_IND = pOLLING_ONLINE_IND;
+                    if (pOLLING_FREQ_TYPE != null) e.POLLING_FREQ_TYPE = pOLLING_FREQ_TYPE;
+                    if (pOLLING_FREQ_NUM != null) e.POLLING_FREQ_NUM = pOLLING_FREQ_NUM;
+                    if (pOLLING_LAST_RUN_DT != null) e.POLLING_LAST_RUN_DT = pOLLING_LAST_RUN_DT;
+                    if (pOLLING_NEXT_RUN_DT != null) e.POLLING_NEXT_RUN_DT = pOLLING_NEXT_RUN_DT;
+                    if (aIRNOW_IND != null) e.AIRNOW_IND = aIRNOW_IND;
+                    if (aQS_IND != null) e.AQS_IND = aQS_IND;
                     if (sITE_COMMENTS != null) e.SITE_COMMENTS = sITE_COMMENTS;
 
                     if (insInd)
                         ctx.T_QREST_SITES.Add(e);
 
                     ctx.SaveChanges();
-                    return 1;
+                    return e.SITE_IDX;
                 }
                 catch (Exception ex)
                 {
                     logEF.LogEFException(ex);
-                    return 0;
+                    return null;
                 }
             }
         }
@@ -243,6 +284,121 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
+        //*****************SITE NOTIFY**********************************
+        public static List<SiteNotifyDisplay> GetT_QREST_SITE_NOTIFY_BySiteID(Guid? SiteIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_SITE_NOTIFY.AsNoTracking()
+                            join u in ctx.T_QREST_USERS on a.NOTIFY_USER_IDX equals u.USER_IDX
+                            where a.SITE_IDX == SiteIDX
+                            select new SiteNotifyDisplay {
+                                T_QREST_SITE_NOTIFY = a,
+                                UserName = u.FNAME + " " + u.LNAME
+                            }).ToList();
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static Guid? InsertUpdatetT_QREST_SITE_NOTIFY(Guid? sITE_NOTIFY_IDX, Guid? sITE_IDX, string nOTIFY_USER_IDX, string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    bool insInd = false;
+
+                    T_QREST_SITE_NOTIFY e = (from c in ctx.T_QREST_SITE_NOTIFY
+                                             where c.SITE_NOTIFY_IDX == sITE_NOTIFY_IDX
+                                             select c).FirstOrDefault();
+
+                    //then find by site/user combo
+                    if (e == null)
+                        e = (from c in ctx.T_QREST_SITE_NOTIFY
+                             where c.SITE_IDX == sITE_IDX
+                             && c.NOTIFY_USER_IDX == nOTIFY_USER_IDX
+                             select c).FirstOrDefault();
+
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_SITE_NOTIFY();
+                        e.SITE_NOTIFY_IDX = Guid.NewGuid();
+                    }
+
+                    if (sITE_IDX != null) e.SITE_IDX = sITE_IDX.ConvertOrDefault<Guid>();
+                    if (nOTIFY_USER_IDX != null) e.NOTIFY_USER_IDX = nOTIFY_USER_IDX;
+                    if (cREATE_USER != null) e.MODIFY_USER_IDX = cREATE_USER;
+                    e.MODIFY_DT = System.DateTime.Now;
+
+                    if (insInd)
+                        ctx.T_QREST_SITE_NOTIFY.Add(e);
+
+                    ctx.SaveChanges();
+                    return e.SITE_NOTIFY_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int DeleteT_QREST_SITE_NOTIFY(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_SITE_NOTIFY rec = new T_QREST_SITE_NOTIFY { SITE_NOTIFY_IDX = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+
+        //*****************SITE POLL CONFIG**********************************
+        public static T_QREST_SITE_POLL_CONFIG GetT_QREST_SITE_POLL_CONFIG_ActiveByID(Guid SiteIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking()
+                               where a.SITE_IDX == SiteIDX
+                               && a.ACT_IND == true
+                               select a);
+
+                    return (xxx.Count() == 1) ? xxx.FirstOrDefault() : null;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
 
         //*****************MONITORS**********************************
@@ -335,6 +491,8 @@ namespace QRESTModel.DAL
                                {
                                    T_QREST_MONITORS = a,
                                    METHOD_CODE = r.METHOD_CODE,
+                                   COLLECTION_DESC = r.COLLECTION_DESC,
+                                   PAR_CODE = p.PAR_CODE,
                                    PAR_NAME = p.PAR_NAME
                                }).ToList();
 
@@ -418,8 +576,8 @@ namespace QRESTModel.DAL
         }
 
 
-        public static int InsertUpdatetT_QREST_MONITORS(Guid? mONITOR_IDX, Guid? sITE_IDX, Guid? pAR_METHOD_IDX, int? pOC, string dURATION_CODE, string cOLLECT_FREQ_CODE,
-            string cOLLECT_UNIT_CODE, double? aLERT_MIN_VALUE, double? aLERT_MAX_VALUE, int? aLERT_PCT_CHANGE, int? aLERT_STUCK_REC_COUNT, string cREATE_USER)
+        public static Guid? InsertUpdatetT_QREST_MONITORS(Guid? mONITOR_IDX, Guid? sITE_IDX, Guid? pAR_METHOD_IDX, int? pOC, string dURATION_CODE, string cOLLECT_FREQ_CODE,
+            string cOLLECT_UNIT_CODE, double? aLERT_MIN_VALUE, double? aLERT_MAX_VALUE, double? aLERT_AMT_CHANGE, int? aLERT_STUCK_REC_COUNT, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -453,19 +611,19 @@ namespace QRESTModel.DAL
                     if (cOLLECT_UNIT_CODE != null) e.COLLECT_UNIT_CODE = cOLLECT_UNIT_CODE;
                     if (aLERT_MIN_VALUE != null) e.ALERT_MIN_VALUE = aLERT_MIN_VALUE;
                     if (aLERT_MAX_VALUE != null) e.ALERT_MAX_VALUE = aLERT_MAX_VALUE;
-                    if (aLERT_PCT_CHANGE != null) e.ALERT_PCT_CHANGE = aLERT_PCT_CHANGE;
+                    if (aLERT_AMT_CHANGE != null) e.ALERT_AMT_CHANGE = aLERT_AMT_CHANGE;
                     if (aLERT_STUCK_REC_COUNT != null) e.ALERT_STUCK_REC_COUNT = aLERT_STUCK_REC_COUNT;
 
                     if (insInd)
                         ctx.T_QREST_MONITORS.Add(e);
 
                     ctx.SaveChanges();
-                    return 1;
+                    return e.MONITOR_IDX;
                 }
                 catch (Exception ex)
                 {
                     logEF.LogEFException(ex);
-                    return 0;
+                    return null;
                 }
             }
         }

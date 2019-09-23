@@ -77,18 +77,6 @@ namespace QREST.App_Logic.BusinessLogicLayer
         }
 
         /// <summary>
-        ///  Better than built-in SubString by handling cases where string is too short
-        /// </summary>
-        /// <param name="index">Zero based</param>
-        public static string SubStringPlus(this string str, int index, int length)
-        {
-            if (str != null)
-                return str.Substring(index, Math.Min(str.Length - index, length));
-            else
-                return null;
-        }
-
-        /// <summary>
         /// Returns random numeric digits of specified length.
         /// </summary>
         /// <param name="length"></param>
@@ -145,7 +133,6 @@ namespace QREST.App_Logic.BusinessLogicLayer
             yield return sb.ToString();
         }
 
-
         /// <summary>
         /// Used to pass all string input in the system  - Strips all nasties from a string/html
         /// </summary>
@@ -159,7 +146,6 @@ namespace QREST.App_Logic.BusinessLogicLayer
 
             return html;
         }
-
 
         /// <summary>
         /// Takes in HTML and returns santized Html/string

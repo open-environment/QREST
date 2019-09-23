@@ -3,6 +3,11 @@
     ViewBag.Title = "Quality Control Data Entry";
 }
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3 class="text-center">Planned Phase 2.</h3>
+
+
 <div class="row">
 
     @using (Html.BeginForm("QCEntry", "Data", FormMethod.Post, new { @id = "norepostform", role = "form" }))
@@ -29,8 +34,8 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Assessment Date</label>
-                                @Html.TextBoxFor(model => model.ASSESSMENT_DT, new { @class = "form-control date-cleave", @maxlength = "10", @autocomplete="off", @placeholder="mm/dd/yyyy" })
-                                @Html.TextBoxFor(model => model.ASSESSMENT_TM, new { @class = "form-control ", @maxlength = "5", @autocomplete="off", @placeholder="hh:mm" })
+                                @Html.TextBoxFor(model => model.ASSESSMENT_DT, new { @class = "form-control date-cleave", @maxlength = "10", @autocomplete = "off", @placeholder = "mm/dd/yyyy" })
+                                @Html.TextBoxFor(model => model.ASSESSMENT_TM, new { @class = "form-control ", @maxlength = "5", @autocomplete = "off", @placeholder = "hh:mm" })
                                 @Html.ValidationMessageFor(model => model.ASSESSMENT_DT)
                             </div>
                         </div>
@@ -49,7 +54,7 @@
 
                     <div class="line line-dashed line-lg pull-in"></div>
 
-                    <h4>continue button</h4>
+                    <h4>continue </h4>
                     @*<div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">

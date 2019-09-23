@@ -233,7 +233,7 @@ namespace QREST.Controllers
         public ActionResult OrgListData()
         {
             var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
-            var data = db_Ref.GetT_QREST_ORGANIZATIONS(true);
+            var data = db_Ref.GetT_QREST_ORGANIZATIONS(true, false);
             var recordsTotal = data.Count();
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
@@ -244,7 +244,7 @@ namespace QREST.Controllers
         {
             var model = new vmAdminOrgEdit
             {
-                ddl_User = ddlHelpers.get_ddl_users(true)
+                ddl_User = ddlHelpers.get_ddl_users(false)
             };
 
             var _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(id);
@@ -255,6 +255,7 @@ namespace QREST.Controllers
                 model.STATE_CD = _org.STATE_CD;
                 model.EPA_REGION = _org.EPA_REGION;
                 model.AQS_AGENCY_CODE = _org.AQS_AGENCY_CODE;
+                model.SELF_REG_IND = _org.SELF_REG_IND ?? true;
                 model.edit_org_id = _org.ORG_ID;
                 model.edit_typ = "org";
 
@@ -271,7 +272,7 @@ namespace QREST.Controllers
             if (ModelState.IsValid)
             {
                 int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
-                    model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, true, "");
+                    model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "");
 
                 if (SuccID == 1)
                     TempData["Success"] = "Record updated";
@@ -280,7 +281,9 @@ namespace QREST.Controllers
                          
             }
 
-            model.ddl_User = ddlHelpers.get_ddl_users(true);
+            //repopulate model
+            model.org_users = db_Account.GetT_QREST_ORG_USERS_ByOrgID(model.ORG_ID, null, null);
+            model.ddl_User = ddlHelpers.get_ddl_users(false);
             return View(model);
         }
 
@@ -768,6 +771,117 @@ namespace QREST.Controllers
             };
             return View(model);
         }
+
+
+        //************************************* POLLING ************************************************************
+
+        // GET: /Admin/ImportData
+        public ActionResult PollData()
+        {
+
+            //attempt #1 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^6
+            //using (Client client = new Client("68.185.0.142", 14109, new System.Threading.CancellationToken()))
+            //{
+            //    var xxx = client.IsConnected;
+            //    client.WriteLine("u" + Environment.NewLine);
+
+            //    string response = client.ReadAsync().Result;
+            //    //string response = client.TerminatedReadAsync(":", TimeSpan.FromMilliseconds(10000)).Result;
+            //}
+
+
+
+
+            ////attempt #2 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^6
+
+            ////Create a TCPClient object at the IP and port
+            //TcpClient client = new TcpClient("1.1.1.1", 14109);
+
+            //// Get a client stream for reading and writing.
+            //NetworkStream stream = client.GetStream();
+
+
+            //// Send "U" to the connected TcpServer. 
+            //Byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes("u\r\n");
+            //stream.Write(bytesToSend, 0, bytesToSend.Length);
+
+
+            ////Read back the text---
+            //byte[] bytesToRead = new byte[client.ReceiveBufferSize];
+            //int bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
+            //string responseData = System.Text.Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+
+
+            //// Send password to the connected TcpServer. 
+            //bytesToSend = System.Text.Encoding.ASCII.GetBytes("password");
+            //stream.Write(bytesToSend, 0, bytesToSend.Length);
+
+            ////Read back the text---
+            //bytesToRead = new byte[client.ReceiveBufferSize];
+            //bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
+            //responseData = System.Text.Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+
+
+            //// Send "D" to the connected TcpServer. 
+            //bytesToSend = System.Text.Encoding.ASCII.GetBytes("D"  );
+            //stream.Write(bytesToSend, 0, bytesToSend.Length);
+
+            ////Read back the text---
+            //bytesToRead = new byte[client.ReceiveBufferSize];
+            //bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
+            //responseData = System.Text.Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+
+
+            //// Close everything.
+            //stream.Close();
+            //client.Close();
+
+            //try { 
+
+            //    var fileToOpen = @"C:\Users\dougt\Downloads\hyperterminal1\hyperterminal\ttt.ht";
+            //    var myProcess = new Process();
+            //    myProcess.StartInfo = new ProcessStartInfo()
+            //    {
+            //        UseShellExecute = true,
+            //        FileName = fileToOpen
+            //    };
+
+            //    myProcess.Start();
+
+            //    if (myProcess.Responding)
+            //    {
+            //        string username = "u";
+            //        System.Windows.Forms.SendKeys.SendWait(username + "{ENTER}");
+            //        Application.DoEvents();
+            //        Thread.Sleep(5000);
+            //        string password = "";
+            //        System.Windows.Forms.SendKeys.SendWait(password + "{ENTER}");
+            //        Application.DoEvents();
+            //        Thread.Sleep(5000);
+            //        string Command = "";
+            //        System.Windows.Forms.SendKeys.SendWait(Command + "{ENTER}");
+            //        Application.DoEvents();
+            //        Thread.Sleep(5000);
+
+            //        using (var writer = new StreamWriter(@"C:\Users\dougt\Downloads\hyperterminal1\hyperterminal\data.txt"))
+            //        {
+            //            writer.Write(myProcess.StandardOutput.ReadToEnd());
+            //        }
+
+            //        myProcess.Close();
+
+            //    }
+
+            //}           
+            //catch
+            //{
+            //}
+
+
+            return View();
+        }
+
+
 
     }
 }

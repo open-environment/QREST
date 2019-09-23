@@ -1,0 +1,47 @@
+﻿
+1. Create and populate database 
+
+	a. Run 1_createDatabase.sql
+	b. Run 2_createTables.sql
+	c. Run 3_createFunctions.sql
+	d. Run 4_populateData.sql
+	e. Run 5_populateDataLocal.sql
+
+2. Deploy QREST web application
+
+	a. Update web.config of QREST web application to point to new database
+	b. Deploy QREST web application
+
+3. Setup Global Admin Account
+
+	a. Run QREST web application
+	b. Register an account (leave organization blank). Since this is the first account, it will be granted ADMIN rights.
+	c. Receive email and click verify link. 
+	d. Log into QREST with new account.
+
+4. Import AQS reference data
+
+	a. Navigate to Admin --> Import Ref Data 
+	b. Import the following in sequence:
+		- States/Counties
+		- Agencies_tribal
+		- Durations
+		- Collection Frequencies
+		- Units
+		- Parameters
+		- Methods_all
+
+
+5. QREST Admin tasks
+
+	a. Create Organization for any tribes wishing to pilot
+
+
+6. QREST User task
+ 
+	a. Create account and select your organization.
+	b. Verify your account
+
+7. QREST Admin task
+
+     a. Click link in email (or in in-app notification) and change status of user from Pending to Active (optionally set access level from User to Admin too) 

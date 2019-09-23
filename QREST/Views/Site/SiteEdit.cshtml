@@ -1,6 +1,14 @@
-﻿@model QREST.Models.vmSiteSiteEdit
+﻿@using QREST.App_Logic.BusinessLogicLayer
+@model QREST.Models.vmSiteSiteEdit
 @{
-    ViewBag.Title = "Edit Site";
+    if (Model.SITE_IDX == null)
+    {
+        ViewBag.Title = "Add Site";
+    }
+    else
+    {
+        ViewBag.Title = "Edit Site";
+    }
 }
 <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
 
@@ -19,7 +27,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Site ID</label>
+                                @Html.LabelForRequired(m => m.SITE_NAME, "Site ID", new { @class = "control-label" })
                                 @*@Html.TextBoxFor(model => model.SITE_ID, Model.SITE_IDX != null ? new { @class = "form-control", @readonly = "readonly" } : (object)new { @class = "form-control", @maxlength = "50" })*@
                                 @Html.TextBoxFor(model => model.SITE_ID, new { @class = "form-control", @maxlength = "50" })
                                 @Html.ValidationMessageFor(model => model.SITE_ID)
@@ -27,14 +35,14 @@
                         </div>
                         <div class="col-md-9">
                             <div class="form-group">
-                                <label>Site Name</label>
+                                @Html.LabelForRequired(m => m.SITE_NAME, "Site Name", new { @class = "control-label" })
                                 @Html.TextBoxFor(model => model.SITE_NAME, new { @class = "form-control", @maxlength = "100" })
                                 @Html.ValidationMessageFor(model => model.SITE_NAME)
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-9">
                             <div class="form-group">
                                 <label>Organization</label>
                                 @Html.DropDownListFor(model => model.ORG_ID, Model.ddl_Organization, new { @class = "form-control" })
@@ -43,26 +51,9 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>AQS Site ID</label>
+                                @Html.LabelForRequired(m => m.AQS_SITE_ID, "AQS Site ID", new { @class = "control-label" })
                                 @Html.TextBoxFor(model => model.AQS_SITE_ID, new { @class = "form-control", @maxlength = "5" })
                                 @Html.ValidationMessageFor(model => model.AQS_SITE_ID)
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>State</label>
-                                @Html.DropDownListFor(model => model.STATE_CD, Model.ddl_State, "", new { @class = "form-control" })
-                                @Html.ValidationMessageFor(model => model.STATE_CD)
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>County</label>
-                                @if (Model.ddl_County != null)
-                                {
-                                @Html.DropDownListFor(model => model.COUNTY_CD, Model.ddl_County, "", new { @class = "form-control" })
-                                }
-                                @Html.ValidationMessageFor(model => model.COUNTY_CD)
                             </div>
                         </div>
 
@@ -118,17 +109,28 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>State</label>
-                                @Html.TextBoxFor(model => model.STATE_CD, new { @class = "form-control", @maxlength = "2" })
+                                @Html.DropDownListFor(model => model.STATE_CD, Model.ddl_State, "", new { @class = "form-control" })
                                 @Html.ValidationMessageFor(model => model.STATE_CD)
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>ZIP</label>
-                                @Html.TextBoxFor(model => model.ZIP_CODE, new { @class = "form-control", @maxlength = "10" })
+                                @Html.TextBoxFor(model => model.ZIP_CODE, new { @class = "form-control zip-cleave", @maxlength = "10" })
                                 @Html.ValidationMessageFor(model => model.ZIP_CODE)
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>County</label>
+                                @if (Model.ddl_County != null)
+                                {
+                                    @Html.DropDownListFor(model => model.COUNTY_CD, Model.ddl_County, "", new { @class = "form-control" })
+                                }
+                                @Html.ValidationMessageFor(model => model.COUNTY_CD)
+                            </div>
+                        </div>
+
                     </div>
                     <p>
                         <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
@@ -156,8 +158,6 @@
                                             <th>Parameter</th>
                                             <th>Method Code</th>
                                             <th>POC</th>
-                                            <th>Duration Code</th>
-                                            <th>Collection Frequency</th>
                                         </tr>
                                     </thead>
                                     @foreach (var item in Model.monitors)
@@ -167,30 +167,28 @@
                                                 <a href="@(Url.Action("MonitorEdit", "Site", new { id = item.T_QREST_MONITORS.MONITOR_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
                                                 <div class="delete-section" style="display:inline-block">
                                                     <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete"><b>Confirm Delete</b></div>
+                                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete">
+                                                        <b>Confirm Delete</b>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td>
+                                                @Html.DisplayFor(modelItem => item.PAR_CODE)
                                                 @Html.DisplayFor(modelItem => item.PAR_NAME)
                                             </td>
                                             <td>
                                                 @Html.DisplayFor(modelItem => item.METHOD_CODE)
+                                                @Html.DisplayFor(modelItem => item.COLLECTION_DESC)
                                             </td>
                                             <td>
                                                 @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.POC)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.DURATION_CODE)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.COLLECT_FREQ_CODE)
                                             </td>
                                         </tr>
                                     }
                                 </table>
                             </div>
                         }
-                        
+
                         <a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>
                         <a href="@(Url.Action("MonitorImport", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded pull-right">Import Monitors from AQS</a>
                     </div>
@@ -204,30 +202,12 @@
                                 <div class="row">
                                     <div id="telemetrySource" class="col-md-12">
                                         <div class="form-group ">
-                                            @Html.CheckBoxFor(model => model.TELEMETRY_ONLINE_IND, new { @class = "checkbox-inline checkbox-lg" })
+                                            @Html.CheckBoxFor(model => model.POLLING_ONLINE_IND, new { @class = "checkbox-inline checkbox-lg", @data_toggle = "collapse", @data_target = "#pollCollapse" })
                                             <label class="label-lg font-bold">Enable Automatic Data Retrieval</label>
-                                            @Html.ValidationMessageFor(model => model.TELEMETRY_ONLINE_IND)
-                                        </div>
-                                    </div>
-                                    <div id="telemetrySource" class="col-md-12">
-                                        <div class="form-group">
-                                            <label>Telemetry Source IP</label>
-                                            @Html.TextBoxFor(model => model.TELEMETRY_SOURCE, new { @class = "form-control", @maxlength = "150" })
-                                            @Html.ValidationMessageFor(model => model.TELEMETRY_SOURCE)
-                                        </div>
-                                    </div>
-                                    <div id="telemetrySource" class="col-md-3">
-                                        <div class="form-group">
-                                            <label>Port</label>
-                                            @Html.TextBoxFor(model => model.TELEMETRY_SOURCE, new { @class = "form-control", @maxlength = "150" })
-                                            @Html.ValidationMessageFor(model => model.TELEMETRY_SOURCE)
-                                        </div>
-                                    </div>
-                                    <div id="telemetrySource" class="col-md-9">
-                                        <div class="form-group">
-                                            <label>Password</label>
-                                            @Html.TextBoxFor(model => model.TELEMETRY_SOURCE, new { @class = "form-control", @maxlength = "150" })
-                                            @Html.ValidationMessageFor(model => model.TELEMETRY_SOURCE)
+                                            @Html.ValidationMessageFor(model => model.POLLING_ONLINE_IND)
+                                            <div id="pollCollapse" class="col-md-9 collapse @(Model.POLLING_ONLINE_IND==true? "in" : "")">
+                                                <a href="@(Url.Action("SitePollConfig", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded toggle">Configure Polling</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -256,6 +236,10 @@
                         <section class="panel panel-qrest">
                             <header class="panel-heading font-bold">Alerting</header>
                             <div class="panel-body">
+                                <div class="alert alert-info">
+                                    <i class="fa fa-info-sign"></i>
+                                    The following users will be notified when site polling detects an exceedance or other exceptional event.
+                                </div>
 
                                 <div class="table-responsive">
                                     <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
@@ -265,24 +249,25 @@
                                                 <th>Person</th>
                                             </tr>
                                         </thead>
-                                        @foreach (var item in Model.monitors)
+                                        @foreach (var item in Model.notifiees)
                                         {
                                             <tr>
                                                 <td>
                                                     <div class="delete-section" style="display:inline-block">
                                                         <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete"><b>Confirm Delete</b></div>
+                                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_SITE_NOTIFY.SITE_NOTIFY_IDX" data-delete-p="/Site/SiteNotifyDelete">
+                                                            <b>Confirm Delete</b>
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    John Doe
+                                                    @Html.DisplayFor(modelItem => item.UserName)
                                                 </td>
                                             </tr>
                                         }
                                     </table>
                                 </div>
-                                <a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>
-
+                                <a id="add-it" href="#modal-form1" data-toggle="modal" class="btn btn-sm btn-primary modal-it"><i class="fa fa-plus"></i> Add User</a>
                             </div>
                         </section>
                     </div>
@@ -294,10 +279,42 @@
     }
 </div>
 
+<!-- START NOTIFY MODAL FORM  -->
+<div class="modal fade" id="modal-form1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="width:600px">
 
+        @using (Html.BeginForm("SiteEditNotifyUser", "Site", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.SITE_IDX)
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 style="float: left" class="modal-title">Add Person to Notify List</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>User</label>
+                                @Html.DropDownListFor(model => model.edit_notify_user_idx, Model.ddl_User, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
 
-
-<!-- map modal  -->
+                </div>
+                <div class="modal-footer">
+                    <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- END MODAL FORM -->
+<!-- START MAP MODAL  -->
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -340,10 +357,12 @@
         </div>
     </div>
 </div>
+<!-- END MAP MODAL  -->
 
 @section scripts {
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/areyousure")
+    @Scripts.Render("~/bundles/cleave")
 
     <script type="text/javascript">
         // Enable dirtyforms
@@ -409,8 +428,8 @@
                                 map.centerAndZoom(p, 9);
                             }
                             else {
-                                var p = new Point(-95.96826, 36.14520);
-                                map.centerAndZoom(p, 9);
+                                var p = new Point(-105, 37);
+                                map.centerAndZoom(p, 4);
                             }
                         }
                         //when map is clicked, add or move point on map and (re)populate pop modal textboxes

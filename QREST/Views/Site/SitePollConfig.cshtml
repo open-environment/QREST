@@ -1,0 +1,66 @@
+﻿@model QREST.Models.vmSiteSitePollConfig
+@{
+    ViewBag.Title = "SitePollConfig";
+}
+
+<section class="hbox">
+    <section class="aside-md panel panel-qrest" id="subNav" style="border-radius: 4px 0px 0px 4px;">
+        <header class="panel-heading font-bold" style="border-right: 1px solid #fff">Email Templates</header>
+        <ul class="nav">
+            @foreach (var item in Model.ConfigList)
+            {
+                <li class="b-b b-light">
+                    <a href="@Url.Action("SitePollConfig", "Site", new { id = item.POLL_CONFIG_IDX })" class="@(item.POLL_CONFIG_IDX==@Model.CurrentConfig.POLL_CONFIG_IDX ? "master-active" : "")">Config</a>
+                </li>
+            }
+        </ul>
+    </section>
+    <section class="panel panel-qrest" style="border-radius: 0px 4px 4px 0px;">
+        <header class="panel-heading font-bold">Details</header>
+        <div class="panel-body">
+            @using (Html.BeginForm("SitePollConfig", "Site", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        Logger Type
+                        @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_TYPE, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_TYPE)
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        Logger Source
+                        @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_SOURCE, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_SOURCE)
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        Logger Source
+                        @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_PORT, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_PORT)
+                    </div>
+                </div>
+            </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            Email Body
+                            @Html.EditorFor(model => model.editMSG, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.editMSG)
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</section>
+
+

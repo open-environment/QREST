@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using QRESTModel.BLL;
 
 namespace QRESTModel.DAL
 {
@@ -32,6 +32,24 @@ namespace QRESTModel.DAL
                             where (ConfirmedOnly == true ? u.EmailConfirmed == true : true)
                             orderby u.FNAME, u.LNAME
                             select u).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static T_QREST_USERS GetT_QREST_USERS_ByID(string userIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from u in ctx.T_QREST_USERS.AsNoTracking()
+                            where u.USER_IDX == userIDX
+                            select u).FirstOrDefault();
                 }
                 catch (Exception ex)
                 {
@@ -277,6 +295,7 @@ namespace QRESTModel.DAL
             }
         }
 
+
         public static int DeleteT_QREST_ORG_USER(Guid id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -293,6 +312,36 @@ namespace QRESTModel.DAL
                 {
                     logEF.LogEFException(ex);
                     return 0;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Checks if the user is an admin of a specified organization
+        /// </summary>
+        /// <param name="uSER_IDX"></param>
+        /// <param name="oRG_ID"></param>
+        /// <returns></returns>
+        public static bool IsAnOrgAdmin(string uSER_IDX, string oRG_ID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    int iCount = (from a in ctx.T_QREST_ORG_USERS
+                                  where a.USER_IDX == uSER_IDX
+                                  && a.ACCESS_LEVEL == "A"
+                                  && a.STATUS_IND == "A"
+                                  && a.ORG_ID == oRG_ID
+                                  select a).Count();
+
+                    return iCount > 0;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
                 }
             }
         }
@@ -351,6 +400,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
         /// <summary>
         /// Checks if the user belongs to a specified organization as an active user
@@ -519,9 +569,85 @@ namespace QRESTModel.DAL
 
 
 
-        //***************** T_QREST_ORG_NOTIFICATION ***************************************        
+        //***************** T_QREST_USER_NOTIFICATION ***************************************        
+        public static T_QREST_USER_NOTIFICATION GetT_QREST_USER_NOTIFICATION_ByID(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from u in ctx.T_QREST_USER_NOTIFICATION.AsNoTracking()
+                            where u.NOTIFICATION_IDX == id
+                            select u).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<T_QREST_USER_NOTIFICATION> GetT_QREST_USER_NOTIFICATION_ByUserID(string userIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from u in ctx.T_QREST_USER_NOTIFICATION.AsNoTracking()
+                            where u.USER_IDX == userIDX
+                            orderby u.NOTIFY_DT descending
+                            select u).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int GetT_QREST_USER_NOTIFICATION_ByUserIDUnreadCount(string userIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from u in ctx.T_QREST_USER_NOTIFICATION.AsNoTracking()
+                            where u.USER_IDX == userIDX
+                            && u.READ_IND == false
+                            select u).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static List<T_QREST_USER_NOTIFICATION> GetT_QREST_USER_NOTIFICATION_ByUserIDUnreadTop3(string userIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from u in ctx.T_QREST_USER_NOTIFICATION.AsNoTracking()
+                            where u.USER_IDX == userIDX
+                            && u.READ_IND == false
+                            orderby u.NOTIFY_DT descending
+                            select u).Take(3).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static Guid? InsertUpdateT_QREST_USER_NOTIFICATION(Guid? nOTIFICATION_IDX, string uSER_IDX, DateTime? nOTIFY_DT, string nOTIFY_TYPE, string nOTIFY_TITLE, string nOTIFY_DESC, 
-            string cREATE_USER)
+            bool? rEAD_IND, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -550,11 +676,12 @@ namespace QRESTModel.DAL
                     {
                         e.MODIFY_DT = System.DateTime.Now;
                         e.MODIFY_USERIDX = cREATE_USER;
+                        if (rEAD_IND != null) e.READ_IND = rEAD_IND;
                     }
 
                     if (nOTIFY_TYPE != null) e.NOTIFY_TYPE = nOTIFY_TYPE;
                     if (nOTIFY_TITLE != null) e.NOTIFY_TITLE = nOTIFY_TITLE;
-                    if (nOTIFY_DESC != null) e.NOTIFY_DESC = nOTIFY_DESC;
+                    if (nOTIFY_DESC != null) e.NOTIFY_DESC = nOTIFY_DESC.SubStringPlus(0,2000);
 
                     if (insInd)
                         ctx.T_QREST_USER_NOTIFICATION.Add(e);
@@ -570,6 +697,25 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static int DeleteT_QREST_USER_NOTIFICATION(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_USER_NOTIFICATION rec = ctx.T_QREST_USER_NOTIFICATION.Find(id);
+                    ctx.T_QREST_USER_NOTIFICATION.Remove(rec);
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
 
     }
 }

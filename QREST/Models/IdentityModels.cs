@@ -13,6 +13,9 @@ namespace QREST.Models
         public string FNAME { get; set; }
         public string LNAME { get; set; }
         public string TITLE { get; set; }
+        public bool? NOTIFY_APP_IND { get; set; }
+        public bool? NOTIFY_EMAIL_IND { get; set; }
+        public bool? NOTIFY_SMS_IND { get; set; }
         public DateTime? LAST_LOGIN_DT { get; set; }
         public string CREATE_USER_IDX { get; set; }
         public DateTime? CREATE_DT { get; set; }

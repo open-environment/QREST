@@ -86,6 +86,8 @@ namespace QREST.Models
         public int? EPA_REGION { get; set; }
         public string AQS_NAAS_UID { get; set; }
         public string AQS_NAAS_PWD { get; set; }
+        public bool SELF_REG_IND { get; set; }
+
 
         public List<UserOrgDisplayType> org_users { get; set; }
 
@@ -164,7 +166,7 @@ namespace QREST.Models
         {
             ddl_user_status = ddlHelpers.get_ddl_user_status();
             ddl_user_role = ddlHelpers.get_ddl_user_role();
-            ddl_Org = ddlHelpers.get_ddl_organizations(true);
+            ddl_Org = ddlHelpers.get_ddl_organizations(true, false);
         }
 
     }

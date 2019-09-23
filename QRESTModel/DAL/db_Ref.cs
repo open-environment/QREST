@@ -176,6 +176,121 @@ namespace QRESTModel.DAL
 
 
 
+        //*****************APP_TASKS**********************************
+        public static T_QREST_APP_TASKS GetT_VCCB_TASKS_ByTaskID(int TaskID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from r in ctx.T_QREST_APP_TASKS
+                            where r.TASK_IDX == TaskID
+                            select r).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    throw ex;
+                }
+            }
+        }
+
+        public static List<T_QREST_APP_TASKS> GetT_VCCB_TASKS_ReadyToRun()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from r in ctx.T_QREST_APP_TASKS
+                            where r.STATUS != "Running"
+                            && System.DateTime.Now >= r.NEXT_RUN_DT
+                            select r).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    throw ex;
+                }
+            }
+        }
+
+        public static bool UpdateT_VCCB_TASKS_ResetAll()
+        {
+            try
+            {
+                using (QRESTEntities ctx = new QRESTEntities())
+                {
+                    try
+                    {
+                        ctx.Database.ExecuteSqlCommand("UPDATE T_QREST_APP_TASKS SET STATUS= {0}", "Stopped");
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch {
+                return false;
+            }
+        }
+
+        public static bool UpdateT_VCCB_TASKS_SetRunning(int TaskID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_APP_TASKS x = (from t in ctx.T_QREST_APP_TASKS
+                                           where t.TASK_IDX == TaskID
+                                           select t).FirstOrDefault();
+
+
+                    x.STATUS = "Running";
+                    ctx.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+        public static bool UpdateT_VCCB_TASKS_SetCompleted(int TaskID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_APP_TASKS x = (from t in ctx.T_QREST_APP_TASKS
+                                           where t.TASK_IDX == TaskID
+                                           select t).FirstOrDefault();
+
+                    x.STATUS = "Completed";
+
+                    //set next run
+                    if (x.FREQ_TYPE == "D")
+                        x.NEXT_RUN_DT = x.NEXT_RUN_DT.AddDays(x.FREQ_NUM);
+                    else if (x.FREQ_TYPE == "H")
+                        x.NEXT_RUN_DT = x.NEXT_RUN_DT.AddHours(x.FREQ_NUM);
+                    else if (x.FREQ_TYPE == "M")
+                        x.NEXT_RUN_DT = x.NEXT_RUN_DT.AddMinutes(x.FREQ_NUM);
+
+                    ctx.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+
         //*****************EMAIL_TEMPLATE **********************************
         public static List<T_QREST_EMAIL_TEMPLATE> GetT_QREST_EMAIL_TEMPLATE()
         {
@@ -350,7 +465,7 @@ namespace QRESTModel.DAL
 
 
         //***************** ORGANZIATIONS ******************************
-        public static List<T_QREST_ORGANIZATIONS> GetT_QREST_ORGANIZATIONS(bool actInd)
+        public static List<T_QREST_ORGANIZATIONS> GetT_QREST_ORGANIZATIONS(bool actInd, bool selfRegOnly)
         {
             try
             {
@@ -358,6 +473,7 @@ namespace QRESTModel.DAL
                 {
                     return (from a in ctx.T_QREST_ORGANIZATIONS.AsNoTracking()
                            where (actInd == true ? a.ACT_IND == true : true)
+                           && (selfRegOnly == true ? a.SELF_REG_IND == true : true)
                            orderby a.ORG_NAME
                            select a).ToList();
                 }
@@ -410,7 +526,7 @@ namespace QRESTModel.DAL
         }
 
         public static int InsertUpdatetT_QREST_ORGANIZATION(string oRG_ID, string oRG_NAME, string sTATE_CD, int? ePA_REGION, string aQS_NAAS_UID, string aQS_NAAS_PWD,
-            string aQS_AGENCY_CODE, bool? aCT_IND, string cREATE_USER)
+            string aQS_AGENCY_CODE, bool? sELF_REG_IND, bool? aCT_IND, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -442,6 +558,7 @@ namespace QRESTModel.DAL
                     if (aQS_AGENCY_CODE != null) e.AQS_AGENCY_CODE = aQS_AGENCY_CODE;
                     if (aQS_NAAS_UID != null) e.AQS_NAAS_UID = aQS_NAAS_UID;
                     if (aQS_NAAS_PWD != null) e.AQS_NAAS_PWD = aQS_NAAS_PWD;
+                    if (sELF_REG_IND != null) e.SELF_REG_IND = sELF_REG_IND;
                     if (aCT_IND != null) e.ACT_IND = aCT_IND ?? true;
 
 
@@ -1076,7 +1193,7 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from a in ctx.T_QREST_REF_STATE
-                            orderby a.STATE_NAME
+                            orderby a.STATE_CD
                             select a).ToList();
                 }
                 catch (Exception ex)

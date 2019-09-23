@@ -12,6 +12,50 @@ namespace QREST.Models
     {
     }
 
+    public class vmSiteOrgEdit
+    {
+        [Required]
+        [MaxLength(30, ErrorMessage = "Name cannot be longer than 30 characters.")]
+        public string ORG_ID { get; set; }
+
+        [Required]
+        [MaxLength(100, ErrorMessage = "Name cannot be longer than 100 characters.")]
+        public string ORG_NAME { get; set; }
+
+        public string AQS_AGENCY_CODE { get; set; }
+        public string STATE_CD { get; set; }
+        public int? EPA_REGION { get; set; }
+        public string AQS_NAAS_UID { get; set; }
+        public string AQS_NAAS_PWD { get; set; }
+        public bool SELF_REG_IND { get; set; }
+
+        public List<UserOrgDisplayType> org_users { get; set; }
+
+        public IEnumerable<SelectListItem> ddl_State { get; set; }
+        public IEnumerable<SelectListItem> ddl_Region { get; set; }
+        public IEnumerable<SelectListItem> ddl_AqsAgency { get; set; }
+        public IEnumerable<SelectListItem> ddl_User { get; set; }
+        public IEnumerable<SelectListItem> ddl_user_status { get; set; }
+        public IEnumerable<SelectListItem> ddl_user_role { get; set; }
+
+        //org user
+        public string edit_typ { get; set; }
+        public string edit_org_id { get; set; }
+        public string edit_user_idx { get; set; }
+        public string edit_org_user_status { get; set; }
+        public string edit_org_user_access_level { get; set; }
+
+        public vmSiteOrgEdit()
+        {
+            ddl_State = ddlHelpers.get_ddl_state();
+            ddl_Region = ddlHelpers.get_ddl_region();
+            ddl_AqsAgency = ddlHelpers.get_ddl_aqs_agency();
+            ddl_user_status = ddlHelpers.get_ddl_user_status();
+            ddl_user_role = ddlHelpers.get_ddl_user_role();
+        }
+
+    }
+
     public class vmSiteSiteList
     {
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
@@ -36,27 +80,47 @@ namespace QREST.Models
         public string SITE_NAME { get; set; }
 
         public string AQS_SITE_ID { get; set; }
-        public decimal? LATITUDE { get; set; }
-        public decimal? LONGITUDE { get; set; }
-        public string ADDRESS { get; set; }
-        public string CITY { get; set; }
         public string STATE_CD { get; set; }
         public string COUNTY_CD { get; set; }
+
+        [Range(19, 65)]
+        public decimal? LATITUDE { get; set; }
+
+        [Range(-162, -67)]
+        public decimal? LONGITUDE { get; set; }
+        public string ELEVATION { get; set; }
+        public string ADDRESS { get; set; }
+        public string CITY { get; set; }
         public string ZIP_CODE { get; set; }
         public DateTime? START_DT { get; set; }
         public DateTime? END_DT { get; set; }
-        public bool TELEMETRY_ONLINE_IND { get; set; }
+        public bool POLLING_ONLINE_IND { get; set; }
+        public bool AIRNOW_IND { get; set; }
+        public bool AQS_IND { get; set; }
         public string SITE_COMMENTS { get; set; }
-        public string TELEMETRY_SOURCE { get; set; }
+
 
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_State { get; set; }
         public IEnumerable<SelectListItem> ddl_County { get; set; }
+        public IEnumerable<SelectListItem> ddl_User { get; set; } //list of users to possibly notify
 
 
         //monitors
         public List<SiteMonitorDisplayType> monitors { get; set; }
 
+        //notifiee list
+        public Guid? edit_notify_user_idx { get; set; }
+        public List<SiteNotifyDisplay> notifiees { get; set; }
+
+    }
+
+    public class vmSiteEditNotifyUser
+    {
+        [Required]
+        public Guid? edit_notify_user_idx { get; set; }
+        [Required]
+        public Guid? SITE_IDX { get; set; }
     }
 
     public class vmSiteSiteImport
@@ -66,6 +130,17 @@ namespace QREST.Models
         public List<T_QREST_SITES> ImportSites { get; set; }
     }
 
+
+    public class vmSiteSitePollConfig
+    {
+        public Guid? SITE_IDX { get; set; }
+        public string POLLING_FREQ_TYPE { get; set; }
+        public string POLLING_FREQ_NUM { get; set; }
+        public DateTime? POLLING_LAST_RUN_DT { get; set; }
+        public DateTime? POLLING_NEXT_RUN_DT { get; set; }
+        public List<T_QREST_SITE_POLL_CONFIG> ConfigList { get; set; }
+        public T_QREST_SITE_POLL_CONFIG CurrentConfig { get; set; }
+    }
 
     public class vmSiteMonitorList
     {
@@ -93,17 +168,20 @@ namespace QREST.Models
         public string COLLECT_UNIT_CODE { get; set; }
         public double? ALERT_MIN_VALUE { get; set; }
         public double? ALERT_MAX_VALUE { get; set; }
-        public int? ALERT_PCT_CHANGE { get; set; }
+        public double? ALERT_AMT_CHANGE { get; set; }
         public int? ALERT_STUCK_REC_COUNT { get; set; }
         public DateTime? CREATE_DT { get; set; }
 
         public IEnumerable<SelectListItem> ddl_Ref_Duration { get; set; }
         public IEnumerable<SelectListItem> ddl_Ref_Coll_Freq { get; set; }
+        public IEnumerable<SelectListItem> ddl_Unit { get; set; }
 
 
         public vmSiteMonitorEdit() {
             ddl_Ref_Duration = ddlHelpers.get_ddl_ref_duration();
             ddl_Ref_Coll_Freq = ddlHelpers.get_ddl_ref_coll_freq();
+            ddl_Unit = ddlHelpers.get_ddl_ref_units();
+
         }
     }
 

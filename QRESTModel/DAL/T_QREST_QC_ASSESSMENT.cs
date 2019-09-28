@@ -26,7 +26,7 @@ namespace QRESTModel.DAL
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
     
-        public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
         public virtual T_QREST_REF_UNITS T_QREST_REF_UNITS { get; set; }
+        public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
     }
 }

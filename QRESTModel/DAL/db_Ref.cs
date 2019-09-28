@@ -1038,6 +1038,7 @@ namespace QRESTModel.DAL
                             join p in ctx.T_QREST_REF_PARAMETERS on a.PAR_CODE equals p.PAR_CODE
                             join u in ctx.T_QREST_REF_UNITS on a.STD_UNIT_CODE equals u.UNIT_CODE
                             where (strPar.Length > 0 ? (p.PAR_NAME.Contains(strPar) || p.PAR_CODE.Contains(strPar) || a.METHOD_CODE.Contains(strPar)) : true)
+                            && a.RECORDING_MODE == "Continuous"
                             orderby a.PAR_CODE, a.METHOD_CODE
                             select new RefParMethodDisplay
                             {

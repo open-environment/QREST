@@ -399,6 +399,104 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static T_QREST_SITE_POLL_CONFIG GetT_QREST_SITE_POLL_CONFIG_ByID(Guid PollConfigIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking()
+                               where a.POLL_CONFIG_IDX == PollConfigIDX
+                               select a).FirstOrDefault();
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<T_QREST_SITE_POLL_CONFIG> GetT_QREST_SITE_POLL_CONFIG_BySite(Guid SiteIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking()
+                               where a.SITE_IDX == SiteIDX
+                               select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG(Guid? pOLL_CONFIG_IDX, Guid? sITE_IDX, string rAW_DURATION_CODE, string lOGGER_TYPE, string lOGGER_SOURCE,
+            int? lOGGER_PORT, string lOGGER_USERNAME, string lOGGER_PASSWORD, string dELIMITER, int? dATE_COL, string dATE_FORMAT, int? tIME_COL, string tIME_FORMAT, 
+            bool aCT_IND, string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    bool insInd = false;
+
+                    T_QREST_SITE_POLL_CONFIG e = (from c in ctx.T_QREST_SITE_POLL_CONFIG
+                                                  where c.POLL_CONFIG_IDX == pOLL_CONFIG_IDX
+                                                  select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_SITE_POLL_CONFIG();
+                        e.POLL_CONFIG_IDX = Guid.NewGuid();
+                        e.CREATE_DT = System.DateTime.Now;
+                        e.CREATE_USER_IDX = cREATE_USER;
+                    }
+                    else
+                    {
+                        e.MODIFY_USER_IDX = cREATE_USER;
+                        e.MODIFY_DT = System.DateTime.Now;
+                    }
+
+                    if (sITE_IDX != null) e.SITE_IDX = sITE_IDX.ConvertOrDefault<Guid>();
+                    if (rAW_DURATION_CODE != null) e.RAW_DURATION_CODE = rAW_DURATION_CODE;
+                    if (lOGGER_TYPE != null) e.LOGGER_TYPE = lOGGER_TYPE;
+                    if (lOGGER_SOURCE != null) e.LOGGER_SOURCE = lOGGER_SOURCE;
+                    if (lOGGER_PORT != null) e.LOGGER_PORT = lOGGER_PORT;
+                    if (lOGGER_USERNAME != null) e.LOGGER_USERNAME = lOGGER_USERNAME;
+                    if (lOGGER_PASSWORD != null) e.RAW_DURATION_CODE = lOGGER_PASSWORD;
+                    if (dELIMITER != null) e.RAW_DURATION_CODE = dELIMITER;
+                    if (dATE_COL != null) e.DATE_COL = dATE_COL;
+                    if (dATE_FORMAT != null) e.DATE_FORMAT = dATE_FORMAT;
+                    if (tIME_COL != null) e.TIME_COL = tIME_COL;
+                    if (tIME_FORMAT != null) e.TIME_FORMAT = tIME_FORMAT;
+
+
+                    if (cREATE_USER != null) e.MODIFY_USER_IDX = cREATE_USER;
+                    e.ACT_IND = aCT_IND;
+                    
+
+                    if (insInd)
+                        ctx.T_QREST_SITE_POLL_CONFIG.Add(e);
+
+                    ctx.SaveChanges();
+                    return e.POLL_CONFIG_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
 
         //*****************MONITORS**********************************

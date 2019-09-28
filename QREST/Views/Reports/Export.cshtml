@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "Export Data";
+    ViewBag.SubTitle = "Export your data to Excel.";
+}
+
+@using (Html.BeginForm("Export2", "Reports", FormMethod.Post, new { @class = "", enctype = "multipart/form-data", @id = "" }))
+{
+    @Html.AntiForgeryToken()
+
+    <section class="panel panel-qrest ">
+        <div class="panel-heading">
+            Export Data
+        </div>
+        <div class="panel-body">
+            <h4>Data for My Organizations</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+
+                        <input type="checkbox" name="exportdata" value="Sites" class="checkbox-inline checkbox-lg" /> <span style="font-size:16px">Sites</span>
+                        <br />
+                        <input type="checkbox" name="exportdata" value="Monitors" class="checkbox-inline checkbox-lg" />  <span style="font-size:16px">Monitors</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Export Data</button>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+

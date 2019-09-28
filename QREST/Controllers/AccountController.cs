@@ -311,6 +311,39 @@ namespace QREST.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ResendConfirmEmail(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserManager.FindByEmailAsync(model.Email);
+
+                // Don't reveal that the user does not exist or is not confirmed
+                if (user == null)
+                    return View();
+
+                if (!await UserManager.IsEmailConfirmedAsync(user.Id))
+                {
+                    //automatically resend the confirmation email link
+                    bool succInd = await SendEmailConfirmationTokenAsync(user.Id, user.Email, "EMAIL_CONFIRM");
+
+                    ModelState.AddModelError("", "Confirmation email has been resent.  **IF YOU DO NOT SEE IT, DOUBLECHECK YOUR SPAM FOLDER.**");
+                    return View(model);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Email has already been confirmed.");
+                    return View(model);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+
+        }
+
+
 
         public ActionResult ForgotPassword()
         {

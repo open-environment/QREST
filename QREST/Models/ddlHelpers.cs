@@ -39,6 +39,53 @@ namespace QREST.Models
             });
         }
 
+
+        public static IEnumerable<SelectListItem> get_ddl_logger_date()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "YY/MM/DD", Text = "YY/MM/DD" });
+            _list.Add(new SelectListItem() { Value = "MM/DD/YYYY", Text = "MM/DD/YYYY" });
+            _list.Add(new SelectListItem() { Value = "MMDDYYYY", Text = "MMDDYYYY" });
+            return _list;
+        }
+
+
+        public static IEnumerable<SelectListItem> get_ddl_logger_delimiter()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "C", Text = "Comma" });
+            _list.Add(new SelectListItem() { Value = "T", Text = "Tab" });
+            return _list;
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_logger_duration()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "1", Text = "1 HOUR" });
+            _list.Add(new SelectListItem() { Value = "H", Text = "5 MINUTE" });
+            return _list;
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_logger_time()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "24:MM:SS", Text = "24:MM:SS" });
+            _list.Add(new SelectListItem() { Value = "24:MM", Text = "24:MM" });
+            _list.Add(new SelectListItem() { Value = "HH:MM:SS AM", Text = "HH:MM:SS AM" });
+            return _list;
+        }
+
+
+        public static IEnumerable<SelectListItem> get_ddl_logger_type()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "ZENO", Text = "Zeno 3200 - TCP Connection" });
+            _list.Add(new SelectListItem() { Value = "OTHER", Text = "Others (in development)" });
+            return _list;
+        }
+
+
+
         public static IEnumerable<SelectListItem> get_ddl_region()
         {
             return db_Ref.GetT_QREST_REF_REGION().Select(x => new SelectListItem

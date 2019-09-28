@@ -31,14 +31,12 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_APP_TASKS> T_QREST_APP_TASKS { get; set; }
         public virtual DbSet<T_QREST_EMAIL_TEMPLATE> T_QREST_EMAIL_TEMPLATE { get; set; }
         public virtual DbSet<T_QREST_HELP_DOCS> T_QREST_HELP_DOCS { get; set; }
-        public virtual DbSet<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }
         public virtual DbSet<T_QREST_ORG_EMAIL_RULE> T_QREST_ORG_EMAIL_RULE { get; set; }
         public virtual DbSet<T_QREST_ORG_USERS> T_QREST_ORG_USERS { get; set; }
         public virtual DbSet<T_QREST_ORGANIZATIONS> T_QREST_ORGANIZATIONS { get; set; }
         public virtual DbSet<T_QREST_QC_ASSESSMENT> T_QREST_QC_ASSESSMENT { get; set; }
         public virtual DbSet<T_QREST_REF_AQS_AGENCY> T_QREST_REF_AQS_AGENCY { get; set; }
         public virtual DbSet<T_QREST_REF_ASSESS_TYPE> T_QREST_REF_ASSESS_TYPE { get; set; }
-        public virtual DbSet<T_QREST_REF_COLLECT_FREQ> T_QREST_REF_COLLECT_FREQ { get; set; }
         public virtual DbSet<T_QREST_REF_COUNTY> T_QREST_REF_COUNTY { get; set; }
         public virtual DbSet<T_QREST_REF_DURATION> T_QREST_REF_DURATION { get; set; }
         public virtual DbSet<T_QREST_REF_PAR_METHODS> T_QREST_REF_PAR_METHODS { get; set; }
@@ -58,5 +56,7 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_USER_LOGINS> T_QREST_USER_LOGINS { get; set; }
         public virtual DbSet<T_QREST_USER_NOTIFICATION> T_QREST_USER_NOTIFICATION { get; set; }
         public virtual DbSet<T_QREST_USERS> T_QREST_USERS { get; set; }
+        public virtual DbSet<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }
+        public virtual DbSet<T_QREST_REF_COLLECT_FREQ> T_QREST_REF_COLLECT_FREQ { get; set; }
     }
 }

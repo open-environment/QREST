@@ -1,66 +1,159 @@
 ﻿@model QREST.Models.vmSiteSitePollConfig
 @{
-    ViewBag.Title = "SitePollConfig";
+    ViewBag.Title = "Site Poll Config";
+    Guid? curconf = @Model.CurrentConfig != null ? Model.CurrentConfig?.POLL_CONFIG_IDX : null;
 }
 
 <section class="hbox">
     <section class="aside-md panel panel-qrest" id="subNav" style="border-radius: 4px 0px 0px 4px;">
-        <header class="panel-heading font-bold" style="border-right: 1px solid #fff">Email Templates</header>
+        <header class="panel-heading font-bold" style="border-right: 1px solid #fff">Polling Templates</header>
         <ul class="nav">
-            @foreach (var item in Model.ConfigList)
+            @if (Model.ConfigList != null)
             {
-                <li class="b-b b-light">
-                    <a href="@Url.Action("SitePollConfig", "Site", new { id = item.POLL_CONFIG_IDX })" class="@(item.POLL_CONFIG_IDX==@Model.CurrentConfig.POLL_CONFIG_IDX ? "master-active" : "")">Config</a>
-                </li>
+                foreach (var item in Model.ConfigList)
+                {
+                    <li class="b-b b-light">
+                        <a href="@Url.Action("SitePollConfig", "Site", new { id = item.SITE_IDX, configid = item.POLL_CONFIG_IDX })" class="@(item.POLL_CONFIG_IDX == curconf ? "master-active" : "")">@if (item.ACT_IND == true){<span class="label label-success pull-right"> Active</span>}Config</a>
+                    </li>
+                }
             }
+
+
         </ul>
+        <a href="@(Url.Action("SitePollConfig", "Site", new { n = 1 }))" class="btn btn-primary m-sm"><i class="fa fa-plus"></i> Add Polling Configuration</a>
+
     </section>
+
     <section class="panel panel-qrest" style="border-radius: 0px 4px 4px 0px;">
         <header class="panel-heading font-bold">Details</header>
         <div class="panel-body">
-            @using (Html.BeginForm("SitePollConfig", "Site", FormMethod.Post))
+            @if (Model.CurrentConfig != null)
             {
-                @Html.AntiForgeryToken()
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        Logger Type
-                        @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_TYPE, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_TYPE)
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        Logger Source
-                        @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_SOURCE, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_SOURCE)
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        Logger Source
-                        @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_PORT, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_PORT)
-                    </div>
-                </div>
-            </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            Email Body
-                            @Html.EditorFor(model => model.editMSG, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.editMSG)
+                using (Html.BeginForm("SitePollConfig", "Site", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.CurrentConfig.POLL_CONFIG_IDX)
+                    @Html.HiddenFor(model => model.SITE_IDX)
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                Logger Type
+                                @Html.DropDownListFor(model => model.CurrentConfig.LOGGER_TYPE, Model.ddl_LoggerType, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_TYPE)
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                Sample Duration
+                                @Html.DropDownListFor(model => model.CurrentConfig.RAW_DURATION_CODE, Model.ddl_LoggerDuration, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.RAW_DURATION_CODE)
+                                <span class="help-block">Time interval for data output from the data logger.</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                Logger Source
+                                @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_SOURCE, new { @class = "form-control", @maxlength = "150" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_SOURCE)
+                                <span class="help-block">The TCP/IP address (X.X.X.X) of the instrument.</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                Port
+                                @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_PORT, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_PORT)
+                                <span class="help-block">Port used by the instrument.</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                Username
+                                @Html.TextBoxFor(model => model.CurrentConfig.LOGGER_USERNAME, new { @class = "form-control", @maxlength = "150" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_USERNAME)
+                                <span class="help-block">If your instrument only requires a password, then leave this blank.</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                Password
+                                @Html.PasswordFor(model => model.CurrentConfig.LOGGER_PASSWORD, new { @class = "form-control", @maxlength = "150" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.LOGGER_PASSWORD)
+                                <span class="help-block">Password (aka Level 1 password) for accessing your instrument .</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                Date Column
+                                @Html.TextBoxFor(model => model.CurrentConfig.DATE_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.DATE_COL)
+                                <span class="help-block">Enter the column number in which date is stored.</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                Date Format
+                                @Html.DropDownListFor(model => model.CurrentConfig.DATE_FORMAT, Model.ddl_LoggerDate, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.DATE_FORMAT)
+                                <span class="help-block">Specify which format the date field is reported in on the logger data file.</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                Time Column
+                                @Html.TextBoxFor(model => model.CurrentConfig.TIME_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.TIME_COL)
+                                <span class="help-block">Enter the column number in which time is stored.</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                Time Format
+                                @Html.DropDownListFor(model => model.CurrentConfig.TIME_FORMAT, Model.ddl_LoggerTime, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.TIME_FORMAT)
+                                <span class="help-block">Specify which format the time field is reported in on the logger data file.</span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                Delimiter
+                                @Html.DropDownListFor(model => model.CurrentConfig.DELIMITER, Model.ddl_LoggerDelimiter, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.CurrentConfig.DELIMITER)
+                                <span class="help-block">Specify how columns of data are separated in the logger output file.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="telemetrySource" class="col-md-12">
+                            <div class="form-group ">
+                                @Html.CheckBoxFor(model => model.CurrentConfig.ACT_IND, new { @class = "checkbox-inline checkbox-lg" })
+                                <label class="label-lg font-bold">Set this config to Active for the site</label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                }
             }
         </div>
     </section>
-</section>
 
+</section>
+<p>
+    <a class=" btn btn-default m-t-sm" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX })">Back to Site Screen</a>
+</p>
 

@@ -140,6 +140,22 @@ namespace QREST.Models
         public DateTime? POLLING_NEXT_RUN_DT { get; set; }
         public List<T_QREST_SITE_POLL_CONFIG> ConfigList { get; set; }
         public T_QREST_SITE_POLL_CONFIG CurrentConfig { get; set; }
+
+
+        public IEnumerable<SelectListItem> ddl_LoggerDate { get; set; }
+        public IEnumerable<SelectListItem> ddl_LoggerTime { get; set; }
+        public IEnumerable<SelectListItem> ddl_LoggerType { get; set; }
+        public IEnumerable<SelectListItem> ddl_LoggerDelimiter { get; set; }
+        public IEnumerable<SelectListItem> ddl_LoggerDuration { get; set; }
+
+        public vmSiteSitePollConfig()
+        {
+            ddl_LoggerDate = ddlHelpers.get_ddl_logger_date();
+            ddl_LoggerTime = ddlHelpers.get_ddl_logger_time();
+            ddl_LoggerType = ddlHelpers.get_ddl_logger_type();
+            ddl_LoggerDelimiter = ddlHelpers.get_ddl_logger_delimiter();
+            ddl_LoggerDuration = ddlHelpers.get_ddl_logger_duration();
+        }
     }
 
     public class vmSiteMonitorList
@@ -156,14 +172,16 @@ namespace QREST.Models
 
         [Required]
         public Guid? SITE_IDX { get; set; }
+
         [Required]
+        [Display(Name = "Parameter Method")]
         public Guid? PAR_METHOD_IDX { get; set; }
         public string PAR_NAME { get; set; }
         public string METHOD_CODE { get; set; }
         [Required]
         public int? POC { get; set; }
-        public string DURATION_CODE { get; set; }
         [Required]
+        public string DURATION_CODE { get; set; }
         public string COLLECT_FREQ_CODE { get; set; }
         public string COLLECT_UNIT_CODE { get; set; }
         public double? ALERT_MIN_VALUE { get; set; }

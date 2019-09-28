@@ -41,7 +41,10 @@
                             <div class="line"></div>
                             @Html.Raw(HttpUtility.HtmlDecode(item.HELP_HTML))
                         }
-
+                        <br /><br />
+                        <div class="line"></div><span class="font-bold">QREST Version: </span>
+                        @ViewContext.Controller.GetType().Assembly.GetName().Version |
+                        @File.GetLastWriteTime(ViewContext.Controller.GetType().Assembly.Location)
                     </div>
                 </section>
             </section>

@@ -44,7 +44,7 @@
                     <div class="row">
                         <div class="col-md-9">
                             <div class="form-group">
-                                <label>Organization</label>
+                                @Html.LabelForRequired(m => m.ORG_ID, "Organization", new { @class = "control-label" })
                                 @Html.DropDownListFor(model => model.ORG_ID, Model.ddl_Organization, new { @class = "form-control" })
                                 @Html.ValidationMessageFor(model => model.ORG_ID)
                             </div>
@@ -52,7 +52,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 @Html.LabelForRequired(m => m.AQS_SITE_ID, "AQS Site ID", new { @class = "control-label" })
-                                @Html.TextBoxFor(model => model.AQS_SITE_ID, new { @class = "form-control", @maxlength = "5" })
+                                @Html.TextBoxFor(model => model.AQS_SITE_ID, new { @class = "form-control cleave-num-no-comma", @maxlength = "4" })
                                 @Html.ValidationMessageFor(model => model.AQS_SITE_ID)
                             </div>
                         </div>
@@ -70,23 +70,27 @@
                     <div class="line line-dashed line-lg pull-in"></div>
                     <h4 class="font-bold">LOCATION</h4>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <div class="form-group">
-                                <label>Latitude</label>
-                                @Html.TextBoxFor(model => model.LATITUDE, new { @id = "latitude", @class = "form-control", @maxlength = "18" })
+                                <label>Latitude / Longitude</label>
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.LATITUDE, new { @id = "latitude", @class = "form-control", @maxlength = "18" })
+                                    <span class="input-group-addon">/</span>
+                                    @Html.TextBoxFor(model => model.LONGITUDE, new { @id = "longitude", @class = "form-control", @maxlength = "18" })
+                                    <span class="input-group-btn">
+                                        <a href="#modal-form" data-toggle="modal" id="btnShow" class="btn btn-primary"><i class="fa fa-globe"></i> Select on Map</a>
+                                    </span>
+                                </div>
                                 @Html.ValidationMessageFor(model => model.LATITUDE)
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Longitude</label>
-                                @Html.TextBoxFor(model => model.LONGITUDE, new { @id = "longitude", @class = "form-control", @maxlength = "18" })
                                 @Html.ValidationMessageFor(model => model.LONGITUDE)
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <label>&nbsp;</label>
-                            <a href="#modal-form" data-toggle="modal" id="btnShow" class="btn btn-primary">Select on Map</a>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Elevation (m)</label>
+                                @Html.TextBoxFor(model => model.ELEVATION, new { @class = "form-control cleave-num", @maxlength = "10" })
+                                @Html.ValidationMessageFor(model => model.ELEVATION)
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -99,7 +103,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>City</label>
                                 @Html.TextBoxFor(model => model.CITY, new { @class = "form-control", @maxlength = "50" })
@@ -115,19 +119,16 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>ZIP</label>
-                                @Html.TextBoxFor(model => model.ZIP_CODE, new { @class = "form-control zip-cleave", @maxlength = "10" })
-                                @Html.ValidationMessageFor(model => model.ZIP_CODE)
+                                <label>County</label>
+                                @Html.DropDownListFor(model => model.COUNTY_CD, Model.ddl_County, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.COUNTY_CD)
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>County</label>
-                                @if (Model.ddl_County != null)
-                                {
-                                    @Html.DropDownListFor(model => model.COUNTY_CD, Model.ddl_County, "", new { @class = "form-control" })
-                                }
-                                @Html.ValidationMessageFor(model => model.COUNTY_CD)
+                                <label>ZIP</label>
+                                @Html.TextBoxFor(model => model.ZIP_CODE, new { @class = "form-control zip-cleave", @maxlength = "10" })
+                                @Html.ValidationMessageFor(model => model.ZIP_CODE)
                             </div>
                         </div>
 
@@ -238,7 +239,7 @@
                             <div class="panel-body">
                                 <div class="alert alert-info">
                                     <i class="fa fa-info-sign"></i>
-                                    The following users will be notified when site polling detects an exceedance or other exceptional event.
+                                    The following users will be notified when an exceptional polling event is detected at this site.
                                 </div>
 
                                 <div class="table-responsive">
@@ -391,6 +392,23 @@
                 $("#longitude").val($("#txtLong1").val());
                 $('form').trigger('rescan.areYouSure');
             });
+
+            var localityUrl = '@Url.Action("FetchCounties")';
+            var localities = $('#COUNTY_CD');
+            $('#STATE_CD').change(function () {
+				localities.empty();
+				$.getJSON(localityUrl, { ID: $(this).val() },function(data) {
+					if (!data) {
+						return;
+					}
+					localities.append($('<option></option>').val('').text('Please select'));
+					$.each(data, function(index, item) {
+						localities.append($('<option></option>').val(item.Value).text(item.Text));
+					});
+				});
+			})
+
+
 
         });
     </script>

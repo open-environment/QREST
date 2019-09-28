@@ -1,4 +1,19 @@
 ﻿$(document).ready(function () {
+    //numbers only (with comma)
+    $('.cleave-num').toArray().forEach(function (field) {
+        new Cleave(field, {
+            numeral: true
+        });
+    });
+
+    //numbers only (with comma)
+    $('.cleave-num-no-comma').toArray().forEach(function (field) {
+        new Cleave(field, {
+            numeral: true,
+            numeralThousandsGroupStyle: 'none'
+        });
+    });
+
     //phone entry
     $('.phone-10').toArray().forEach(function (field) {
         new Cleave(field, {

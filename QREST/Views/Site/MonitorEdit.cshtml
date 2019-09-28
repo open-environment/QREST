@@ -1,4 +1,5 @@
-﻿@model QREST.Models.vmSiteMonitorEdit
+﻿@using QREST.App_Logic.BusinessLogicLayer
+@model QREST.Models.vmSiteMonitorEdit
 @{
     ViewBag.Title = "Edit Monitor";
 }
@@ -21,15 +22,16 @@
                     <div class="row">
                         @if (Model.MONITOR_IDX == null)
                         {
-                            <div class="col-md-9">
-                                <label>Parameter / Method</label>
-                                <div class="input-group m-b">
-                                    <span class="input-group-btn">
-                                        <a id="add-it" href="#modal-form" data-toggle="modal" class="btn btn-info"><i class="fa fa-plus"></i> Search</a>
-                                    </span>
-                                    <input id="txtParMethodTemp" type="text" class="form-control" readonly="readonly">
-                                </div>
+                        <div class="col-md-8">
+                            @Html.LabelForRequired(m => m.PAR_METHOD_IDX, "Parameter / Method", new { @class = "control-label" })
+                            <div class="input-group m-b">
+                                <span class="input-group-btn">
+                                    <a id="add-it" href="#modal-form" data-toggle="modal" class="btn btn-info"><i class="fa fa-plus"></i> Search</a>
+                                </span>
+                                <input id="txtParMethodTemp" type="text" class="form-control" readonly="readonly">
                             </div>
+                            @Html.ValidationMessageFor(model => model.PAR_METHOD_IDX)
+                        </div>
                         }
                         else
                         {
@@ -46,10 +48,11 @@
                                 </div>
                             </div>
                         }
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Data Collection Unit</label>
                                 @Html.DropDownListFor(model => model.COLLECT_UNIT_CODE, Model.ddl_Unit, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.COLLECT_UNIT_CODE)
                             </div>
                         </div>
 
@@ -57,14 +60,14 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>POC</label>
+                                    @Html.LabelForRequired(m => m.POC, "POC", new { @class = "control-label" })
                                     @Html.TextBoxFor(model => model.POC, new { @class = "form-control", @maxlength = "4" })
                                     @Html.ValidationMessageFor(model => model.POC)
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Duration</label>
+                                    @Html.LabelForRequired(m => m.DURATION_CODE, "Duration", new { @class = "control-label" })
                                     @Html.DropDownListFor(model => model.DURATION_CODE, Model.ddl_Ref_Duration, "", new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.DURATION_CODE)
                                 </div>
@@ -89,53 +92,55 @@
 
         @if (Model != null && Model.MONITOR_IDX != null)
         {
-        <div class="col-md-6">
-            <section class="panel panel-qrest">
-                <header class="panel-heading font-bold">Alerts</header>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Min</label>
-                                <div class="input-group m-b">
-                                    @Html.TextBoxFor(model => model.ALERT_MIN_VALUE, new { @class = "form-control", @maxlength = "6" })
-                                    <span id="unit1"  class="input-group-addon"></span>
+            <div class="col-md-6">
+                <section class="panel panel-qrest">
+                    <header class="panel-heading font-bold">Alerts</header>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Min</label>
+                                    <div class="input-group m-b">
+                                        @Html.TextBoxFor(model => model.ALERT_MIN_VALUE, new { @class = "form-control", @maxlength = "6" })
+                                        <span id="unit1" class="input-group-addon"></span>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.ALERT_MIN_VALUE)
                                 </div>
-                                @Html.ValidationMessageFor(model => model.ALERT_MIN_VALUE)
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Max</label>
+                                    <div class="input-group m-b">
+                                        @Html.TextBoxFor(model => model.ALERT_MAX_VALUE, new { @class = "form-control", @maxlength = "6" })
+                                        <span id="unit2" class="input-group-addon">unit</span>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.ALERT_MAX_VALUE)
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Max</label>
-                                <div class="input-group m-b">
-                                    @Html.TextBoxFor(model => model.ALERT_MAX_VALUE, new { @class = "form-control", @maxlength = "6" })
-                                    <span id="unit2"  class="input-group-addon">unit</span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Amount Change</label>
+                                    <div class="input-group m-b">
+                                        @Html.TextBoxFor(model => model.ALERT_AMT_CHANGE, new { @class = "form-control", @maxlength = "5" })
+                                        <span id="unit3" class="input-group-addon">unit</span>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.ALERT_AMT_CHANGE)
                                 </div>
-                                @Html.ValidationMessageFor(model => model.ALERT_MAX_VALUE)
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Amount Change</label>
-                                <div class="input-group m-b">
-                                    @Html.TextBoxFor(model => model.ALERT_AMT_CHANGE, new { @class = "form-control", @maxlength = "5" })
-                                    <span id="unit3" class="input-group-addon">unit</span>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label># Stuck Values</label>
+                                    @Html.TextBoxFor(model => model.ALERT_STUCK_REC_COUNT, new { @class = "form-control", @maxlength = "2" })
+                                    @Html.ValidationMessageFor(model => model.ALERT_STUCK_REC_COUNT)
                                 </div>
-                                @Html.ValidationMessageFor(model => model.ALERT_AMT_CHANGE)
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label># Stuck Values</label>
-                                @Html.TextBoxFor(model => model.ALERT_STUCK_REC_COUNT, new { @class = "form-control", @maxlength = "2" })
-                                @Html.ValidationMessageFor(model => model.ALERT_STUCK_REC_COUNT)
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-        </div>
+            </div>
         }
     </div>
 

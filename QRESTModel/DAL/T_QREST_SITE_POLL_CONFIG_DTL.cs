@@ -19,7 +19,7 @@ namespace QRESTModel.DAL
         public System.Guid MONITOR_IDX { get; set; }
         public Nullable<int> COL { get; set; }
     
-        public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
         public virtual T_QREST_SITE_POLL_CONFIG T_QREST_SITE_POLL_CONFIG { get; set; }
+        public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
     }
 }

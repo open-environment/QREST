@@ -35,13 +35,13 @@
                                     <span class="title">Organizations</span>
                                 </a>
                             </li>
-                            <li class="@Html.ActivePage("Site", "SiteList,SiteEdit,SiteImport")">
+                            <li class="@Html.ActivePage("Site", "SiteList,SiteEdit,SiteImport,SitePollConfig")">
                                 <a href="@Url.Action("SiteList", "Site")">
                                     <i class="fa fa-angle-right"></i>
                                     <span class="title">Sites</span>
                                 </a>
                             </li>
-                            <li class="@Html.ActivePage("Site", "MonitorList,MonitorEdit")">
+                            <li class="@Html.ActivePage("Site", "MonitorList,MonitorEdit,MonitorImport")">
                                 <a href="@Url.Action("MonitorList", "Site")">
                                     <i class="fa fa-angle-right"></i>
                                     <span class="title">Monitors</span>
@@ -87,29 +87,29 @@
                             <span>Reports</span>
                         </a>
                         <ul class="nav lt">
-                            <li class="@Html.ActivePage("Reports", "Index")">
-                                <a href="@Url.Action("Index", "Reports")">
+                            <li class="@Html.ActivePage("Reports", "Export")">
+                                <a href="@Url.Action("Export", "Reports")">
                                     <i class="fa fa-angle-right"></i>
-                                    <span class="title">Reports</span>
+                                    <span class="title">Data Export</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="#table">
                                     <i class="fa fa-angle-down text"></i>
                                     <i class="fa fa-angle-up text-active"></i>
-                                    <span>Data Export</span>
+                                    <span>Reports</span>
                                 </a>
                                 <ul class="nav bg">
                                     <li class="@Html.ActivePage("Reports", "Index")">
                                         <a href="@Url.Action("Index", "Reports")">
                                             <i class="fa fa-angle-right"></i>
-                                            <span class="title">Sites</span>
+                                            <span class="title">Example 1</span>
                                         </a>
                                     </li>
                                     <li class="@Html.ActivePage("Reports", "Index")">
                                         <a href="@Url.Action("Index", "Reports")">
                                             <i class="fa fa-angle-right"></i>
-                                            <span class="title">Results</span>
+                                            <span class="title">Example 2</span>
                                         </a>
                                     </li>
                                 </ul>

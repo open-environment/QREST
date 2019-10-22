@@ -98,7 +98,7 @@ namespace QREST.Controllers
                     }
                     else
                     {
-                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("LOGIN", user.Id, System.DateTime.Now, "User logged in", "");
+                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("LOGIN", user.Id, System.DateTime.Now, "User logged in", GetIP.GetLocalIPAddress(System.Web.HttpContext.Current));
 
                         return RedirectToLocal(returnUrl);
                     }
@@ -569,7 +569,6 @@ namespace QREST.Controllers
         }
 
 
-        // POST: /Forum/PostAnswer
         [HttpPost]
         public JsonResult NotificationRead(Guid? id)
         {
@@ -586,7 +585,6 @@ namespace QREST.Controllers
 
             //return ERROR
             return Json(new { msg = "Unable to mark read." });
-
         }
 
 

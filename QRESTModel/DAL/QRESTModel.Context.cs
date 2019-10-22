@@ -58,5 +58,9 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_USERS> T_QREST_USERS { get; set; }
         public virtual DbSet<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }
         public virtual DbSet<T_QREST_REF_COLLECT_FREQ> T_QREST_REF_COLLECT_FREQ { get; set; }
+        public virtual DbSet<T_QREST_REF_PAR_UNITS> T_QREST_REF_PAR_UNITS { get; set; }
+        public virtual DbSet<T_QREST_DATA_FIVE_MIN> T_QREST_DATA_FIVE_MIN { get; set; }
+        public virtual DbSet<T_QREST_REF_TIMEZONE> T_QREST_REF_TIMEZONE { get; set; }
+        public virtual DbSet<T_QREST_DATA_HOURLY> T_QREST_DATA_HOURLY { get; set; }
     }
 }

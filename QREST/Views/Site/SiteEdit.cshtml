@@ -27,7 +27,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                @Html.LabelForRequired(m => m.SITE_NAME, "Site ID", new { @class = "control-label" })
+                                @Html.LabelForRequired(m => m.SITE_ID, "Site ID", new { @class = "control-label" })
                                 @*@Html.TextBoxFor(model => model.SITE_ID, Model.SITE_IDX != null ? new { @class = "form-control", @readonly = "readonly" } : (object)new { @class = "form-control", @maxlength = "50" })*@
                                 @Html.TextBoxFor(model => model.SITE_ID, new { @class = "form-control", @maxlength = "50" })
                                 @Html.ValidationMessageFor(model => model.SITE_ID)
@@ -190,7 +190,7 @@
                             </div>
                         }
 
-                        <a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>
+                        <a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
                         <a href="@(Url.Action("MonitorImport", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded pull-right">Import Monitors from AQS</a>
                     </div>
                 </section>
@@ -268,7 +268,7 @@
                                         }
                                     </table>
                                 </div>
-                                <a id="add-it" href="#modal-form1" data-toggle="modal" class="btn btn-sm btn-primary modal-it"><i class="fa fa-plus"></i> Add User</a>
+                                <a id="add-it" href="#modal-form1" data-toggle="modal" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add User</a>
                             </div>
                         </section>
                     </div>
@@ -280,7 +280,7 @@
     }
 </div>
 
-<!-- START NOTIFY MODAL FORM  -->
+<!-- START NOTIFY MODAL  -->
 <div class="modal fade" id="modal-form1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog" style="width:600px">
 
@@ -314,7 +314,7 @@
         }
     </div>
 </div>
-<!-- END MODAL FORM -->
+<!-- END NOTIFY MODAL -->
 <!-- START MAP MODAL  -->
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
@@ -393,20 +393,21 @@
                 $('form').trigger('rescan.areYouSure');
             });
 
+            //update county dropdown
             var localityUrl = '@Url.Action("FetchCounties")';
             var localities = $('#COUNTY_CD');
             $('#STATE_CD').change(function () {
-				localities.empty();
-				$.getJSON(localityUrl, { ID: $(this).val() },function(data) {
-					if (!data) {
-						return;
-					}
-					localities.append($('<option></option>').val('').text('Please select'));
-					$.each(data, function(index, item) {
-						localities.append($('<option></option>').val(item.Value).text(item.Text));
-					});
-				});
-			})
+                localities.empty();
+                $.getJSON(localityUrl, { ID: $(this).val() }, function (data) {
+                    if (!data) {
+                        return;
+                    }
+                    localities.append($('<option></option>').val('').text('Please select'));
+                    $.each(data, function (index, item) {
+                        localities.append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+                });
+            });
 
 
 

@@ -19,44 +19,44 @@
 
                     @if (Model != null)
                     {
-                    <div class="row">
-                        @if (Model.MONITOR_IDX == null)
-                        {
-                        <div class="col-md-8">
-                            @Html.LabelForRequired(m => m.PAR_METHOD_IDX, "Parameter / Method", new { @class = "control-label" })
-                            <div class="input-group m-b">
-                                <span class="input-group-btn">
-                                    <a id="add-it" href="#modal-form" data-toggle="modal" class="btn btn-info"><i class="fa fa-plus"></i> Search</a>
-                                </span>
-                                <input id="txtParMethodTemp" type="text" class="form-control" readonly="readonly">
-                            </div>
-                            @Html.ValidationMessageFor(model => model.PAR_METHOD_IDX)
-                        </div>
-                        }
-                        else
-                        {
+                        <div class="row">
+                            @if (Model.MONITOR_IDX == null)
+                            {
+                                <div class="col-md-8">
+                                    @Html.LabelForRequired(m => m.PAR_METHOD_IDX, "Parameter / Method", new { @class = "control-label" })
+                                    <div class="input-group m-b">
+                                        <span class="input-group-btn">
+                                            <a id="add-it" href="#modal-form" data-toggle="modal" class="btn btn-info"><i class="fa fa-plus"></i> Search</a>
+                                        </span>
+                                        <input id="txtParMethodTemp" type="text" class="form-control" readonly="readonly">
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.PAR_METHOD_IDX)
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Parameter</label>
+                                        @Html.TextBoxFor(model => model.PAR_NAME, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Method</label>
+                                        @Html.TextBoxFor(model => model.METHOD_CODE, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                            }
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Parameter</label>
-                                    @Html.TextBoxFor(model => model.PAR_NAME, new { @class = "form-control", @readonly = "readonly" })
+                                    <label>Data Collection Unit</label>
+                                    @Html.DropDownListFor(model => model.COLLECT_UNIT_CODE, Model.ddl_Unit, "", new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.COLLECT_UNIT_CODE)
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Method</label>
-                                    @Html.TextBoxFor(model => model.METHOD_CODE, new { @class = "form-control", @readonly = "readonly" })
-                                </div>
-                            </div>
-                        }
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Data Collection Unit</label>
-                                @Html.DropDownListFor(model => model.COLLECT_UNIT_CODE, Model.ddl_Unit, "", new { @class = "form-control" })
-                                @Html.ValidationMessageFor(model => model.COLLECT_UNIT_CODE)
-                            </div>
-                        </div>
 
-                    </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -67,7 +67,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    @Html.LabelForRequired(m => m.DURATION_CODE, "Duration", new { @class = "control-label" })
+                                    @Html.LabelForRequired(m => m.DURATION_CODE, "AQS Reporting Duration", new { @class = "control-label" })
                                     @Html.DropDownListFor(model => model.DURATION_CODE, Model.ddl_Ref_Duration, "", new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.DURATION_CODE)
                                 </div>
@@ -84,24 +84,31 @@
 
                 </div>
             </section>
-            <p>
-                <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
-                <a class=" btn btn-default" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX } )">Back to Site List</a>
-            </p>
         </div>
 
         @if (Model != null && Model.MONITOR_IDX != null)
         {
             <div class="col-md-6">
                 <section class="panel panel-qrest">
-                    <header class="panel-heading font-bold">Alerts</header>
+                    <header class="panel-heading font-bold dirtyignore">
+                        Alerts - Limits In Collection Units
+                        <button type="button" class="btn btn-xs btn-info pull-right dropdown-toggle" data-toggle="dropdown">Options <i class="caret"></i></button>
+                        <ul class="dropdown-menu pull-right btn-info">
+                            <li data-value="1">
+                                <a id="lnkReapply" href="#"  >Reapply QREST Default Limits</a>
+                            </li>
+                        </ul>
+                    </header>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Min</label>
-                                    <div class="input-group m-b">
-                                        @Html.TextBoxFor(model => model.ALERT_MIN_VALUE, new { @class = "form-control", @maxlength = "6" })
+                                    <label>Minimum</label>
+                                    <div class="input-group">
+                                        @Html.DropDownListFor(model => model.ALERT_MIN_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "left", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
+                                        <span class="input-group-btn" style="width:100%">
+                                            @Html.TextBoxFor(model => model.ALERT_MIN_VALUE, new { @class = "form-control", @maxlength = "6" })
+                                        </span>
                                         <span id="unit1" class="input-group-addon"></span>
                                     </div>
                                     @Html.ValidationMessageFor(model => model.ALERT_MIN_VALUE)
@@ -109,9 +116,12 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Max</label>
-                                    <div class="input-group m-b">
-                                        @Html.TextBoxFor(model => model.ALERT_MAX_VALUE, new { @class = "form-control", @maxlength = "6" })
+                                    <label>Maximum</label>
+                                    <div class="input-group">
+                                        @Html.DropDownListFor(model => model.ALERT_MAX_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "left", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
+                                        <span class="input-group-btn" style="width:100%">
+                                            @Html.TextBoxFor(model => model.ALERT_MAX_VALUE, new { @class = "form-control", @maxlength = "6" })
+                                        </span>
                                         <span id="unit2" class="input-group-addon">unit</span>
                                     </div>
                                     @Html.ValidationMessageFor(model => model.ALERT_MAX_VALUE)
@@ -121,9 +131,12 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Amount Change</label>
-                                    <div class="input-group m-b">
-                                        @Html.TextBoxFor(model => model.ALERT_AMT_CHANGE, new { @class = "form-control", @maxlength = "5" })
+                                    <label>Amount Change (consecutive values)</label>
+                                    <div class="input-group">
+                                        @Html.DropDownListFor(model => model.ALERT_AMT_CHANGE_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "left", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
+                                        <span class="input-group-btn" style="width:100%">
+                                            @Html.TextBoxFor(model => model.ALERT_AMT_CHANGE, new { @class = "form-control", @maxlength = "5" })
+                                        </span>
                                         <span id="unit3" class="input-group-addon">unit</span>
                                     </div>
                                     @Html.ValidationMessageFor(model => model.ALERT_AMT_CHANGE)
@@ -132,7 +145,12 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label># Stuck Values</label>
-                                    @Html.TextBoxFor(model => model.ALERT_STUCK_REC_COUNT, new { @class = "form-control", @maxlength = "2" })
+                                    <div class="input-group">
+                                        @Html.DropDownListFor(model => model.ALERT_STUCK_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "left", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
+                                        <span class="input-group-btn" style="width:100%">
+                                            @Html.TextBoxFor(model => model.ALERT_STUCK_REC_COUNT, new { @class = "form-control", @maxlength = "2" })
+                                        </span>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.ALERT_STUCK_REC_COUNT)
                                 </div>
                             </div>
@@ -142,6 +160,13 @@
 
             </div>
         }
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
+            <a class=" btn btn-default" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX } )">Back to Site List</a>
+        </div>
+
     </div>
 
 }
@@ -236,6 +261,7 @@
                         "render": function (data, type, row) {
                             return '<a data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX
                                 + '" data-par="' + row.PAR_NAME
+                                + '" data-parcd="' + row.T_QREST_REF_PAR_METHODS.PAR_CODE
                                 + '" data-unit="' + row.T_QREST_REF_PAR_METHODS.STD_UNIT_CODE
                                 + '" data-meth="' + row.T_QREST_REF_PAR_METHODS.METHOD_CODE + '" class="btn btn-rounded btn-xs btn-primary par-meth-sel" style="display: inline-block;"> <i class="fa fa-plus"></i> Select</a>';
                         }
@@ -259,31 +285,74 @@
 
             //select a par/method
             $(document).on("click", ".par-meth-sel", function () {
+                var unt = $(this).data('unit');
                 $('#PAR_METHOD_IDX').val($(this).data('id'));
-                $('#txtParMethodTemp').val($(this).data('par') + " / " + $(this).data('meth'));
-                $('#COLLECT_UNIT_CODE').val($(this).data('unit'));
+                $('#txtParMethodTemp').val($(this).data('parcd') + " - " + $(this).data('par') + " / " + $(this).data('meth'));
 
+                //update unit dropdown
+                var localityUrl = '@Url.Action("FetchUnits")';
+                var localities = $('#COLLECT_UNIT_CODE');
+                localities.empty();
+                $.getJSON(localityUrl, { ID: $(this).data('parcd') }, function (data) {
+                    if (!data) {
+                        return;
+                    }
+                    localities.append($('<option></option>').val('-1').text('Please select'));
+                    $.each(data, function (index, item) {
+                        localities.append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+
+                    $("#COLLECT_UNIT_CODE").val(unt);
+                });
+
+                //hide modal
                 $('#modal-form').modal('toggle');
             });
 
-
-            //set units
-            var unit = $("#COLLECT_UNIT_CODE option:selected").text();
-            $("#unit1").text(unit);
-            $("#unit2").text(unit);
-            $("#unit3").text(unit);
-
-
-
+            //sync units on page load
+            syncunits();
         });
 
+        //sync units when unit dropdown changed
         $("#COLLECT_UNIT_CODE").change(function () {
+            syncunits();
+        });
+
+        //function to sync units
+        function syncunits() {
             var unit = $("#COLLECT_UNIT_CODE option:selected").text();
             $("#unit1").text(unit);
             $("#unit2").text(unit);
             $("#unit3").text(unit);
+        }
+
+        //reapply default units
+        $(document).on("click", "#lnkReapply", function () {
+            var parMethod = $('#PAR_METHOD_IDX').val();
+            var url = '@Url.Action("FetchRefParMethod")';
+
+            //call ajax
+            $.getJSON(url, { ID: parMethod }, function (data) {
+                if (!data) {
+                    return;
+                }
+
+                $("#COLLECT_UNIT_CODE").val(data.STD_UNIT_CODE);
+                $("#ALERT_MIN_VALUE").val(data.MIN_VALUE);
+                $("#ALERT_MAX_VALUE").val(data.MAX_VALUE);
+                if (data.MIN_VALUE != null) {
+                    const fixFloatingPoint = val => Number.parseFloat(val.toFixed(8));
+                    var zzz = fixFloatingPoint(Math.abs(data.MIN_VALUE * 3));
+                    $("#ALERT_AMT_CHANGE").val(zzz);
+                }
+                $("#ALERT_STUCK_REC_COUNT").val(3);
+                $('#norepostform').dirtyForms('rescan');
+                syncunits();
+
+            });
 
         });
+
     </script>
 
 }

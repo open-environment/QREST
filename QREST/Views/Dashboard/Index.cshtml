@@ -30,8 +30,17 @@
                 <i class="fa fa-clock-o fa-stack-1x text-white"></i>
             </span>
             <a class="clear" href="@Url.Action("SiteList", "Site")">
-                <span class="h3 block m-t-xs"><strong>N/A</strong></span>
-                <small class="text-muted text-uc">Last Poll</small>
+                <span class="h4 block m-t-xs">
+                    @if (Model.T_QREST_SITES != null && Model.T_QREST_SITES.Count > 0)
+                    {
+                        @Model.T_QREST_SITES[0].POLLING_LAST_RUN_DT
+                    }
+                    else
+                    {
+                        <strong>N/A</strong>
+                    }
+                </span>
+                <small class="text-muted text-uc">Last Poll (UTC)</small>
             </a>
         </div>
         <div class="col-sm-6 col-md-3 padder-v b-r b-light">
@@ -59,12 +68,10 @@
 </section>
 <div class="row">
     <div class="col-md-8">
-        <section class="panel panel-default">
+        <section class="panel panel-qrest" style="border-bottom-left-radius:0px; border-bottom-right-radius:0px">
             <header class="panel-heading font-bold">Map Showing My Sites</header>
-            <div class="panel-body">
-
-                <div id="map_canvas" style="width: 100%; height: 400px;"></div>
-
+            <div class="">
+                <div id="map_canvas" style="width: 100%; height: 400px; padding: 0; margin: 0;"></div>
             </div>
         </section>
     </div>
@@ -153,55 +160,81 @@
         });
     </script>
 
-    <script src="https://js.arcgis.com/3.25/"></script>
-    @if (Model != null)
-    {
-        @*<script type="text/javascript">
-            function LoadMap() {
-                var map;
-                require(["esri/map",
-                    "esri/geometry/Point",
-                    "esri/symbols/SimpleMarkerSymbol",
-                    "esri/graphic",
-                    "esri/Color", "dojo/domReady!"
-                ],
-                    function (Map,
-                        Point,
-                        SimpleMarkerSymbol,
-                        Graphic,
-                        Color
-                    ) {
-                        map = new Map("map_canvas", {
-                            basemap: "topo"
-                        });
-                        //define marker style
-                        var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([255, 0, 0, 2]));
-                        //map.on("load", showMap);
-                        //map.on("click", addPoint);
-                        function showMap() {
-                            map.graphics.clear();
-                            if ($("#longitude").val() != 0 && $("#latitude").val() != 0) {
-                                var p = new Point($("#longitude").val(), $("#latitude").val());
-                                map.graphics.add(new Graphic(p, s));
-                                map.centerAndZoom(p, 9);
-                            }
-                            else {
-                                var p = new Point(-95.96826, 36.14520);
-                                map.centerAndZoom(p, 9);
-                            }
-                        }
-                        //when map is clicked, add or move point on map and (re)populate pop modal textboxes
-                        function addPoint(evt) {
-                            map.graphics.clear();
-                            map.graphics.add(new Graphic(evt.mapPoint, s));
-                            $("#txtLat1").val(evt.mapPoint.getLatitude().toFixed(5));
-                            $("#txtLong1").val(evt.mapPoint.getLongitude().toFixed(5));
-                        }
-                    });
-            }
+    <link rel="stylesheet" href="https://js.arcgis.com/4.12/esri/css/main.css">
+    <script src="https://js.arcgis.com/4.12/"></script>
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/Graphic"
+        ], function (Map, MapView, Graphic) {
 
-            LoadMap();
-        </script>*@
-    }
+                var map = new Map({
+                    basemap: "topo-vector"
+                });
+
+                var view = new MapView({
+                    container: "map_canvas",
+                    map: map,
+                    center: [-102, 37],
+                    zoom: 4
+                });
+
+                function AddPoint(lat, long, sitename) {
+                    var point = {
+                        type: "point",
+                        longitude: long,
+                        latitude: lat
+                    };
+
+                    var simpleMarkerSymbol = {
+                        type: "simple-marker",
+                        color: [226, 119, 40],
+                        outline: {
+                            color: [255, 255, 255],
+                            width: 1
+                        }
+                    };
+
+                    // Create attributes
+                    var attributes = {
+                        Name: sitename,  
+                        Location: lat + " / " + long,  
+                    };
+
+                    // Create popup template
+                    var popupTemplate = {
+                        title: "<b>{Name}</b>",
+                        content: "{Location}<br/><a class='badge bg-primary' href=''>Site Config</a><a class='badge bg-primary m-l-md' href=''>Data</a>"
+                    };
+
+                    var pointGraphic = new Graphic({
+                        geometry: point,
+                        symbol: simpleMarkerSymbol,
+                        //*** ADD ***//
+                        attributes: attributes,
+                        popupTemplate: popupTemplate
+                    });
+
+                    view.graphics.add(pointGraphic);
+                };
+
+
+
+
+                @foreach (var item in Model.T_QREST_SITES)
+                {
+                    if (item.LATITUDE != null && item.LONGITUDE != null && item.SITE_NAME != null)
+                    {
+                        <text>
+                        AddPoint(@item.LATITUDE, @item.LONGITUDE, '@item.SITE_NAME');
+                        </text>
+                    }
+                }
+        });
+
+
+
+    </script>
 }
 

@@ -10,6 +10,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Mvc;
+using QRESTModel.Units;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace QREST.Controllers
 {
@@ -147,7 +150,7 @@ namespace QREST.Controllers
             var model = new vmSiteSiteList
             {
                 selOrgID = selOrgID,
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX),
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
                 T_QREST_SITES = db_Air.GetT_QREST_SITES_ByUser_OrgID(selOrgID, UserIDX)
             };
 
@@ -203,7 +206,7 @@ namespace QREST.Controllers
         private static void InitializeSiteEditModel(vmSiteSiteEdit model, string UserIDX)
         {
             model.ddl_State = ddlHelpers.get_ddl_state();
-            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX);
+            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false);
             model.monitors = db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(model.SITE_IDX);
             model.notifiees = db_Air.GetT_QREST_SITE_NOTIFY_BySiteID(model.SITE_IDX);
             model.ddl_User = ddlHelpers.get_ddl_users(true);
@@ -292,7 +295,7 @@ namespace QREST.Controllers
             var model = new vmSiteSiteImport
             {
                 selOrgID = selOrgID,
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX),
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
                 ImportSites = new List<T_QREST_SITES>()
             };
 
@@ -462,17 +465,6 @@ namespace QREST.Controllers
         }
 
 
-        public RedirectToRouteResult CanAccessThisOrg(string UserIDX, string OrgID, bool CanEditToo)
-        {
-            if (db_Account.CanAccessThisOrg(UserIDX, OrgID, CanEditToo) == false)
-            {
-                TempData["Error"] = "Access Denied.";
-                return RedirectToAction("SiteList", "Site");
-            }
-            else
-                return null;
-        }
-
         public ActionResult SitePollConfig(Guid? id, Guid? configid, int? n)
         {
             T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id ?? Guid.Empty);
@@ -484,26 +476,52 @@ namespace QREST.Controllers
                 //get listing of configs
                 var model = new vmSiteSitePollConfig {
                     SITE_IDX = id,
-                    ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(id.ConvertOrDefault<Guid>())
+                    ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(id.ConvertOrDefault<Guid>()),
+                    ddl_Monitors = ddlHelpers.get_monitors_by_site(_site.SITE_IDX),
+                    POLLING_LAST_RUN_DT = _site.POLLING_LAST_RUN_DT,
+                    POLLING_NEXT_RUN_DT = _site.POLLING_NEXT_RUN_DT,
                 };
 
                 //get config to display
                 if (n == 1) //new case
                 {
-                    model.CurrentConfig = new T_QREST_SITE_POLL_CONFIG
-                    {
-                        POLL_CONFIG_IDX = Guid.NewGuid(),
-                        ACT_IND = true
-                    };
+                    model.editPOLL_CONFIG_IDX = Guid.NewGuid();
+                    model.editACT_IND = true;
                 }
                 else
                 {
+                    T_QREST_SITE_POLL_CONFIG e = null;
+
                     //get config by supplied
-                    model.CurrentConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(configid.ConvertOrDefault<Guid>());
+                    e = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(configid.ConvertOrDefault<Guid>());
 
                     //if none, then display active
-                    if (model.CurrentConfig == null)
-                        model.CurrentConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(_site.SITE_IDX);
+                    if (e == null)
+                        e = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(_site.SITE_IDX);
+
+                    if (e != null)
+                    {
+                        model.editPOLL_CONFIG_IDX = e.POLL_CONFIG_IDX;
+                        model.editRAW_DURATION_CODE = e.RAW_DURATION_CODE;
+                        model.editLOGGER_TYPE = e.LOGGER_TYPE;
+                        model.editLOGGER_SOURCE = e.LOGGER_SOURCE;
+                        model.editLOGGER_PORT = e.LOGGER_PORT;
+                        model.editLOGGER_USERNAME = e.LOGGER_USERNAME;
+                        model.editLOGGER_PASSWORD = e.LOGGER_PASSWORD;
+                        model.editDELIMITER = e.DELIMITER;
+                        model.editDATE_COL = e.DATE_COL;
+                        model.editDATE_FORMAT = e.DATE_FORMAT;
+                        model.editTIME_COL = e.TIME_COL;
+                        model.editTIME_FORMAT = e.TIME_FORMAT;
+                        model.editLOCAL_TIMEZONE = e.LOCAL_TIMEZONE;
+                        model.editACT_IND = e.ACT_IND;
+
+                        if (e.RAW_DURATION_CODE == null || e.DELIMITER == null || e.LOCAL_TIMEZONE == null || e.DATE_COL == null || e.TIME_COL == null)
+                        {
+                            ViewBag.PollError = true;
+                        }
+                    }
+
                 }
 
                 return View(model);
@@ -514,7 +532,6 @@ namespace QREST.Controllers
                 TempData["Error"] = "Site not found.";
                 return RedirectToAction("SiteList", "Site");
             }
-
         }
 
 
@@ -522,29 +539,132 @@ namespace QREST.Controllers
         public ActionResult SitePollConfig(vmSiteSitePollConfig model)
         {
             string UserIDX = User.Identity.GetUserId();
-            var e = model.CurrentConfig;
 
-            //set all others to inactive if this one is active
-            if (e.ACT_IND == true)
+            //*************** VALIDATION BEGIN *********************************
+            //if (e.LOGGER_SOURCE == null)
+            //    ModelState.AddModelError("CurrentConfig.LOGGER_SOURCE", "Logger Source Required");
+
+            //*************** VALIDATION END  *********************************
+
+            if (ModelState.IsValid)
             {
-                List<T_QREST_SITE_POLL_CONFIG> _ps = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>());
-                foreach (T_QREST_SITE_POLL_CONFIG _p in _ps)
-                    db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(_p.POLL_CONFIG_IDX, null, null, null, null, null, null, null, null, null, null, null, null, false, null);
+
+                //set all others to inactive if this one is active
+                if (model.editACT_IND == true)
+                {
+                    List<T_QREST_SITE_POLL_CONFIG> _ps = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>());
+                    foreach (T_QREST_SITE_POLL_CONFIG _p in _ps)
+                        db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(_p.POLL_CONFIG_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, false, null);
+                }
+
+                Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE, 
+                    model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL, 
+                    model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX);
+
+                if (SuccID != null)
+                {
+                    TempData["Success"] = "Record updated";
+                    return RedirectToAction("SitePollConfig", new { id = model.SITE_IDX, configid = SuccID });
+                }
+                else
+                    TempData["Error"] = "Error updating record.";
             }
 
-            Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(e.POLL_CONFIG_IDX, model.SITE_IDX, e.RAW_DURATION_CODE, e.LOGGER_TYPE, e.LOGGER_SOURCE, e.LOGGER_PORT,
-                e.LOGGER_USERNAME, e.LOGGER_PASSWORD, e.DELIMITER, e.DATE_COL, e.DATE_FORMAT, e.TIME_COL, e.TIME_FORMAT, e.ACT_IND, UserIDX);
-
-            if (SuccID != null)
-            {
-                TempData["Success"] = "Record updated";
-                return RedirectToAction("SitePollConfig", new { id = model.SITE_IDX, configid = SuccID });
-            }
-            else
-                TempData["Error"] = "Error updating record.";
-
+            //reinitialize model
+            model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>());
+            model.ddl_Monitors = ddlHelpers.get_monitors_by_site(model.SITE_IDX.ConvertOrDefault<Guid>());
             return View(model);
         }
+
+
+        [HttpPost]
+        public JsonResult SitePollConfigDelete(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return Json("No record selected to delete");
+            else
+            {
+                Guid idg = new Guid(id);
+
+                //reject if user doesn't have access to org
+                string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(idg);
+                CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
+
+                int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG(idg);
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to find polling configuration to delete.");
+            }
+        }
+
+
+        [HttpPost]
+        public ActionResult SitePollConfigDtlData()
+        {
+            var id = Request.Form.GetValues("pollid")?.FirstOrDefault();
+            if (id != null)
+            {
+                Guid idg = new Guid(id);
+                var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
+                var data = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(idg);
+
+                return Json(new { draw, recordsFiltered = 100, recordsTotal = 100, data = data });
+            }
+            else
+                return null;
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public JsonResult SitePollConfigDtlEdit(Guid? configid, Guid? monid, int? col, string sumtype, int? rounding)
+        {
+            if (configid != null && monid != null && col != null)
+            {
+                string UserIDX = User.Identity.GetUserId();
+                SiteMonitorDisplayType _mon = db_Air.GetT_QREST_MONITORS_ByID(monid ?? Guid.Empty);
+                if (_mon != null)
+                {
+                    T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(_mon.T_QREST_MONITORS.SITE_IDX);
+                    if (_site != null)
+                    {
+                        //reject if user doesn't have access to org
+                        CanAccessThisOrg(UserIDX, _site.ORG_ID, true);
+
+                        Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(null, configid, monid, col, sumtype, rounding);
+                        if (SuccID != null)
+                            return Json(new { msg = "Success" });
+
+                    }
+                }
+            }
+            //return ERROR
+            return Json(new { msg = "Unable to save." });
+        }
+
+
+        [HttpPost]
+        public JsonResult SitePollConfigDtlDelete(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return Json("No record selected to delete");
+            else
+            {
+                Guid idg = new Guid(id);
+
+
+                //reject if user doesn't have access to org
+                string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_org_ByID(idg);
+                CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
+
+                int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg);
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to find collumn mapping to delete.");
+            }
+        }
+
 
 
 
@@ -558,7 +678,7 @@ namespace QREST.Controllers
             var model = new vmSiteMonitorList
             {
                 selOrgID = selOrgID,
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX),
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
                 monitors = db_Air.GetT_QREST_MONITORS_ByUser_OrgID(selOrgID, UserIDX)
             };
 
@@ -571,19 +691,14 @@ namespace QREST.Controllers
             string UserIDX = User.Identity.GetUserId();
             var model = new vmSiteMonitorEdit();
 
-            //insert case
+            //insert case (Site ID provided but no Monitor ID)
             if (id == null && siteIDX != null)
             {
-                //*************** VALIDATION BEGIN *********************************
                 //reject if user doesn't have access to site
-                if (db_Account.CanAccessThisSite(UserIDX, (Guid)siteIDX, false) == false)
-                {
-                    TempData["Error"] = "Access Denied.";
-                    return RedirectToAction("SiteList", "Site");
-                }
-                //*************** VALIDATION END *********************************
+                CanAccessThisSite(UserIDX, (Guid)siteIDX, false);
 
                 model.SITE_IDX = siteIDX;
+                model.ddl_Unit = ddlHelpers.get_ddl_ref_units(null);
             }
 
             //update case
@@ -592,14 +707,8 @@ namespace QREST.Controllers
                 SiteMonitorDisplayType _monitor = db_Air.GetT_QREST_MONITORS_ByID(id ?? Guid.Empty);
                 if (_monitor != null)
                 {
-                    //*************** VALIDATION BEGIN *********************************
                     //reject if user doesn't have access to site
-                    if (db_Account.CanAccessThisSite(UserIDX, _monitor.T_QREST_MONITORS.SITE_IDX, false) == false)
-                    {
-                        TempData["Error"] = "Access Denied.";
-                        return RedirectToAction("SiteList", "Site");
-                    }
-                    //*************** VALIDATION END *********************************
+                    CanAccessThisSite(UserIDX, _monitor.T_QREST_MONITORS.SITE_IDX, false);
 
                     model.MONITOR_IDX = _monitor.T_QREST_MONITORS.MONITOR_IDX;
                     model.SITE_IDX = _monitor.T_QREST_MONITORS.SITE_IDX;
@@ -615,7 +724,12 @@ namespace QREST.Controllers
                     model.ALERT_MAX_VALUE = _monitor.T_QREST_MONITORS.ALERT_MAX_VALUE;
                     model.ALERT_AMT_CHANGE = _monitor.T_QREST_MONITORS.ALERT_AMT_CHANGE;
                     model.ALERT_STUCK_REC_COUNT = _monitor.T_QREST_MONITORS.ALERT_STUCK_REC_COUNT;
+                    model.ALERT_MIN_TYPE = _monitor.T_QREST_MONITORS.ALERT_MIN_TYPE;
+                    model.ALERT_MAX_TYPE = _monitor.T_QREST_MONITORS.ALERT_MAX_TYPE;
+                    model.ALERT_AMT_CHANGE_TYPE = _monitor.T_QREST_MONITORS.ALERT_AMT_CHANGE_TYPE;
+                    model.ALERT_STUCK_TYPE = _monitor.T_QREST_MONITORS.ALERT_STUCK_TYPE;
 
+                    model.ddl_Unit = ddlHelpers.get_ddl_ref_units(_monitor.PAR_CODE);
                 }
                 else
                 {
@@ -640,34 +754,47 @@ namespace QREST.Controllers
         {
             string UserIDX = User.Identity.GetUserId();
 
-            //additioal model validations
+            //*************** VALIDATION BEGIN *********************************
             if (model.ALERT_MIN_VALUE != null && model.ALERT_MAX_VALUE != null && model.ALERT_MAX_VALUE <= model.ALERT_MIN_VALUE)
                 ModelState.AddModelError("ALERT_MIN_VALUE", "Alert minimum must be lower than alert maximum.");
-
-            //insert put in default values
+            
             if (model.MONITOR_IDX == null && model.POC != null && model.PAR_METHOD_IDX != null)
             {
                 T_QREST_MONITORS _exist = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(model.SITE_IDX.ConvertOrDefault<Guid>(), model.PAR_METHOD_IDX.ConvertOrDefault<Guid>(), model.POC.GetValueOrDefault());
                 if (_exist != null && _exist.PAR_METHOD_IDX != null)
                     ModelState.AddModelError("POC", "This parameter / method / POC already exists for this site.");
-
-                model.ALERT_STUCK_REC_COUNT = 3;  //default value on insert
             }
+
+            //reject if user doesn't have access to site
+            CanAccessThisSite(UserIDX, (Guid)model.SITE_IDX, true);
+            //*************** VALIDATION END *********************************
 
             if (ModelState.IsValid)
             {
-                //*************** VALIDATION BEGIN *********************************
-                //reject if user doesn't have access to site
-                if (db_Account.CanAccessThisSite(UserIDX, (Guid)model.SITE_IDX, true) == false)
+                //add default values on insert
+                if (model.MONITOR_IDX == null)
                 {
-                    TempData["Error"] = "You don't have rights to edit this monitor.";
-                    return RedirectToAction("SiteList", "Site");
-                }
-                //*************** VALIDATION END *********************************
+                    model.ALERT_STUCK_REC_COUNT = 3;
+                    model.ALERT_MIN_TYPE = "H";
+                    model.ALERT_MAX_TYPE = "H";
+                    model.ALERT_AMT_CHANGE_TYPE = "H";
+                    model.ALERT_STUCK_TYPE = "N";
 
+                    T_QREST_REF_PAR_METHODS _parMeth = db_Ref.GetT_QREST_REF_PAR_METHODS_ByID(model.PAR_METHOD_IDX);
+                    if (_parMeth != null)
+                    {
+                        if (_parMeth.MIN_VALUE != null)
+                            model.ALERT_MIN_VALUE = UnitConvert.ConvertUnit(_parMeth.MIN_VALUE ?? 0,_parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE);
+                        if (_parMeth.MAX_VALUE != null)
+                            model.ALERT_MAX_VALUE = UnitConvert.ConvertUnit(_parMeth.MAX_VALUE ?? 0, _parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE);
+                        if (model.ALERT_MIN_VALUE != null && model.ALERT_MIN_VALUE != 0)
+                            model.ALERT_AMT_CHANGE = Math.Abs((UnitConvert.ConvertUnit(_parMeth.MIN_VALUE ?? 0, _parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE)??0) * (double)3);
+                    }
+                }
 
                 Guid? SuccInd = db_Air.InsertUpdatetT_QREST_MONITORS(model.MONITOR_IDX, model.SITE_IDX, model.PAR_METHOD_IDX, model.POC, model.DURATION_CODE, model.COLLECT_FREQ_CODE, 
-                    model.COLLECT_UNIT_CODE, model.ALERT_MIN_VALUE, model.ALERT_MAX_VALUE, model.ALERT_AMT_CHANGE, model.ALERT_STUCK_REC_COUNT, UserIDX);
+                    model.COLLECT_UNIT_CODE, model.ALERT_MIN_VALUE ?? -9999, model.ALERT_MAX_VALUE ?? -9999, model.ALERT_AMT_CHANGE ?? -9999, model.ALERT_STUCK_REC_COUNT ?? -9999, 
+                    model.ALERT_MIN_TYPE, model.ALERT_MAX_TYPE, model.ALERT_AMT_CHANGE_TYPE, model.ALERT_STUCK_TYPE, UserIDX);
 
                 if (SuccInd != null)
                 {
@@ -680,8 +807,7 @@ namespace QREST.Controllers
             }
 
             //repopulate model
-            //model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX);
-
+            model.ddl_Unit = ddlHelpers.get_ddl_ref_units(null);
             return View(model);
         }
 
@@ -689,7 +815,6 @@ namespace QREST.Controllers
         public ActionResult MonitorImport(Guid? id)
         {
             string UserIDX = User.Identity.GetUserId();
-
 
             //lookup site
             T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id ?? Guid.Empty);
@@ -731,46 +856,59 @@ namespace QREST.Controllers
                     ImportMonitors = new List<SiteMonitorDisplayType>()
                 };
 
+
                 //grab remote JSON file from EPA AQS API
                 using (var httpClient = new HttpClient())
                 {
-                    var json = httpClient.GetStringAsync("https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=" + _site.STATE_CD  + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID).Result;
-                    dynamic stuff = JsonConvert.DeserializeObject(json);
-                    var data1 = stuff.Data;
-
-                    foreach (var item in stuff.Data)
+                    try
                     {
-                        string _parcode = item.parameter_code;
-                        string _method_code = item.last_method_code;
-                        T_QREST_REF_PAR_METHODS _refMeth = db_Ref.GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(_parcode, _method_code);
+                        Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
+                        var json = httpClient.GetStringAsync(myUri).Result;
+                        dynamic stuff = JsonConvert.DeserializeObject(json);
 
-                        T_QREST_MONITORS m = new T_QREST_MONITORS
+                        foreach (var item in stuff.Data)
                         {
-                            MONITOR_IDX = Guid.NewGuid(),
-                            SITE_IDX = _site.SITE_IDX,
-                            PAR_METHOD_IDX = _refMeth.PAR_METHOD_IDX,
-                            POC = item.poc,
-                            CREATE_DT = System.DateTime.Now,
-                            CREATE_USER_IDX = UserIDX
-                        };
+                            string _parcode = item.parameter_code;
+                            string _method_code = item.last_method_code;
+                            T_QREST_REF_PAR_METHODS _refMeth = db_Ref.GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(_parcode, _method_code);
 
-                        SiteMonitorDisplayType md = new SiteMonitorDisplayType
-                        {
-                            T_QREST_MONITORS = m,
-                            SITE_ID = _site.STATE_CD + "-" + _site.COUNTY_CD + "-" + _site.AQS_SITE_ID,
-                            PAR_NAME = _parcode + " - " + item.parameter_name,
-                            METHOD_CODE = _method_code + " - " + item.last_method_description,
-                            ORG_ID = _site.ORG_ID
-                        };
+                            T_QREST_MONITORS m = new T_QREST_MONITORS
+                            {
+                                MONITOR_IDX = Guid.NewGuid(),
+                                SITE_IDX = _site.SITE_IDX,
+                                PAR_METHOD_IDX = _refMeth.PAR_METHOD_IDX,
+                                POC = item.poc,
+                                CREATE_DT = System.DateTime.Now,
+                                CREATE_USER_IDX = UserIDX
+                            };
 
-                        //check if QREST already has the monitor
-                        T_QREST_MONITORS _existMonitor = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(_site.SITE_IDX, _refMeth.PAR_METHOD_IDX, (int)item.poc);
-                        m.MODIFY_USER_IDX = _existMonitor != null ? "U" : "I";
-                        model.ImportMonitors.Add(md);
+                            SiteMonitorDisplayType md = new SiteMonitorDisplayType
+                            {
+                                T_QREST_MONITORS = m,
+                                SITE_ID = _site.STATE_CD + "-" + _site.COUNTY_CD + "-" + _site.AQS_SITE_ID,
+                                PAR_NAME = _parcode + " - " + item.parameter_name,
+                                METHOD_CODE = _method_code + " - " + item.last_method_description,
+                                ORG_ID = _site.ORG_ID
+                            };
+
+                            //check if QREST already has the monitor
+                            T_QREST_MONITORS _existMonitor = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(_site.SITE_IDX, _refMeth.PAR_METHOD_IDX, (int)item.poc);
+                            m.MODIFY_USER_IDX = _existMonitor != null ? "U" : "I";
+                            model.ImportMonitors.Add(md);
+                        }
+                    }
+                    catch (AggregateException err)
+                    {
+                        foreach (var errInner in err.InnerExceptions)
+                            db_Ref.CreateT_QREST_SYS_LOG(UserIDX, "ERROR", "Failed to import monitor - code 5 " + errInner);
+                    }
+                    catch (Exception ex)
+                    {
+                        db_Ref.CreateT_QREST_SYS_LOG(UserIDX, "ERROR", "Failed to import monitor - code 4 " + ex.Message);
                     }
                 }
 
-                return View(model); ;
+                return View(model);
             }
 
         }
@@ -810,7 +948,7 @@ namespace QREST.Controllers
                 {
                     i++;
                     db_Air.InsertUpdatetT_QREST_MONITORS(null, model.siteIDX, item.T_QREST_MONITORS.PAR_METHOD_IDX, item.T_QREST_MONITORS.POC,
-                        "1", "1", null, null, null, null, null, UserIDX);
+                        "1", "1", null, null, null, null, null, null, null, null, null, UserIDX);
                 }
             }
 
@@ -845,16 +983,66 @@ namespace QREST.Controllers
         {
             var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
             string search = Request.Form.GetValues("search[value]")?.FirstOrDefault(); //search value
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+            if (search.Length > 2)
+            {
+                int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+                int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+                int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+                string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-            List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(search, null, pageSize, start, orderCol, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(search, null);
-
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+                List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(search, null, pageSize, start, orderCol, orderDir);
+                var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(search, null);
+                return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+            }
+            else
+            {
+                List<RefParMethodDisplay> data = new List<RefParMethodDisplay>();
+                return Json(new { draw = draw, recordsFiltered = 0, recordsTotal = 0, data = data });
+            }
         }
+
+
+        [HttpGet]
+        public JsonResult FetchUnits(string ID)
+        {
+            var data = ddlHelpers.get_ddl_ref_units(ID);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public JsonResult FetchRefParMethod(string ID)
+        {
+            var data = db_Ref.GetT_QREST_REF_PAR_METHODS_ByID(ID.ConvertOrDefault<Guid?>());
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+
+        //**********************SHARED **************************************
+        //**********************SHARED **************************************
+        //**********************SHARED **************************************
+        public RedirectToRouteResult CanAccessThisOrg(string UserIDX, string OrgID, bool CanEditToo)
+        {
+            if (db_Account.CanAccessThisOrg(UserIDX, OrgID, CanEditToo) == false)
+            {
+                TempData["Error"] = "Access Denied.";
+                return RedirectToAction("SiteList", "Site");
+            }
+            else
+                return null;
+        }
+
+        public RedirectToRouteResult CanAccessThisSite(string UserIDX, Guid SiteIDX, bool CanEditToo)
+        {
+
+            if (db_Account.CanAccessThisSite(UserIDX, SiteIDX, CanEditToo) == false)
+            {
+                TempData["Error"] = "Access Denied.";
+                return RedirectToAction("SiteList", "Site");
+            }
+            else
+                return null;
+        }
+
 
     }
 

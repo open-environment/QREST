@@ -18,7 +18,7 @@
             <nav class="nav-primary hidden-xs">
                 <ul class="nav">
                     <li class="leftmenuhead">
-                        <a href="index.html" class="">
+                        <a href="#" class="">
                             <i class="fa fa-map-marker icon">
                                 <b class="bg-danger"></b>
                             </i>
@@ -50,7 +50,7 @@
                         </ul>
                     </li>
                     <li class="leftmenuhead">
-                        <a href="#layout">
+                        <a href="#">
                             <i class="fa fa-cloud icon">
                                 <b class="bg-warning"></b>
                             </i>
@@ -61,10 +61,10 @@
                             <span>Air Data</span>
                         </a>
                         <ul class="nav lt">
-                            <li class="@Html.ActivePage("Data", "QCList,QCEntry")">
-                                <a href="@Url.Action("QCList", "Data")">
+                            <li class="@Html.ActivePage("Data", "ManualImport")">
+                                <a href="@Url.Action("ManualImport", "Data")">
                                     <i class="fa fa-angle-right"></i>
-                                    <span class="title">QC Entry</span>
+                                    <span class="title">Manual Import</span>
                                 </a>
                             </li>
                             <li class="@Html.ActivePage("Data", "Raw")">
@@ -73,10 +73,16 @@
                                     <span class="title">Raw Data</span>
                                 </a>
                             </li>
+                            <li class="@Html.ActivePage("Data", "QCList,QCEntry")">
+                                <a href="@Url.Action("QCList", "Data")">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span class="title">Quality Control</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="leftmenuhead">
-                        <a href="#uikit">
+                        <a href="#">
                             <i class="fa fa-tachometer icon">
                                 <b class="bg-success"></b>
                             </i>
@@ -173,14 +179,12 @@
                                         <span class="title">Logging</span>
                                     </a>
                                 </li>
-                                <li class="@Html.ActivePage("Admin", "ImportData")">
-                                    <a href="@Url.Action("ImportData", "Admin")">
+                                <li class="@Html.ActivePage("Admin", "RefCollFreq,RefDuration,RefPar,RefParMethod,RefParUnit,RefUnit,ImportData")">
+                                    <a href="@Url.Action("RefParMethod", "Admin")">
                                         <i class="fa fa-angle-right"></i>
-                                        <span class="title">Import Ref Data</span>
+                                        <span class="title">Reference Data</span>
                                     </a>
                                 </li>
-
-
                             </ul>
                         </li>
                     }

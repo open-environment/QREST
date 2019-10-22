@@ -197,4 +197,23 @@ namespace QREST.Models
         public int? ErrorCount { get; set; }
         public int? InsertCount { get; set; }
     }
+
+
+    //****************************************************************************
+    // ******************************** REF DATA************************************
+    //****************************************************************************
+    public class vmAdminRefPar
+    {
+        public string editPAR_CODE { get; set; }
+        public string editPAR_NAME { get; set; }
+        public string editSTD_UNIT_CODE { get; set; }
+
+        public IEnumerable<SelectListItem> ddl_units { get; set; }
+
+        public vmAdminRefPar()
+        {
+            ddl_units = ddlHelpers.get_ddl_ref_units(null);
+        }
+    }
+
 }

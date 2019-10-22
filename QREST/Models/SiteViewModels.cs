@@ -134,19 +134,57 @@ namespace QREST.Models
     public class vmSiteSitePollConfig
     {
         public Guid? SITE_IDX { get; set; }
+
+        //SITE FIELDS
         public string POLLING_FREQ_TYPE { get; set; }
         public string POLLING_FREQ_NUM { get; set; }
         public DateTime? POLLING_LAST_RUN_DT { get; set; }
         public DateTime? POLLING_NEXT_RUN_DT { get; set; }
-        public List<T_QREST_SITE_POLL_CONFIG> ConfigList { get; set; }
-        public T_QREST_SITE_POLL_CONFIG CurrentConfig { get; set; }
 
+        //ALL CONFIGS
+        public List<T_QREST_SITE_POLL_CONFIG> ConfigList { get; set; }
+        
+        //EDITED CONFIG
+        public Guid? editPOLL_CONFIG_IDX { get; set; }
+        public string editRAW_DURATION_CODE { get; set; }
+
+        [Required]
+        [Display(Name = "Logger Type")]
+        public string editLOGGER_TYPE { get; set; }
+
+        [Required]
+        [Display(Name = "Logger Source")]
+        public string editLOGGER_SOURCE { get; set; }
+
+        [Required]
+        [Display(Name = "Port")]
+        public int? editLOGGER_PORT { get; set; }
+        public string editLOGGER_USERNAME { get; set; }
+        public string editLOGGER_PASSWORD { get; set; }
+        public string editDELIMITER { get; set; }
+        public int? editDATE_COL { get; set; }
+        public string editDATE_FORMAT { get; set; }
+        public int? editTIME_COL{ get; set; }
+        public string editTIME_FORMAT { get; set; }
+        public string editLOCAL_TIMEZONE { get; set; }
+        public bool editACT_IND { get; set; }
+
+        //EDIT COLUMN MAPPING
+        public int editCOL { get; set; }
+        public Guid? editMONITOR_IDX { get; set; }
+        public string editSUM_TYPE { get; set; }
+        public int? editROUNDING { get; set; }
 
         public IEnumerable<SelectListItem> ddl_LoggerDate { get; set; }
         public IEnumerable<SelectListItem> ddl_LoggerTime { get; set; }
         public IEnumerable<SelectListItem> ddl_LoggerType { get; set; }
         public IEnumerable<SelectListItem> ddl_LoggerDelimiter { get; set; }
         public IEnumerable<SelectListItem> ddl_LoggerDuration { get; set; }
+        public IEnumerable<SelectListItem> ddl_Monitors { get; set; }
+        public IEnumerable<SelectListItem> ddl_SumType { get; set; }
+        public IEnumerable<SelectListItem> ddl_TimeZone { get; set; }
+        public IEnumerable<SelectListItem> ddl_Rounding { get; set; }
+
 
         public vmSiteSitePollConfig()
         {
@@ -155,6 +193,9 @@ namespace QREST.Models
             ddl_LoggerType = ddlHelpers.get_ddl_logger_type();
             ddl_LoggerDelimiter = ddlHelpers.get_ddl_logger_delimiter();
             ddl_LoggerDuration = ddlHelpers.get_ddl_logger_duration();
+            ddl_SumType = ddlHelpers.get_ddl_sum_type();
+            ddl_TimeZone = ddlHelpers.get_ddl_time_zone();
+            ddl_Rounding = ddlHelpers.get_ddl_rounding_decimals();
         }
     }
 
@@ -178,8 +219,10 @@ namespace QREST.Models
         public Guid? PAR_METHOD_IDX { get; set; }
         public string PAR_NAME { get; set; }
         public string METHOD_CODE { get; set; }
+
         [Required]
         public int? POC { get; set; }
+
         [Required]
         public string DURATION_CODE { get; set; }
         public string COLLECT_FREQ_CODE { get; set; }
@@ -188,18 +231,24 @@ namespace QREST.Models
         public double? ALERT_MAX_VALUE { get; set; }
         public double? ALERT_AMT_CHANGE { get; set; }
         public int? ALERT_STUCK_REC_COUNT { get; set; }
+        public string ALERT_MIN_TYPE { get; set; }
+        public string ALERT_MAX_TYPE { get; set; }
+        public string ALERT_AMT_CHANGE_TYPE { get; set; }
+        public string ALERT_STUCK_TYPE { get; set; }
+
         public DateTime? CREATE_DT { get; set; }
 
         public IEnumerable<SelectListItem> ddl_Ref_Duration { get; set; }
         public IEnumerable<SelectListItem> ddl_Ref_Coll_Freq { get; set; }
         public IEnumerable<SelectListItem> ddl_Unit { get; set; }
+        public IEnumerable<SelectListItem> ddl_NMIN_HOURLY { get; set; }
 
 
         public vmSiteMonitorEdit() {
             ddl_Ref_Duration = ddlHelpers.get_ddl_ref_duration();
             ddl_Ref_Coll_Freq = ddlHelpers.get_ddl_ref_coll_freq();
-            ddl_Unit = ddlHelpers.get_ddl_ref_units();
-
+            ddl_NMIN_HOURLY = ddlHelpers.get_ddl_NMIN_HOURLY();
+            //ddl_Unit = ddlHelpers.get_ddl_ref_units();
         }
     }
 

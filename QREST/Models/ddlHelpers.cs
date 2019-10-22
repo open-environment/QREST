@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using QRESTModel.DAL;
@@ -38,18 +39,16 @@ namespace QREST.Models
                 Text = x.COUNTY_CD + " - " + x.COUNTY_NAME
             });
         }
-
-
+        
         public static IEnumerable<SelectListItem> get_ddl_logger_date()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
-            _list.Add(new SelectListItem() { Value = "YY/MM/DD", Text = "YY/MM/DD" });
-            _list.Add(new SelectListItem() { Value = "MM/DD/YYYY", Text = "MM/DD/YYYY" });
-            _list.Add(new SelectListItem() { Value = "MMDDYYYY", Text = "MMDDYYYY" });
+            _list.Add(new SelectListItem() { Value = "yy/MM/dd", Text = "yy/MM/dd" });
+            _list.Add(new SelectListItem() { Value = "MM/dd/yyyy", Text = "MM/dd/yyyy" });
+            _list.Add(new SelectListItem() { Value = "MMddyyyy", Text = "MMddyyyy" });
             return _list;
         }
-
-
+        
         public static IEnumerable<SelectListItem> get_ddl_logger_delimiter()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
@@ -62,20 +61,22 @@ namespace QREST.Models
         {
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "1", Text = "1 HOUR" });
+            _list.Add(new SelectListItem() { Value = "G", Text = "1 MINUTE" });
             _list.Add(new SelectListItem() { Value = "H", Text = "5 MINUTE" });
+            _list.Add(new SelectListItem() { Value = "I", Text = "10 MINUTE" });
+            _list.Add(new SelectListItem() { Value = "J", Text = "15 MINUTE" });
             return _list;
         }
 
         public static IEnumerable<SelectListItem> get_ddl_logger_time()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
-            _list.Add(new SelectListItem() { Value = "24:MM:SS", Text = "24:MM:SS" });
-            _list.Add(new SelectListItem() { Value = "24:MM", Text = "24:MM" });
-            _list.Add(new SelectListItem() { Value = "HH:MM:SS AM", Text = "HH:MM:SS AM" });
+            _list.Add(new SelectListItem() { Value = "HH:mm:ss", Text = "HH:mm:ss (eg 22:12:14)" });
+            _list.Add(new SelectListItem() { Value = "HH:MM", Text = "HH:MM (eg 22:12)" });
+            _list.Add(new SelectListItem() { Value = "hh:MM:ss tt", Text = "HH:MM:ss tt (eg 10:12:14 PM)" });
             return _list;
         }
-
-
+        
         public static IEnumerable<SelectListItem> get_ddl_logger_type()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
@@ -83,9 +84,7 @@ namespace QREST.Models
             _list.Add(new SelectListItem() { Value = "OTHER", Text = "Others (in development)" });
             return _list;
         }
-
-
-
+                
         public static IEnumerable<SelectListItem> get_ddl_region()
         {
             return db_Ref.GetT_QREST_REF_REGION().Select(x => new SelectListItem
@@ -104,21 +103,30 @@ namespace QREST.Models
             });
         }
         
-        public static IEnumerable<SelectListItem> get_ddl_my_organizations(string UserIDX)
+        public static IEnumerable<SelectListItem> get_ddl_my_organizations(string UserIDX, bool showID)
         {
             return db_Account.GetT_QREST_ORG_USERS_byUSER_IDX(UserIDX, "A").Select(x => new SelectListItem
             {
                 Value = x.ORG_ID,
-                Text = x.ORG_NAME
+                Text = showID ? x.ORG_ID : x.ORG_NAME
             });
         }
         
-        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string UserIDX)
+        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string OrgID, string UserIDX)
         {
-            return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(null, UserIDX).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
-                Text = x.ORG_ID + " | Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME
+                Text = x.ORG_ID + " | Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_monitors_by_site(Guid SiteIDX)
+        {
+            return db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(SiteIDX).Select(x => new SelectListItem
+            {
+                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
+                Text = "Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | Method: " + x.METHOD_CODE + " | POC: " + x.T_QREST_MONITORS.POC
             });
         }
 
@@ -149,13 +157,47 @@ namespace QREST.Models
             });
         }
 
-        public static IEnumerable<SelectListItem> get_ddl_ref_units()
+        public static IEnumerable<SelectListItem> get_ddl_ref_units(string parCode)
         {
-            return db_Ref.GetT_QREST_REF_UNITS().Select(x => new SelectListItem
+            return db_Ref.GetT_QREST_REF_UNITS(parCode).Select(x => new SelectListItem
             {
                 Value = x.UNIT_CODE,
                 Text = x.UNIT_DESC
             });
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_rounding_decimals()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "-2", Text = "-2" });
+            _list.Add(new SelectListItem() { Value = "-1", Text = "-1" });
+            _list.Add(new SelectListItem() { Value = "0", Text = "0" });
+            _list.Add(new SelectListItem() { Value = "1", Text = "1" });
+            _list.Add(new SelectListItem() { Value = "2", Text = "2" });
+            _list.Add(new SelectListItem() { Value = "3", Text = "3" });
+            _list.Add(new SelectListItem() { Value = "4", Text = "4" });
+            _list.Add(new SelectListItem() { Value = "5", Text = "5" });
+            return _list;
+        }
+
+
+        public static IEnumerable<SelectListItem> get_ddl_time_zone()
+        {
+            return db_Ref.GetT_QREST_REF_TIMEZONE().Select(x => new SelectListItem
+            {
+                Value = x.TZ_CODE,
+                Text = x.TZ_NAME
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_sum_type()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "AVG", Text = "Average" });
+            _list.Add(new SelectListItem() { Value = "MAX", Text = "Maximum" });
+            _list.Add(new SelectListItem() { Value = "MIN", Text = "Minimum" });
+            _list.Add(new SelectListItem() { Value = "DEV", Text = "Standard Deviation" });
+            return _list;
         }
 
         public static IEnumerable<SelectListItem> get_ddl_user_status()
@@ -184,7 +226,14 @@ namespace QREST.Models
                 Text = x.FNAME + " " + x.LNAME
             });
         }
-
+        
+        public static IEnumerable<SelectListItem> get_ddl_NMIN_HOURLY()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "N", Text = "N" });
+            _list.Add(new SelectListItem() { Value = "H", Text = "H" });
+            return _list;
+        }
 
     }
 }

@@ -41,6 +41,33 @@
           <Property Name="MODIFY_USER_IDX" Type="varchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
+        <EntityType Name="T_QREST_DATA_FIVE_MIN">
+          <Key>
+            <PropertyRef Name="DATA_FIVE_IDX" />
+          </Key>
+          <Property Name="DATA_FIVE_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="MONITOR_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="DATA_DTTM" Type="datetime2" Precision="0" />
+          <Property Name="DATA_VALUE" Type="varchar" MaxLength="20" />
+          <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="VAL_IND" Type="bit" />
+          <Property Name="VAL_CD" Type="varchar" MaxLength="2" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_DATA_HOURLY">
+          <Key>
+            <PropertyRef Name="DATA_HOURLY_IDX" />
+          </Key>
+          <Property Name="DATA_HOURLY_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="MONITOR_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="DATA_DTTM_UTC" Type="datetime2" Precision="0" />
+          <Property Name="DATA_DTTM_LOCAL" Type="datetime2" Precision="0" />
+          <Property Name="DATA_VALUE" Type="varchar" MaxLength="20" />
+          <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="VAL_IND" Type="bit" />
+          <Property Name="VAL_CD" Type="varchar" MaxLength="2" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
         <EntityType Name="T_QREST_EMAIL_TEMPLATE">
           <Key>
             <PropertyRef Name="EMAIL_TEMPLATE_ID" />
@@ -81,6 +108,10 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="ALERT_MIN_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="ALERT_MAX_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="ALERT_AMT_CHANGE_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="ALERT_STUCK_TYPE" Type="varchar" MaxLength="1" />
         </EntityType>
         <EntityType Name="T_QREST_ORG_EMAIL_RULE">
           <Key>
@@ -210,13 +241,23 @@
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
+        <EntityType Name="T_QREST_REF_PAR_UNITS">
+          <Key>
+            <PropertyRef Name="UNIT_CODE" />
+            <PropertyRef Name="PAR_CODE" />
+          </Key>
+          <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="PAR_CODE" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
         <EntityType Name="T_QREST_REF_PARAMETERS">
           <Key>
             <PropertyRef Name="PAR_CODE" />
           </Key>
           <Property Name="PAR_CODE" Type="varchar" MaxLength="6" Nullable="false" />
           <Property Name="PAR_NAME" Type="varchar" MaxLength="100" Nullable="false" />
-          <Property Name="PAR_NAME_ALT" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="PAR_NAME_ALT" Type="varchar" MaxLength="100" />
           <Property Name="CAS_NUM" Type="varchar" MaxLength="100" />
           <Property Name="STD_UNIT_CODE" Type="varchar" MaxLength="3" />
           <Property Name="SHORTLIST_IND" Type="bit" Nullable="false" />
@@ -225,6 +266,7 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="AQS_IND" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="T_QREST_REF_REGION">
           <Key>
@@ -240,6 +282,13 @@
           <Property Name="STATE_CD" Type="varchar" MaxLength="2" Nullable="false" />
           <Property Name="STATE_NAME" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="STATE_ABBR" Type="varchar" MaxLength="2" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_TIMEZONE">
+          <Key>
+            <PropertyRef Name="TZ_CODE" />
+          </Key>
+          <Property Name="TZ_CODE" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="TZ_NAME" Type="varchar" MaxLength="40" Nullable="false" />
         </EntityType>
         <EntityType Name="T_QREST_REF_UNITS">
           <Key>
@@ -293,6 +342,7 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
         </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
@@ -302,6 +352,8 @@
           <Property Name="POLL_CONFIG_IDX" Type="uniqueidentifier" Nullable="false" />
           <Property Name="MONITOR_IDX" Type="uniqueidentifier" Nullable="false" />
           <Property Name="COL" Type="int" />
+          <Property Name="SUM_TYPE" Type="varchar" MaxLength="10" />
+          <Property Name="ROUNDING" Type="int" />
         </EntityType>
         <EntityType Name="T_QREST_SITES">
           <Key>
@@ -758,7 +810,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_T_SITE_POLL_CONFIG_DTL_M">
-          <End Role="T_QREST_MONITORS" Type="Self.T_QREST_MONITORS" Multiplicity="1" />
+          <End Role="T_QREST_MONITORS" Type="Self.T_QREST_MONITORS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="T_QREST_SITE_POLL_CONFIG_DTL" Type="Self.T_QREST_SITE_POLL_CONFIG_DTL" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="T_QREST_MONITORS">
@@ -770,7 +824,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_T_SITE_POLL_CONFIG_DTL_P">
-          <End Role="T_QREST_SITE_POLL_CONFIG" Type="Self.T_QREST_SITE_POLL_CONFIG" Multiplicity="1" />
+          <End Role="T_QREST_SITE_POLL_CONFIG" Type="Self.T_QREST_SITE_POLL_CONFIG" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="T_QREST_SITE_POLL_CONFIG_DTL" Type="Self.T_QREST_SITE_POLL_CONFIG_DTL" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="T_QREST_SITE_POLL_CONFIG">
@@ -797,6 +853,8 @@
           <EntitySet Name="T_QREST_APP_SETTINGS" EntityType="Self.T_QREST_APP_SETTINGS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_APP_SETTINGS_CUSTOM" EntityType="Self.T_QREST_APP_SETTINGS_CUSTOM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_APP_TASKS" EntityType="Self.T_QREST_APP_TASKS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_DATA_FIVE_MIN" EntityType="Self.T_QREST_DATA_FIVE_MIN" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_DATA_HOURLY" EntityType="Self.T_QREST_DATA_HOURLY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_EMAIL_TEMPLATE" EntityType="Self.T_QREST_EMAIL_TEMPLATE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_HELP_DOCS" EntityType="Self.T_QREST_HELP_DOCS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_MONITORS" EntityType="Self.T_QREST_MONITORS" Schema="dbo" store:Type="Tables" />
@@ -810,9 +868,11 @@
           <EntitySet Name="T_QREST_REF_COUNTY" EntityType="Self.T_QREST_REF_COUNTY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_DURATION" EntityType="Self.T_QREST_REF_DURATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_PAR_METHODS" EntityType="Self.T_QREST_REF_PAR_METHODS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_PAR_UNITS" EntityType="Self.T_QREST_REF_PAR_UNITS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_PARAMETERS" EntityType="Self.T_QREST_REF_PARAMETERS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_REGION" EntityType="Self.T_QREST_REF_REGION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_STATE" EntityType="Self.T_QREST_REF_STATE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_TIMEZONE" EntityType="Self.T_QREST_REF_TIMEZONE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_UNITS" EntityType="Self.T_QREST_REF_UNITS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_ROLES" EntityType="Self.T_QREST_ROLES" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_SITE_NOTIFY" EntityType="Self.T_QREST_SITE_NOTIFY" Schema="dbo" store:Type="Tables" />
@@ -1085,6 +1145,10 @@
             <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
             <End Role="T_QREST_SITE_POLL_CONFIG_DTL" EntitySet="T_QREST_SITE_POLL_CONFIG_DTL" />
           </AssociationSet>
+          <EntitySet Name="T_QREST_REF_PAR_UNITS" EntityType="QRESTModel.T_QREST_REF_PAR_UNITS" />
+          <EntitySet Name="T_QREST_DATA_FIVE_MIN" EntityType="QRESTModel.T_QREST_DATA_FIVE_MIN" />
+          <EntitySet Name="T_QREST_REF_TIMEZONE" EntityType="QRESTModel.T_QREST_REF_TIMEZONE" />
+          <EntitySet Name="T_QREST_DATA_HOURLY" EntityType="QRESTModel.T_QREST_DATA_HOURLY" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -1284,7 +1348,7 @@
           </Key>
           <Property Name="PAR_CODE" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
           <Property Name="PAR_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="PAR_NAME_ALT" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PAR_NAME_ALT" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="CAS_NUM" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="STD_UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="SHORTLIST_IND" Type="Boolean" Nullable="false" />
@@ -1295,6 +1359,7 @@
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_REF_PAR_METHODS" Relationship="QRESTModel.FK_T_QREST_REF_PAR_METHODS_P" FromRole="T_QREST_REF_PARAMETERS" ToRole="T_QREST_REF_PAR_METHODS" />
           <NavigationProperty Name="T_QREST_REF_UNITS" Relationship="QRESTModel.FK_T_QREST_REF_PARAMETERS_U" FromRole="T_QREST_REF_PARAMETERS" ToRole="T_QREST_REF_UNITS" />
+          <Property Name="AQS_IND" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="T_QREST_REF_REGION">
           <Key>
@@ -1375,6 +1440,7 @@
           <NavigationProperty Name="T_QREST_REF_DURATION" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_D" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_REF_DURATION" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG_DTL" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITE_POLL_CONFIG_DTL" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
+          <Property Name="LOCAL_TIMEZONE" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
@@ -1386,6 +1452,8 @@
           <Property Name="COL" Type="Int32" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG_DTL" ToRole="T_QREST_SITE_POLL_CONFIG" />
           <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_M" FromRole="T_QREST_SITE_POLL_CONFIG_DTL" ToRole="T_QREST_MONITORS" />
+          <Property Name="SUM_TYPE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ROUNDING" Type="Int32" />
         </EntityType>
         <EntityType Name="T_QREST_SITES">
           <Key>
@@ -1810,6 +1878,10 @@
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_MONITORS" ToRole="T_QREST_SITES" />
           <NavigationProperty Name="T_QREST_QC_ASSESSMENT" Relationship="QRESTModel.FK_T_QREST_QC_ASSESSMENT_M" FromRole="T_QREST_MONITORS" ToRole="T_QREST_QC_ASSESSMENT" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG_DTL" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_M" FromRole="T_QREST_MONITORS" ToRole="T_QREST_SITE_POLL_CONFIG_DTL" />
+          <Property Name="ALERT_MIN_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="ALERT_MAX_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="ALERT_AMT_CHANGE_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="ALERT_STUCK_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_REF_COLLECT_FREQ">
           <Key>
@@ -1896,6 +1968,50 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="T_QREST_REF_PAR_UNITS">
+          <Key>
+            <PropertyRef Name="UNIT_CODE" />
+            <PropertyRef Name="PAR_CODE" />
+          </Key>
+          <Property Name="UNIT_CODE" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="PAR_CODE" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_DATA_FIVE_MIN">
+          <Key>
+            <PropertyRef Name="DATA_FIVE_IDX" />
+          </Key>
+          <Property Name="DATA_FIVE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="MONITOR_IDX" Type="Guid" Nullable="false" />
+          <Property Name="DATA_DTTM" Type="DateTime" Precision="0" />
+          <Property Name="DATA_VALUE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="VAL_IND" Type="Boolean" />
+          <Property Name="VAL_CD" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_TIMEZONE">
+          <Key>
+            <PropertyRef Name="TZ_CODE" />
+          </Key>
+          <Property Name="TZ_CODE" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="TZ_NAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_DATA_HOURLY">
+          <Key>
+            <PropertyRef Name="DATA_HOURLY_IDX" />
+          </Key>
+          <Property Name="DATA_HOURLY_IDX" Type="Guid" Nullable="false" />
+          <Property Name="MONITOR_IDX" Type="Guid" Nullable="false" />
+          <Property Name="DATA_DTTM_UTC" Type="DateTime" Precision="0" />
+          <Property Name="DATA_DTTM_LOCAL" Type="DateTime" Precision="0" />
+          <Property Name="DATA_VALUE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="VAL_IND" Type="Boolean" />
+          <Property Name="VAL_CD" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2090,6 +2206,7 @@
           <EntitySetMapping Name="T_QREST_REF_PARAMETERS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_PARAMETERS">
               <MappingFragment StoreEntitySet="T_QREST_REF_PARAMETERS">
+                <ScalarProperty Name="AQS_IND" ColumnName="AQS_IND" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
@@ -2157,6 +2274,7 @@
           <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG">
               <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG">
+                <ScalarProperty Name="LOCAL_TIMEZONE" ColumnName="LOCAL_TIMEZONE" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
@@ -2181,6 +2299,8 @@
           <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG_DTL">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG_DTL">
               <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG_DTL">
+                <ScalarProperty Name="ROUNDING" ColumnName="ROUNDING" />
+                <ScalarProperty Name="SUM_TYPE" ColumnName="SUM_TYPE" />
                 <ScalarProperty Name="COL" ColumnName="COL" />
                 <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
                 <ScalarProperty Name="POLL_CONFIG_IDX" ColumnName="POLL_CONFIG_IDX" />
@@ -2335,6 +2455,10 @@
           <EntitySetMapping Name="T_QREST_MONITORS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_MONITORS">
               <MappingFragment StoreEntitySet="T_QREST_MONITORS">
+                <ScalarProperty Name="ALERT_STUCK_TYPE" ColumnName="ALERT_STUCK_TYPE" />
+                <ScalarProperty Name="ALERT_AMT_CHANGE_TYPE" ColumnName="ALERT_AMT_CHANGE_TYPE" />
+                <ScalarProperty Name="ALERT_MAX_TYPE" ColumnName="ALERT_MAX_TYPE" />
+                <ScalarProperty Name="ALERT_MIN_TYPE" ColumnName="ALERT_MIN_TYPE" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
@@ -2363,6 +2487,53 @@
                 <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
                 <ScalarProperty Name="COLLECT_FEQ_DESC" ColumnName="COLLECT_FEQ_DESC" />
                 <ScalarProperty Name="COLLECT_FREQ_CODE" ColumnName="COLLECT_FREQ_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_PAR_UNITS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_PAR_UNITS">
+              <MappingFragment StoreEntitySet="T_QREST_REF_PAR_UNITS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="UNIT_CODE" ColumnName="UNIT_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_DATA_FIVE_MIN">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_FIVE_MIN">
+              <MappingFragment StoreEntitySet="T_QREST_DATA_FIVE_MIN">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="VAL_CD" ColumnName="VAL_CD" />
+                <ScalarProperty Name="VAL_IND" ColumnName="VAL_IND" />
+                <ScalarProperty Name="UNIT_CODE" ColumnName="UNIT_CODE" />
+                <ScalarProperty Name="DATA_VALUE" ColumnName="DATA_VALUE" />
+                <ScalarProperty Name="DATA_DTTM" ColumnName="DATA_DTTM" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="DATA_FIVE_IDX" ColumnName="DATA_FIVE_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_TIMEZONE">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_TIMEZONE">
+              <MappingFragment StoreEntitySet="T_QREST_REF_TIMEZONE">
+                <ScalarProperty Name="TZ_NAME" ColumnName="TZ_NAME" />
+                <ScalarProperty Name="TZ_CODE" ColumnName="TZ_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_DATA_HOURLY">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_HOURLY">
+              <MappingFragment StoreEntitySet="T_QREST_DATA_HOURLY">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="VAL_CD" ColumnName="VAL_CD" />
+                <ScalarProperty Name="VAL_IND" ColumnName="VAL_IND" />
+                <ScalarProperty Name="UNIT_CODE" ColumnName="UNIT_CODE" />
+                <ScalarProperty Name="DATA_VALUE" ColumnName="DATA_VALUE" />
+                <ScalarProperty Name="DATA_DTTM_LOCAL" ColumnName="DATA_DTTM_LOCAL" />
+                <ScalarProperty Name="DATA_DTTM_UTC" ColumnName="DATA_DTTM_UTC" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="DATA_HOURLY_IDX" ColumnName="DATA_HOURLY_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

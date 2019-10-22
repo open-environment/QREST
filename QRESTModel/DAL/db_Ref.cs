@@ -722,6 +722,25 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<T_QREST_REF_COLLECT_FREQ> GetT_QREST_REF_COLLECT_FREQ_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    string orderCol = (orderBy == 1 ? "COLLECT_FREQ_CODE" : "COLLECT_FEQ_DESC");
+
+                    return (from a in ctx.T_QREST_REF_COLLECT_FREQ
+                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static T_QREST_REF_COLLECT_FREQ GetT_QREST_REF_COLLECT_FREQ_ByID(string id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -884,6 +903,25 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<T_QREST_REF_DURATION> GetT_QREST_REF_DURATION_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    string orderCol = (orderBy == 1 ? "DURATION_CODE" : "DURATION_DESC");
+
+                    return (from a in ctx.T_QREST_REF_DURATION
+                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static T_QREST_REF_DURATION GetT_QREST_REF_DURATION_ByID(string id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -966,6 +1004,25 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static T_QREST_REF_PAR_METHODS GetT_QREST_REF_PAR_METHODS_ByID(Guid? ParMethodIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking()
+                            where a.PAR_METHOD_IDX == ParMethodIDX
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
         public static T_QREST_REF_PAR_METHODS GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(string parCD, string methodCD)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1044,6 +1101,7 @@ namespace QRESTModel.DAL
                             {
                                 T_QREST_REF_PAR_METHODS = a,
                                 PAR_NAME = p.PAR_NAME,
+                                
                                 UNIT_DESC = u.UNIT_DESC
                             }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
@@ -1067,6 +1125,7 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_REF_PAR_METHODS
                             join p in ctx.T_QREST_REF_PARAMETERS on a.PAR_CODE equals p.PAR_CODE
                             where (strPar.Length > 0 ? (p.PAR_NAME.Contains(strPar) || p.PAR_CODE.Contains(strPar) || a.METHOD_CODE.Contains(strPar)) : true)
+                            && a.RECORDING_MODE == "Continuous"
                             select a).Count();
                 }
                 catch (Exception ex)
@@ -1077,6 +1136,45 @@ namespace QRESTModel.DAL
             }
         }
 
+
+
+        //***************** REF_PAR_UNITS ******************************
+        public static List<T_QREST_REF_PAR_UNITS> GetT_QREST_REF_PAR_UNITS_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    string orderCol = (orderBy == 1 ? "UNIT_CODE" : "PAR_CODE");
+
+                    return (from a in ctx.T_QREST_REF_PAR_UNITS
+                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int GetT_QREST_REF_PAR_UNITS_count()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_PAR_UNITS
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+               
 
 
         //***************** REF_PARAMETERS ******************************
@@ -1098,6 +1196,25 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<T_QREST_REF_PARAMETERS> GetT_QREST_REF_PARAMETERS_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    string orderCol = (orderBy == 1 ? "PAR_CODE" : "PAR_NAME");
+
+                    return (from a in ctx.T_QREST_REF_PARAMETERS
+                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+                
         public static T_QREST_REF_PARAMETERS GetT_QREST_REF_PARAMETERS_ByID(string id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1116,7 +1233,34 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool InsertUpdatetT_QREST_REF_PARAMETERS(string pAR_CODE, string pAR_NAME, string pAR_NAME_ALT, string cAS_NUM, string sTD_UNIT_CODE, bool? aCT_IND, string cREATE_USER)
+        public static string GetT_QREST_REF_PARAMETERS_NextNonAQS()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_REF_PARAMETERS
+                               where a.AQS_IND == false
+                               orderby a.PAR_CODE descending
+                               select a).FirstOrDefault()?.PAR_CODE;
+
+                    if (xxx == null)
+                        return "Q00001";
+                    else
+                    {
+                        string number = Regex.Match(xxx, "[0-9]+$").Value;
+                        return xxx.Substring(0, xxx.Length - number.Length) + (long.Parse(number) + 1).ToString().PadLeft(number.Length, '0');
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static bool InsertUpdatetT_QREST_REF_PARAMETERS(string pAR_CODE, string pAR_NAME, string pAR_NAME_ALT, string cAS_NUM, string sTD_UNIT_CODE, bool? aQS_IND, bool? aCT_IND, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1146,7 +1290,7 @@ namespace QRESTModel.DAL
                     if (pAR_NAME_ALT != null) e.PAR_NAME_ALT = pAR_NAME_ALT;
                     if (cAS_NUM != null) e.CAS_NUM = cAS_NUM;
                     if (sTD_UNIT_CODE != null) e.STD_UNIT_CODE = sTD_UNIT_CODE;
-
+                    if (aQS_IND != null) e.AQS_IND = aQS_IND ?? true;
                     if (aCT_IND != null) e.ACT_IND = aCT_IND ?? true;
 
                     if (insInd)
@@ -1159,6 +1303,26 @@ namespace QRESTModel.DAL
                 {
                     logEF.LogEFException(ex);
                     return false;
+                }
+            }
+        }
+
+        public static int DeleteT_QREST_REF_PARAMETERS(string id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_REF_PARAMETERS rec = new T_QREST_REF_PARAMETERS { PAR_CODE = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
                 }
             }
         }
@@ -1236,17 +1400,64 @@ namespace QRESTModel.DAL
         }
 
 
-
-        //***************** REF_UNITS ******************************
-        public static List<T_QREST_REF_UNITS> GetT_QREST_REF_UNITS()
+        //***************** REF_TIMEZONE ******************************
+        public static List<T_QREST_REF_TIMEZONE> GetT_QREST_REF_TIMEZONE()
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    return (from a in ctx.T_QREST_REF_UNITS
-                            orderby a.UNIT_CODE
+                    return (from a in ctx.T_QREST_REF_TIMEZONE
+                            orderby a.TZ_NAME
                             select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        //***************** REF_UNITS ******************************
+        public static List<T_QREST_REF_UNITS> GetT_QREST_REF_UNITS(string parCode)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_REF_UNITS
+                               join b in ctx.T_QREST_REF_PAR_UNITS on a.UNIT_CODE equals b.UNIT_CODE
+                               where b.PAR_CODE == parCode
+                               orderby a.UNIT_DESC
+                               select a).ToList();
+
+                    if (xxx == null || xxx.Count == 0)
+                        xxx = (from a in ctx.T_QREST_REF_UNITS
+                               orderby a.UNIT_DESC
+                               select a).ToList();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<T_QREST_REF_UNITS> GetT_QREST_REF_UNITS_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    string orderCol = (orderBy == 2 ? "UNIT_CODE" : "UNIT_DESC");
+
+                    return (from a in ctx.T_QREST_REF_UNITS
+                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {

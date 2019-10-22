@@ -29,6 +29,7 @@ namespace QREST
             bundles.Add(new ScriptBundle("~/bundles/areyousure").Include(
                 "~/Scripts/jquery.dirtyforms.min.js",
                 "~/Scripts/jquery.dirtyforms.dialogs.bootstrap.min.js"));
+            bundles.Add(new ScriptBundle("~/bundles/canvasjs").Include("~/Scripts/canvasjs.min.js"));
 
 
 

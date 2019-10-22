@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "Reference Parameter Methods";
+    ViewBag.HideTitle = true;
+    ViewBag.selOpt = "ParMethod";
+}
+
+@Html.Partial("_RefDataTopNav")
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Parameter Methods
+    </header>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>
+                                <a href="@Url.Action("ExportRefParMethod", "Admin")" class="btn btn-rounded btn-sm btn-icon btn-dark" style="border-radius: 15px;"><i class="fa fa-download"></i></a>
+                            </th>
+                            <th>Par</th>
+                            <th>Par Name</th>
+                            <th>Recording Mode</th>
+                            <th>Method</th>
+                            <th>Collection</th>
+                            <th>Analysis</th>
+                            <th>Ref Method</th>
+                            <th>Equivalent Method</th>
+                            <th>Std Unit</th>
+                            <th>Fed Min</th>
+                            <th>Fed Max</th>
+                            <th>QREST Min</th>
+                            <th>QREST Max</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            // datatable initialization
+            $("#gridData").DataTable({
+                "responsive": true,
+                "serverSide": true,
+                "processing": true,
+                "orderMulti": false,
+                "lengthChange": false,
+                "paging": true,
+                "pageLength": 10,
+                "pagingType": "full_numbers",
+                "info": false,
+                "searching": true,
+                "ajax": {
+                    "url": "@Url.Action("RefParMethodData", "Site")",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columnDefs":
+                    [{
+                        "targets": [0],
+                        "visible": false,
+                    },
+                    {
+                        "targets": [1],
+                        "orderable" : false
+                    }],
+                "columns": [
+                    { "data": "T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX", "name": "T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX", "autoWidth": true },
+                    {
+                        "render": function (data, type, row) {
+                            return '<a data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX
+                                + '" data-par="' + row.PAR_NAME
+                                + '" data-parcd="' + row.T_QREST_REF_PAR_METHODS.PAR_CODE
+                                + '" data-unit="' + row.T_QREST_REF_PAR_METHODS.STD_UNIT_CODE
+                                + '" data-meth="' + row.T_QREST_REF_PAR_METHODS.METHOD_CODE + '" class="btn btn-rounded btn-xs btn-primary par-meth-sel" style="display: inline-block;"> <i class="fa fa-plus"></i> Select</a>';
+                        }
+                    },
+                    { "data": "T_QREST_REF_PAR_METHODS.PAR_CODE", "name": "T_QREST_REF_PAR_METHODS.PAR_CODE", "autoWidth": true },
+                    { "data": "PAR_NAME", "name": "PAR_NAME", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.RECORDING_MODE", "name": "T_QREST_REF_PAR_METHODS.RECORDING_MODE", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.METHOD_CODE", "name": "T_QREST_REF_PAR_METHODS.METHOD_CODE", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.COLLECTION_DESC", "name": "T_QREST_REF_PAR_METHODS.COLLECTION_DESC", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.ANALYSIS_DESC", "name": "T_QREST_REF_PAR_METHODS.ANALYSIS_DESC", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.REFERENCE_METHOD_ID", "name": "T_QREST_REF_PAR_METHODS.REFERENCE_METHOD_ID", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD", "name": "T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.STD_UNIT_CODE", "name": "T_QREST_REF_PAR_METHODS.STD_UNIT_CODE", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.MIN_VALUE", "name": "T_QREST_REF_PAR_METHODS.MIN_VALUE", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.MAX_VALUE", "name": "T_QREST_REF_PAR_METHODS.MAX_VALUE", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.MIN_VALUE", "name": "T_QREST_REF_PAR_METHODS.MIN_VALUE", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.MAX_VALUE", "name": "T_QREST_REF_PAR_METHODS.MAX_VALUE", "autoWidth": true }
+                ],
+                "createdRow": function (row, data, dataIndex) {
+                    $('td:eq(0)', row).css('width', '90px');
+                    $('td:eq(0)', row).css('min-width', '90px');
+                    $('td:eq(0)', row).css('padding-right', '0px');
+                    $('td:eq(0)', row).css('white-space', 'nowrap');
+                }
+            });
+
+        });
+
+    </script>
+
+}

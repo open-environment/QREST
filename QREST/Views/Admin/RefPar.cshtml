@@ -1,0 +1,145 @@
+﻿@model QREST.Models.vmAdminRefPar
+@{
+    ViewBag.Title = "Reference Parameters";
+    ViewBag.HideTitle = true;
+    ViewBag.selOpt = "Par";
+}
+
+@Html.Partial("_RefDataTopNav")
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Parameters
+        <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
+    </header>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Par</th>
+                            <th>Par Name</th>
+                            <th>Cas Num</th>
+                            <th>Std Unit Code</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <a id="add-it" href="#modal-form1" data-toggle="modal" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add Non-AQS Parameter</a>
+    </div>
+</section>
+
+
+<!-- START NOTIFY MODAL  -->
+<div class="modal fade" id="modal-form1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="width:600px">
+
+        @using (Html.BeginForm("RefParEdit", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 style="float: left" class="modal-title">Add/Edit Reference Parameter</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Parameter Code</label>
+                                @Html.TextBoxFor(model => model.editPAR_CODE, new { @class = "form-control", @maxlength = "6", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label>Parameter Name</label>
+                                @Html.TextBoxFor(model => model.editPAR_NAME, new { @class = "form-control", @maxlength = "100" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Default Unit</label>
+                                @Html.DropDownListFor(model => model.editSTD_UNIT_CODE, Model.ddl_units, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- END NOTIFY MODAL -->
+
+@section scripts {
+    @Scripts.Render("~/bundles/datatables")
+    @Scripts.Render("~/bundles/confirm-delete")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            // datatable initialization
+            $("#gridData").DataTable({
+                "responsive": true,
+                "serverSide": true,
+                "processing": true,
+                "orderMulti": false,
+                "lengthChange": false,
+                "paging": true,
+                "pageLength": 20,
+                "pagingType": "full_numbers",
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("RefParData", "Admin")",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columnDefs":
+                    [{
+                        "targets": [0],
+                        "orderable" : false
+                        },
+                    ],
+                "columns": [
+                    {
+                        "render": function (data, type, row) {
+                            if (row.AQS_IND == false) {
+                                return '<a href="#" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
+                                    + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
+                                    + row.PAR_CODE + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/RefParDelete"><b>Confirm Delete</b></div></div>';
+                            }
+                            else {
+                                return "";
+                            }
+                        }
+                    },
+                    { "data": "PAR_CODE", "name": "PAR_CODE", "autoWidth": true },
+                    { "data": "PAR_NAME", "name": "PAR_NAME", "autoWidth": true },
+                    { "data": "CAS_NUM", "name": "CAS_NUM", "autoWidth": true },
+                    { "data": "STD_UNIT_CODE", "name": "STD_UNIT_CODE", "autoWidth": true }
+                ],
+                "createdRow": function (row, data, dataIndex) {
+                    $('td:eq(0)', row).css('width', '90px');
+                    $('td:eq(0)', row).css('min-width', '90px');
+                    $('td:eq(0)', row).css('padding-right', '0px');
+                    $('td:eq(0)', row).css('white-space', 'nowrap');
+                }
+            });
+
+        });
+
+    </script>
+
+}

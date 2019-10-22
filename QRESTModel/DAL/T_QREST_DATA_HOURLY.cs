@@ -12,16 +12,16 @@ namespace QRESTModel.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class T_QREST_SITE_POLL_CONFIG_DTL
+    public partial class T_QREST_DATA_HOURLY
     {
-        public System.Guid POLL_CONFIG_DTL_IDX { get; set; }
-        public System.Guid POLL_CONFIG_IDX { get; set; }
+        public System.Guid DATA_HOURLY_IDX { get; set; }
         public System.Guid MONITOR_IDX { get; set; }
-        public Nullable<int> COL { get; set; }
-        public string SUM_TYPE { get; set; }
-        public Nullable<int> ROUNDING { get; set; }
-    
-        public virtual T_QREST_SITE_POLL_CONFIG T_QREST_SITE_POLL_CONFIG { get; set; }
-        public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
+        public Nullable<System.DateTime> DATA_DTTM_UTC { get; set; }
+        public Nullable<System.DateTime> DATA_DTTM_LOCAL { get; set; }
+        public string DATA_VALUE { get; set; }
+        public string UNIT_CODE { get; set; }
+        public Nullable<bool> VAL_IND { get; set; }
+        public string VAL_CD { get; set; }
+        public Nullable<System.DateTime> MODIFY_DT { get; set; }
     }
 }

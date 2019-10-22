@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="52d12f0a5c244845a61fb1ca82ca06f3" Name="Diagram1" ZoomLevel="97">
+      <Diagram DiagramId="52d12f0a5c244845a61fb1ca82ca06f3" Name="Diagram1" ZoomLevel="73">
         <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_SETTINGS" Width="1.5" PointX="12.75" PointY="9.375" />
         <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_SETTINGS_CUSTOM" Width="1.5" PointX="13.75" PointY="1.375" />
         <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_TASKS" Width="1.5" PointX="13.75" PointY="4.375" />
@@ -64,6 +64,10 @@
         <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_S" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_QC_ASSESSMENT_M" />
         <AssociationConnector Association="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_M" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PAR_UNITS" Width="1.5" PointX="5.375" PointY="17.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_FIVE_MIN" Width="1.5" PointX="18.375" PointY="4.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_TIMEZONE" Width="1.5" PointX="18.375" PointY="15.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_HOURLY" Width="1.5" PointX="18.375" PointY="18.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

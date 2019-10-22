@@ -181,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Logic\EncryptionAES.cs" />
+    <Compile Include="App_Logic\ExcelGen.cs" />
     <Compile Include="App_Logic\GetIP.cs" />
     <Compile Include="App_Logic\HTMLHelpers.cs" />
     <Compile Include="App_Logic\UtilsText.cs" />
@@ -290,6 +291,7 @@
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\canvasjs.min.js" />
     <Content Include="Scripts\cleave.min.js" />
     <Content Include="Scripts\cleave.qrest.js" />
     <Content Include="Scripts\confirm-delete.js" />
@@ -489,7 +491,7 @@
     <Content Include="Views\Account\ForgotPasswordConfirmation.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
     <Content Include="Views\Account\ConfirmEmail.cshtml" />
-    <Content Include="Views\Admin\RefData.cshtml" />
+    <Content Include="Views\Admin\RefParMethod.cshtml" />
     <Content Include="Views\Admin\AppSettings.cshtml" />
     <Content Include="Views\Shared\_LeftMenu.cshtml" />
     <Content Include="Views\Error\AccessDenied.cshtml" />
@@ -538,6 +540,14 @@
     <Content Include="Scripts\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
     <Content Include="Scripts\tinymce\langs\readme.md" />
     <Content Include="Views\Reports\Export.cshtml" />
+    <Content Include="Views\Admin\_RefDataTopNav.cshtml" />
+    <Content Include="Views\Admin\RefPar.cshtml" />
+    <Content Include="Views\Admin\RefCollFreq.cshtml" />
+    <Content Include="Views\Admin\RefDuration.cshtml" />
+    <Content Include="Views\Admin\RefUnit.cshtml" />
+    <Content Include="Views\Admin\RefParUnit.cshtml" />
+    <Content Include="Views\Data\ManualImport.cshtml" />
+    <Content Include="Views\Home\Test.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

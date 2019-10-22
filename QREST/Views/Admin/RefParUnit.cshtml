@@ -1,0 +1,77 @@
+﻿
+@{
+    ViewBag.Title = "Reference Data  / Reference Parameter Units";
+    ViewBag.HideTitle = true;
+    ViewBag.selOpt = "ParUnit";
+}
+
+@Html.Partial("_RefDataTopNav")
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Parameter Units
+    </header>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Unit Code</th>
+                            <th>Par Code</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            // datatable initialization
+            $("#gridData").DataTable({
+                "responsive": true,
+                "serverSide": true,
+                "processing": true,
+                "orderMulti": false,
+                "lengthChange": false,
+                "paging": true,
+                "pageLength": 20,
+                "pagingType": "full_numbers",
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("RefParUnitData", "Admin")",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columnDefs":
+                    [{
+                        "targets": [0],
+                        "visible": false,
+                    }],
+                "columns": [
+                    { "data": "UNIT_CODE", "name": "UNIT_CODE", "autoWidth": true },
+                    { "data": "UNIT_CODE", "name": "UNIT_CODE", "autoWidth": true },
+                    { "data": "PAR_CODE", "name": "PAR_CODE", "autoWidth": true }
+                ],
+                "createdRow": function (row, data, dataIndex) {
+                    $('td:eq(0)', row).css('width', '90px');
+                    $('td:eq(0)', row).css('min-width', '90px');
+                    $('td:eq(0)', row).css('padding-right', '0px');
+                    $('td:eq(0)', row).css('white-space', 'nowrap');
+                }
+            });
+
+        });
+
+    </script>
+
+}

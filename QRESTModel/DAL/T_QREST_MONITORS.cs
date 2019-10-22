@@ -36,6 +36,10 @@ namespace QRESTModel.DAL
         public Nullable<System.DateTime> CREATE_DT { get; set; }
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
+        public string ALERT_MIN_TYPE { get; set; }
+        public string ALERT_MAX_TYPE { get; set; }
+        public string ALERT_AMT_CHANGE_TYPE { get; set; }
+        public string ALERT_STUCK_TYPE { get; set; }
     
         public virtual T_QREST_REF_COLLECT_FREQ T_QREST_REF_COLLECT_FREQ { get; set; }
         public virtual T_QREST_REF_DURATION T_QREST_REF_DURATION { get; set; }

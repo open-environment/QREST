@@ -169,6 +169,14 @@
     padding: 12px 12px;
 }
 
+.help-block {
+    margin-top:2px;
+    color: #7896b3;
+    margin-left: 2px;
+    font-size: 12px;
+    font-style: italic;
+}
+
 /* ---------------------------------------------------------------------- */
 /* modal: (center and compress) */
 /* ---------------------------------------------------------------------- */
@@ -334,3 +342,20 @@ table.dataTable.no-footer {
         background: #F3F7F8;
         border-left: none;
     }
+
+
+
+.row.no-pad {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+    .row.no-pad > [class*='col-'] {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+.panel.panel-noborder {
+    border-width:0;
+    box-shadow:none;
+}

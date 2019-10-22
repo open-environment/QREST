@@ -35,4 +35,13 @@ namespace QREST.Models
         public string ASSESSED_BY { get; set; }
 
     }
+
+    public class vmDataRaw
+    {
+        public string selOrgID { get; set; }
+        public string selMon { get; set; }
+        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+        public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
+        //public List<RawDataDisplay> RawDataDisplay { get; set; }
+    }
 }

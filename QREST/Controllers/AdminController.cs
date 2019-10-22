@@ -12,6 +12,8 @@ using System.IO;
 using System.Data;
 using System.Text.RegularExpressions;
 using QRESTModel.DAL;
+using QRESTModel.DataTableGen;
+using QREST.App_Logic;
 
 namespace QREST.Controllers
 {
@@ -701,7 +703,7 @@ namespace QREST.Controllers
                                         T_QREST_REF_UNITS _unit = db_Ref.GetT_QREST_REF_UNITS_ByDesc(cols[5]);
                                         if (_unit != null)
                                         {
-                                            bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(cols[0], cols[1], cols[3], cols[4], _unit.UNIT_CODE, cols[6]=="YES", UserIDX);
+                                            bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(cols[0], cols[1], cols[3], cols[4], _unit.UNIT_CODE, true, cols[6]=="YES", UserIDX);
                                             if (SuccID)
                                                 insCount++;
                                             else
@@ -771,6 +773,181 @@ namespace QREST.Controllers
             };
             return View(model);
         }
+
+
+
+        //************************************* REF DATA ************************************************************
+        // GET: /Admin/RefData
+        public ActionResult RefCollFreq() {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult RefCollFreqData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            List<T_QREST_REF_COLLECT_FREQ> data = db_Ref.GetT_QREST_REF_COLLECT_FREQ_data(pageSize, start, orderCol, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_REF_COLLECT_FREQ().Count();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
+        public ActionResult RefDuration()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult RefDurationData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            List<T_QREST_REF_DURATION> data = db_Ref.GetT_QREST_REF_DURATION_data(pageSize, start, orderCol, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_REF_DURATION().Count();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
+
+        public ActionResult RefPar()
+        {
+            var model = new vmAdminRefPar();
+            model.editPAR_CODE = db_Ref.GetT_QREST_REF_PARAMETERS_NextNonAQS();
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public ActionResult RefParData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            List<T_QREST_REF_PARAMETERS> data = db_Ref.GetT_QREST_REF_PARAMETERS_data(pageSize, start, orderCol, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_REF_PARAMETERS().Count();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult RefParEdit(vmAdminRefPar model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool SuccInd = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(model.editPAR_CODE, model.editPAR_NAME, null, null, model.editSTD_UNIT_CODE, false, true, User.Identity.GetUserId());
+
+                if (SuccInd)
+                    TempData["Success"] = "Record updated";
+                else
+                    TempData["Error"] = "Error updating record.";
+            }
+            else
+                TempData["Error"] = "Error updating record";
+
+            return RedirectToAction("RefPar", "Admin");
+        }
+
+
+        [HttpPost]
+        public JsonResult RefParDelete(string id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int SuccID = db_Ref.DeleteT_QREST_REF_PARAMETERS(id);
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to find record to delete.");
+            }
+        }
+
+
+
+        public ActionResult RefParMethod()
+        {
+            return View();
+        }
+
+        public ActionResult ExportRefParMethod()
+        {
+            DataTable dt = DataTableGen.RefParMethod("","");
+            DataSet dsExport = DataTableGen.DataSetFromDataTables(dt, null, null, null);
+            if (dsExport.Tables.Count > 0)
+            {
+                MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=QRESTExport.xlsx");
+                ms.WriteTo(Response.OutputStream);
+                Response.Flush();
+                Response.End();
+
+                return null;
+            }
+            else
+            {
+                TempData["Error"] = "No data found to export";
+                return RedirectToAction("RefParMethod");
+            }
+
+        }
+
+
+        public ActionResult RefParUnit()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult RefParUnitData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            List<T_QREST_REF_PAR_UNITS> data = db_Ref.GetT_QREST_REF_PAR_UNITS_data(pageSize, start, orderCol, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_REF_PAR_UNITS_count();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
+        public ActionResult RefUnit()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult RefUnitData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+                int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+                int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+                int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+                string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+                List<T_QREST_REF_UNITS> data = db_Ref.GetT_QREST_REF_UNITS_data(pageSize, start, orderCol, orderDir);
+                var recordsTotal = db_Ref.GetT_QREST_REF_UNITS(null).Count();
+                return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
 
 
         //************************************* POLLING ************************************************************

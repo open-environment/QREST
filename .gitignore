@@ -7,6 +7,8 @@
 *.userosscache
 *.sln.docstates
 5_populateDataLocal.sql
+qrest-test - Web Deploy.pubxml
+qrest - Web Deploy.pubxml
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

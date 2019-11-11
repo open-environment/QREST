@@ -85,9 +85,39 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult ReportAnnual()
+        public ActionResult ReportAnnual(Guid? id, Guid? monid, int? year, string time)
         {
-            return View();
+            var model = new vmHomeReportAnnual
+            {
+                selSite = id,
+                selMon = monid,
+                selYear = year ?? System.DateTime.Now.Year,
+                selTime = time ?? "L"
+            };
+
+            //monitor dropdown
+            if (model.selSite != null)
+                model.ddl_Mons = ddlHelpers.get_monitors_by_site(id ?? Guid.Empty);
+            else
+                model.ddl_Mons = new SelectList(Enumerable.Empty<SelectListItem>());
+
+            //model.Results = db_Air.SP_RPT_ANNUAL(model.selMon ?? Guid.Empty, model.selYear, model.selTime);
+            //model.ResultSums = db_Air.SP_RPT_ANNUAL_SUMS(model.selMon ?? Guid.Empty, model.selYear, model.selTime);
+
+            SiteMonitorDisplayType xxx = db_Air.GetT_QREST_MONITORS_ByID(model.selMon ?? Guid.Empty);
+            if (xxx != null)
+            {
+                var yyy = db_Ref.GetT_QREST_REF_UNITS_ByID(xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE);
+                model.Units = yyy.UNIT_DESC;
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult ReportAnnual(vmHomeReportAnnual model)
+        {
+            return RedirectToAction("ReportAnnual", new { id = model.selSite, monid = model.selMon, year = model.selYear, time = model.selTime });
         }
 
         public ActionResult Help()

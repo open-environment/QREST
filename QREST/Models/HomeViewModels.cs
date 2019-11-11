@@ -48,4 +48,26 @@ namespace QREST.Models
             ddl_Time = ddlHelpers.get_ddl_time_type();
         }
     }
+
+    public class vmHomeReportAnnual
+    {
+        public Guid? selSite { get; set; }
+        public Guid? selMon { get; set; }
+        public int selYear { get; set; }
+        public string selTime { get; set; }
+        public string Units { get; set; }
+        public List<SP_RPT_MONTHLY_Result> Results { get; set; }
+        public List<SP_RPT_MONTHLY_SUMS_Result> ResultSums { get; set; }
+        public IEnumerable<SelectListItem> ddl_Year { get; set; }
+        public IEnumerable<SelectListItem> ddl_Sites { get; set; }
+        public IEnumerable<SelectListItem> ddl_Mons { get; set; }
+        public IEnumerable<SelectListItem> ddl_Time { get; set; }
+
+        public vmHomeReportAnnual()
+        {
+            ddl_Year = ddlHelpers.get_ddl_years();
+            ddl_Sites = ddlHelpers.get_ddl_sites_all();
+            ddl_Time = ddlHelpers.get_ddl_time_type();
+        }
+    }
 }

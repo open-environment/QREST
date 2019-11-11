@@ -1,7 +1,235 @@
-﻿
+﻿@model QREST.Models.vmHomeReportAnnual
 @{
-    ViewBag.Title = "ReportAnnual";
+    Layout = "~/Views/Shared/_LayoutPub.cshtml";
+    ViewBag.Title = "Annual Summary";
 }
 
-<h2>ReportAnnual</h2>
 
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Annual Summary
+    </header>
+    <div class="panel-body">
+        @using (Html.BeginForm("ReportAnnual", "Home", FormMethod.Post, new { @id = "norepostform", role = "form", @class = "form-inline m-b-sm" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.DropDownListFor(model => model.selSite, Model.ddl_Sites, "--Select Site--", new { @class = "form-control", @style = "min-width:80px" })
+            @Html.DropDownListFor(model => model.selMon, Model.ddl_Mons, "--Select Parameter--", new { @class = "form-control", @style = "min-width:80px" })
+            @Html.DropDownListFor(model => model.selYear, Model.ddl_Year, "", new { @class = "form-control", @style = "min-width:80px" })
+            @Html.DropDownListFor(model => model.selTime, Model.ddl_Time, "", new { @class = "form-control", @style = "min-width:80px" })
+            <button id="btnGo" type="submit" class="btn btn-primary">Go</button>
+        }
+        @if (Model.Results != null && Model.Results.Count > 0 && Model.selSite != null)
+        {
+            <h4>
+                Units: @Html.DisplayFor(modelItem => Model.Units)
+            </h4>
+
+            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="display:inline; width:75%">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Day</th>
+                        <th colspan="12">Morning</th>
+                        <th colspan="12">Afternoon</th>
+                    </tr>
+                    <tr>
+                        <th>Mid</th>
+                        <th>1:00</th>
+                        <th>2:00</th>
+                        <th>3:00</th>
+                        <th>4:00</th>
+                        <th>5:00</th>
+                        <th>6:00</th>
+                        <th>7:00</th>
+                        <th>8:00</th>
+                        <th>9:00</th>
+                        <th>10:00</th>
+                        <th>11:00</th>
+                        <th>Noon</th>
+                        <th>1:00</th>
+                        <th>2:00</th>
+                        <th>3:00</th>
+                        <th>4:00</th>
+                        <th>5:00</th>
+                        <th>6:00</th>
+                        <th>7:00</th>
+                        <th>8:00</th>
+                        <th>9:00</th>
+                        <th>10:00</th>
+                        <th>11:00</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Results)
+                    {
+                        <tr class="">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SearchDay)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C0)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C1)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C2)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C3)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C4)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C5)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C6)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C7)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C8)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C9)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C10)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C11)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C12)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C13)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C14)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C15)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C16)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C17)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C18)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C19)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C20)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C21)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C22)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.C23)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <table id="gridDataSum" class="table table-striped table-bordered" data-ride="datatables" style="display:inline; width:20%">
+                <thead>
+                    @*<tr>
+                            <th colspan="6">Summary</th>
+                        </tr>*@
+                    <tr>
+                        <th>Day</th>
+                        <th>Max</th>
+                        <th>Min</th>
+                        <th>Avg</th>
+                        <th>STD</th>
+                        <th>Cap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ResultSums)
+                    {
+                        <tr class="">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.DAY1)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MAX)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MIN)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.AVG)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.STDEV)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CAP)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</section>
+
+<style>
+    .panel .table td, .panel .table th {
+        padding: 2px 6px;
+        text-align: center;
+    }
+
+    .max {
+        font-weight: bold;
+        text-decoration: underline;
+        color: red;
+    }
+
+
+</style>
+@section Scripts {
+    <script>
+
+        //******* highlight max values **************
+        $('#gridData tbody tr').each(function() {
+            var $tds = $(this).find('td:not(:first-child)');
+            var values = $tds.map(function () {
+                return parseFloat($(this).text().trim()) || -999;
+          }).get();
+          $tds.eq(values.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0)).addClass('max');
+        });
+
+
+        $(document).ready(function () {
+
+            //update monitor dropdown
+            var url = '@Url.Action("FetchMonitorsBySite")';
+            var mons = $('#selMon');
+            $('#selSite').change(function () {
+                mons.empty();
+                $.getJSON(url, { ID: $(this).val() }, function (data) {
+                    if (!data) {
+                        return;
+                    }
+                    mons.append($('<option></option>').val('').text('Please select'));
+                    $.each(data, function (index, item) {
+                        mons.append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+                });
+            });
+        });
+    </script>
+}

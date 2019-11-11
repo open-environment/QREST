@@ -73,6 +73,12 @@
                                     <span class="title">Raw Data</span>
                                 </a>
                             </li>
+                            <li class="@Html.ActivePage("Data", "DataReview")">
+                                <a href="@Url.Action("DataReview", "Data")">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span class="title">Data Review</span>
+                                </a>
+                            </li>
                             <li class="@Html.ActivePage("Data", "QCList,QCEntry")">
                                 <a href="@Url.Action("QCList", "Data")">
                                     <i class="fa fa-angle-right"></i>
@@ -185,6 +191,13 @@
                                         <span class="title">Reference Data</span>
                                     </a>
                                 </li>
+                                <li class="@Html.ActivePage("Admin", "Connectivity")">
+                                    <a href="@Url.Action("Connectivity", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Connectivity</span>
+                                    </a>
+                                </li>
+
                             </ul>
                         </li>
                     }

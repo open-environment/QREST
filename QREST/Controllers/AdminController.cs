@@ -508,13 +508,14 @@ namespace QREST.Controllers
             int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
             int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
             //date filters
             DateTime? minDate = Request.Form.GetValues("mini")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
             DateTime? maxDate = Request.Form.GetValues("maxi")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
 
-            var data = db_Ref.GetT_QREST_SYS_LOG(minDate, maxDate, pageSize, start, orderCol, orderDir);
+            var data = db_Ref.GetT_QREST_SYS_LOG(minDate, maxDate, pageSize, start, orderColName, orderDir);
             var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_count(minDate, maxDate);
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
@@ -534,13 +535,14 @@ namespace QREST.Controllers
             int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
             int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
             //date filters
             DateTime? minDate = Request.Form.GetValues("mini")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
             DateTime? maxDate = Request.Form.GetValues("maxi")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
 
-            var data = db_Ref.GetT_QREST_SYS_LOG_EMAIL(minDate, maxDate, pageSize, start, orderCol, orderDir);
+            var data = db_Ref.GetT_QREST_SYS_LOG_EMAIL(minDate, maxDate, pageSize, start, orderColName, orderDir);
             var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_EMAILcount(minDate, maxDate);
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
@@ -560,13 +562,14 @@ namespace QREST.Controllers
             int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
             int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
             //date filters
             DateTime? minDate = Request.Form.GetValues("mini")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
             DateTime? maxDate = Request.Form.GetValues("maxi")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
 
-            var data = db_Ref.GetT_QREST_SYS_LOG_ACTIVITY(minDate, maxDate, pageSize, start, orderCol, orderDir);
+            var data = db_Ref.GetT_QREST_SYS_LOG_ACTIVITY(minDate, maxDate, pageSize, start, orderColName, orderDir);
             var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_ACTIVITYcount(minDate, maxDate);
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
@@ -594,6 +597,7 @@ namespace QREST.Controllers
             int insCount = 0;
             int existCount = 0;
             int errorCount = 0;
+            List<string> updateDetails = new List<string>();
             string UserIDX = User.Identity.GetUserId();
 
             if (postedFile != null && postedFile.InputStream != null)
@@ -630,6 +634,8 @@ namespace QREST.Controllers
                                     importType = "METHODS";
                                 else if (cols[0] == "State Code")
                                     importType = "STATES COUNTIES";
+                                else if (cols[0] == "Qualifier Code")
+                                    importType = "QUALIFIERS";
 
                                 headInd = false;
                             }
@@ -717,24 +723,27 @@ namespace QREST.Controllers
                                 }
                                 else if (importType == "METHODS")
                                 {
-                                    T_QREST_REF_PAR_METHODS _data = db_Ref.GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(cols[1],cols[2]);
-                                    if (_data == null)
+                                    //lookup unit code
+                                    T_QREST_REF_UNITS _unit = db_Ref.GetT_QREST_REF_UNITS_ByDesc(cols[14]);
+                                    if (_unit != null)
                                     {
-                                        //lookup unit code
-                                        T_QREST_REF_UNITS _unit = db_Ref.GetT_QREST_REF_UNITS_ByDesc(cols[14]);
-                                        if (_unit != null)
+                                        Tuple<string, string> SuccID = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(null, cols[1], cols[2], cols[3], cols[4], cols[5], cols[7], cols[8], _unit.UNIT_CODE, cols[9].ConvertOrDefault<double?>(), cols[10].ConvertOrDefault<double?>(), cols[11].ConvertOrDefault<double?>(), null, null, UserIDX);
+                                        if (SuccID.Item1=="I")
+                                            insCount++;
+                                        else if (SuccID.Item1 == "U")
                                         {
-                                            bool SuccID = db_Ref.InsertT_QREST_REF_PAR_METHODS(null, cols[1], cols[2], cols[3], cols[4], cols[5], cols[7], cols[8], _unit.UNIT_CODE, cols[9].ConvertOrDefault<double?>(), cols[10].ConvertOrDefault<double?>(), cols[11].ConvertOrDefault<double?>(), UserIDX);
-                                            if (SuccID)
-                                                insCount++;
+                                            if (SuccID.Item2.Length == 0)
+                                                existCount++;
                                             else
-                                                errorCount++;
+                                                updateDetails.Add(cols[1] + "/" + cols[2] + " has been modified: " + SuccID.Item2);
+
                                         }
                                         else
                                             errorCount++;
                                     }
                                     else
-                                        existCount++;
+                                        errorCount++;
+
                                 }
                                 else if (importType == "STATES COUNTIES")
                                 {
@@ -754,6 +763,22 @@ namespace QREST.Controllers
                                     else
                                         existCount++;
                                 }
+                                if (importType == "QUALIFIERS" && cols[4]=="YES")
+                                {
+                                    T_QREST_REF_QUALIFIER _data = db_Ref.GetT_QREST_REF_QUALIFIER_ByID(cols[0]);
+                                    if (_data == null)
+                                    {
+                                        bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_QUALIFIER(cols[0], cols[1], cols[3], UserIDX);
+                                        if (SuccID)
+                                            insCount++;
+                                        else
+                                            errorCount++;
+                                    }
+                                    else
+                                        existCount++;
+                                }
+
+
                             }
                         }
                     }
@@ -769,7 +794,8 @@ namespace QREST.Controllers
                 ImportType = importType,
                 ExistCount = existCount,
                 ErrorCount = errorCount,
-                InsertCount = insCount
+                InsertCount = insCount,
+                UpdateDetails = updateDetails
             };
             return View(model);
         }
@@ -782,6 +808,7 @@ namespace QREST.Controllers
             return View();
         }
 
+
         [HttpPost]
         public ActionResult RefCollFreqData()
         {
@@ -789,9 +816,10 @@ namespace QREST.Controllers
             int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
             int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-            List<T_QREST_REF_COLLECT_FREQ> data = db_Ref.GetT_QREST_REF_COLLECT_FREQ_data(pageSize, start, orderCol, orderDir);
+            List<T_QREST_REF_COLLECT_FREQ> data = db_Ref.GetT_QREST_REF_COLLECT_FREQ_data(pageSize, start, orderColName, orderDir);
             var recordsTotal = db_Ref.GetT_QREST_REF_COLLECT_FREQ().Count();
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
@@ -801,6 +829,7 @@ namespace QREST.Controllers
         {
             return View();
         }
+
 
         [HttpPost]
         public ActionResult RefDurationData()
@@ -815,7 +844,6 @@ namespace QREST.Controllers
             var recordsTotal = db_Ref.GetT_QREST_REF_DURATION().Count();
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
-
 
 
         public ActionResult RefPar()
@@ -833,9 +861,10 @@ namespace QREST.Controllers
             int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
             int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-            List<T_QREST_REF_PARAMETERS> data = db_Ref.GetT_QREST_REF_PARAMETERS_data(pageSize, start, orderCol, orderDir);
+            List<T_QREST_REF_PARAMETERS> data = db_Ref.GetT_QREST_REF_PARAMETERS_data(pageSize, start, orderColName, orderDir);
             var recordsTotal = db_Ref.GetT_QREST_REF_PARAMETERS().Count();
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
@@ -871,16 +900,53 @@ namespace QREST.Controllers
                 if (SuccID == 1)
                     return Json("Success");
                 else
-                    return Json("Unable to find record to delete.");
+                    return Json("This record cannot be deleted. If this parameter has parameter methods, they may need to be deleted first.");
             }
         }
 
 
-
         public ActionResult RefParMethod()
         {
-            return View();
+            var model = new vmAdminRefParMethod();
+            return View(model);
         }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult RefParMethod(vmAdminRefParMethod model)
+        {
+            if (ModelState.IsValid && model.editPAR_METHOD_IDX != null)
+            {
+                Tuple<string, string> SuccInd = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(model.editPAR_METHOD_IDX, null, null, null, null, null, null, null, null, null, null, null, 
+                    model.editCUST_MIN_VALUE ?? -9999, model.editCUST_MAX_VALUE ?? -9999, User.Identity.GetUserId());
+
+                if (SuccInd.Item1 == "U")
+                    TempData["Success"] = "Record updated";
+                else
+                    TempData["Error"] = "Error updating record.";
+            }
+            else
+                TempData["Error"] = "Error updating record";
+
+            return RedirectToAction("RefParMethod", "Admin");
+        }
+
+
+        [HttpPost]
+        public ActionResult RefParMethodData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+
+            //data filters
+            string selSearch = Request.Form.GetValues("selSearch")?.FirstOrDefault();
+
+            List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(selSearch, null, pageSize, start);
+            var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(selSearch, null);
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
 
         public ActionResult ExportRefParMethod()
         {
@@ -914,6 +980,7 @@ namespace QREST.Controllers
             return View();
         }
 
+
         [HttpPost]
         public ActionResult RefParUnitData()
         {
@@ -921,9 +988,10 @@ namespace QREST.Controllers
             int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
             int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-            List<T_QREST_REF_PAR_UNITS> data = db_Ref.GetT_QREST_REF_PAR_UNITS_data(pageSize, start, orderCol, orderDir);
+            List<T_QREST_REF_PAR_UNITS> data = db_Ref.GetT_QREST_REF_PAR_UNITS_data(pageSize, start, orderColName, orderDir);
             var recordsTotal = db_Ref.GetT_QREST_REF_PAR_UNITS_count();
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
@@ -934,19 +1002,56 @@ namespace QREST.Controllers
             return View();
         }
 
+
         [HttpPost]
         public ActionResult RefUnitData()
         {
             var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-                int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-                int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-                int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-                string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-                List<T_QREST_REF_UNITS> data = db_Ref.GetT_QREST_REF_UNITS_data(pageSize, start, orderCol, orderDir);
-                var recordsTotal = db_Ref.GetT_QREST_REF_UNITS(null).Count();
-                return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+            List<T_QREST_REF_UNITS> data = db_Ref.GetT_QREST_REF_UNITS_data(pageSize, start, orderColName, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_REF_UNITS(null).Count();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
+
+
+        public ActionResult RefQualifier()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        public ActionResult RefQualifierData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            List<T_QREST_REF_QUALIFIER> data = db_Ref.GetT_QREST_REF_QUALIFIER_data(pageSize, start, orderColName, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_REF_QUALIFIERCount();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
+
+        //************************************* CONNECTIVITY ************************************************************
+        // GET: /Admin/Connectivity
+
+        public ActionResult Connectivity()
+        {
+            var model = new vmAdminConnectivity();
+            model.PollingConfig = db_Air.GetT_QREST_SITES_POLLING_CONFIG_CompleteList();
+            return View(model);
+        }
+
 
 
 

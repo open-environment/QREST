@@ -39,14 +39,15 @@ GO
 
 
 --TRIGGERS ***************************************************************8
-CREATE OR ALTER TRIGGER [dbo].[TRG_UPDATE_HOURLY] ON [dbo].[T_QREST_DATA_FIVE_MIN]
+CREATE OR ALTER   TRIGGER [dbo].[TRG_UPDATE_HOURLY] ON [dbo].[T_QREST_DATA_FIVE_MIN]
 AFTER INSERT, UPDATE 
 AS
 BEGIN
 	SET NOCOUNT ON;
     SET ANSI_WARNINGS OFF;
 
-	DECLARE @SumType varchar(3);
+	DECLARE @SumType varchar(4);
+	DECLARE @SumTemp float;
 	DECLARE @mon uniqueidentifier;
 	DECLARE @dttm datetime;
 	DECLARE @dttm_l datetime;
@@ -111,6 +112,35 @@ BEGIN
 			and F.MONITOR_IDX=@mon
 			and ISNUMERIC(DATA_VALUE) = 1;
 		END
+		else if (@SumType='AAVG')
+		BEGIN
+			select @sumTemp = case when x>=0 and y>=0 then 0 + atan(x/y)
+								  when x>=0 and y<0 then Pi() - atan(x/-y)
+								  when x<0 and y<0 then Pi() + atan(-x/-y)
+								  when x<0 and y>=0 then 2*PI() - atan(-x/y) end,
+				   @unit=U, 
+				   @iCount=CNT							   
+			from
+			(select avg(sin(F.DATA_VALUE * PI()/180.)) X, avg(cos(F.DATA_VALUE * PI()/180.)) Y , max(UNIT_CODE) U, count(*) CNT
+				from T_QREST_DATA_FIVE_MIN F
+				where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
+				and F.MONITOR_IDX=@mon
+				and ISNUMERIC(DATA_VALUE) = 1) Z;
+
+			set @sumVal = cast(round(@sumTemp * 180./PI(),0) as varchar);
+		END
+		else if (@SumType='ADEV')
+		BEGIN
+			select @sumVal = cast(round((asin(epsilon)*(1+0.1547*(power(epsilon,3))))*180./PI(),3) as varchar),
+				   @unit=U, 
+				   @iCount=CNT							   
+			from
+			(select sqrt(1-(square(avg(sin(F.DATA_VALUE * PI()/180.)))+square(avg(cos(F.DATA_VALUE * PI()/180.))))) epsilon , max(UNIT_CODE) U, count(*) CNT
+				from T_QREST_DATA_FIVE_MIN F
+				where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
+				and F.MONITOR_IDX=@mon
+				and ISNUMERIC(DATA_VALUE) = 1) Z;
+		END
 
 		if (@iCount<9)
 			set @sumVal = 'FEW';
@@ -122,9 +152,9 @@ BEGIN
 		USING (SELECT @mon MONITOR_IDX, @dttm DATA_DTTM_UTC, @sumVal DATA_VALUE) AS mySource
 		ON mySource.MONITOR_IDX = myTarget.MONITOR_IDX and mySource.DATA_DTTM_UTC = myTarget.DATA_DTTM_UTC
 		WHEN MATCHED THEN 
-			UPDATE SET DATA_VALUE = mySource.DATA_VALUE
+			UPDATE SET DATA_VALUE = mySource.DATA_VALUE, VAL_IND=0
 		WHEN NOT MATCHED THEN 
-			INSERT (DATA_HOURLY_IDX, MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE) VALUES (newid(), @mon, @dttm, @dttm_l, @sumVal, @unit);
+			INSERT (DATA_HOURLY_IDX, MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND) VALUES (newid(), @mon, @dttm, @dttm_l, @sumVal, @unit, 0);
 
 		FETCH NEXT FROM ins_cursor INTO @mon, @dttm
 	END
@@ -133,6 +163,3 @@ BEGIN
 	DEALLOCATE ins_cursor
 
 END
-
-
-GO

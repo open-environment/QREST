@@ -247,7 +247,6 @@
     <Content Include="Content\Site.css" />
     <EmbeddedResource Include="LocalResource\PasswordCommon.txt" />
     <Content Include="Scripts\app.js" />
-    <Content Include="Scripts\bootstrap-filestyle.min.js" />
     <Content Include="fonts\fontawesome-webfont.eot">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -287,8 +286,10 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
+    <None Include="Properties\PublishProfiles\qrest - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\qrest-test - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
+    <Content Include="Scripts\bootstrap-filestyle.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\canvasjs.min.js" />
@@ -548,6 +549,12 @@
     <Content Include="Views\Admin\RefParUnit.cshtml" />
     <Content Include="Views\Data\ManualImport.cshtml" />
     <Content Include="Views\Home\Test.cshtml" />
+    <Content Include="Views\Admin\Connectivity.cshtml" />
+    <Content Include="Views\Data\DataReview.cshtml" />
+    <Content Include="Views\Admin\RefQualifier.cshtml" />
+    <Content Include="Views\Site\SitePollPing.cshtml" />
+    <Content Include="Views\Home\ReportMonthly.cshtml" />
+    <Content Include="Views\Home\ReportAnnual.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

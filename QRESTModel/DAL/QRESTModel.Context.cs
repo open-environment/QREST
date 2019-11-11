@@ -12,6 +12,8 @@ namespace QRESTModel.DAL
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class QRESTEntities : DbContext
     {
@@ -62,5 +64,53 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_DATA_FIVE_MIN> T_QREST_DATA_FIVE_MIN { get; set; }
         public virtual DbSet<T_QREST_REF_TIMEZONE> T_QREST_REF_TIMEZONE { get; set; }
         public virtual DbSet<T_QREST_DATA_HOURLY> T_QREST_DATA_HOURLY { get; set; }
+        public virtual DbSet<T_QREST_REF_QUALIFIER> T_QREST_REF_QUALIFIER { get; set; }
+    
+        public virtual int SP_CALC_HOURLY()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_CALC_HOURLY");
+        }
+    
+        public virtual ObjectResult<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)
+        {
+            var monidParameter = monid.HasValue ?
+                new ObjectParameter("monid", monid) :
+                new ObjectParameter("monid", typeof(System.Guid));
+    
+            var mnParameter = mn.HasValue ?
+                new ObjectParameter("mn", mn) :
+                new ObjectParameter("mn", typeof(int));
+    
+            var yrParameter = yr.HasValue ?
+                new ObjectParameter("yr", yr) :
+                new ObjectParameter("yr", typeof(int));
+    
+            var timetypeParameter = timetype != null ?
+                new ObjectParameter("timetype", timetype) :
+                new ObjectParameter("timetype", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_RPT_MONTHLY_Result>("SP_RPT_MONTHLY", monidParameter, mnParameter, yrParameter, timetypeParameter);
+        }
+    
+        public virtual ObjectResult<SP_RPT_MONTHLY_SUMS_Result> SP_RPT_MONTHLY_SUMS(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)
+        {
+            var monidParameter = monid.HasValue ?
+                new ObjectParameter("monid", monid) :
+                new ObjectParameter("monid", typeof(System.Guid));
+    
+            var mnParameter = mn.HasValue ?
+                new ObjectParameter("mn", mn) :
+                new ObjectParameter("mn", typeof(int));
+    
+            var yrParameter = yr.HasValue ?
+                new ObjectParameter("yr", yr) :
+                new ObjectParameter("yr", typeof(int));
+    
+            var timetypeParameter = timetype != null ?
+                new ObjectParameter("timetype", timetype) :
+                new ObjectParameter("timetype", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_RPT_MONTHLY_SUMS_Result>("SP_RPT_MONTHLY_SUMS", monidParameter, mnParameter, yrParameter, timetypeParameter);
+        }
     }
 }

@@ -2,12 +2,47 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using QRESTModel.BLL;
 
 namespace QRESTModel.DAL
 {
+    public class SitePollingConfigType {
+        public Guid SITE_IDX { get; set; }
+        public string SITE_ID { get; set; }
+        public string ORG_ID { get; set; }
+        public string POLLING_FREQ_TYPE { get; set; }
+        public int? POLLING_FREQ_NUM { get; set; }
+        public Guid POLL_CONFIG_IDX { get; set; }
+        public string LOGGER_TYPE { get; set; }
+        public string RAW_DURATION_CODE { get; set; }
+        public string LOGGER_SOURCE { get; set; }
+        public int? LOGGER_PORT { get; set; }
+        public string LOGGER_PASSWORD { get; set; }
+        public string DELIMITER { get; set; }
+        public int? DATE_COL { get; set; }
+        public string DATE_FORMAT { get; set; }
+        public int? TIME_COL { get; set; }
+        public string TIME_FORMAT { get; set; }
+        public DateTime? POLLING_LAST_RUN_DT { get; set; }
+        public DateTime? POLLING_NEXT_RUN_DT { get; set; }
+        public List<SitePollingConfigDetailType> PollingConfigDetails { get; set; }
+    }
+
+    public class SitePollingConfigDetailType
+    {
+        public Guid POLL_CONFIG_DTL_IDX { get; set; }
+        public Guid POLL_CONFIG_IDX { get; set; }
+        public Guid MONITOR_IDX { get; set; }
+        public string PAR_CODE { get; set; }
+        public int? COL { get; set; }
+        public string COLLECT_UNIT_CODE { get; set; }
+        public double? ALERT_MIN_VALUE { get; set; }
+        public double? ALERT_MAX_VALUE { get; set; }
+        public string ALERT_MIN_TYPE { get; set; }
+        public string ALERT_MAX_TYPE { get; set; }
+    }
+
+
     public class SiteMonitorDisplayType
     {
         public T_QREST_MONITORS T_QREST_MONITORS { get; set; }
@@ -68,6 +103,8 @@ namespace QRESTModel.DAL
         public string COLLECTION_DESC { get; set; }
         public DateTime? DATA_DTTM { get; set; }
         public string DATA_VALUE { get; set; }
+        public bool? VAL_IND { get; set; }
+        public string VAL_CD { get; set; }
     }
 
     public class db_Air
@@ -137,6 +174,26 @@ namespace QRESTModel.DAL
         /// </summary>
         /// <param name="OrgID"></param>
         /// <returns></returns>
+        public static List<T_QREST_SITES> GetT_QREST_SITES_All()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
+                               orderby a.ORG_ID, a.SITE_ID
+                               select a).ToList();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static List<T_QREST_SITES> GetT_QREST_SITES_ByOrgID(string OrgID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -203,13 +260,11 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
-                               where a.POLLING_ONLINE_IND == true 
-                               && (a.POLLING_NEXT_RUN_DT < System.DateTime.Now || a.POLLING_NEXT_RUN_DT == null)
-                               orderby a.SITE_ID
-                               select a).ToList();
-
-                    return xxx;
+                    return (from a in ctx.T_QREST_SITES.AsNoTracking()
+                            where a.POLLING_ONLINE_IND == true 
+                            && (a.POLLING_NEXT_RUN_DT < System.DateTime.Now || a.POLLING_NEXT_RUN_DT == null)
+                            orderby a.SITE_ID
+                            select a).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -312,6 +367,7 @@ namespace QRESTModel.DAL
                     logEF.LogEFException(ex);
                     return 0;
                 }
+
             }
         }
 
@@ -448,7 +504,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_SITE_POLL_CONFIG> GetT_QREST_SITE_POLL_CONFIG_BySite(Guid SiteIDX)
+        public static List<T_QREST_SITE_POLL_CONFIG> GetT_QREST_SITE_POLL_CONFIG_BySite(Guid SiteIDX, bool OnlyActInd)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -456,7 +512,117 @@ namespace QRESTModel.DAL
                 {
                     return (from a in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking()
                                where a.SITE_IDX == SiteIDX
+                               && (OnlyActInd == true ? a.ACT_IND == true : true)
                                select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<SitePollingConfigType> GetT_QREST_SITES_POLLING_CONFIG_ReadyToPoll()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
+                               join b in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
+                               where a.POLLING_ONLINE_IND == true
+                               && b.ACT_IND == true
+                               && b.DATE_COL != null
+                               && b.TIME_COL != null
+                               && b.DELIMITER != ""
+                               && (a.POLLING_NEXT_RUN_DT < System.DateTime.Now || a.POLLING_NEXT_RUN_DT == null)
+                               orderby a.SITE_ID
+                               select new SitePollingConfigType
+                               {
+                                   SITE_IDX = a.SITE_IDX,
+                                   SITE_ID = a.SITE_ID,
+                                   ORG_ID = a.ORG_ID,
+                                   POLLING_FREQ_TYPE = a.POLLING_FREQ_TYPE,
+                                   POLLING_FREQ_NUM = a.POLLING_FREQ_NUM,
+                                   POLL_CONFIG_IDX = b.POLL_CONFIG_IDX,
+                                   LOGGER_TYPE = b.LOGGER_TYPE,
+                                   RAW_DURATION_CODE = b.RAW_DURATION_CODE,
+                                   LOGGER_SOURCE = b.LOGGER_SOURCE,
+                                   LOGGER_PORT = b.LOGGER_PORT,
+                                   LOGGER_PASSWORD = b.LOGGER_PASSWORD,
+                                   DELIMITER = b.DELIMITER,
+                                   DATE_COL = b.DATE_COL,
+                                   DATE_FORMAT = b.DATE_FORMAT,
+                                   TIME_COL = b.TIME_COL,
+                                   TIME_FORMAT = b.TIME_FORMAT
+                               }).ToList();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<SitePollingConfigType> GetT_QREST_SITES_POLLING_CONFIG_CompleteList()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITES
+                               join b in ctx.T_QREST_SITE_POLL_CONFIG on a.SITE_IDX equals b.SITE_IDX
+                               where a.POLLING_ONLINE_IND == true
+                               && b.ACT_IND == true
+                               && b.DATE_COL != null
+                               && b.TIME_COL != null
+                               && b.DELIMITER != ""
+                               orderby a.ORG_ID, a.SITE_ID
+                               select new SitePollingConfigType
+                               {
+                                   SITE_IDX = a.SITE_IDX,
+                                   SITE_ID = a.SITE_ID,
+                                   ORG_ID = a.ORG_ID,
+                                   POLLING_FREQ_TYPE = a.POLLING_FREQ_TYPE,
+                                   POLLING_FREQ_NUM = a.POLLING_FREQ_NUM,
+                                   POLL_CONFIG_IDX = b.POLL_CONFIG_IDX,
+                                   LOGGER_TYPE = b.LOGGER_TYPE,
+                                   RAW_DURATION_CODE = b.RAW_DURATION_CODE,
+                                   LOGGER_SOURCE = b.LOGGER_SOURCE,
+                                   LOGGER_PORT = b.LOGGER_PORT,
+                                   LOGGER_PASSWORD = b.LOGGER_PASSWORD,
+                                   DELIMITER = b.DELIMITER,
+                                   DATE_COL = b.DATE_COL,
+                                   DATE_FORMAT = b.DATE_FORMAT,
+                                   TIME_COL = b.TIME_COL,
+                                   TIME_FORMAT = b.TIME_FORMAT,
+                                   POLLING_LAST_RUN_DT = a.POLLING_LAST_RUN_DT,
+                                   POLLING_NEXT_RUN_DT = a.POLLING_NEXT_RUN_DT,
+                                   PollingConfigDetails = (from a1 in ctx.T_QREST_SITE_POLL_CONFIG_DTL
+                                                           join b1 in ctx.T_QREST_MONITORS on a1.MONITOR_IDX equals b1.MONITOR_IDX
+                                                           join c1 in ctx.T_QREST_REF_PAR_METHODS on b1.PAR_METHOD_IDX equals c1.PAR_METHOD_IDX
+                                                           where a1.POLL_CONFIG_IDX == b.POLL_CONFIG_IDX
+                                                           orderby a1.COL
+                                                           select new SitePollingConfigDetailType
+                                                           {
+                                                               POLL_CONFIG_DTL_IDX = a1.POLL_CONFIG_DTL_IDX,
+                                                               POLL_CONFIG_IDX = a1.POLL_CONFIG_IDX,
+                                                               PAR_CODE = c1.PAR_CODE,
+                                                               MONITOR_IDX = a1.MONITOR_IDX,
+                                                               COL = a1.COL,
+                                                               COLLECT_UNIT_CODE = b1.COLLECT_UNIT_CODE,
+                                                               ALERT_MIN_TYPE = b1.ALERT_MIN_TYPE,
+                                                               ALERT_MIN_VALUE = b1.ALERT_MIN_VALUE,
+                                                               ALERT_MAX_TYPE = b1.ALERT_MAX_TYPE,
+                                                               ALERT_MAX_VALUE = b1.ALERT_MAX_VALUE
+                                                           }).ToList()
+                               }).ToList();
+
+                    return xxx;
                 }
                 catch (Exception ex)
                 {
@@ -488,7 +654,7 @@ namespace QRESTModel.DAL
 
         public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG(Guid? pOLL_CONFIG_IDX, Guid? sITE_IDX, string rAW_DURATION_CODE, string lOGGER_TYPE, string lOGGER_SOURCE,
             int? lOGGER_PORT, string lOGGER_USERNAME, string lOGGER_PASSWORD, string dELIMITER, int? dATE_COL, string dATE_FORMAT, int? tIME_COL, string tIME_FORMAT, string lOCAL_TIMEZONE,
-            bool aCT_IND, string cREATE_USER)
+            bool aCT_IND, string cREATE_USER, string sITE_NAME)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -512,6 +678,8 @@ namespace QRESTModel.DAL
                     {
                         e.MODIFY_USER_IDX = cREATE_USER;
                         e.MODIFY_DT = System.DateTime.Now;
+
+                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", cREATE_USER, null, "Changed polling config for " + sITE_NAME, null);
                     }
 
                     if (sITE_IDX != null) e.SITE_IDX = sITE_IDX.ConvertOrDefault<Guid>();
@@ -547,6 +715,28 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static Guid? UpdatetT_QREST_SITE_POLL_CONFIG_SetInactive(Guid? pOLL_CONFIG_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_SITE_POLL_CONFIG e = (from c in ctx.T_QREST_SITE_POLL_CONFIG
+                                                  where c.POLL_CONFIG_IDX == pOLL_CONFIG_IDX
+                                                  select c).FirstOrDefault();
+
+                    e.ACT_IND = false;
+                    ctx.SaveChanges();
+                    return e.POLL_CONFIG_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static int DeleteT_QREST_SITE_POLL_CONFIG(Guid id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -570,15 +760,26 @@ namespace QRESTModel.DAL
 
 
         //*****************SITE POLL CONFIG_DTL**********************************
-        public static List<T_QREST_SITE_POLL_CONFIG_DTL> GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(Guid PollConfigIDX)
+        public static List<SitePollingConfigDetailType> GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(Guid PollConfigIDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_SITE_POLL_CONFIG_DTL.AsNoTracking()
+                            join b in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals b.MONITOR_IDX
                             where a.POLL_CONFIG_IDX == PollConfigIDX
-                            select a).ToList();
+                            select new SitePollingConfigDetailType { 
+                                POLL_CONFIG_DTL_IDX = a.POLL_CONFIG_DTL_IDX,
+                                POLL_CONFIG_IDX = a.POLL_CONFIG_IDX,
+                                MONITOR_IDX = a.MONITOR_IDX,
+                                COL = a.COL,
+                                COLLECT_UNIT_CODE = b.COLLECT_UNIT_CODE,
+                                ALERT_MIN_TYPE = b.ALERT_MIN_TYPE,
+                                ALERT_MIN_VALUE = b.ALERT_MIN_VALUE,
+                                ALERT_MAX_TYPE = b.ALERT_MAX_TYPE,
+                                ALERT_MAX_VALUE = b.ALERT_MAX_VALUE
+                            }).ToList();
 
                 }
                 catch (Exception ex)
@@ -638,6 +839,7 @@ namespace QRESTModel.DAL
                     if (e == null)
                         e = (from c in ctx.T_QREST_SITE_POLL_CONFIG_DTL
                              where c.POLL_CONFIG_IDX == pOLL_CONFIG_IDX
+                             && c.MONITOR_IDX == mONITOR_IDX
                              && c.COL == cOL
                              select c).FirstOrDefault();
 
@@ -1083,7 +1285,7 @@ namespace QRESTModel.DAL
 
 
         //*****************FIVE MIN**********************************
-        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE)
+        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1104,6 +1306,9 @@ namespace QRESTModel.DAL
                         e.MONITOR_IDX = mONITOR_IDX;
                         e.DATA_DTTM = dATA_DTTM;
                         e.DATA_VALUE = dATA_VALUE;
+                        e.UNIT_CODE = uNIT_CODE;
+                        e.VAL_IND = vAL_IND ?? false;
+                        e.VAL_CD = vAL_CD;
                         e.MODIFY_DT = System.DateTime.Now;
                         ctx.T_QREST_DATA_FIVE_MIN.Add(e);
                         ctx.SaveChanges();
@@ -1111,6 +1316,8 @@ namespace QRESTModel.DAL
                     else if (e.DATA_VALUE != dATA_VALUE)
                     {
                         e.DATA_VALUE = dATA_VALUE;
+                        if (vAL_IND != null) e.VAL_IND = vAL_IND;
+                        if (vAL_CD != null) e.VAL_CD = vAL_CD;
                         e.MODIFY_DT = System.DateTime.Now;
                         ctx.SaveChanges();
                     }
@@ -1125,7 +1332,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool InsertT_QREST_DATA_FIVE_MIN_fromLine(string line, T_QREST_SITE_POLL_CONFIG config, List<T_QREST_SITE_POLL_CONFIG_DTL> config_dtl)
+        public static bool InsertT_QREST_DATA_FIVE_MIN_fromLine(string line, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl)
         {
             try
             {
@@ -1139,10 +1346,18 @@ namespace QRESTModel.DAL
                     string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].ToString();
                     DateTime dt = DateTime.ParseExact(sDate + " " + sTime, config.DATE_FORMAT + " " + config.TIME_FORMAT, CultureInfo.InvariantCulture);
 
-                    foreach (T_QREST_SITE_POLL_CONFIG_DTL _map in config_dtl) {
+                    foreach (SitePollingConfigDetailType _map in config_dtl) {
                         if (_map.COL != null)
                         {
-                            db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0]);
+                            //apply N-minute alerts if available
+                            string valCd = "";
+                            Double? val = cols[_map.COL - 1 ?? 0].ToString().ConvertOrDefault<Double?>();
+                            if (val != null && _map.ALERT_MAX_TYPE == "N" && val > _map.ALERT_MAX_VALUE)
+                                valCd = "MAX";
+                            if (val != null && _map.ALERT_MIN_TYPE == "N" && val > _map.ALERT_MIN_VALUE)
+                                valCd = "MIN";
+
+                            db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd);
                         }
                     }
                 }
@@ -1150,7 +1365,7 @@ namespace QRESTModel.DAL
             }
             catch (Exception ex)
             {
-                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", ex.Message ?? ex.InnerException?.ToString());
+                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", "Site " + config.SITE_ID + " " + ex.Message ?? ex.InnerException?.ToString());
                 return false;
             }
 
@@ -1187,7 +1402,9 @@ namespace QRESTModel.DAL
                                 DATA_VALUE = a.DATA_VALUE,
                                 PAR_CODE = p.PAR_CODE,
                                 PAR_NAME = p.PAR_NAME,
-                                POC = m.POC
+                                POC = m.POC,
+                                VAL_IND = a.VAL_IND,
+                                VAL_CD = a.VAL_CD
                             }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
@@ -1255,7 +1472,9 @@ namespace QRESTModel.DAL
                                 DATA_VALUE = a.DATA_VALUE,
                                 PAR_CODE = p.PAR_CODE,
                                 PAR_NAME = p.PAR_NAME,
-                                POC = m.POC
+                                POC = m.POC,
+                                VAL_IND = a.VAL_IND,
+                                VAL_CD = a.VAL_CD
                             }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
@@ -1291,5 +1510,59 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
+        public static int SP_VALIDATE_HOURLY()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_CALC_HOURLY();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+
+        }
+
+
+        public static List<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Guid monIDX, int mnth, int yr, string time)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_RPT_MONTHLY(monIDX, mnth, yr, time).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+
+        }
+
+        public static List<SP_RPT_MONTHLY_SUMS_Result> SP_RPT_MONTHLY_SUMS(Guid monIDX, int mnth, int yr, string time)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_RPT_MONTHLY_SUMS(monIDX, mnth, yr, time).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+
+        }
+
     }
 }

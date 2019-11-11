@@ -170,6 +170,7 @@ namespace QREST.Models
         public bool editACT_IND { get; set; }
 
         //EDIT COLUMN MAPPING
+        public Guid? editPOLL_CONFIG_DTL_IDX { get; set; }
         public int editCOL { get; set; }
         public Guid? editMONITOR_IDX { get; set; }
         public string editSUM_TYPE { get; set; }
@@ -197,6 +198,13 @@ namespace QREST.Models
             ddl_TimeZone = ddlHelpers.get_ddl_time_zone();
             ddl_Rounding = ddlHelpers.get_ddl_rounding_decimals();
         }
+    }
+
+
+    public class vmSitePing
+    {
+        public Guid? POLL_CONFIG_IDX { get; set; }
+        public List<Tuple<bool, string>> pingResults { get; set; }
     }
 
     public class vmSiteMonitorList

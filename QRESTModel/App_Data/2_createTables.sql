@@ -46,6 +46,24 @@ drop table IF EXISTS [T_QREST_ROLES];
 USE [QREST];
 GO
 
+/******************************************************************************************/
+/*******************  SEEDING SYS TABLES ***********************************************/
+/******************************************************************************************/
+CREATE TABLE T_SYS_HR (
+	HR datetime2(0) NOT NULL,
+	CONSTRAINT [PK_T_SYS_HR] PRIMARY KEY (HR)
+);
+GO
+
+DECLARE @MinDate DATETIME2(0) = '01/01/2019', 
+	    @MaxDate DATETIME2(0) = '12/31/2030 23:00';
+
+insert into T_SYS_HR(HR)
+SELECT TOP (DATEDIFF(HOUR, @MinDate, @MaxDate) + 1)
+    Date = DATEADD(HOUR, ROW_NUMBER() OVER(ORDER BY a.object_id) - 1, @MinDate)
+FROM sys.all_objects a
+CROSS JOIN sys.all_objects b;
+
 
 /******************************************************************************************/
 /*******************  IDENTITY TABLES ***********************************************/
@@ -370,6 +388,8 @@ CREATE TABLE [T_QREST_REF_PAR_METHODS] (
 	[FED_MDL] float,
 	[MIN_VALUE] float,
 	[MAX_VALUE] float,
+	[CUST_MIN_VALUE] float,
+	[CUST_MAX_VALUE] float,
 	[ACT_IND] [bit] NOT NULL DEFAULT 1,
 	[CREATE_USER_IDX] nvarchar(128),
 	[CREATE_DT] datetime2(0),
@@ -392,6 +412,18 @@ CREATE TABLE [T_QREST_REF_ASSESS_TYPE] (
 GO
 
 
+CREATE TABLE [T_QREST_REF_QUALIFIER] (
+	[QUAL_CODE] varchar(2) NOT NULL,
+	[QUAL_DESC] varchar(150),
+	[QUAL_TYPE] varchar(10) NOT NULL,
+	[CREATE_USER_IDX] nvarchar(128),
+	[CREATE_DT] datetime2(0),
+	[MODIFY_USER_IDX] nvarchar(128),
+	[MODIFY_DT] datetime2(0),
+    CONSTRAINT [PK_T_QREST_REF_QUALIFIER] PRIMARY KEY ([QUAL_CODE])
+);
+
+GO
 
 /******************************************************************************************/
 /*******************    ORGANIZATION TABLES ***********************************************/
@@ -636,10 +668,16 @@ CREATE TABLE [T_QREST_DATA_FIVE_MIN] (
 	[DATA_VALUE] [varchar](20),
 	[UNIT_CODE] varchar(3),
 	[VAL_IND] bit,
-	[VAL_CD] [varchar](2),
+	[VAL_CD] [varchar](5),
 	[MODIFY_DT] [datetime2](0),
     CONSTRAINT [PK_T_QREST_DATA_FIVE_MIN] PRIMARY KEY ([DATA_FIVE_IDX])
 );
+
+GO
+
+CREATE NONCLUSTERED INDEX [nci_wi_T_QREST_DATA_FIVE_MIN_CE0E42157991124453CC9943039DB00F] ON [dbo].[T_QREST_DATA_FIVE_MIN] ([MONITOR_IDX]) INCLUDE ([DATA_DTTM], [DATA_VALUE], [UNIT_CODE]);
+
+
 
 CREATE TABLE [dbo].[T_QREST_DATA_HOURLY](
 	[DATA_HOURLY_IDX] [uniqueidentifier] NOT NULL,
@@ -649,8 +687,11 @@ CREATE TABLE [dbo].[T_QREST_DATA_HOURLY](
 	[DATA_VALUE] [varchar](20) NULL,
 	[UNIT_CODE] [varchar](3) NULL,
 	[VAL_IND] [bit] NULL,
-	[VAL_CD] [varchar](2) NULL,
+	[VAL_CD] [varchar](5) NULL,
+	[VAL0_NOTIFY_IND] [bit] NOT NULL DEFAULT 0,
 	[MODIFY_DT] [datetime2](0) NULL,
  CONSTRAINT [PK_T_QREST_DATA_HOURLY] PRIMARY KEY CLUSTERED ([DATA_HOURLY_IDX] ASC)
 ) ON [PRIMARY]
 GO
+
+--ALTER TABLE [T_QREST_DATA_HOURLY] ADD [VAL0_NOTIFY_IND] bit NOT NULL DEFAULT 0;

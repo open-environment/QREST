@@ -19,6 +19,12 @@ namespace QREST.Controllers
             return View();
         }
 
+        public ActionResult ManualImport()
+        {
+            return View();
+        }
+
+
         public ActionResult QCList(Guid? id, string selOrgID, Guid? selSiteID)
         {
             //id is monitorIDX
@@ -47,7 +53,7 @@ namespace QREST.Controllers
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-            //date filters
+            //data filters
             string selOrgID = Request.Form.GetValues("p_org")?.FirstOrDefault();
             Guid? selSiteID = Request.Form.GetValues("p_site")?.FirstOrDefault().ConvertOrDefault<Guid?>();
             Guid? selMonID = Request.Form.GetValues("p_mon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
@@ -201,10 +207,21 @@ namespace QREST.Controllers
 
         }
 
-        public ActionResult ManualImport() {
-            return View();
-        }
 
+        public ActionResult DataReview()
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            var model = new vmDataRaw
+            {
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true)
+            };
+
+            string xxx = model.ddl_Organization.First().Value;
+            model.ddl_Monitor = ddlHelpers.get_ddl_my_monitors(xxx, UserIDX);
+
+            return View(model);
+        }
 
         [HttpGet]
         public JsonResult FetchMonitors(string ID)

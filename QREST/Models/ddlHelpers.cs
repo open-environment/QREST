@@ -130,6 +130,24 @@ namespace QREST.Models
             });
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_months()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "1", Text = "January" });
+            _list.Add(new SelectListItem() { Value = "2", Text = "February" });
+            _list.Add(new SelectListItem() { Value = "3", Text = "March" });
+            _list.Add(new SelectListItem() { Value = "4", Text = "April" });
+            _list.Add(new SelectListItem() { Value = "5", Text = "May" });
+            _list.Add(new SelectListItem() { Value = "6", Text = "June" });
+            _list.Add(new SelectListItem() { Value = "7", Text = "July" });
+            _list.Add(new SelectListItem() { Value = "8", Text = "August" });
+            _list.Add(new SelectListItem() { Value = "9", Text = "September" });
+            _list.Add(new SelectListItem() { Value = "10", Text = "October" });
+            _list.Add(new SelectListItem() { Value = "11", Text = "November" });
+            _list.Add(new SelectListItem() { Value = "12", Text = "December" });
+            return _list;
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_ref_assess_type()
         {
             return db_Ref.GetT_QREST_REF_ASSESS_TYPE().Select(x => new SelectListItem
@@ -180,6 +198,14 @@ namespace QREST.Models
             return _list;
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_sites_all()
+        {
+            return db_Air.GetT_QREST_SITES_All().Select(x => new SelectListItem
+            {
+                Value = x.SITE_IDX.ToString(),
+                Text = x.ORG_ID + ": " + x.SITE_NAME
+            });
+        }
 
         public static IEnumerable<SelectListItem> get_ddl_time_zone()
         {
@@ -190,13 +216,24 @@ namespace QREST.Models
             });
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_time_type()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "L", Text = "Local Time" });
+            _list.Add(new SelectListItem() { Value = "U", Text = "UTC Time" });
+            return _list;
+        }
+
+
         public static IEnumerable<SelectListItem> get_ddl_sum_type()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "AVG", Text = "Average" });
             _list.Add(new SelectListItem() { Value = "MAX", Text = "Maximum" });
             _list.Add(new SelectListItem() { Value = "MIN", Text = "Minimum" });
+            _list.Add(new SelectListItem() { Value = "AAVG", Text = "Angular Average" });
             _list.Add(new SelectListItem() { Value = "DEV", Text = "Standard Deviation" });
+            _list.Add(new SelectListItem() { Value = "ADEV", Text = "Angular StdDev (Yamartino)" });
             return _list;
         }
 
@@ -226,7 +263,16 @@ namespace QREST.Models
                 Text = x.FNAME + " " + x.LNAME
             });
         }
-        
+
+        public static IEnumerable<SelectListItem> get_ddl_years()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            for (int i = 2019; i <= System.DateTime.Now.Year; i++)
+                _list.Add(new SelectListItem() { Value = i.ToString(), Text = i.ToString() });
+                
+            return _list;
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_NMIN_HOURLY()
         {
             List<SelectListItem> _list = new List<SelectListItem>();

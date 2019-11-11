@@ -18,50 +18,44 @@ namespace QREST_TaskConsole
             {
                 WriteToFile("Logger Polling process started.");
 
-                List<T_QREST_SITES> _sites = db_Air.GetT_QREST_SITES_ReadyToPoll();
-                if (_sites != null)
+                List<SitePollingConfigType> _sites = db_Air.GetT_QREST_SITES_POLLING_CONFIG_ReadyToPoll();
+                if (_sites != null && _sites.Count>0)
                 {
-                    foreach (T_QREST_SITES _site in _sites)
+                    foreach (SitePollingConfigType _site in _sites)
                     {
                         string fileSite = _site.ORG_ID.Substring(0,2) + "_" + _site.SITE_IDX.ToString().Substring(0, 8);
                         
-                        //get the polling config
-                        T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(_site.SITE_IDX);
-                        if (_config != null)
+                        List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_site.POLL_CONFIG_IDX);
+                        if (_config_dtl != null && _config_dtl.Count > 0)
                         {
-                            List<T_QREST_SITE_POLL_CONFIG_DTL> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX);
-                            if (_config_dtl != null && _config_dtl.Count > 0)
+                            WriteToFile("Starting poll for org:" + _site.ORG_ID + " site: " + _site.SITE_ID);
+
+                            //****************** ZENO DATA LOGGER *********************************************************
+                            //****************** ZENO DATA LOGGER *********************************************************
+                            //****************** ZENO DATA LOGGER *********************************************************
+                            if (_site.LOGGER_TYPE == "ZENO")
                             {
-                                WriteToFile("Starting poll for org:" + _site.ORG_ID + " site: " + _site.SITE_ID);
-
-                                //****************** ZENO DATA LOGGER *********************************************************
-                                //****************** ZENO DATA LOGGER *********************************************************
-                                //****************** ZENO DATA LOGGER *********************************************************
-                                if (_config.LOGGER_TYPE == "ZENO")
-                                {
-                                    bool SuccInd = ConnectZeno(fileSite, _config.LOGGER_SOURCE, _config.LOGGER_PORT ?? 23, _config.LOGGER_PASSWORD);
-                                    if (SuccInd)
-                                        ParseFile(fileSite, _config, _config_dtl, _site.POLLING_FREQ_TYPE, _site.POLLING_FREQ_NUM, _site.SITE_IDX);
-                                }
-
-                                //****************** SUTRON DATA LOGGER *********************************************************
-                                //****************** SUTRON DATA LOGGER *********************************************************
-                                //****************** SUTRON DATA LOGGER *********************************************************
-
-
-                                WriteToFile("Ending poll for org:" + _site.ORG_ID + " site: " + _site.SITE_ID);
+                                bool SuccInd = ConnectZeno(fileSite, _site.LOGGER_SOURCE, _site.LOGGER_PORT ?? 23, _site.LOGGER_PASSWORD);
+                                if (SuccInd)
+                                    ParseFile(fileSite, _site, _config_dtl, _site.POLLING_FREQ_TYPE, _site.POLLING_FREQ_NUM, _site.SITE_IDX);
                             }
-                            else
-                                WriteToFile("No column mappings found for polling configuration");
+
+                            //****************** SUTRON DATA LOGGER *********************************************************
+                            //****************** SUTRON DATA LOGGER *********************************************************
+                            //****************** SUTRON DATA LOGGER *********************************************************
+                            if (_site.LOGGER_TYPE == "SUTRON")
+                            {
+                                    
+                            }
+
+                            WriteToFile("Ending poll for org:" + _site.ORG_ID + " site: " + _site.SITE_ID);
                         }
                         else
-                            WriteToFile("No active config found for site");
+                            WriteToFile("No column mappings found for polling configuration");
                     }
                 }
                 else
                     WriteToFile("No sites ready for polling.");
-
-
 
                 WriteToFile("Logger Polling process ended.");
 
@@ -107,9 +101,9 @@ namespace QREST_TaskConsole
                     hascript.haWait(3000);
                     hascript.haTypeText(0, "XL20\r\n");
                     hascript.haSetXferProtocol(2, 5);
-                    hascript.haWait(3000);
+                    hascript.haWait(7000);
                     hascript.haXferReceive("data_" + siteID + ".txt");
-                    hascript.haWait(3000);
+                    hascript.haWait(7000);
                     hascript.haTypeText(0, "Q\r\n");
                     hascript.haWait(3000);
                     hascript.haDisconnectSession();
@@ -137,7 +131,7 @@ namespace QREST_TaskConsole
         }
 
 
-        public static bool ParseFile(string siteID, T_QREST_SITE_POLL_CONFIG config, List<T_QREST_SITE_POLL_CONFIG_DTL> config_dtl, string pollFreqType, int? pollFreqNum, Guid siteIDX)
+        public static bool ParseFile(string siteID, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl, string pollFreqType, int? pollFreqNum, Guid siteIDX)
         {
             try
             {
@@ -147,7 +141,14 @@ namespace QREST_TaskConsole
                     while ((line = sr.ReadLine()) != null)
                     {
                         if (line.Length > 0)
-                            db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, config_dtl);
+                        {
+                            //FIVE MINUTE RAW DATA
+                            if (config.RAW_DURATION_CODE == "H")
+                                db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, config_dtl);
+                            //ONE MINUTE RAW DATA
+                            //if (config.RAW_DURATION_CODE == "G")
+                            //    db_Air.InsertT_QREST_DATA_ONE_MIN_fromLine(line, config, config_dtl);
+                        }
                     }
                 }
 
@@ -332,11 +333,6 @@ namespace QREST_TaskConsole
         //stream.Close();
         //client.Close();
 
-
-
-
-
-
         //}
 
 
@@ -408,15 +404,12 @@ namespace QREST_TaskConsole
 //IPAddress ipAddress = ipHostInfo.AddressList[0];
 //IPEndPoint remoteEP = new IPEndPoint(ipAddress, 14109);
 
-
 //// Create a TCP/IP  socket.  
 //Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 //// Connect the socket to the remote endpoint. Catch any errors.  
 //try
 //{
 //    sender.Connect(remoteEP);
-
-//    Console.WriteLine("Socket connected to {0}", sender.RemoteEndPoint.ToString());
 
 //    // Encode the data string into a byte array.  
 //    byte[] msg = Encoding.ASCII.GetBytes("u\r\n");

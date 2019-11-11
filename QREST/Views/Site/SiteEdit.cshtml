@@ -198,16 +198,16 @@
                 <div class="row">
                     <div class="col-md-6">
                         <section class="panel panel-qrest">
-                            <header class="panel-heading font-bold">Automatic Data Retrieval</header>
+                            <header class="panel-heading font-bold">Data Synchronization</header>
                             <div class="panel-body">
                                 <div class="row">
                                     <div id="telemetrySource" class="col-md-12">
                                         <div class="form-group ">
-                                            @Html.CheckBoxFor(model => model.POLLING_ONLINE_IND, new { @class = "checkbox-inline checkbox-lg", @data_toggle = "collapse", @data_target = "#pollCollapse" })
+                                            @Html.CheckBoxFor(model => model.POLLING_ONLINE_IND, new { @class = "checkbox-inline checkbox-lg" })
                                             <label class="label-lg font-bold">Enable Automatic Data Retrieval</label>
                                             @Html.ValidationMessageFor(model => model.POLLING_ONLINE_IND)
-                                            <div id="pollCollapse" class="col-md-9 collapse @(Model.POLLING_ONLINE_IND==true? "in" : "")">
-                                                <a href="@(Url.Action("SitePollConfig", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded toggle">Configure Polling</a>
+                                            <div id="pollCollapse" class="col-md-9">
+                                                <a href="@(Url.Action("SitePollConfig", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded ">Configure Polling</a>
                                             </div>
                                         </div>
                                     </div>
@@ -315,6 +315,7 @@
     </div>
 </div>
 <!-- END NOTIFY MODAL -->
+
 <!-- START MAP MODAL  -->
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">

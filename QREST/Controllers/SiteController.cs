@@ -13,6 +13,8 @@ using System.Web.Mvc;
 using QRESTModel.Units;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Net.Sockets;
+using System.Text;
 
 namespace QREST.Controllers
 {
@@ -168,7 +170,8 @@ namespace QREST.Controllers
             if (_site != null)
             {
                 //reject if user doesn't have access to org
-                CanAccessThisOrg(UserIDX, _site.ORG_ID, false);
+                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _site.ORG_ID, false);
+                if (r != null) return r;
 
                 //EDIT CASE
                 model.SITE_IDX = _site.SITE_IDX;
@@ -233,7 +236,8 @@ namespace QREST.Controllers
             if (ModelState.IsValid)
             {
                 //reject if user doesn't have access to org
-                CanAccessThisOrg(UserIDX, model.ORG_ID, true);
+                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, model.ORG_ID, true);
+                if (r != null) return r;
 
                 Guid? SuccId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
                     model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
@@ -309,7 +313,8 @@ namespace QREST.Controllers
             else
             {
                 //reject if user doesn't have access to org
-                CanAccessThisOrg(UserIDX, model.selOrgID, true);
+                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, model.selOrgID, true);
+                if (r != null) return r;
 
                 //lookup to get the AQS Tribal Code for 
                 T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(model.selOrgID);
@@ -398,7 +403,8 @@ namespace QREST.Controllers
             }
 
             //reject if user doesn't have access to org
-            CanAccessThisOrg(UserIDX, model.selOrgID, true);
+            RedirectToRouteResult r = CanAccessThisOrg(UserIDX, model.selOrgID, true);
+            if (r != null) return r;
 
             //lookup to get the AQS Tribal Code for 
             T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(model.selOrgID);
@@ -452,8 +458,10 @@ namespace QREST.Controllers
                 //reject if user doesn't have access to org
                 T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(idg);
                 if (_site != null)
-                    CanAccessThisOrg(User.Identity.GetUserId(), _site.ORG_ID, false);
-
+                {
+                    RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), _site.ORG_ID, false);
+                    if (r != null) return Json("Access Denied.");
+                }
                 int SuccID = db_Air.DeleteT_QREST_SITES(idg);
                 if (SuccID == 1)
                     return Json("Success");
@@ -465,18 +473,33 @@ namespace QREST.Controllers
         }
 
 
+        //**********************SITE POLLING **************************************
+        //**********************SITE POLLING **************************************
+        //**********************SITE POLLING **************************************
+
         public ActionResult SitePollConfig(Guid? id, Guid? configid, int? n)
         {
+            //*********if config id supplied and site id not supplied, then grab site id
+            if (configid != null && id == null)
+            {
+                var temp = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(configid.ConvertOrDefault<Guid>());
+                if (temp != null)
+                    id = temp.SITE_IDX;
+            }
+
+
+
             T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id ?? Guid.Empty);
             if (_site != null)
             {
                 //reject if user doesn't have access to org
-                CanAccessThisOrg(User.Identity.GetUserId(), _site.ORG_ID, false);
+                RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), _site.ORG_ID, false);
+                if (r != null) return r;
 
                 //get listing of configs
                 var model = new vmSiteSitePollConfig {
                     SITE_IDX = id,
-                    ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(id.ConvertOrDefault<Guid>()),
+                    ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(id.ConvertOrDefault<Guid>(), false),
                     ddl_Monitors = ddlHelpers.get_monitors_by_site(_site.SITE_IDX),
                     POLLING_LAST_RUN_DT = _site.POLLING_LAST_RUN_DT,
                     POLLING_NEXT_RUN_DT = _site.POLLING_NEXT_RUN_DT,
@@ -548,30 +571,39 @@ namespace QREST.Controllers
 
             if (ModelState.IsValid)
             {
-
-                //set all others to inactive if this one is active
-                if (model.editACT_IND == true)
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(model.SITE_IDX ?? Guid.Empty);
+                if (_site != null)
                 {
-                    List<T_QREST_SITE_POLL_CONFIG> _ps = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>());
-                    foreach (T_QREST_SITE_POLL_CONFIG _p in _ps)
-                        db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(_p.POLL_CONFIG_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, false, null);
-                }
+                    //reject if user doesn't have access to org
+                    RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _site.ORG_ID, true);
+                    if (r != null) return r;
 
-                Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE, 
-                    model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL, 
-                    model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX);
+                    //set all others to inactive if this one is active
+                    if (model.editACT_IND == true)
+                    {
+                        List<T_QREST_SITE_POLL_CONFIG> _ps = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), true);
+                        foreach (T_QREST_SITE_POLL_CONFIG _p in _ps)
+                            db_Air.UpdatetT_QREST_SITE_POLL_CONFIG_SetInactive(_p.POLL_CONFIG_IDX);
+                    }
 
-                if (SuccID != null)
-                {
-                    TempData["Success"] = "Record updated";
-                    return RedirectToAction("SitePollConfig", new { id = model.SITE_IDX, configid = SuccID });
+
+
+                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
+                        model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
+                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME);
+
+                    if (SuccID != null)
+                    {
+                        TempData["Success"] = "Record updated";
+                        return RedirectToAction("SitePollConfig", new { id = model.SITE_IDX, configid = SuccID });
+                    }
+                    else
+                        TempData["Error"] = "Error updating record.";
                 }
-                else
-                    TempData["Error"] = "Error updating record.";
             }
 
             //reinitialize model
-            model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>());
+            model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), false);
             model.ddl_Monitors = ddlHelpers.get_monitors_by_site(model.SITE_IDX.ConvertOrDefault<Guid>());
             return View(model);
         }
@@ -587,8 +619,8 @@ namespace QREST.Controllers
                 Guid idg = new Guid(id);
 
                 //reject if user doesn't have access to org
-                string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(idg);
-                CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
+                RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(idg), true);
+                if (r != null) return Json("Access Denied");
 
                 int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG(idg);
                 if (SuccID == 1)
@@ -617,7 +649,7 @@ namespace QREST.Controllers
 
 
         [HttpPost, ValidateAntiForgeryToken]
-        public JsonResult SitePollConfigDtlEdit(Guid? configid, Guid? monid, int? col, string sumtype, int? rounding)
+        public JsonResult SitePollConfigDtlEdit(Guid? configid, Guid? configdtlid, Guid? monid, int? col, string sumtype, int? rounding)
         {
             if (configid != null && monid != null && col != null)
             {
@@ -629,9 +661,10 @@ namespace QREST.Controllers
                     if (_site != null)
                     {
                         //reject if user doesn't have access to org
-                        CanAccessThisOrg(UserIDX, _site.ORG_ID, true);
+                        RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _site.ORG_ID, true);
+                        if (r != null) return Json(new { msg = "Access Denied" });
 
-                        Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(null, configid, monid, col, sumtype, rounding);
+                        Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(configdtlid, configid, monid, col, sumtype, rounding);
                         if (SuccID != null)
                             return Json(new { msg = "Success" });
 
@@ -652,17 +685,166 @@ namespace QREST.Controllers
             {
                 Guid idg = new Guid(id);
 
-
                 //reject if user doesn't have access to org
-                string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_org_ByID(idg);
-                CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
+                RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_org_ByID(idg), true);
+                if (r != null) 
+                    return Json("Access Denied");
 
                 int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg);
                 if (SuccID == 1)
                     return Json("Success");
                 else
-                    return Json("Unable to find collumn mapping to delete.");
+                    return Json("Unable to find column mapping to delete.");
             }
+        }
+
+
+        public FileStreamResult DownloadTemplate(Guid? id)
+        {
+            T_QREST_SITE_POLL_CONFIG _pol = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
+            if (id != null)
+            {
+                List<PollConfigDtlDisplay> _poldtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(id ?? Guid.Empty);
+
+                //for (int i=1)
+
+            }
+
+            return null;
+        }
+
+
+        public ActionResult SitePollPing(string id)
+        {
+            Guid idg = new Guid(id);
+            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(idg);
+            
+            //FAIL IF NO CONFIGURATION FOUND
+            if (_config == null)
+            {
+                TempData["Error"] = "Monitor polling configuration not found";
+                return RedirectToAction("SiteList", "Site");
+            }
+
+            //reject if user doesn't have access to org
+            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(idg);
+            RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
+            if (r != null) return r;
+
+
+            //initialize model
+            var model = new vmSitePing
+            {
+                POLL_CONFIG_IDX = idg,
+                pingResults = new List<Tuple<bool, string>>
+                {
+                    new Tuple<bool, string>(true, "Ping Started")
+                }
+            };
+
+            //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
+            if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
+            {
+                model.pingResults.Add(new Tuple<bool, string>(false, "Polling configuration is incomplete: logger source, port, and password must be supplied."));
+                return View(model);
+            }
+
+
+            //*********** PINGING ZENO ************************************************************************
+            //*********** PINGING ZENO ************************************************************************
+            //*********** PINGING ZENO ************************************************************************
+            if (_config.LOGGER_TYPE == "ZENO")
+            {
+                try
+                {
+                    //Create a TCPClient object at the IP and port
+                    TcpClient client = new TcpClient();
+                    System.Threading.Thread.Sleep(1000);
+
+                    if (!client.ConnectAsync(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>()).Wait(5000))
+                        model.pingResults.Add(new Tuple<bool, string>(false, "Unable to connect to device")); // connection failure
+                    else
+                    {
+                        model.pingResults.Add(new Tuple<bool, string>(true, "Connect to device " + _config.LOGGER_SOURCE + ":" + _config.LOGGER_PORT.ToString() + " successful."));
+
+                        // Get a client stream for reading and writing.
+                        using (NetworkStream stream = client.GetStream())
+                        {
+                            //*************** send u to enter user menu *****************************
+                            string msg1 = SendReceiveMessage(stream, "u\r\n");
+                            if (msg1.Contains("Level 1"))
+                            {
+                                model.pingResults.Add(new Tuple<bool, string>(true, "Access Zeno user menu successful."));
+
+                                //*************** enter password when prompted *****************************
+                                string msg2 = SendReceiveMessage(stream, _config.LOGGER_PASSWORD + "\r");
+                                if (msg2.Contains("ommun"))
+                                {
+                                    model.pingResults.Add(new Tuple<bool, string>(true, "Password succeeds"));
+
+                                    //*************** quit zeno user menu*****************************
+                                    string msg5 = SendReceiveMessage(stream, "Q\r");
+                                    if (msg5.Contains("Exiting"))
+                                        model.pingResults.Add(new Tuple<bool, string>(true, "Exited Zeno interface gracefully."));
+                                }
+                                else
+                                    model.pingResults.Add(new Tuple<bool, string>(false, "Password fails"));
+                            }
+                            else
+                                model.pingResults.Add(new Tuple<bool, string>(false, "Unable to access Zeno user menu. Please try again in 10 minutes"));
+
+
+                            //disconnect
+                            client.Client.Close();
+                            System.Threading.Thread.Sleep(250);
+                            client.Close();
+
+                        }
+                    }
+
+
+                }
+                catch (System.Net.Sockets.SocketException sex)
+                {
+                    model.pingResults.Add(new Tuple<bool, string>(false, "Ping socket exception: " + sex.Message));
+                }
+                catch (Exception ex)
+                {
+                    model.pingResults.Add(new Tuple<bool, string>(false, "General ping exception: " + ex.Message));
+                    model.pingResults.Add(new Tuple<bool, string>(false, "General ping exception: " + ex.InnerException.ToString()));
+                }
+            }
+            else
+            {
+                model.pingResults.Add(new Tuple<bool, string>(false, "Ping currently only available for Zeno dataloggers"));
+            }
+
+            return View(model);
+        }
+
+
+        private static string SendReceiveMessage(NetworkStream stream, string message)
+        {
+            // ****************Send message to the connected TcpServer. ********************************
+            System.Threading.Thread.Sleep(1000); //wait for terminal to write data
+            Byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(message);
+            stream.Write(bytesToSend, 0, bytesToSend.Length);
+            
+
+            // ****************Read response after the send command. ********************************
+            System.Threading.Thread.Sleep(2000); //wait for terminal to write response
+            var ms = new MemoryStream();
+            byte[] data = new byte[1024];
+            int numBytesRead;
+
+            do
+            {
+                numBytesRead = stream.Read(data, 0, data.Length);
+                ms.Write(data, 0, numBytesRead);
+
+            } while (numBytesRead == data.Length);
+
+            return Encoding.ASCII.GetString(ms.ToArray());
         }
 
 
@@ -695,7 +877,8 @@ namespace QREST.Controllers
             if (id == null && siteIDX != null)
             {
                 //reject if user doesn't have access to site
-                CanAccessThisSite(UserIDX, (Guid)siteIDX, false);
+                RedirectToRouteResult r = CanAccessThisSite(UserIDX, (Guid)siteIDX, false);
+                if (r != null) return r;
 
                 model.SITE_IDX = siteIDX;
                 model.ddl_Unit = ddlHelpers.get_ddl_ref_units(null);
@@ -708,7 +891,8 @@ namespace QREST.Controllers
                 if (_monitor != null)
                 {
                     //reject if user doesn't have access to site
-                    CanAccessThisSite(UserIDX, _monitor.T_QREST_MONITORS.SITE_IDX, false);
+                    RedirectToRouteResult r = CanAccessThisSite(UserIDX, _monitor.T_QREST_MONITORS.SITE_IDX, false);
+                    if (r != null) return r;
 
                     model.MONITOR_IDX = _monitor.T_QREST_MONITORS.MONITOR_IDX;
                     model.SITE_IDX = _monitor.T_QREST_MONITORS.SITE_IDX;
@@ -766,7 +950,8 @@ namespace QREST.Controllers
             }
 
             //reject if user doesn't have access to site
-            CanAccessThisSite(UserIDX, (Guid)model.SITE_IDX, true);
+            RedirectToRouteResult r = CanAccessThisSite(UserIDX, (Guid)model.SITE_IDX, true);
+            if (r != null) return r;
             //*************** VALIDATION END *********************************
 
             if (ModelState.IsValid)
@@ -783,13 +968,17 @@ namespace QREST.Controllers
                     T_QREST_REF_PAR_METHODS _parMeth = db_Ref.GetT_QREST_REF_PAR_METHODS_ByID(model.PAR_METHOD_IDX);
                     if (_parMeth != null)
                     {
-                        if (_parMeth.MIN_VALUE != null)
-                            model.ALERT_MIN_VALUE = UnitConvert.ConvertUnit(_parMeth.MIN_VALUE ?? 0,_parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE);
-                        if (_parMeth.MAX_VALUE != null)
-                            model.ALERT_MAX_VALUE = UnitConvert.ConvertUnit(_parMeth.MAX_VALUE ?? 0, _parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE);
-                        if (model.ALERT_MIN_VALUE != null && model.ALERT_MIN_VALUE != 0)
-                            model.ALERT_AMT_CHANGE = Math.Abs((UnitConvert.ConvertUnit(_parMeth.MIN_VALUE ?? 0, _parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE)??0) * (double)3);
+                        if (_parMeth.CUST_MIN_VALUE != null || _parMeth.MIN_VALUE != null)
+                            model.ALERT_MIN_VALUE = UnitConvert.ConvertUnit(_parMeth.CUST_MIN_VALUE ?? _parMeth.MIN_VALUE ?? 0, _parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE);
+                        if (_parMeth.CUST_MAX_VALUE != null || _parMeth.MAX_VALUE != null)
+                            model.ALERT_MAX_VALUE = UnitConvert.ConvertUnit(_parMeth.CUST_MAX_VALUE ?? _parMeth.MAX_VALUE ?? 0, _parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE);
+                        if ((_parMeth.CUST_MIN_VALUE != null || model.ALERT_MIN_VALUE != null) && model.ALERT_MIN_VALUE != 0)
+                            model.ALERT_AMT_CHANGE = Math.Abs((UnitConvert.ConvertUnit(_parMeth.CUST_MIN_VALUE ?? _parMeth.MIN_VALUE ?? 0, _parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE) ?? 0) * (double)3);
                     }
+                }
+                else
+                {
+                    db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("MON EDIT", UserIDX, null, "Changed monitor for " + model.PAR_NAME, GetIP.GetLocalIPAddress(System.Web.HttpContext.Current));
                 }
 
                 Guid? SuccInd = db_Air.InsertUpdatetT_QREST_MONITORS(model.MONITOR_IDX, model.SITE_IDX, model.PAR_METHOD_IDX, model.POC, model.DURATION_CODE, model.COLLECT_FREQ_CODE, 
@@ -987,10 +1176,8 @@ namespace QREST.Controllers
             {
                 int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
                 int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-                int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-                string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-                List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(search, null, pageSize, start, orderCol, orderDir);
+                List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(search, null, pageSize, start);
                 var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(search, null);
                 return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
             }

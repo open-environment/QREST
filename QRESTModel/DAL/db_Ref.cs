@@ -15,6 +15,7 @@ namespace QRESTModel.DAL
         public string LOG_USERID { get; set; }
         public string LOG_MSG { get; set; }
         public string LOG_USER_NAME { get; set; }
+        public string LOG_IP_ADDRESS { get; set; }
     }
 
 
@@ -722,16 +723,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_REF_COLLECT_FREQ> GetT_QREST_REF_COLLECT_FREQ_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        public static List<T_QREST_REF_COLLECT_FREQ> GetT_QREST_REF_COLLECT_FREQ_data(int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    string orderCol = (orderBy == 1 ? "COLLECT_FREQ_CODE" : "COLLECT_FEQ_DESC");
-
                     return (from a in ctx.T_QREST_REF_COLLECT_FREQ
-                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1042,46 +1041,90 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool InsertT_QREST_REF_PAR_METHODS(Guid? pAR_METHOD_IDX, string pAR_CODE, string mETHOD_CODE, string rECORDING_MODE, string cOLLECTION_DESC, string aNALYSIS_DESC,
-            string rEFERENCE_METHOD_ID, string eQUIVALENT_METHOD, string sTD_UNIT_CODE, double? fED_MDL, double? mIN_VALUE, double? mAX_VALUE, string cREATE_USER)
+        public static Tuple<string, string> InsertUpdateT_QREST_REF_PAR_METHODS(Guid? pAR_METHOD_IDX, string pAR_CODE, string mETHOD_CODE, string rECORDING_MODE, string cOLLECTION_DESC, 
+            string aNALYSIS_DESC, string rEFERENCE_METHOD_ID, string eQUIVALENT_METHOD, string sTD_UNIT_CODE, double? fED_MDL, double? mIN_VALUE, double? mAX_VALUE, double? 
+            cUST_MIN_VALUE, double? cUST_MAX_VALUE, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
+                    Boolean insInd = false;
+                    string changeLog = "";
 
-                    T_QREST_REF_PAR_METHODS e = new T_QREST_REF_PAR_METHODS {
-                        PAR_METHOD_IDX = Guid.NewGuid(),
-                        PAR_CODE = pAR_CODE,
-                        METHOD_CODE = mETHOD_CODE,
-                        CREATE_DT = System.DateTime.Now,
-                        CREATE_USER_IDX = cREATE_USER,
-                        ACT_IND = true
-                    };
+                    T_QREST_REF_PAR_METHODS e = (from c in ctx.T_QREST_REF_PAR_METHODS
+                                                 where c.PAR_METHOD_IDX == pAR_METHOD_IDX
+                                                 select c).FirstOrDefault();
 
-                    if (rECORDING_MODE != null) e.RECORDING_MODE = rECORDING_MODE;
-                    if (cOLLECTION_DESC != null) e.COLLECTION_DESC = cOLLECTION_DESC;
-                    if (aNALYSIS_DESC != null) e.ANALYSIS_DESC = aNALYSIS_DESC;
-                    if (rEFERENCE_METHOD_ID != null) e.REFERENCE_METHOD_ID = rEFERENCE_METHOD_ID;
-                    if (eQUIVALENT_METHOD != null) e.EQUIVALENT_METHOD = eQUIVALENT_METHOD;
-                    if (sTD_UNIT_CODE != null) e.STD_UNIT_CODE = sTD_UNIT_CODE;
-                    if (fED_MDL != null) e.FED_MDL = fED_MDL;
-                    if (mIN_VALUE != null) e.MIN_VALUE = mIN_VALUE;
-                    if (mAX_VALUE != null) e.MAX_VALUE = mAX_VALUE;
+                    //if none by ID, find by Par Code and Method Code combo
+                    if (e == null)
+                        e = (from c in ctx.T_QREST_REF_PAR_METHODS
+                             where c.PAR_CODE == pAR_CODE
+                             && c.METHOD_CODE == mETHOD_CODE
+                             select c).FirstOrDefault();
 
-                    ctx.T_QREST_REF_PAR_METHODS.Add(e);
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_REF_PAR_METHODS
+                        {
+                            PAR_METHOD_IDX = Guid.NewGuid(),
+                            PAR_CODE = pAR_CODE,
+                            METHOD_CODE = mETHOD_CODE,
+                            CREATE_DT = System.DateTime.Now,
+                            CREATE_USER_IDX = cREATE_USER,
+                            ACT_IND = true
+                        };
+
+                    }
+                    else
+                    {
+                        e.MODIFY_DT = System.DateTime.Now;
+                        e.MODIFY_USER_IDX = cREATE_USER;
+
+                        //record changes
+                        if (rECORDING_MODE != null && rECORDING_MODE != e.RECORDING_MODE) changeLog += "[Recording Mode changed]";
+                        if (cOLLECTION_DESC != null && cOLLECTION_DESC != e.COLLECTION_DESC) changeLog += "[Collection Desc changed]";
+                        if (eQUIVALENT_METHOD != null && eQUIVALENT_METHOD != e.EQUIVALENT_METHOD) changeLog += "[Equiv Method changed]";
+                        if (sTD_UNIT_CODE != null && sTD_UNIT_CODE != e.STD_UNIT_CODE) changeLog += "[Std Unit changed]";
+                        if (fED_MDL != null && fED_MDL != e.FED_MDL) changeLog += "[MDL changed]";
+                        if (mIN_VALUE != null && mIN_VALUE != e.MIN_VALUE) changeLog += "[Min val changed]";
+                        if (mAX_VALUE != null && mAX_VALUE != e.MAX_VALUE) changeLog += "[Max val changed]";
+                    }
+
+                    if (insInd || changeLog.Length > 0)
+                    {
+                        if (rECORDING_MODE != null) e.RECORDING_MODE = rECORDING_MODE;
+                        if (cOLLECTION_DESC != null) e.COLLECTION_DESC = cOLLECTION_DESC;
+                        if (aNALYSIS_DESC != null) e.ANALYSIS_DESC = aNALYSIS_DESC;
+                        if (rEFERENCE_METHOD_ID != null) e.REFERENCE_METHOD_ID = rEFERENCE_METHOD_ID;
+                        if (eQUIVALENT_METHOD != null) e.EQUIVALENT_METHOD = eQUIVALENT_METHOD;
+                        if (sTD_UNIT_CODE != null) e.STD_UNIT_CODE = sTD_UNIT_CODE;
+                        if (fED_MDL != null) e.FED_MDL = fED_MDL;
+                        if (mIN_VALUE != null) e.MIN_VALUE = mIN_VALUE;
+                        if (mAX_VALUE != null) e.MAX_VALUE = mAX_VALUE;
+                    }
+
+                    if (cUST_MIN_VALUE != null) e.CUST_MIN_VALUE = cUST_MIN_VALUE;
+                    if (cUST_MIN_VALUE == -9999) e.CUST_MIN_VALUE = null;
+                    if (cUST_MAX_VALUE != null) e.CUST_MAX_VALUE = cUST_MAX_VALUE;
+                    if (cUST_MAX_VALUE == -9999) e.CUST_MAX_VALUE = null;
+
+                    if (insInd)
+                        ctx.T_QREST_REF_PAR_METHODS.Add(e);
                     ctx.SaveChanges();
-                    return true;
+
+                    return Tuple.Create((insInd ? "I" : "U"), changeLog);
                 }
                 catch (Exception ex)
                 {
                     logEF.LogEFException(ex);
-                    return false;
+                    return Tuple.Create("E", "");
                 }
             }
         }
 
-        public static List<RefParMethodDisplay> GetT_QREST_REF_PAR_METHODS_Search(string strPar, string strCollMethod, int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        public static List<RefParMethodDisplay> GetT_QREST_REF_PAR_METHODS_Search(string strPar, string strCollMethod, int pageSize, int? skip)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1089,7 +1132,6 @@ namespace QRESTModel.DAL
                 {
                     if (strPar == null) strPar = "";
                     if (strCollMethod == null) strCollMethod = "";
-                    string orderCol = (orderBy == 3 ? "PAR_NAME" : "PAR_NAME");
 
                     return (from a in ctx.T_QREST_REF_PAR_METHODS
                             join p in ctx.T_QREST_REF_PARAMETERS on a.PAR_CODE equals p.PAR_CODE
@@ -1100,10 +1142,9 @@ namespace QRESTModel.DAL
                             select new RefParMethodDisplay
                             {
                                 T_QREST_REF_PAR_METHODS = a,
-                                PAR_NAME = p.PAR_NAME,
-                                
+                                PAR_NAME = p.PAR_NAME,                                
                                 UNIT_DESC = u.UNIT_DESC
-                            }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            }).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1139,16 +1180,14 @@ namespace QRESTModel.DAL
 
 
         //***************** REF_PAR_UNITS ******************************
-        public static List<T_QREST_REF_PAR_UNITS> GetT_QREST_REF_PAR_UNITS_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        public static List<T_QREST_REF_PAR_UNITS> GetT_QREST_REF_PAR_UNITS_data(int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    string orderCol = (orderBy == 1 ? "UNIT_CODE" : "PAR_CODE");
-
                     return (from a in ctx.T_QREST_REF_PAR_UNITS
-                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1196,16 +1235,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_REF_PARAMETERS> GetT_QREST_REF_PARAMETERS_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        public static List<T_QREST_REF_PARAMETERS> GetT_QREST_REF_PARAMETERS_data(int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    string orderCol = (orderBy == 1 ? "PAR_CODE" : "PAR_NAME");
-
                     return (from a in ctx.T_QREST_REF_PARAMETERS
-                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1260,13 +1297,15 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool InsertUpdatetT_QREST_REF_PARAMETERS(string pAR_CODE, string pAR_NAME, string pAR_NAME_ALT, string cAS_NUM, string sTD_UNIT_CODE, bool? aQS_IND, bool? aCT_IND, string cREATE_USER)
+        public static bool InsertUpdatetT_QREST_REF_PARAMETERS(string pAR_CODE, string pAR_NAME, string pAR_NAME_ALT, string cAS_NUM, string sTD_UNIT_CODE, bool? aQS_IND, 
+            bool? aCT_IND, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     Boolean insInd = false;
+                    Boolean insParMethodInd = false;
 
                     T_QREST_REF_PARAMETERS e = (from c in ctx.T_QREST_REF_PARAMETERS
                                                 where c.PAR_CODE == pAR_CODE
@@ -1279,6 +1318,9 @@ namespace QRESTModel.DAL
                         e.PAR_CODE = pAR_CODE;
                         e.CREATE_DT = System.DateTime.Now;
                         e.CREATE_USER_IDX = cREATE_USER;
+
+                        if (pAR_CODE.StartsWith("Q"))
+                            insParMethodInd = true;
                     }
                     else
                     {
@@ -1297,6 +1339,12 @@ namespace QRESTModel.DAL
                         ctx.T_QREST_REF_PARAMETERS.Add(e);
 
                     ctx.SaveChanges();
+
+                    if (insParMethodInd)
+                    {
+                        InsertUpdateT_QREST_REF_PAR_METHODS(null, e.PAR_CODE, "001", "Continuous", "Default collection method", "", "", "", sTD_UNIT_CODE, null, null, null, null, null, cREATE_USER);
+                    }
+
                     return true;
                 }
                 catch (Exception ex)
@@ -1328,6 +1376,101 @@ namespace QRESTModel.DAL
         }
 
 
+        //***************** REF_QUALIFIER ******************************
+        public static T_QREST_REF_QUALIFIER GetT_QREST_REF_QUALIFIER_ByID(string id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QUALIFIER
+                            where a.QUAL_CODE == id
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int GetT_QREST_REF_QUALIFIERCount()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QUALIFIER.AsNoTracking()
+                               select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static List<T_QREST_REF_QUALIFIER> GetT_QREST_REF_QUALIFIER_data(int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QUALIFIER
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static bool InsertUpdatetT_QREST_REF_QUALIFIER(string qUAL_CODE, string qUAL_DESC, string qUAL_TYPE, string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    Boolean insInd = false;
+
+                    T_QREST_REF_QUALIFIER e = (from c in ctx.T_QREST_REF_QUALIFIER
+                                           where c.QUAL_CODE == qUAL_CODE
+                                           select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_REF_QUALIFIER();
+                        e.QUAL_CODE = qUAL_CODE;
+                        e.CREATE_DT = System.DateTime.Now;
+                        e.CREATE_USER_IDX = cREATE_USER;
+                    }
+                    else
+                    {
+                        e.MODIFY_DT = System.DateTime.Now;
+                        e.MODIFY_USER_IDX = cREATE_USER;
+                    }
+
+                    if (qUAL_DESC != null) e.QUAL_DESC = qUAL_DESC;
+                    if (qUAL_TYPE != null) e.QUAL_TYPE = qUAL_TYPE;
+
+                    if (insInd)
+                        ctx.T_QREST_REF_QUALIFIER.Add(e);
+
+                    ctx.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
 
         //***************** REF_REGION ******************************
         public static List<T_QREST_REF_REGION> GetT_QREST_REF_REGION()
@@ -1448,16 +1591,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_REF_UNITS> GetT_QREST_REF_UNITS_data(int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        public static List<T_QREST_REF_UNITS> GetT_QREST_REF_UNITS_data(int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    string orderCol = (orderBy == 2 ? "UNIT_CODE" : "UNIT_DESC");
-
                     return (from a in ctx.T_QREST_REF_UNITS
-                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1574,7 +1715,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<LogDisplayType> GetT_QREST_SYS_LOG(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        public static List<LogDisplayType> GetT_QREST_SYS_LOG(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1582,8 +1723,6 @@ namespace QRESTModel.DAL
                 {
                     DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
                     DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
-
-                    string orderCol = (orderBy == 3 ? "LOG_MSG" : "LOG_ID");
 
                     return (from a in ctx.T_QREST_SYS_LOG
                             join d in ctx.T_QREST_USERS on a.LOG_USERID equals d.USER_IDX
@@ -1599,7 +1738,7 @@ namespace QRESTModel.DAL
                                 LOG_TYP = a.LOG_TYP,
                                 LOG_USERID = a.LOG_USERID,
                                 LOG_USER_NAME = d.Email
-                            }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
 
                 }
                 catch (Exception ex)
@@ -1649,7 +1788,7 @@ namespace QRESTModel.DAL
                     {
                         ACTIVITY_TYPE = aCTIVITY_TYPE,
                         ACTIVITY_USER = aCTIVITY_USER.ToUpper(),
-                        ACTIVITY_DT = lOG_DT,
+                        ACTIVITY_DT = lOG_DT ?? System.DateTime.Now,
                         ACTIVITY_DESC = aCTIVITY_DESC,
                         IP_ADDRESS = iP_ADDRESS
                     };
@@ -1689,7 +1828,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_SYS_LOG_ACTIVITY> GetT_QREST_SYS_LOG_ACTIVITY(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        public static List<LogDisplayType> GetT_QREST_SYS_LOG_ACTIVITY(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1698,13 +1837,20 @@ namespace QRESTModel.DAL
                     DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
                     DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
-                    string orderCol = (orderBy == 3 ? "ACTIVITY_TYPE" : "LOG_ACTIVITY_IDX");
-
                     return (from a in ctx.T_QREST_SYS_LOG_ACTIVITY
+                            join d in ctx.T_QREST_USERS on a.ACTIVITY_USER equals d.USER_IDX into lj from d in lj.DefaultIfEmpty() //left join on user
                             where a.ACTIVITY_DT >= DateFromDt
                             && a.ACTIVITY_DT <= DateToDt
-                            orderby a.LOG_ACTIVITY_IDX descending
-                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            //orderby a.LOG_ACTIVITY_IDX descending
+                            select new LogDisplayType {
+                                LOG_ID = a.LOG_ACTIVITY_IDX,
+                                LOG_DT = a.ACTIVITY_DT,
+                                LOG_TYP = a.ACTIVITY_TYPE,
+                                LOG_USERID = a.ACTIVITY_USER,
+                                LOG_MSG = a.ACTIVITY_DESC,
+                                LOG_USER_NAME = d.Email,
+                                LOG_IP_ADDRESS = a.IP_ADDRESS
+                            }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1768,7 +1914,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_SYS_LOG_EMAIL> GetT_QREST_SYS_LOG_EMAIL(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, int orderBy, string orderDir = "asc")
+        public static List<T_QREST_SYS_LOG_EMAIL> GetT_QREST_SYS_LOG_EMAIL(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1777,13 +1923,11 @@ namespace QRESTModel.DAL
                     DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
                     DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
-                    string orderCol = (orderBy == 3 ? "EMAIL_SUBJ" : "LOG_EMAIL_ID");
-
                     return (from a in ctx.T_QREST_SYS_LOG_EMAIL
                             where a.EMAIL_DT >= DateFromDt
                             && a.EMAIL_DT <= DateToDt
                             orderby a.LOG_EMAIL_ID descending
-                            select a).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {

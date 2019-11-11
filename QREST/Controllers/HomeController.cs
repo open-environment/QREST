@@ -22,10 +22,12 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
         public ActionResult About()
         {
             return View();
         }
+
 
         public ActionResult Contact()
         {
@@ -34,11 +36,59 @@ namespace QREST.Controllers
             return View();
         }
 
+
         public ActionResult Map()
+        {
+            var model = new vmHomeMap();
+            model.T_QREST_SITES = db_Air.GetT_QREST_SITES_All();
+
+            return View(model);
+        }
+
+
+        public ActionResult ReportMonthly(Guid? id, Guid? monid, int? month, int? year, string time)
+        {
+            var model = new vmHomeReportMonthly { 
+                selSite = id,
+                selMon = monid,
+                selMonth = month ?? System.DateTime.Now.Month,
+                selYear = year ?? System.DateTime.Now.Year,
+                selTime = time ?? "L"
+            };
+
+            //monitor dropdown
+            if (model.selSite != null)
+                model.ddl_Mons = ddlHelpers.get_monitors_by_site(id ?? Guid.Empty);
+            else
+                model.ddl_Mons = new SelectList(Enumerable.Empty<SelectListItem>());
+
+            model.Results = db_Air.SP_RPT_MONTHLY(model.selMon ?? Guid.Empty, model.selMonth, model.selYear, model.selTime);
+            model.ResultSums = db_Air.SP_RPT_MONTHLY_SUMS(model.selMon ?? Guid.Empty, model.selMonth, model.selYear, model.selTime);
+
+            if (model.selMon != null)
+            {
+                SiteMonitorDisplayType xxx = db_Air.GetT_QREST_MONITORS_ByID(model.selMon ?? Guid.Empty);
+                if (xxx != null)
+                {
+                    var yyy = db_Ref.GetT_QREST_REF_UNITS_ByID(xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE);
+                    model.Units = yyy.UNIT_DESC;
+                }
+
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult ReportMonthly(vmHomeReportMonthly model)
+        {
+            return RedirectToAction("ReportMonthly", new { id = model.selSite, monid = model.selMon, month = model.selMonth, year = model.selYear, time = model.selTime });
+        }
+
+
+        public ActionResult ReportAnnual()
         {
             return View();
         }
-
 
         public ActionResult Help()
         {
@@ -47,8 +97,7 @@ namespace QREST.Controllers
             return View(model);
         }
 
-
-
+        
         public ActionResult Terms ()
         {
             var model = new vmHomeTerms();
@@ -89,5 +138,12 @@ namespace QREST.Controllers
             return View();
         }
 
+
+        [HttpGet]
+        public JsonResult FetchMonitorsBySite(Guid? ID)
+        {
+            var data = ddlHelpers.get_monitors_by_site(ID ?? Guid.Empty);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
     }
 }

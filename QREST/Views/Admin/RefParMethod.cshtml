@@ -1,4 +1,5 @@
-﻿@{
+﻿@model QREST.Models.vmAdminRefParMethod
+@{
     ViewBag.Title = "Reference Parameter Methods";
     ViewBag.HideTitle = true;
     ViewBag.selOpt = "ParMethod";
@@ -11,35 +12,79 @@
         Parameter Methods
     </header>
     <div class="panel-body">
+        <form class="form-inline m-b-sm" onsubmit="return false">
+            <input id="selSearch" name="selSearch" class="form-control" style="width:300px" />
+            <button id="btnGo" class="btn  btn-primary">Filter</button>
+        </form>
         <div class="table-responsive">
-            <div class="table-responsive">
-                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>
-                                <a href="@Url.Action("ExportRefParMethod", "Admin")" class="btn btn-rounded btn-sm btn-icon btn-dark" style="border-radius: 15px;"><i class="fa fa-download"></i></a>
-                            </th>
-                            <th>Par</th>
-                            <th>Par Name</th>
-                            <th>Recording Mode</th>
-                            <th>Method</th>
-                            <th>Collection</th>
-                            <th>Analysis</th>
-                            <th>Ref Method</th>
-                            <th>Equivalent Method</th>
-                            <th>Std Unit</th>
-                            <th>Fed Min</th>
-                            <th>Fed Max</th>
-                            <th>QREST Min</th>
-                            <th>QREST Max</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="@Url.Action("ExportRefParMethod", "Admin")" class="btn btn-rounded btn-sm btn-icon btn-dark" style="border-radius: 15px;"><i class="fa fa-download"></i></a>
+                        </th>
+                        <th>Par</th>
+                        <th>Par Name</th>
+                        <th>Recording Mode</th>
+                        <th>Method</th>
+                        <th>Collection</th>
+                        <th>Analysis</th>
+                        <th>Ref Method</th>
+                        <th>Equivalent Method</th>
+                        <th>Std Unit</th>
+                        <th>Fed Min</th>
+                        <th>Fed Max</th>
+                        <th>QREST Min</th>
+                        <th>QREST Max</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
 </section>
+
+
+<!-- START EDIT MODAL  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="width:600px">
+
+        @using (Html.BeginForm("RefParMethod", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.editPAR_METHOD_IDX)
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 style="float: left" class="modal-title">Add Person to Notify List</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Custom Minimum</label>
+                                @Html.TextBoxFor(model => model.editCUST_MIN_VALUE, new { @class = "form-control"})
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Custom Maximum</label>
+                                @Html.TextBoxFor(model => model.editCUST_MAX_VALUE, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- END  MODAL -->
 
 @section scripts {
     @Scripts.Render("~/bundles/datatables")
@@ -48,41 +93,53 @@
 
         $(document).ready(function () {
 
+            //filter click
+            $('#btnGo').on('click', function () {
+                table.draw();
+            });
+
+            //load modal
+            $(document).on('click', '.modal-it', function () {
+                $("#editPAR_METHOD_IDX").val($(this).attr('data-id'));
+                $("#editCUST_MIN_VALUE").val($(this).attr('data-min'));
+                $("#editCUST_MAX_VALUE").val($(this).attr('data-max'));
+            });
+
             // datatable initialization
-            $("#gridData").DataTable({
+            var table = $("#gridData").DataTable({
                 "responsive": true,
                 "serverSide": true,
                 "processing": true,
+                "ordering": false,
                 "orderMulti": false,
                 "lengthChange": false,
                 "paging": true,
-                "pageLength": 10,
+                "pageLength": 20,
                 "pagingType": "full_numbers",
                 "info": false,
-                "searching": true,
+                "searching": false,
                 "ajax": {
-                    "url": "@Url.Action("RefParMethodData", "Site")",
+                    "url": "@Url.Action("RefParMethodData", "Admin")",
                     "type": "POST",
-                    "datatype": "json"
+                    "datatype": "json",
+                    "error": function (e) {},
+                    "data": function (d) {
+                        return $.extend({}, d, {
+                            "selSearch": $('#selSearch').val()
+                        });
+                    }
                 },
                 "columnDefs":
                     [{
-                        "targets": [0],
-                        "visible": false,
-                    },
-                    {
                         "targets": [1],
                         "orderable" : false
                     }],
                 "columns": [
-                    { "data": "T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX", "name": "T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX", "autoWidth": true },
                     {
                         "render": function (data, type, row) {
-                            return '<a data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX
-                                + '" data-par="' + row.PAR_NAME
-                                + '" data-parcd="' + row.T_QREST_REF_PAR_METHODS.PAR_CODE
-                                + '" data-unit="' + row.T_QREST_REF_PAR_METHODS.STD_UNIT_CODE
-                                + '" data-meth="' + row.T_QREST_REF_PAR_METHODS.METHOD_CODE + '" class="btn btn-rounded btn-xs btn-primary par-meth-sel" style="display: inline-block;"> <i class="fa fa-plus"></i> Select</a>';
+                            return '<a href="#modal-form" data-toggle="modal" data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX 
+                                + '" data-min="' + (row.T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE || "")
+                                + '" data-max="' + (row.T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE || "") + '" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;">Edit</a>';
                         }
                     },
                     { "data": "T_QREST_REF_PAR_METHODS.PAR_CODE", "name": "T_QREST_REF_PAR_METHODS.PAR_CODE", "autoWidth": true },
@@ -96,12 +153,12 @@
                     { "data": "T_QREST_REF_PAR_METHODS.STD_UNIT_CODE", "name": "T_QREST_REF_PAR_METHODS.STD_UNIT_CODE", "autoWidth": true },
                     { "data": "T_QREST_REF_PAR_METHODS.MIN_VALUE", "name": "T_QREST_REF_PAR_METHODS.MIN_VALUE", "autoWidth": true },
                     { "data": "T_QREST_REF_PAR_METHODS.MAX_VALUE", "name": "T_QREST_REF_PAR_METHODS.MAX_VALUE", "autoWidth": true },
-                    { "data": "T_QREST_REF_PAR_METHODS.MIN_VALUE", "name": "T_QREST_REF_PAR_METHODS.MIN_VALUE", "autoWidth": true },
-                    { "data": "T_QREST_REF_PAR_METHODS.MAX_VALUE", "name": "T_QREST_REF_PAR_METHODS.MAX_VALUE", "autoWidth": true }
+                    { "data": "T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE", "name": "T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE", "autoWidth": true },
+                    { "data": "T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE", "name": "T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE", "autoWidth": true }
                 ],
                 "createdRow": function (row, data, dataIndex) {
-                    $('td:eq(0)', row).css('width', '90px');
-                    $('td:eq(0)', row).css('min-width', '90px');
+                    $('td:eq(0)', row).css('width', '80px');
+                    $('td:eq(0)', row).css('min-width', '80px');
                     $('td:eq(0)', row).css('padding-right', '0px');
                     $('td:eq(0)', row).css('white-space', 'nowrap');
                 }

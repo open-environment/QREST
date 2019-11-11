@@ -234,6 +234,7 @@
                 "responsive": true,
                 "serverSide": true,
                 "processing": true,
+                "ordering": false,
                 "orderMulti": false,
                 "lengthChange": false,
                 "paging": true,
@@ -338,11 +339,11 @@
                 }
 
                 $("#COLLECT_UNIT_CODE").val(data.STD_UNIT_CODE);
-                $("#ALERT_MIN_VALUE").val(data.MIN_VALUE);
-                $("#ALERT_MAX_VALUE").val(data.MAX_VALUE);
-                if (data.MIN_VALUE != null) {
+                $("#ALERT_MIN_VALUE").val(data.CUST_MIN_VALUE || data.MIN_VALUE);
+                $("#ALERT_MAX_VALUE").val(data.CUST_MAX_VALUE || data.MAX_VALUE);
+                if (data.MIN_VALUE != null || data.CUST_MIN_VALUE != null) {
                     const fixFloatingPoint = val => Number.parseFloat(val.toFixed(8));
-                    var zzz = fixFloatingPoint(Math.abs(data.MIN_VALUE * 3));
+                    var zzz = fixFloatingPoint(Math.abs((data.CUST_MIN_VALUE || data.MIN_VALUE) * 3));
                     $("#ALERT_AMT_CHANGE").val(zzz);
                 }
                 $("#ALERT_STUCK_REC_COUNT").val(3);

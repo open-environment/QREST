@@ -51,7 +51,7 @@
           <Property Name="DATA_VALUE" Type="varchar" MaxLength="20" />
           <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
           <Property Name="VAL_IND" Type="bit" />
-          <Property Name="VAL_CD" Type="varchar" MaxLength="2" />
+          <Property Name="VAL_CD" Type="varchar" MaxLength="5" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_DATA_HOURLY">
@@ -65,8 +65,9 @@
           <Property Name="DATA_VALUE" Type="varchar" MaxLength="20" />
           <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
           <Property Name="VAL_IND" Type="bit" />
-          <Property Name="VAL_CD" Type="varchar" MaxLength="2" />
+          <Property Name="VAL_CD" Type="varchar" MaxLength="5" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="VAL0_NOTIFY_IND" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="T_QREST_EMAIL_TEMPLATE">
           <Key>
@@ -240,6 +241,8 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="CUST_MIN_VALUE" Type="float" />
+          <Property Name="CUST_MAX_VALUE" Type="float" />
         </EntityType>
         <EntityType Name="T_QREST_REF_PAR_UNITS">
           <Key>
@@ -267,6 +270,18 @@
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="AQS_IND" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_QUALIFIER">
+          <Key>
+            <PropertyRef Name="QUAL_CODE" />
+          </Key>
+          <Property Name="QUAL_CODE" Type="varchar" MaxLength="2" Nullable="false" />
+          <Property Name="QUAL_DESC" Type="varchar" MaxLength="150" />
+          <Property Name="QUAL_TYPE" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_REF_REGION">
           <Key>
@@ -849,6 +864,19 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="SP_CALC_HOURLY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="SP_RPT_MONTHLY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="mn" Type="int" Mode="In" />
+          <Parameter Name="yr" Type="int" Mode="In" />
+          <Parameter Name="timetype" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="SP_RPT_MONTHLY_SUMS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="mn" Type="int" Mode="In" />
+          <Parameter Name="yr" Type="int" Mode="In" />
+          <Parameter Name="timetype" Type="varchar" Mode="In" />
+        </Function>
         <EntityContainer Name="QRESTModelStoreContainer">
           <EntitySet Name="T_QREST_APP_SETTINGS" EntityType="Self.T_QREST_APP_SETTINGS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_APP_SETTINGS_CUSTOM" EntityType="Self.T_QREST_APP_SETTINGS_CUSTOM" Schema="dbo" store:Type="Tables" />
@@ -870,6 +898,7 @@
           <EntitySet Name="T_QREST_REF_PAR_METHODS" EntityType="Self.T_QREST_REF_PAR_METHODS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_PAR_UNITS" EntityType="Self.T_QREST_REF_PAR_UNITS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_PARAMETERS" EntityType="Self.T_QREST_REF_PARAMETERS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_QUALIFIER" EntityType="Self.T_QREST_REF_QUALIFIER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_REGION" EntityType="Self.T_QREST_REF_REGION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_STATE" EntityType="Self.T_QREST_REF_STATE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_TIMEZONE" EntityType="Self.T_QREST_REF_TIMEZONE" Schema="dbo" store:Type="Tables" />
@@ -1149,6 +1178,20 @@
           <EntitySet Name="T_QREST_DATA_FIVE_MIN" EntityType="QRESTModel.T_QREST_DATA_FIVE_MIN" />
           <EntitySet Name="T_QREST_REF_TIMEZONE" EntityType="QRESTModel.T_QREST_REF_TIMEZONE" />
           <EntitySet Name="T_QREST_DATA_HOURLY" EntityType="QRESTModel.T_QREST_DATA_HOURLY" />
+          <FunctionImport Name="SP_CALC_HOURLY" />
+          <EntitySet Name="T_QREST_REF_QUALIFIER" EntityType="QRESTModel.T_QREST_REF_QUALIFIER" />
+          <FunctionImport Name="SP_RPT_MONTHLY" ReturnType="Collection(QRESTModel.SP_RPT_MONTHLY_Result)">
+            <Parameter Name="monid" Mode="In" Type="Guid" />
+            <Parameter Name="mn" Mode="In" Type="Int32" />
+            <Parameter Name="yr" Mode="In" Type="Int32" />
+            <Parameter Name="timetype" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SP_RPT_MONTHLY_SUMS" ReturnType="Collection(QRESTModel.SP_RPT_MONTHLY_SUMS_Result)">
+            <Parameter Name="monid" Mode="In" Type="Guid" />
+            <Parameter Name="mn" Mode="In" Type="Int32" />
+            <Parameter Name="yr" Mode="In" Type="Int32" />
+            <Parameter Name="timetype" Mode="In" Type="String" />
+          </FunctionImport>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -1341,6 +1384,8 @@
           <NavigationProperty Name="T_QREST_REF_PARAMETERS" Relationship="QRESTModel.FK_T_QREST_REF_PAR_METHODS_P" FromRole="T_QREST_REF_PAR_METHODS" ToRole="T_QREST_REF_PARAMETERS" />
           <NavigationProperty Name="T_QREST_REF_UNITS" Relationship="QRESTModel.FK_T_QREST_REF_PAR_METHODS_U" FromRole="T_QREST_REF_PAR_METHODS" ToRole="T_QREST_REF_UNITS" />
           <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_P" FromRole="T_QREST_REF_PAR_METHODS" ToRole="T_QREST_MONITORS" />
+          <Property Name="CUST_MIN_VALUE" Type="Double" />
+          <Property Name="CUST_MAX_VALUE" Type="Double" />
         </EntityType>
         <EntityType Name="T_QREST_REF_PARAMETERS">
           <Key>
@@ -1988,7 +2033,7 @@
           <Property Name="DATA_VALUE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="VAL_IND" Type="Boolean" />
-          <Property Name="VAL_CD" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="VAL_CD" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_REF_TIMEZONE">
@@ -2009,9 +2054,59 @@
           <Property Name="DATA_VALUE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="VAL_IND" Type="Boolean" />
-          <Property Name="VAL_CD" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="VAL_CD" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <Property Name="VAL0_NOTIFY_IND" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_QUALIFIER">
+          <Key>
+            <PropertyRef Name="QUAL_CODE" />
+          </Key>
+          <Property Name="QUAL_CODE" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="QUAL_DESC" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="QUAL_TYPE" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
         </EntityType>
+        <ComplexType Name="SP_RPT_MONTHLY_Result">
+          <Property Type="Int32" Name="SearchDay" Nullable="true" />
+          <Property Type="String" Name="C0" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C1" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C2" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C3" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C4" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C5" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C6" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C7" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C8" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C9" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C10" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C11" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C12" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C13" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C14" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C15" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C16" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C17" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C18" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C19" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C20" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C21" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C22" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C23" Nullable="true" MaxLength="20" />
+        </ComplexType>
+        <ComplexType Name="SP_RPT_MONTHLY_SUMS_Result">
+          <Property Type="Guid" Name="MONITOR_IDX" Nullable="true" />
+          <Property Type="Int32" Name="DAY1" Nullable="true" />
+          <Property Type="Double" Name="MAX" Nullable="true" />
+          <Property Type="Double" Name="MIN" Nullable="true" />
+          <Property Type="Double" Name="AVG" Nullable="true" />
+          <Property Type="Double" Name="STDEV" Nullable="true" />
+          <Property Type="Int32" Name="CNT" Nullable="true" />
+          <Property Type="Int32" Name="CAP" Nullable="true" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2183,6 +2278,8 @@
           <EntitySetMapping Name="T_QREST_REF_PAR_METHODS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_PAR_METHODS">
               <MappingFragment StoreEntitySet="T_QREST_REF_PAR_METHODS">
+                <ScalarProperty Name="CUST_MAX_VALUE" ColumnName="CUST_MAX_VALUE" />
+                <ScalarProperty Name="CUST_MIN_VALUE" ColumnName="CUST_MIN_VALUE" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
@@ -2525,6 +2622,7 @@
           <EntitySetMapping Name="T_QREST_DATA_HOURLY">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_HOURLY">
               <MappingFragment StoreEntitySet="T_QREST_DATA_HOURLY">
+                <ScalarProperty Name="VAL0_NOTIFY_IND" ColumnName="VAL0_NOTIFY_IND" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="VAL_CD" ColumnName="VAL_CD" />
                 <ScalarProperty Name="VAL_IND" ColumnName="VAL_IND" />
@@ -2537,6 +2635,65 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_CALC_HOURLY" FunctionName="QRESTModel.Store.SP_CALC_HOURLY" />
+          <EntitySetMapping Name="T_QREST_REF_QUALIFIER">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_QUALIFIER">
+              <MappingFragment StoreEntitySet="T_QREST_REF_QUALIFIER">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="QUAL_TYPE" ColumnName="QUAL_TYPE" />
+                <ScalarProperty Name="QUAL_DESC" ColumnName="QUAL_DESC" />
+                <ScalarProperty Name="QUAL_CODE" ColumnName="QUAL_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_RPT_MONTHLY" FunctionName="QRESTModel.Store.SP_RPT_MONTHLY">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_RPT_MONTHLY_Result">
+                <ScalarProperty Name="SearchDay" ColumnName="SearchDay" />
+                <ScalarProperty Name="C0" ColumnName="0" />
+                <ScalarProperty Name="C1" ColumnName="1" />
+                <ScalarProperty Name="C2" ColumnName="2" />
+                <ScalarProperty Name="C3" ColumnName="3" />
+                <ScalarProperty Name="C4" ColumnName="4" />
+                <ScalarProperty Name="C5" ColumnName="5" />
+                <ScalarProperty Name="C6" ColumnName="6" />
+                <ScalarProperty Name="C7" ColumnName="7" />
+                <ScalarProperty Name="C8" ColumnName="8" />
+                <ScalarProperty Name="C9" ColumnName="9" />
+                <ScalarProperty Name="C10" ColumnName="10" />
+                <ScalarProperty Name="C11" ColumnName="11" />
+                <ScalarProperty Name="C12" ColumnName="12" />
+                <ScalarProperty Name="C13" ColumnName="13" />
+                <ScalarProperty Name="C14" ColumnName="14" />
+                <ScalarProperty Name="C15" ColumnName="15" />
+                <ScalarProperty Name="C16" ColumnName="16" />
+                <ScalarProperty Name="C17" ColumnName="17" />
+                <ScalarProperty Name="C18" ColumnName="18" />
+                <ScalarProperty Name="C19" ColumnName="19" />
+                <ScalarProperty Name="C20" ColumnName="20" />
+                <ScalarProperty Name="C21" ColumnName="21" />
+                <ScalarProperty Name="C22" ColumnName="22" />
+                <ScalarProperty Name="C23" ColumnName="23" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_RPT_MONTHLY_SUMS" FunctionName="QRESTModel.Store.SP_RPT_MONTHLY_SUMS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_RPT_MONTHLY_SUMS_Result">
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="DAY1" ColumnName="DAY1" />
+                <ScalarProperty Name="MAX" ColumnName="MAX" />
+                <ScalarProperty Name="MIN" ColumnName="MIN" />
+                <ScalarProperty Name="AVG" ColumnName="AVG" />
+                <ScalarProperty Name="STDEV" ColumnName="STDEV" />
+                <ScalarProperty Name="CNT" ColumnName="CNT" />
+                <ScalarProperty Name="CAP" ColumnName="CAP" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

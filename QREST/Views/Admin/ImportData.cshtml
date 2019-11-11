@@ -1,14 +1,20 @@
 ﻿@model QREST.Models.vmAdminImport
 @{
     ViewBag.Title = "Import Reference Data";
-    ViewBag.SubTitle = "Import the latest reference data from AQS. Import csv files can be found: <a href='https://www.epa.gov/aqs/aqs-code-list' target='_blank'>HERE</a>. Files that can be imported are: States/Counties, Agencies-Tribal, Durations, Frequencies, Unit Codes, Parameter Codes, and Parameter Methods. Import Parameter Codes before importing Parameter methods.";
+    ViewBag.SubTitle = "Import the latest reference data from AQS. Import csv files can be found: <a href='https://www.epa.gov/aqs/aqs-code-list' target='_blank'>HERE</a>. Files that can be imported are: States/Counties, Agencies-Tribal, Durations, Frequencies, Unit Codes, Parameter Codes, Parameter Methods, and Qualifiers. Import Parameter Codes before importing Parameter methods.";
 }
 
 @using (Html.BeginForm("ImportData", "Admin", null, FormMethod.Post, new { enctype = "multipart/form-data", @id = "norepostform" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary()
-    <input type="file" class="filestyle" data-icon="false" data-classButton="btn btn-dark" data-classInput="form-control inline input-s" id="postedFile" name="postedFile">
+    <div class="row">
+        <div class="col-md-4">
+            <input type="file" class="filestyle " id="postedFile" name="postedFile" data-classInput="form-control inline input-s"
+                   data-buttonName="btn-dark" data-icon="true" data-placeholder="Select an AQS csv file."
+                   accept=".csv">
+        </div>
+    </div>
     <div class="form-group">
         <input id="btnUpload" type="submit" value="Upload" class="btn btn-primary" />
     </div>
@@ -22,28 +28,40 @@
 @if (Model.ErrorCount != null && Model.ErrorCount > 0)
 {
     <div class="alert alert-danger">
-        <button type="button" class="close" data-dismiss="alert">×</button>
         @Model.ErrorCount records encountered an error when attempting to import.
     </div>
 }
+
 @if (Model.ExistCount != null && Model.ExistCount > 0)
 {
     <div class="alert alert-info">
-        <button type="button" class="close" data-dismiss="alert">×</button>
         @Model.ExistCount records already existed in the QREST database and were therefore not imported.
     </div>
 }
+
+@if (Model.UpdateDetails != null && Model.UpdateDetails.Count > 0)
+{
+    <div class="alert alert-warning">
+        @Model.UpdateDetails.Count existing AQS records were modified and these updates have been imported to QREST.
+    </div>
+    <ul>
+        @foreach (var item in Model.UpdateDetails)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}
+
 @if (Model.InsertCount != null && Model.InsertCount > 0)
 {
     <div class="alert alert-success">
-        <button type="button" class="close" data-dismiss="alert">×</button>
         @Model.InsertCount new records were imported into QREST.
     </div>
 }
+
 @if (Model.InsertCount == 0 && Model.ExistCount == 0 && Model.ErrorCount == 0)
 {
     <div class="alert alert-danger">
-        <button type="button" class="close" data-dismiss="alert">×</button>
         This file cannot be read for import.
     </div>
 }

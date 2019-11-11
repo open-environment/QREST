@@ -12,17 +12,14 @@ namespace QRESTModel.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class T_QREST_DATA_HOURLY
+    public partial class T_QREST_REF_QUALIFIER
     {
-        public System.Guid DATA_HOURLY_IDX { get; set; }
-        public System.Guid MONITOR_IDX { get; set; }
-        public Nullable<System.DateTime> DATA_DTTM_UTC { get; set; }
-        public Nullable<System.DateTime> DATA_DTTM_LOCAL { get; set; }
-        public string DATA_VALUE { get; set; }
-        public string UNIT_CODE { get; set; }
-        public Nullable<bool> VAL_IND { get; set; }
-        public string VAL_CD { get; set; }
+        public string QUAL_CODE { get; set; }
+        public string QUAL_DESC { get; set; }
+        public string QUAL_TYPE { get; set; }
+        public string CREATE_USER_IDX { get; set; }
+        public Nullable<System.DateTime> CREATE_DT { get; set; }
+        public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
-        public bool VAL0_NOTIFY_IND { get; set; }
     }
 }

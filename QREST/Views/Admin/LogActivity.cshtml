@@ -70,17 +70,17 @@
                 "order": [[0, "desc"]],
                 "columns": [
                     {
-                        "data": "ACTIVITY_DT",
-                        "name": "ACTIVITY_DT",
+                        "data": "LOG_DT",
+                        "name": "LOG_DT",
                         "autoWidth": true,
                         render: function (d) {
                             return moment(d).format("MM/DD/YYYY hh:mm A ");
                         }
                     },
-                    { "data": "ACTIVITY_TYPE", "name": "ACTIVITY_TYPE", "autoWidth": true },
-                    { "data": "ACTIVITY_USER", "name": "ACTIVITY_USER", "autoWidth": true },
-                    { "data": "ACTIVITY_DESC", "name": "ACTIVITY_DESC", "autoWidth": true },
-                    { "data": "IP_ADDRESS", "name": "IP_ADDRESS", "autoWidth": true },
+                    { "data": "LOG_TYP", "name": "LOG_TYP", "autoWidth": true },
+                    { "data": "LOG_USER_NAME", "name": "LOG_USER_NAME", "autoWidth": true },
+                    { "data": "LOG_MSG", "name": "LOG_MSG", "autoWidth": true },
+                    { "data": "LOG_IP_ADDRESS", "name": "LOG_IP_ADDRESS", "autoWidth": true },
                 ],
                 fnDrawCallback: function (oSettings) {
                     var totalPages = this.api().page.info().pages;

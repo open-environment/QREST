@@ -1,8 +1,89 @@
-﻿
+﻿@model QREST.Models.vmHomeMap
 @{
     Layout = "~/Views/Shared/_LayoutPub.cshtml";
     ViewBag.Title = "Map";
 }
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<h3 class="text-center">The public website will be added in a future phase of the QREST development project.</h3>
+
+<div style="height:1px;"></div>
+<div id="map_canvas" style="width: 100%; height: 100vh; min-height:400px; padding: 0; margin: 0;"></div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://js.arcgis.com/4.12/esri/css/main.css">
+    <script src="https://js.arcgis.com/4.12/"></script>
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/Graphic"
+        ], function (Map, MapView, Graphic) {
+
+                var map = new Map({
+                    basemap: "topo-vector"
+                });
+
+                var view = new MapView({
+                    container: "map_canvas",
+                    map: map,
+                    center: [-102, 37],
+                    zoom: 5
+                });
+
+                function AddPoint(lat, long, sitename) {
+                    var point = {
+                        type: "point",
+                        longitude: long,
+                        latitude: lat
+                    };
+
+                    var simpleMarkerSymbol = {
+                        type: "simple-marker",
+                        color: [226, 119, 40],
+                        outline: {
+                            color: [255, 255, 255],
+                            width: 1
+                        }
+                    };
+
+                    // Create attributes
+                    var attributes = {
+                        Name: sitename,
+                        Location: lat + " / " + long,
+                    };
+
+                    // Create popup template
+                    var popupTemplate = {
+                        title: "<b>{Name}</b>",
+                        content: "{Location}<br/><a class='badge bg-primary' href=''>Monthly Data</a><a class='badge bg-primary m-l-md' href=''>Annual</a>"
+                    };
+
+                    var pointGraphic = new Graphic({
+                        geometry: point,
+                        symbol: simpleMarkerSymbol,
+                        //*** ADD ***//
+                        attributes: attributes,
+                        popupTemplate: popupTemplate
+                    });
+
+                    view.graphics.add(pointGraphic);
+                };
+
+
+
+
+                @foreach (var item in Model.T_QREST_SITES)
+                {
+                    if (item.LATITUDE != null && item.LONGITUDE != null && item.SITE_NAME != null)
+                    {
+                        <text>
+                        AddPoint(@item.LATITUDE, @item.LONGITUDE, '@item.SITE_NAME');
+                        </text>
+                    }
+                }
+        });
+
+
+
+    </script>
+}
+
+

@@ -172,8 +172,8 @@ namespace QREST.Models
     }
 
 
-    //****************************************************************************
     // ******************************** LOGGING***********************************
+    //****************************************************************************
     //****************************************************************************
     public class vmAdminLogError
     {}
@@ -185,8 +185,8 @@ namespace QREST.Models
     {}
 
 
-    //****************************************************************************
     // ******************************** IMPORT************************************
+    //****************************************************************************
     //****************************************************************************
     public class vmAdminImport
     {
@@ -196,11 +196,12 @@ namespace QREST.Models
         public int? ExistCount { get; set; }
         public int? ErrorCount { get; set; }
         public int? InsertCount { get; set; }
+        public List<string> UpdateDetails { get; set; }
     }
 
 
-    //****************************************************************************
     // ******************************** REF DATA************************************
+    //****************************************************************************
     //****************************************************************************
     public class vmAdminRefPar
     {
@@ -214,6 +215,29 @@ namespace QREST.Models
         {
             ddl_units = ddlHelpers.get_ddl_ref_units(null);
         }
+    }
+
+
+    public class vmAdminRefParMethod
+    {
+        public Guid? editPAR_METHOD_IDX { get; set; }
+        public double? editCUST_MIN_VALUE { get; set; }
+        public double? editCUST_MAX_VALUE { get; set; }
+
+    }
+
+    public class vmAdminRefQual
+    {
+        
+    }
+
+    //****************************************************************************
+    // ******************************** CONNECTIVITY******************************
+    //****************************************************************************
+    public class vmAdminConnectivity
+    {
+        public List<SitePollingConfigType> PollingConfig { get; set; }
+
     }
 
 }

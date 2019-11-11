@@ -42,6 +42,7 @@
                             <th>POC</th>
                             <th>Time UTC</th>
                             <th>Value</th>
+                            <th>Flagged</th>
                         </tr>
                     </thead>
                 </table>
@@ -80,7 +81,15 @@
                     timePicker24Hour: true,
                     autoUpdateInput: true,
                     startDate: moment().startOf('hour').add(-1, 'day'),
-                    endDate: moment().startOf('hour').add(10,'hour'),
+                    endDate: moment().startOf('hour').add(10, 'hour'),
+                    ranges: {
+                       'Today': [moment(), moment()],
+                       'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                       'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                       'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                       'This Month': [moment().startOf('month'), moment().endOf('month')],
+                       'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
                     locale: {
                         format: 'M/DD/YYYY HH:00'
                     }
@@ -131,7 +140,8 @@
                             return moment(d).utc().format("MM/DD/YYYY hh:mm A ");
                         }
                     },
-                    { "data": "DATA_VALUE", "name": "DATA_VALUE", "autoWidth": true }
+                    { "data": "DATA_VALUE", "name": "DATA_VALUE", "autoWidth": true },
+                    { "data": "VAL_CD", "name": "VAL_CD", "autoWidth": true }
                 ],
                 fnDrawCallback: function (oSettings) {
                     var totalPages = this.api().page.info().pages;
@@ -143,7 +153,6 @@
                     }
                 }
             });
-
 
             //filter click
             $('#btnGo').on('click', function () {
@@ -165,6 +174,7 @@
             var url = '@Url.Action("FetchMonitors")';
             var mons = $('#selMon');
             $('#selOrgID').change(function () {
+
                 mons.empty();
                 $.getJSON(url, { ID: $(this).val() }, function (data) {
                     if (!data) {
@@ -197,10 +207,30 @@
                 success: function (field) {
                     var fff = $.parseJSON(field.data);
                     if (fff != null) {
+                        var lcolor="blue";
                         for (var i = 0; i < fff.length; i++) {
+                            if (fff[i].DATA_VALUE == "FEW") {
+                                lcolor = "#ffee8c";
+                            }
+                            else if (fff[i].VAL_CD == "MIN") {
+                                lcolor = "#d32d41";
+                            }
+                            else if (fff[i].VAL_CD == "MAX") {
+                                lcolor = "#d32d41";
+                            }
+                            else if (fff[i].VAL_CD == "JUMP") {
+                                lcolor = "#6F2DA7";
+                            }
+                            else {
+                                lcolor = "#67B347";
+                            }
                                 dataPointsA.push({
                                     x: new Date(fff[i].DATA_DTTM),
-                                    y: fff[i].DATA_VALUE == "FEW" ? null : Number(fff[i].DATA_VALUE)
+                                    y: fff[i].DATA_VALUE == "FEW" ? 0 : Number(fff[i].DATA_VALUE),
+
+                                    lineColor: lcolor,
+                                    color:lcolor
+                                    
                                 });
                             parName = fff[i].PAR_NAME;
                         }
@@ -212,7 +242,8 @@
                                 text: parName
                             },
                             data: [{
-                                type: "area",
+                                type: "column",
+//                                color: 'rgb(90, 220, 0)',
                                 connectNullData: false,
                                 xValueType: "dateTime",
                                 xValueFormatString: "MM/DD/YYYY HH:mm",
@@ -221,11 +252,22 @@
                             }]
                         });
 
+                        //setColor(chart);
                         chart.render();
                     }
                 }
             });
 
+        }
+
+        function setColor(chart) {
+            for (var i = 0; i < chart.options.data.length; i++) {
+                dataSeries = chart.options.data[i];
+                for (var j = 0; j < dataSeries.dataPoints.length; j++){
+                    if (dataSeries.dataPoints[j].y <= 0.5)
+                        dataSeries.dataPoints[j].color = 'rgb(170, 0, 0)';
+                }
+            }
         }
     </script>
 

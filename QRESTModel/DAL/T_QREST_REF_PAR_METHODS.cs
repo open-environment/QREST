@@ -37,6 +37,8 @@ namespace QRESTModel.DAL
         public Nullable<System.DateTime> CREATE_DT { get; set; }
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
+        public Nullable<double> CUST_MIN_VALUE { get; set; }
+        public Nullable<double> CUST_MAX_VALUE { get; set; }
     
         public virtual T_QREST_REF_PARAMETERS T_QREST_REF_PARAMETERS { get; set; }
         public virtual T_QREST_REF_UNITS T_QREST_REF_UNITS { get; set; }

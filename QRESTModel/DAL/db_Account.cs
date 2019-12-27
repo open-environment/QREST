@@ -15,7 +15,9 @@ namespace QRESTModel.DAL
         public string USER_EMAIL { get; set; }
         public string USER_NAME { get; set; }
         public string ACCESS_LEVEL { get; set; }
+        public string ACCESS_LEVEL_DESC { get; set; }
         public string STATUS_IND { get; set; }
+        public string STATUS_IND_DESC { get; set; }
         public DateTime? CREATE_DT { get; set; }
     }
 
@@ -270,8 +272,10 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    return (from uo in ctx.T_QREST_ORG_USERS
-                            join u in ctx.T_QREST_USERS on uo.USER_IDX equals u.USER_IDX
+                    return (from uo in ctx.T_QREST_ORG_USERS.AsNoTracking()
+                            join u in ctx.T_QREST_USERS.AsNoTracking() on uo.USER_IDX equals u.USER_IDX
+                            join a in ctx.T_QREST_REF_ACCESS_LEVEL.AsNoTracking() on uo.ACCESS_LEVEL equals a.ACCESS_LEVEL
+                            join s in ctx.T_QREST_REF_USER_STATUS.AsNoTracking() on uo.STATUS_IND equals s.STATUS_IND
                             where uo.ORG_ID == oRG_ID
                             && (sTATUS == null ? true : uo.STATUS_IND == sTATUS)
                             && (aCCESS_LEVEL == null ? true : uo.ACCESS_LEVEL == aCCESS_LEVEL)
@@ -282,7 +286,9 @@ namespace QRESTModel.DAL
                                 USER_EMAIL = u.Email,
                                 ORG_ID = uo.ORG_ID,
                                 ACCESS_LEVEL = uo.ACCESS_LEVEL,
+                                ACCESS_LEVEL_DESC = a.ACCESS_LEVEL_DESC,
                                 STATUS_IND = uo.STATUS_IND,
+                                STATUS_IND_DESC = s.STATUS_IND_DESC,
                                 CREATE_DT = uo.CREATE_DT,
                                 USER_NAME = u.FNAME + " " + u.LNAME
                             }).ToList();
@@ -477,9 +483,11 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    var x = (from uo in ctx.T_QREST_ORG_USERS
-                             join u in ctx.T_QREST_USERS on uo.USER_IDX equals u.USER_IDX
-                             join o in ctx.T_QREST_ORGANIZATIONS on uo.ORG_ID equals o.ORG_ID
+                    var x = (from uo in ctx.T_QREST_ORG_USERS.AsNoTracking()
+                             join u in ctx.T_QREST_USERS.AsNoTracking() on uo.USER_IDX equals u.USER_IDX
+                             join o in ctx.T_QREST_ORGANIZATIONS.AsNoTracking() on uo.ORG_ID equals o.ORG_ID
+                             join a in ctx.T_QREST_REF_ACCESS_LEVEL.AsNoTracking() on uo.ACCESS_LEVEL equals a.ACCESS_LEVEL
+                             join s in ctx.T_QREST_REF_USER_STATUS.AsNoTracking() on uo.STATUS_IND equals s.STATUS_IND
                              where (sTATUS_CD != null ? uo.STATUS_IND == sTATUS_CD : true)
                              && uo.USER_IDX == uSER_IDX
                              select new UserOrgDisplayType
@@ -489,7 +497,9 @@ namespace QRESTModel.DAL
                                  ORG_ID = uo.ORG_ID,
                                  ORG_NAME = o.ORG_NAME,
                                  ACCESS_LEVEL = uo.ACCESS_LEVEL,
+                                 ACCESS_LEVEL_DESC = a.ACCESS_LEVEL_DESC,
                                  STATUS_IND = uo.STATUS_IND,
+                                 STATUS_IND_DESC = s.STATUS_IND_DESC,
                                  CREATE_DT = uo.CREATE_DT,
                                  USER_NAME = u.FNAME + " " + u.LNAME
                              }).ToList();

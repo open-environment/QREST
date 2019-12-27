@@ -26,6 +26,8 @@ INSERT INTO T_QREST_APP_SETTINGS_CUSTOM ([TERMS_AND_CONDITIONS],[ANNOUNCEMENTS])
 --****************TASKS ************************************************************************************
 INSERT INTO [dbo].[T_QREST_APP_TASKS]([TASK_NAME],[TASK_DESC],[FREQ_TYPE],[FREQ_NUM],[LAST_RUN_DT],[NEXT_RUN_DT],[STATUS],[MODIFY_USER_IDX],[MODIFY_DT])
      VALUES ('LoggerPolling','Polls data loggers to retrieve data','M',5,GetDate(),GetDate(),'Stopped',null,GetDate());
+INSERT INTO [dbo].[T_QREST_APP_TASKS]([TASK_NAME],[TASK_DESC],[FREQ_TYPE],[FREQ_NUM],[LAST_RUN_DT],[NEXT_RUN_DT],[STATUS],[MODIFY_USER_IDX],[MODIFY_DT])
+     VALUES ('HourlyValidation','Performs Level 0 validation on hourly data','M',60,GetDate(),GetDate(),'Stopped',null,GetDate());
 
 
 
@@ -40,6 +42,7 @@ INSERT INTO T_QREST_HELP_DOCS(HELP_TITLE,SORT_SEQ,HELP_HTML) values ('Tutorial V
 INSERT INTO T_QREST_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('EMAIL_CONFIRM','Sent to users to allow them to confirm their email address as part of activating their account.','Verify Your Email','Please verify your QREST account by clicking this link: <a href=''{callbackUrl}''>Verify Account</a>');
 INSERT INTO T_QREST_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('RESET_PASSWORD','Reset a user''s password','QREST - Reset Password','Please reset your QREST password by clicking here: <a href=''{callbackUrl}''>Reset Password</a>');
 INSERT INTO T_QREST_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('ACCESS_REQUEST','QREST Access Request','QREST - Access Request','Someone has requested access to your organization in QREST. The user {UserName} has requested to join your organization {orgName}. Please go to the dashboard in QREST to approve or deny their request. Click this link to manage: {siteUrl}');
+INSERT INTO T_QREST_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('POLLING_ALERT','QREST Polling Alerts','QREST Polling Alert','The following QREST alert(s) for hourly polled data have been triggered: {notifyMsg}');
 
 
 
@@ -61,10 +64,10 @@ GO
 
 
 --****************EPA REGION *****************************************************************************************
-INSERT INTO [T_QREST_REF_TIMEZONE] ([TZ_CODE],[TZ_NAME]) VALUES ('PST','Pacific Standard Time');
-INSERT INTO [T_QREST_REF_TIMEZONE] ([TZ_CODE],[TZ_NAME]) VALUES ('MST','Mountain Standard Time');
-INSERT INTO [T_QREST_REF_TIMEZONE] ([TZ_CODE],[TZ_NAME]) VALUES ('CST','Central Standard Time');
-INSERT INTO [T_QREST_REF_TIMEZONE] ([TZ_CODE],[TZ_NAME]) VALUES ('EST','Eastern Standard Time');
+INSERT INTO [T_QREST_REF_TIMEZONE] ([TZ_CODE],[TZ_NAME]) VALUES ('-8','Pacific Standard Time');
+INSERT INTO [T_QREST_REF_TIMEZONE] ([TZ_CODE],[TZ_NAME]) VALUES ('-7','Mountain Standard Time');
+INSERT INTO [T_QREST_REF_TIMEZONE] ([TZ_CODE],[TZ_NAME]) VALUES ('-6','Central Standard Time');
+INSERT INTO [T_QREST_REF_TIMEZONE] ([TZ_CODE],[TZ_NAME]) VALUES ('-5','Eastern Standard Time');
 
 
 GO
@@ -92,13 +95,13 @@ Particulate monitors using automated methods usually sample continuously and rep
 
 
 --****************ROLES *****************************************************************************************
-INSERT INTO [T_QREST_ROLES] ([ROLE_IDX], [Name]) 
-  VALUES (NEWID(), 'ADMIN'); --'Global administration role for QREST, spanning all organizations.'
+INSERT INTO [T_QREST_ROLES] ([ROLE_IDX], [Name]) VALUES (NEWID(), 'ADMIN'); --'Global administration role for QREST, spanning all organizations.'
+INSERT INTO [T_QREST_ROLES] ([ROLE_IDX], [Name]) VALUES (NEWID(), 'CERTIFIED QA REVIEWER'); 
 
 GO
 
 
---****************EPA REGION *****************************************************************************************
+--****************REF_PAR_UNITS *****************************************************************************************
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('007','42101');
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('008','42101');
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('007','42401');
@@ -172,16 +175,22 @@ INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('109','8850
 GO
 
 
+--****************REF_ACCESS_LEVEL *****************************************************************************************
+INSERT INTO [T_QREST_REF_ACCESS_LEVEL] ([ACCESS_LEVEL],[ACCESS_LEVEL_DESC]) VALUES ('A','Admin');
+INSERT INTO [T_QREST_REF_ACCESS_LEVEL] ([ACCESS_LEVEL],[ACCESS_LEVEL_DESC]) VALUES ('R','Read-Only');
+INSERT INTO [T_QREST_REF_ACCESS_LEVEL] ([ACCESS_LEVEL],[ACCESS_LEVEL_DESC]) VALUES ('U','Operator');
+INSERT INTO [T_QREST_REF_ACCESS_LEVEL] ([ACCESS_LEVEL],[ACCESS_LEVEL_DESC]) VALUES ('Q','QA Reviewer');
+
+
+--****************T_QREST_REF_USER_STATUS *****************************************************************************************
+INSERT INTO [T_QREST_REF_USER_STATUS] ([STATUS_IND],[STATUS_IND_DESC]) VALUES ('A','Active');
+INSERT INTO [T_QREST_REF_USER_STATUS] ([STATUS_IND],[STATUS_IND_DESC]) VALUES ('P','Pending');
+INSERT INTO [T_QREST_REF_USER_STATUS] ([STATUS_IND],[STATUS_IND_DESC]) VALUES ('R','Rejected');
+
 
 --****************ADDITIONAL DURATION NOT COMING FROM EPA *****************************************************************************************
   insert into [T_QREST_REF_DURATION](DURATION_CODE, DURATION_DESC, ACT_IND, CREATE_DT) values ('G','1 MINUTE',1,GetDate());
 
 
-
---****************ORGANIZATIONS *****************************************************************************************
-
-
-
---****************ORG_EMAIL ************************************************************************************
-
-
+--****************ADDITIONAL QUALIFIER NOT COMING FROM EPA *****************************************************************************************
+    insert into T_QREST_REF_QUALIFIER(QUAL_CODE,QUAL_DESC,QUAL_TYPE,CREATE_DT) values ('-1','<<REMOVE ANY>>','NULL',GetDate());

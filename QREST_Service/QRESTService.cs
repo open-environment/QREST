@@ -31,7 +31,7 @@ namespace QREST_Service
             try
             {
                 //Reset the QREST service status so it will run again (in case it failed previously)
-                bool SuccID = db_Ref.UpdateT_VCCB_TASKS_ResetAll();
+                bool SuccID = db_Ref.UpdateT_QREST_TASKS_ResetAll();
                 if (SuccID)
                 {
                     // Set up a timer that triggers every minute.
@@ -76,7 +76,7 @@ namespace QREST_Service
                     foreach (T_QREST_APP_TASKS _task in _tasks)
                     {
                         //SET TASK AS RUNNING
-                        db_Ref.UpdateT_VCCB_TASKS_SetRunning(_task.TASK_IDX);
+                        db_Ref.UpdateT_QREST_TASKS_SetRunning(_task.TASK_IDX);
                         General.WriteToFile(_task.TASK_NAME + " task started.");
 
                         try
@@ -87,7 +87,7 @@ namespace QREST_Service
                             object result = yourType.GetMethod("RunService").Invoke(yourObject, null);
 
                             //SET TASK AS COMPLETED AND SET NEXT RUN
-                            db_Ref.UpdateT_VCCB_TASKS_SetCompleted(_task.TASK_IDX);
+                            db_Ref.UpdateT_QREST_TASKS_SetCompleted(_task.TASK_IDX);
                             General.WriteToFile(_task.TASK_NAME + " task completed.");
                         }
                         catch (Exception ex)

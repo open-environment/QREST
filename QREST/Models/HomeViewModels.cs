@@ -6,7 +6,7 @@ using QRESTModel.DAL;
 
 namespace QREST.Models
 {
-    public class vmHomeIndex
+    public class vmHomeSignUp
     {
     }
 
@@ -19,9 +19,35 @@ namespace QREST.Models
         public string TermsAndConditions { get; set; }
     }
 
-    public class vmHomeMap
+    public class vmHomeIndex
     {
-        public List<T_QREST_SITES> T_QREST_SITES { get; set; }
+        public List<SiteDisplay> T_QREST_SITES { get; set; }
+    }
+
+
+    public class vmHomeReportDaily
+    {
+        public Guid? selSite { get; set; }
+        public int selMonth { get; set; }
+        public int selDay { get; set; }
+        public int selYear { get; set; }
+        public string selTime { get; set; }
+
+        public List<SP_RPT_DAILY_Result> Results { get; set; }
+        public IEnumerable<SelectListItem> ddl_Day { get; set; }
+        public IEnumerable<SelectListItem> ddl_Month { get; set; }
+        public IEnumerable<SelectListItem> ddl_Year { get; set; }
+        public IEnumerable<SelectListItem> ddl_Sites { get; set; }
+        public IEnumerable<SelectListItem> ddl_Time { get; set; }
+
+        public vmHomeReportDaily()
+        {
+            ddl_Day = ddlHelpers.get_ddl_days_in_month(null);
+            ddl_Month = ddlHelpers.get_ddl_months();
+            ddl_Year = ddlHelpers.get_ddl_years();
+            ddl_Sites = ddlHelpers.get_ddl_sites_sampling();
+            ddl_Time = ddlHelpers.get_ddl_time_type();
+        }
     }
 
     public class vmHomeReportMonthly
@@ -44,7 +70,7 @@ namespace QREST.Models
         {
             ddl_Month = ddlHelpers.get_ddl_months();
             ddl_Year = ddlHelpers.get_ddl_years();
-            ddl_Sites = ddlHelpers.get_ddl_sites_all();
+            ddl_Sites = ddlHelpers.get_ddl_sites_sampling();
             ddl_Time = ddlHelpers.get_ddl_time_type();
         }
     }
@@ -56,8 +82,8 @@ namespace QREST.Models
         public int selYear { get; set; }
         public string selTime { get; set; }
         public string Units { get; set; }
-        public List<SP_RPT_MONTHLY_Result> Results { get; set; }
-        public List<SP_RPT_MONTHLY_SUMS_Result> ResultSums { get; set; }
+        public List<SP_RPT_ANNUAL_Result> Results { get; set; }
+        public List<SP_RPT_ANNUAL_SUMS_Result> ResultSums { get; set; }
         public IEnumerable<SelectListItem> ddl_Year { get; set; }
         public IEnumerable<SelectListItem> ddl_Sites { get; set; }
         public IEnumerable<SelectListItem> ddl_Mons { get; set; }
@@ -66,7 +92,7 @@ namespace QREST.Models
         public vmHomeReportAnnual()
         {
             ddl_Year = ddlHelpers.get_ddl_years();
-            ddl_Sites = ddlHelpers.get_ddl_sites_all();
+            ddl_Sites = ddlHelpers.get_ddl_sites_sampling();
             ddl_Time = ddlHelpers.get_ddl_time_type();
         }
     }

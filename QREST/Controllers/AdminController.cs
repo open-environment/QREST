@@ -17,7 +17,7 @@ using QREST.App_Logic;
 
 namespace QREST.Controllers
 {
-    [Authorize(Roles ="ADMIN")]
+    [Authorize(Roles = "ADMIN")]
     public class AdminController : Controller
     {
         #region CONSTRUCTOR
@@ -52,10 +52,10 @@ namespace QREST.Controllers
         }
 
 
-        
+
         //************************************* APP SETTINGS ************************************************************
-        
-            // GET: /Admin/AppSettings
+
+        // GET: /Admin/AppSettings
         public ActionResult AppSettings()
         {
             T_QREST_APP_SETTINGS_CUSTOM custSettings = db_Ref.GetT_QREST_APP_SETTING_CUSTOM();
@@ -163,7 +163,7 @@ namespace QREST.Controllers
 
             return View(model);
         }
-         
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult EmailConfig(vmAdminEmailConfig model)
         {
@@ -280,7 +280,7 @@ namespace QREST.Controllers
                     TempData["Success"] = "Record updated";
                 else
                     TempData["Error"] = "Error updating record.";
-                         
+
             }
 
             //repopulate model
@@ -289,7 +289,7 @@ namespace QREST.Controllers
             return View(model);
         }
 
-        
+
         [HttpPost]
         public JsonResult OrgDelete(string id)
         {
@@ -347,6 +347,7 @@ namespace QREST.Controllers
                     return Json("Unable to find user to delete.");
             }
         }
+
 
 
         //************************************* USERS ************************************************************
@@ -454,7 +455,7 @@ namespace QREST.Controllers
                     TempData["Error"] = "You must select a role to add.";
                 else
                     foreach (string u in model.Roles_Not_In_User_Selected)
-                        succID = UserManager.AddToRole(model.user.Id, u); 
+                        succID = UserManager.AddToRole(model.user.Id, u);
             }
             // REMOVE USER FROM ROLE
             else if (submitButton == "Remove")
@@ -485,10 +486,59 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult TaskConfig()
+
+        //************************************* TASK MANAGEMENT ************************************************************
+        // GET: /Admin/TaskConfig
+        public ActionResult TaskConfig(int? id)
         {
             var model = new vmAdminTaskConfig();
+            model.Tasks = db_Ref.GetT_VCCB_TASKS_All();
+            model.EditTask = db_Ref.GetT_VCCB_TASKS_ByTaskID(id ?? -1);
             return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult TaskConfig(vmAdminTaskConfig model)
+        {
+            if (ModelState.IsValid && model.EditTask != null)
+            {
+                string UserIDX = User.Identity.GetUserId();
+
+                bool SuccInd =  db_Ref.UpdateT_QREST_TASKS(model.EditTask.TASK_IDX, model.EditTask.FREQ_TYPE, model.EditTask.FREQ_NUM,
+                    model.EditTask.LAST_RUN_DT, model.EditTask.NEXT_RUN_DT, model.EditTask.STATUS, UserIDX);
+
+                if (SuccInd)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("TaskConfig", new { id = model.EditTask?.TASK_IDX });
+        }
+
+
+        public ActionResult TaskStop(int? id)
+        {
+            bool SuccInd = db_Ref.UpdateT_QREST_TASKS_SetStopped(id??-1);
+
+            if (SuccInd)
+                TempData["Success"] = "Task Stopped.";
+            else
+                TempData["Error"] = "Task Not Stopped.";
+
+            return RedirectToAction("TaskConfig", new { id = id });
+        }
+
+        public ActionResult TaskStart(int? id)
+        {
+            bool SuccInd = db_Ref.UpdateT_QREST_TASKS_SetCompleted(id ?? -1);
+
+            if (SuccInd)
+                TempData["Success"] = "Task Scheduled to Run.";
+            else
+                TempData["Error"] = "Task Not Scheduled to Run.";
+
+            return RedirectToAction("TaskConfig", new { id = id });
         }
 
 
@@ -709,7 +759,7 @@ namespace QREST.Controllers
                                         T_QREST_REF_UNITS _unit = db_Ref.GetT_QREST_REF_UNITS_ByDesc(cols[5]);
                                         if (_unit != null)
                                         {
-                                            bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(cols[0], cols[1], cols[3], cols[4], _unit.UNIT_CODE, true, cols[6]=="YES", UserIDX);
+                                            bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(cols[0], cols[1], cols[3], cols[4], _unit.UNIT_CODE, true, cols[6] == "YES", UserIDX);
                                             if (SuccID)
                                                 insCount++;
                                             else
@@ -728,7 +778,7 @@ namespace QREST.Controllers
                                     if (_unit != null)
                                     {
                                         Tuple<string, string> SuccID = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(null, cols[1], cols[2], cols[3], cols[4], cols[5], cols[7], cols[8], _unit.UNIT_CODE, cols[9].ConvertOrDefault<double?>(), cols[10].ConvertOrDefault<double?>(), cols[11].ConvertOrDefault<double?>(), null, null, UserIDX);
-                                        if (SuccID.Item1=="I")
+                                        if (SuccID.Item1 == "I")
                                             insCount++;
                                         else if (SuccID.Item1 == "U")
                                         {
@@ -751,7 +801,7 @@ namespace QREST.Controllers
                                     db_Ref.InsertUpdatetT_QREST_REF_STATE(cols[0], cols[1], cols[2]);
 
                                     //next update county
-                                    T_QREST_REF_COUNTY _data = db_Ref.GetT_QREST_REF_COUNTY_ByID(cols[0],cols[3]);
+                                    T_QREST_REF_COUNTY _data = db_Ref.GetT_QREST_REF_COUNTY_ByID(cols[0], cols[3]);
                                     if (_data == null)
                                     {
                                         bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_COUNTY(cols[0], cols[3], cols[4]);
@@ -763,7 +813,7 @@ namespace QREST.Controllers
                                     else
                                         existCount++;
                                 }
-                                if (importType == "QUALIFIERS" && cols[4]=="YES")
+                                if (importType == "QUALIFIERS" && cols[4] == "YES")
                                 {
                                     T_QREST_REF_QUALIFIER _data = db_Ref.GetT_QREST_REF_QUALIFIER_ByID(cols[0]);
                                     if (_data == null)
@@ -917,7 +967,7 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid && model.editPAR_METHOD_IDX != null)
             {
-                Tuple<string, string> SuccInd = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(model.editPAR_METHOD_IDX, null, null, null, null, null, null, null, null, null, null, null, 
+                Tuple<string, string> SuccInd = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(model.editPAR_METHOD_IDX, null, null, null, null, null, null, null, null, null, null, null,
                     model.editCUST_MIN_VALUE ?? -9999, model.editCUST_MAX_VALUE ?? -9999, User.Identity.GetUserId());
 
                 if (SuccInd.Item1 == "U")
@@ -950,7 +1000,7 @@ namespace QREST.Controllers
 
         public ActionResult ExportRefParMethod()
         {
-            DataTable dt = DataTableGen.RefParMethod("","");
+            DataTable dt = DataTableGen.RefParMethod("", "");
             DataSet dsExport = DataTableGen.DataSetFromDataTables(dt, null, null, null);
             if (dsExport.Tables.Count > 0)
             {
@@ -1044,7 +1094,6 @@ namespace QREST.Controllers
 
         //************************************* CONNECTIVITY ************************************************************
         // GET: /Admin/Connectivity
-
         public ActionResult Connectivity()
         {
             var model = new vmAdminConnectivity();
@@ -1164,6 +1213,43 @@ namespace QREST.Controllers
         }
 
 
+
+        public ActionResult Testing()
+        {
+            return View();
+        }
+
+
+        public ActionResult HourlyPollValidation()
+        {
+            //this is where logic for the task goes
+            db_Air.SP_VALIDATE_HOURLY();
+
+            //then send out notifications
+            List<string> NotifyUsers = db_Air.GetT_QREST_DATA_HOURLY_NotificationUsers();
+            foreach (string u in NotifyUsers)
+            {
+                string msg = "" + Environment.NewLine;
+                List<RawDataDisplay> notifies = db_Air.GetT_QREST_DATA_HOURLY_NotificationsListForUser(u);
+                foreach (RawDataDisplay n in notifies)
+                {
+                    msg += n.SITE_ID + ": " + n.PAR_NAME + ": " + n.VAL_CD + " alert." + Environment.NewLine;
+                }
+
+                var emailParams = new Dictionary<string, string> { { "notifyMsg", msg } };
+                QRESTModel.BLL.UtilsNotify.NotifyUser(u, null, null, null, null, "POLLING_ALERT", emailParams, null);
+            }
+
+            //then update all records to notified
+            List<T_QREST_DATA_HOURLY> xxx = db_Air.GetT_QREST_DATA_HOURLY_NotNotified();
+            foreach (T_QREST_DATA_HOURLY xx in xxx)
+            {
+                db_Air.UpdateT_QREST_DATA_HOURLY_Notified(xx.DATA_HOURLY_IDX);
+            }
+
+
+            return View("Testing");
+        }
 
     }
 }

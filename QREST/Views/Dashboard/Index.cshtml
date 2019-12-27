@@ -69,7 +69,7 @@
 <div class="row">
     <div class="col-md-8">
         <section class="panel panel-qrest" style="border-bottom-left-radius:0px; border-bottom-right-radius:0px">
-            <header class="panel-heading font-bold">Map Showing My Sites</header>
+            <header class="panel-heading font-bold">My Sites</header>
             <div class="">
                 <div id="map_canvas" style="width: 100%; height: 400px; padding: 0; margin: 0;"></div>
             </div>
@@ -78,7 +78,7 @@
     <div class="col-md-4">
         <section class="panel panel-qrest">
             <header class="panel-heading font-bold">
-                Site: Test Canyon 001
+                Monitor Quickview
                 <span class="pull-right"><small class="text-muted">Alerts: <span class="badge bg-primary">None</span></small></span>
             </header>
             <div class="bg-light dk wrapper">
@@ -160,8 +160,8 @@
         });
     </script>
 
-    <link rel="stylesheet" href="https://js.arcgis.com/4.12/esri/css/main.css">
-    <script src="https://js.arcgis.com/4.12/"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.13/"></script>
     <script>
         require([
             "esri/Map",
@@ -180,39 +180,34 @@
                     zoom: 4
                 });
 
-                function AddPoint(lat, long, sitename) {
-                    var point = {
-                        type: "point",
-                        longitude: long,
-                        latitude: lat
-                    };
-
-                    var simpleMarkerSymbol = {
-                        type: "simple-marker",
-                        color: [226, 119, 40],
-                        outline: {
-                            color: [255, 255, 255],
-                            width: 1
-                        }
-                    };
-
-                    // Create attributes
-                    var attributes = {
-                        Name: sitename,  
-                        Location: lat + " / " + long,  
-                    };
+                function AddPoint(lat, long, sitename, org, aqs, monthlyuri, annualuri, dailyuri, configuri, qauri) {
 
                     // Create popup template
                     var popupTemplate = {
                         title: "<b>{Name}</b>",
-                        content: "{Location}<br/><a class='badge bg-primary' href=''>Site Config</a><a class='badge bg-primary m-l-md' href=''>Data</a>"
+                        content: "<b>Maintained by:</b> {Org}<br/><b>AQS Site ID:</b> {Aqs}<br/><b>Lat/Long:</b> {Location}<br/><a class='badge bg-warning' href='" + dailyuri + "'>Today's Data</a><a class='badge bg-default m-l-md' href='" + monthlyuri + "'>Monthly Summary</a><a class='badge bg-info m-l-md' href='" + annualuri + "'>Annual Summary</a><br/><a class='badge bg-danger  m-t-sm' href='" + configuri + "'>Site Config</a><a class='badge btn-dark m-l-md m-t-sm' href='" + qauri + "'>QA Data Review</a>"
                     };
 
                     var pointGraphic = new Graphic({
-                        geometry: point,
-                        symbol: simpleMarkerSymbol,
-                        //*** ADD ***//
-                        attributes: attributes,
+                        geometry: {
+                            type: "point",
+                            longitude: long,
+                            latitude: lat
+                        },
+                        symbol: {
+                            type: "simple-marker",
+                            color: [226, 119, 40],
+                            outline: {
+                            color: [0, 0, 0],
+                            width: 1
+                            }
+                        },
+                        attributes: {
+                            Name: sitename,
+                            Org: org,
+                            Aqs: aqs,
+                            Location: lat + " / " + long
+                        },
                         popupTemplate: popupTemplate
                     });
 
@@ -220,6 +215,23 @@
                 };
 
 
+                // the hitTest() checks to see if any graphics in the view intersect the given screen x, y coordinates
+                view.on("pointer-move", function (evt) {
+                    var screenPoint = {
+                        x: evt.x,
+                        y: evt.y
+                    };
+
+                    view.hitTest(screenPoint)
+                        .then(function (response) {
+                            if (response.results.length > 0) {
+                                if (response.results[0].graphic.layer.title != 'World Topo') 
+                                    document.getElementById("map_canvas").style.cursor = "pointer";
+                                else
+                                    document.getElementById("map_canvas").style.cursor = "default";
+                            } 
+                        });
+                });
 
 
                 @foreach (var item in Model.T_QREST_SITES)
@@ -227,7 +239,7 @@
                     if (item.LATITUDE != null && item.LONGITUDE != null && item.SITE_NAME != null)
                     {
                         <text>
-                        AddPoint(@item.LATITUDE, @item.LONGITUDE, '@item.SITE_NAME');
+                        AddPoint(@item.LATITUDE, @item.LONGITUDE, '@item.SITE_NAME', '@item.ORG_ID', '@item.STATE_CD-@item.COUNTY_CD-@item.AQS_SITE_ID', '@Url.Action("ReportMonthly", "Home", new { id= item.SITE_IDX })', '@Url.Action("ReportAnnual", "Home", new { id= item.SITE_IDX })', '@Url.Action("ReportDaily", "Home", new { id= item.SITE_IDX })', '@Url.Action("SiteEdit", "Site", new { id= item.SITE_IDX })', '@Url.Action("DataReview", "Data", new { id= item.SITE_IDX })');
                         </text>
                     }
                 }

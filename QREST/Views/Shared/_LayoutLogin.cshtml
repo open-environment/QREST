@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>QREST</title>
     <link rel="icon" href="@Url.Content("~/Content/favicon.ico")" />
-    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/css/files")
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
@@ -17,7 +17,7 @@
                 <header class="panel-heading text-center">
                     <strong>@ViewBag.Title</strong>
                     <div class="panel-tools pull-right">
-                        <a class="btn btn-xs btn-link btn-danger" href="@Url.Action("Index", "Home")">
+                        <a class="btn btn-xs btn-link btn-danger" href="@Url.Action("SignUp", "Home")">
                             <i class="fa fa-close"></i>
                         </a>
                     </div>

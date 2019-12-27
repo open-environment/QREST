@@ -41,6 +41,27 @@
           <Property Name="MODIFY_USER_IDX" Type="varchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
+        <EntityType Name="T_QREST_ASSESS_DOCS">
+          <Key>
+            <PropertyRef Name="ASSESS_DOC_IDX" />
+          </Key>
+          <Property Name="ASSESS_DOC_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="SITE_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="MONITOR_IDX" Type="uniqueidentifier" />
+          <Property Name="YR" Type="int" Nullable="false" />
+          <Property Name="MON" Type="int" Nullable="false" />
+          <Property Name="DOC_CONTENT" Type="varbinary(max)" />
+          <Property Name="DOC_NAME" Type="varchar" MaxLength="100" />
+          <Property Name="DOC_TYPE" Type="varchar" MaxLength="50" />
+          <Property Name="DOC_FILE_TYPE" Type="varchar" MaxLength="75" />
+          <Property Name="DOC_SIZE" Type="int" />
+          <Property Name="DOC_COMMENT" Type="varchar(max)" />
+          <Property Name="DOC_AUTHOR" Type="varchar" MaxLength="100" />
+          <Property Name="CREATE_USERIDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USERIDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
         <EntityType Name="T_QREST_DATA_FIVE_MIN">
           <Key>
             <PropertyRef Name="DATA_FIVE_IDX" />
@@ -68,6 +89,14 @@
           <Property Name="VAL_CD" Type="varchar" MaxLength="5" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="VAL0_NOTIFY_IND" Type="bit" Nullable="false" />
+          <Property Name="AQS_NULL_CODE" Type="varchar" MaxLength="2" />
+          <Property Name="LVL1_VAL_IND" Type="bit" />
+          <Property Name="LVL1_VAL_USERIDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="LVL1_VAL_DT" Type="datetime2" Precision="0" />
+          <Property Name="LVL2_VAL_IND" Type="bit" />
+          <Property Name="LVL2_VAL_USERIDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="LVL2_VAL_DT" Type="datetime2" Precision="0" />
+          <Property Name="NOTES" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="T_QREST_EMAIL_TEMPLATE">
           <Key>
@@ -149,12 +178,12 @@
           <Property Name="EPA_REGION" Type="int" />
           <Property Name="AQS_NAAS_UID" Type="varchar" MaxLength="100" />
           <Property Name="AQS_NAAS_PWD" Type="varchar" MaxLength="250" />
+          <Property Name="SELF_REG_IND" Type="bit" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
-          <Property Name="SELF_REG_IND" Type="bit" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -171,6 +200,13 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_ACCESS_LEVEL">
+          <Key>
+            <PropertyRef Name="ACCESS_LEVEL" />
+          </Key>
+          <Property Name="ACCESS_LEVEL" Type="varchar" MaxLength="1" Nullable="false" />
+          <Property Name="ACCESS_LEVEL_DESC" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="T_QREST_REF_AQS_AGENCY">
           <Key>
@@ -316,6 +352,13 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_USER_STATUS">
+          <Key>
+            <PropertyRef Name="STATUS_IND" />
+          </Key>
+          <Property Name="STATUS_IND" Type="varchar" MaxLength="1" Nullable="false" />
+          <Property Name="STATUS_IND_DESC" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="T_QREST_ROLES">
           <Key>
@@ -508,7 +551,7 @@
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
-        <Association Name="FK__T_QREST_O__AQS_A__48FABB07">
+        <Association Name="FK__T_QREST_O__AQS_A__4F12BBB9">
           <End Role="T_QREST_REF_AQS_AGENCY" Type="Self.T_QREST_REF_AQS_AGENCY" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -520,7 +563,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__EPA_R__480696CE">
+        <Association Name="FK__T_QREST_O__EPA_R__4E1E9780">
           <End Role="T_QREST_REF_REGION" Type="Self.T_QREST_REF_REGION" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -532,7 +575,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__ORG_I__4BD727B2">
+        <Association Name="FK__T_QREST_O__ORG_I__51EF2864">
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
@@ -546,7 +589,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__STATE__47127295">
+        <Association Name="FK__T_QREST_O__STATE__4D2A7347">
           <End Role="T_QREST_REF_STATE" Type="Self.T_QREST_REF_STATE" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -611,6 +654,34 @@
             </Principal>
             <Dependent Role="T_QREST_USER_ROLES">
               <PropertyRef Name="USER_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_ASSESS_DOCS_M">
+          <End Role="T_QREST_MONITORS" Type="Self.T_QREST_MONITORS" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_ASSESS_DOCS" Type="Self.T_QREST_ASSESS_DOCS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_MONITORS">
+              <PropertyRef Name="MONITOR_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_ASSESS_DOCS">
+              <PropertyRef Name="MONITOR_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_ASSESS_DOCS_S">
+          <End Role="T_QREST_SITES" Type="Self.T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_ASSESS_DOCS" Type="Self.T_QREST_ASSESS_DOCS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_ASSESS_DOCS">
+              <PropertyRef Name="SITE_IDX" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -763,7 +834,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_T_QREST_SITE_NOTIFY_S">
-          <End Role="T_QREST_SITES" Type="Self.T_QREST_SITES" Multiplicity="1" />
+          <End Role="T_QREST_SITES" Type="Self.T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="T_QREST_SITE_NOTIFY" Type="Self.T_QREST_SITE_NOTIFY" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="T_QREST_SITES">
@@ -853,7 +926,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_T_SITE_POLL_CONFIG_S">
-          <End Role="T_QREST_SITES" Type="Self.T_QREST_SITES" Multiplicity="1" />
+          <End Role="T_QREST_SITES" Type="Self.T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="T_QREST_SITE_POLL_CONFIG" Type="Self.T_QREST_SITE_POLL_CONFIG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="T_QREST_SITES">
@@ -864,7 +939,27 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Function Name="SP_CALC_HOURLY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="SP_AQS_REVIEW_STATUS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="adate" Type="datetime" Mode="In" />
+        </Function>
+        <Function Name="SP_RPT_ANNUAL" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="yr" Type="int" Mode="In" />
+          <Parameter Name="timetype" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="SP_RPT_ANNUAL_SUMS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="yr" Type="int" Mode="In" />
+          <Parameter Name="timetype" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="SP_RPT_DAILY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="mn" Type="int" Mode="In" />
+          <Parameter Name="yr" Type="int" Mode="In" />
+          <Parameter Name="dy" Type="int" Mode="In" />
+          <Parameter Name="timetype" Type="varchar" Mode="In" />
+        </Function>
         <Function Name="SP_RPT_MONTHLY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="mn" Type="int" Mode="In" />
@@ -877,10 +972,12 @@
           <Parameter Name="yr" Type="int" Mode="In" />
           <Parameter Name="timetype" Type="varchar" Mode="In" />
         </Function>
+        <Function Name="SP_VALIDATE_HOURLY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <EntityContainer Name="QRESTModelStoreContainer">
           <EntitySet Name="T_QREST_APP_SETTINGS" EntityType="Self.T_QREST_APP_SETTINGS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_APP_SETTINGS_CUSTOM" EntityType="Self.T_QREST_APP_SETTINGS_CUSTOM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_APP_TASKS" EntityType="Self.T_QREST_APP_TASKS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_ASSESS_DOCS" EntityType="Self.T_QREST_ASSESS_DOCS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_FIVE_MIN" EntityType="Self.T_QREST_DATA_FIVE_MIN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_HOURLY" EntityType="Self.T_QREST_DATA_HOURLY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_EMAIL_TEMPLATE" EntityType="Self.T_QREST_EMAIL_TEMPLATE" Schema="dbo" store:Type="Tables" />
@@ -890,6 +987,7 @@
           <EntitySet Name="T_QREST_ORG_USERS" EntityType="Self.T_QREST_ORG_USERS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_ORGANIZATIONS" EntityType="Self.T_QREST_ORGANIZATIONS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_QC_ASSESSMENT" EntityType="Self.T_QREST_QC_ASSESSMENT" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_ACCESS_LEVEL" EntityType="Self.T_QREST_REF_ACCESS_LEVEL" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_AQS_AGENCY" EntityType="Self.T_QREST_REF_AQS_AGENCY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_ASSESS_TYPE" EntityType="Self.T_QREST_REF_ASSESS_TYPE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_COLLECT_FREQ" EntityType="Self.T_QREST_REF_COLLECT_FREQ" Schema="dbo" store:Type="Tables" />
@@ -903,6 +1001,7 @@
           <EntitySet Name="T_QREST_REF_STATE" EntityType="Self.T_QREST_REF_STATE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_TIMEZONE" EntityType="Self.T_QREST_REF_TIMEZONE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_UNITS" EntityType="Self.T_QREST_REF_UNITS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_USER_STATUS" EntityType="Self.T_QREST_REF_USER_STATUS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_ROLES" EntityType="Self.T_QREST_ROLES" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_SITE_NOTIFY" EntityType="Self.T_QREST_SITE_NOTIFY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_SITE_POLL_CONFIG" EntityType="Self.T_QREST_SITE_POLL_CONFIG" Schema="dbo" store:Type="Tables" />
@@ -916,19 +1015,19 @@
           <EntitySet Name="T_QREST_USER_NOTIFICATION" EntityType="Self.T_QREST_USER_NOTIFICATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USER_ROLES" EntityType="Self.T_QREST_USER_ROLES" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USERS" EntityType="Self.T_QREST_USERS" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__T_QREST_O__AQS_A__48FABB07" Association="Self.FK__T_QREST_O__AQS_A__48FABB07">
+          <AssociationSet Name="FK__T_QREST_O__AQS_A__4F12BBB9" Association="Self.FK__T_QREST_O__AQS_A__4F12BBB9">
             <End Role="T_QREST_REF_AQS_AGENCY" EntitySet="T_QREST_REF_AQS_AGENCY" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__EPA_R__480696CE" Association="Self.FK__T_QREST_O__EPA_R__480696CE">
+          <AssociationSet Name="FK__T_QREST_O__EPA_R__4E1E9780" Association="Self.FK__T_QREST_O__EPA_R__4E1E9780">
             <End Role="T_QREST_REF_REGION" EntitySet="T_QREST_REF_REGION" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__ORG_I__4BD727B2" Association="Self.FK__T_QREST_O__ORG_I__4BD727B2">
+          <AssociationSet Name="FK__T_QREST_O__ORG_I__51EF2864" Association="Self.FK__T_QREST_O__ORG_I__51EF2864">
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
             <End Role="T_QREST_ORG_EMAIL_RULE" EntitySet="T_QREST_ORG_EMAIL_RULE" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__STATE__47127295" Association="Self.FK__T_QREST_O__STATE__47127295">
+          <AssociationSet Name="FK__T_QREST_O__STATE__4D2A7347" Association="Self.FK__T_QREST_O__STATE__4D2A7347">
             <End Role="T_QREST_REF_STATE" EntitySet="T_QREST_REF_STATE" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
@@ -947,6 +1046,14 @@
           <AssociationSet Name="FK_AspNetUserRoles_Users_UserId" Association="Self.FK_AspNetUserRoles_Users_UserId">
             <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
             <End Role="T_QREST_USER_ROLES" EntitySet="T_QREST_USER_ROLES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_M" Association="Self.FK_T_QREST_ASSESS_DOCS_M">
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+            <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_S" Association="Self.FK_T_QREST_ASSESS_DOCS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
           </AssociationSet>
           <AssociationSet Name="FK_T_QREST_MONITORS_C" Association="Self.FK_T_QREST_MONITORS_C">
             <End Role="T_QREST_REF_COLLECT_FREQ" EntitySet="T_QREST_REF_COLLECT_FREQ" />
@@ -1053,8 +1160,6 @@
           <EntitySet Name="T_QREST_REF_STATE" EntityType="QRESTModel.T_QREST_REF_STATE" />
           <EntitySet Name="T_QREST_REF_UNITS" EntityType="QRESTModel.T_QREST_REF_UNITS" />
           <EntitySet Name="T_QREST_ROLES" EntityType="QRESTModel.T_QREST_ROLES" />
-          <EntitySet Name="T_QREST_SITE_NOTIFY" EntityType="QRESTModel.T_QREST_SITE_NOTIFY" />
-          <EntitySet Name="T_QREST_SITE_POLL_CONFIG" EntityType="QRESTModel.T_QREST_SITE_POLL_CONFIG" />
           <EntitySet Name="T_QREST_SITE_POLL_CONFIG_DTL" EntityType="QRESTModel.T_QREST_SITE_POLL_CONFIG_DTL" />
           <EntitySet Name="T_QREST_SITES" EntityType="QRESTModel.T_QREST_SITES" />
           <EntitySet Name="T_QREST_SYS_LOG" EntityType="QRESTModel.T_QREST_SYS_LOG" />
@@ -1104,10 +1209,6 @@
             <End Role="T_QREST_REF_COUNTY" EntitySet="T_QREST_REF_COUNTY" />
             <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
           </AssociationSet>
-          <AssociationSet Name="FK_T_SITE_POLL_CONFIG_D" Association="QRESTModel.FK_T_SITE_POLL_CONFIG_D">
-            <End Role="T_QREST_REF_DURATION" EntitySet="T_QREST_REF_DURATION" />
-            <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
-          </AssociationSet>
           <AssociationSet Name="FK_T_QREST_REF_PAR_METHODS_P" Association="QRESTModel.FK_T_QREST_REF_PAR_METHODS_P">
             <End Role="T_QREST_REF_PARAMETERS" EntitySet="T_QREST_REF_PARAMETERS" />
             <End Role="T_QREST_REF_PAR_METHODS" EntitySet="T_QREST_REF_PAR_METHODS" />
@@ -1119,22 +1220,6 @@
           <AssociationSet Name="FK_T_QREST_REF_PARAMETERS_U" Association="QRESTModel.FK_T_QREST_REF_PARAMETERS_U">
             <End Role="T_QREST_REF_UNITS" EntitySet="T_QREST_REF_UNITS" />
             <End Role="T_QREST_REF_PARAMETERS" EntitySet="T_QREST_REF_PARAMETERS" />
-          </AssociationSet>
-          <AssociationSet Name="FK_T_QREST_SITE_NOTIFY_S" Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_S">
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
-            <End Role="T_QREST_SITE_NOTIFY" EntitySet="T_QREST_SITE_NOTIFY" />
-          </AssociationSet>
-          <AssociationSet Name="FK_T_QREST_SITE_NOTIFY_U" Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_U">
-            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
-            <End Role="T_QREST_SITE_NOTIFY" EntitySet="T_QREST_SITE_NOTIFY" />
-          </AssociationSet>
-          <AssociationSet Name="FK_T_SITE_POLL_CONFIG_DTL_P" Association="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P">
-            <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
-            <End Role="T_QREST_SITE_POLL_CONFIG_DTL" EntitySet="T_QREST_SITE_POLL_CONFIG_DTL" />
-          </AssociationSet>
-          <AssociationSet Name="FK_T_SITE_POLL_CONFIG_S" Association="QRESTModel.FK_T_SITE_POLL_CONFIG_S">
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
-            <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
           </AssociationSet>
           <AssociationSet Name="FK_AspNetUserClaims_Users_UserId" Association="QRESTModel.FK_AspNetUserClaims_Users_UserId">
             <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
@@ -1178,7 +1263,6 @@
           <EntitySet Name="T_QREST_DATA_FIVE_MIN" EntityType="QRESTModel.T_QREST_DATA_FIVE_MIN" />
           <EntitySet Name="T_QREST_REF_TIMEZONE" EntityType="QRESTModel.T_QREST_REF_TIMEZONE" />
           <EntitySet Name="T_QREST_DATA_HOURLY" EntityType="QRESTModel.T_QREST_DATA_HOURLY" />
-          <FunctionImport Name="SP_CALC_HOURLY" />
           <EntitySet Name="T_QREST_REF_QUALIFIER" EntityType="QRESTModel.T_QREST_REF_QUALIFIER" />
           <FunctionImport Name="SP_RPT_MONTHLY" ReturnType="Collection(QRESTModel.SP_RPT_MONTHLY_Result)">
             <Parameter Name="monid" Mode="In" Type="Guid" />
@@ -1191,6 +1275,61 @@
             <Parameter Name="mn" Mode="In" Type="Int32" />
             <Parameter Name="yr" Mode="In" Type="Int32" />
             <Parameter Name="timetype" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SP_RPT_ANNUAL" ReturnType="Collection(QRESTModel.SP_RPT_ANNUAL_Result)">
+            <Parameter Name="monid" Mode="In" Type="Guid" />
+            <Parameter Name="yr" Mode="In" Type="Int32" />
+            <Parameter Name="timetype" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SP_RPT_ANNUAL_SUMS" ReturnType="Collection(QRESTModel.SP_RPT_ANNUAL_SUMS_Result)">
+            <Parameter Name="monid" Mode="In" Type="Guid" />
+            <Parameter Name="yr" Mode="In" Type="Int32" />
+            <Parameter Name="timetype" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SP_RPT_DAILY" ReturnType="Collection(QRESTModel.SP_RPT_DAILY_Result)">
+            <Parameter Name="siteid" Mode="In" Type="Guid" />
+            <Parameter Name="mn" Mode="In" Type="Int32" />
+            <Parameter Name="yr" Mode="In" Type="Int32" />
+            <Parameter Name="dy" Mode="In" Type="Int32" />
+            <Parameter Name="timetype" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SP_VALIDATE_HOURLY" />
+          <EntitySet Name="T_QREST_REF_ACCESS_LEVEL" EntityType="QRESTModel.T_QREST_REF_ACCESS_LEVEL" />
+          <EntitySet Name="T_QREST_REF_USER_STATUS" EntityType="QRESTModel.T_QREST_REF_USER_STATUS" />
+          <EntitySet Name="T_QREST_SITE_POLL_CONFIG" EntityType="QRESTModel.T_QREST_SITE_POLL_CONFIG" />
+          <AssociationSet Name="FK_T_SITE_POLL_CONFIG_D" Association="QRESTModel.FK_T_SITE_POLL_CONFIG_D">
+            <End Role="T_QREST_REF_DURATION" EntitySet="T_QREST_REF_DURATION" />
+            <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_SITE_POLL_CONFIG_DTL_P" Association="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P">
+            <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
+            <End Role="T_QREST_SITE_POLL_CONFIG_DTL" EntitySet="T_QREST_SITE_POLL_CONFIG_DTL" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_SITE_POLL_CONFIG_S" Association="QRESTModel.FK_T_SITE_POLL_CONFIG_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
+          </AssociationSet>
+          <EntitySet Name="T_QREST_SITE_NOTIFY" EntityType="QRESTModel.T_QREST_SITE_NOTIFY" />
+          <AssociationSet Name="FK_T_QREST_SITE_NOTIFY_S" Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_SITE_NOTIFY" EntitySet="T_QREST_SITE_NOTIFY" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_SITE_NOTIFY_U" Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_U">
+            <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
+            <End Role="T_QREST_SITE_NOTIFY" EntitySet="T_QREST_SITE_NOTIFY" />
+          </AssociationSet>
+          <EntitySet Name="T_QREST_ASSESS_DOCS" EntityType="QRESTModel.T_QREST_ASSESS_DOCS" />
+          <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_M" Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_M">
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+            <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_S" Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
+          </AssociationSet>
+          <FunctionImport Name="SP_AQS_REVIEW_STATUS" ReturnType="Collection(QRESTModel.SP_AQS_REVIEW_STATUS_Result)">
+            <Parameter Name="siteid" Mode="In" Type="Guid" />
+            <Parameter Name="adate" Mode="In" Type="DateTime" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
@@ -1357,8 +1496,8 @@
           <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
-          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_D" FromRole="T_QREST_REF_DURATION" ToRole="T_QREST_SITE_POLL_CONFIG" />
           <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_D" FromRole="T_QREST_REF_DURATION" ToRole="T_QREST_MONITORS" />
+          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_D" FromRole="T_QREST_REF_DURATION" ToRole="T_QREST_SITE_POLL_CONFIG" />
         </EntityType>
         <EntityType Name="T_QREST_REF_PAR_METHODS">
           <Key>
@@ -1448,45 +1587,6 @@
           <Property Name="ROLE_DESC" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.T_QREST_USER_ROLES" FromRole="T_QREST_ROLES" ToRole="T_QREST_USERS" />
         </EntityType>
-        <EntityType Name="T_QREST_SITE_NOTIFY">
-          <Key>
-            <PropertyRef Name="SITE_NOTIFY_IDX" />
-          </Key>
-          <Property Name="SITE_NOTIFY_IDX" Type="Guid" Nullable="false" />
-          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
-          <Property Name="NOTIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
-          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITE_NOTIFY" ToRole="T_QREST_SITES" />
-          <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_U" FromRole="T_QREST_SITE_NOTIFY" ToRole="T_QREST_USERS" />
-        </EntityType>
-        <EntityType Name="T_QREST_SITE_POLL_CONFIG">
-          <Key>
-            <PropertyRef Name="POLL_CONFIG_IDX" />
-          </Key>
-          <Property Name="POLL_CONFIG_IDX" Type="Guid" Nullable="false" />
-          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
-          <Property Name="RAW_DURATION_CODE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="LOGGER_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="LOGGER_SOURCE" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="LOGGER_PORT" Type="Int32" />
-          <Property Name="LOGGER_USERNAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="LOGGER_PASSWORD" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="DELIMITER" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
-          <Property Name="DATE_COL" Type="Int32" />
-          <Property Name="DATE_FORMAT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="TIME_COL" Type="Int32" />
-          <Property Name="TIME_FORMAT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="ACT_IND" Type="Boolean" Nullable="false" />
-          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
-          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
-          <NavigationProperty Name="T_QREST_REF_DURATION" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_D" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_REF_DURATION" />
-          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG_DTL" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITE_POLL_CONFIG_DTL" />
-          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
-          <Property Name="LOCAL_TIMEZONE" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
             <PropertyRef Name="POLL_CONFIG_DTL_IDX" />
@@ -1495,10 +1595,10 @@
           <Property Name="POLL_CONFIG_IDX" Type="Guid" Nullable="false" />
           <Property Name="MONITOR_IDX" Type="Guid" Nullable="false" />
           <Property Name="COL" Type="Int32" />
-          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG_DTL" ToRole="T_QREST_SITE_POLL_CONFIG" />
           <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_M" FromRole="T_QREST_SITE_POLL_CONFIG_DTL" ToRole="T_QREST_MONITORS" />
           <Property Name="SUM_TYPE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
           <Property Name="ROUNDING" Type="Int32" />
+          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG_DTL" ToRole="T_QREST_SITE_POLL_CONFIG" />
         </EntityType>
         <EntityType Name="T_QREST_SITES">
           <Key>
@@ -1533,9 +1633,10 @@
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_SITES" ToRole="T_QREST_ORGANIZATIONS" />
           <NavigationProperty Name="T_QREST_REF_COUNTY" Relationship="QRESTModel.FK_T_QREST_SITES_C" FromRole="T_QREST_SITES" ToRole="T_QREST_REF_COUNTY" />
-          <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_NOTIFY" />
-          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_POLL_CONFIG" />
           <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_MONITORS" />
+          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_POLL_CONFIG" />
+          <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_NOTIFY" />
+          <NavigationProperty Name="T_QREST_ASSESS_DOCS" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_ASSESS_DOCS" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG">
           <Key>
@@ -1637,10 +1738,10 @@
           <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_ORG_USERS" Relationship="QRESTModel.FK_T_QREST_ORG_USERS_U" FromRole="T_QREST_USERS" ToRole="T_QREST_ORG_USERS" />
-          <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_U" FromRole="T_QREST_USERS" ToRole="T_QREST_SITE_NOTIFY" />
           <NavigationProperty Name="T_QREST_USER_CLAIMS" Relationship="QRESTModel.FK_AspNetUserClaims_Users_UserId" FromRole="T_QREST_USERS" ToRole="T_QREST_USER_CLAIMS" />
           <NavigationProperty Name="T_QREST_USER_LOGINS" Relationship="QRESTModel.FK_AspNetUserLogins_Users_UserId" FromRole="T_QREST_USERS" ToRole="T_QREST_USER_LOGINS" />
           <NavigationProperty Name="T_QREST_ROLES" Relationship="QRESTModel.T_QREST_USER_ROLES" FromRole="T_QREST_USERS" ToRole="T_QREST_ROLES" />
+          <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_U" FromRole="T_QREST_USERS" ToRole="T_QREST_SITE_NOTIFY" />
         </EntityType>
         <Association Name="FK__T_QREST_O__ORG_I__4BD727B2">
           <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
@@ -1770,18 +1871,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_T_SITE_POLL_CONFIG_D">
-          <End Type="QRESTModel.T_QREST_REF_DURATION" Role="T_QREST_REF_DURATION" Multiplicity="0..1" />
-          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG" Role="T_QREST_SITE_POLL_CONFIG" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_REF_DURATION">
-              <PropertyRef Name="DURATION_CODE" />
-            </Principal>
-            <Dependent Role="T_QREST_SITE_POLL_CONFIG">
-              <PropertyRef Name="RAW_DURATION_CODE" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_T_QREST_REF_PAR_METHODS_P">
           <End Type="QRESTModel.T_QREST_REF_PARAMETERS" Role="T_QREST_REF_PARAMETERS" Multiplicity="1" />
           <End Type="QRESTModel.T_QREST_REF_PAR_METHODS" Role="T_QREST_REF_PAR_METHODS" Multiplicity="*" />
@@ -1815,54 +1904,6 @@
             </Principal>
             <Dependent Role="T_QREST_REF_PARAMETERS">
               <PropertyRef Name="STD_UNIT_CODE" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_T_QREST_SITE_NOTIFY_S">
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1" />
-          <End Type="QRESTModel.T_QREST_SITE_NOTIFY" Role="T_QREST_SITE_NOTIFY" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITES">
-              <PropertyRef Name="SITE_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_SITE_NOTIFY">
-              <PropertyRef Name="SITE_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_T_QREST_SITE_NOTIFY_U">
-          <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="0..1" />
-          <End Type="QRESTModel.T_QREST_SITE_NOTIFY" Role="T_QREST_SITE_NOTIFY" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_USERS">
-              <PropertyRef Name="USER_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_SITE_NOTIFY">
-              <PropertyRef Name="NOTIFY_USER_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_T_SITE_POLL_CONFIG_DTL_P">
-          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG" Role="T_QREST_SITE_POLL_CONFIG" Multiplicity="1" />
-          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG_DTL" Role="T_QREST_SITE_POLL_CONFIG_DTL" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITE_POLL_CONFIG">
-              <PropertyRef Name="POLL_CONFIG_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_SITE_POLL_CONFIG_DTL">
-              <PropertyRef Name="POLL_CONFIG_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_T_SITE_POLL_CONFIG_S">
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1" />
-          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG" Role="T_QREST_SITE_POLL_CONFIG" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITES">
-              <PropertyRef Name="SITE_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_SITE_POLL_CONFIG">
-              <PropertyRef Name="SITE_IDX" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1927,6 +1968,7 @@
           <Property Name="ALERT_MAX_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <Property Name="ALERT_AMT_CHANGE_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <Property Name="ALERT_STUCK_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_ASSESS_DOCS" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_M" FromRole="T_QREST_MONITORS" ToRole="T_QREST_ASSESS_DOCS" />
         </EntityType>
         <EntityType Name="T_QREST_REF_COLLECT_FREQ">
           <Key>
@@ -2057,6 +2099,14 @@
           <Property Name="VAL_CD" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <Property Name="VAL0_NOTIFY_IND" Type="Boolean" Nullable="false" />
+          <Property Name="AQS_NULL_CODE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="LVL1_VAL_IND" Type="Boolean" />
+          <Property Name="LVL1_VAL_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LVL1_VAL_DT" Type="DateTime" Precision="0" />
+          <Property Name="LVL2_VAL_IND" Type="Boolean" />
+          <Property Name="LVL2_VAL_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LVL2_VAL_DT" Type="DateTime" Precision="0" />
+          <Property Name="NOTES" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_REF_QUALIFIER">
           <Key>
@@ -2106,6 +2156,257 @@
           <Property Type="Double" Name="STDEV" Nullable="true" />
           <Property Type="Int32" Name="CNT" Nullable="true" />
           <Property Type="Int32" Name="CAP" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="SP_RPT_ANNUAL_Result">
+          <Property Type="String" Name="MonthDisp" Nullable="true" MaxLength="4000" />
+          <Property Type="Int32" Name="SearchMonth" Nullable="true" />
+          <Property Type="Int32" Name="SearchDay" Nullable="true" />
+          <Property Type="String" Name="C0" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C1" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C2" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C3" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C4" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C5" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C6" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C7" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C8" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C9" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C10" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C11" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C12" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C13" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C14" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C15" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C16" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C17" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C18" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C19" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C20" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C21" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C22" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C23" Nullable="true" MaxLength="20" />
+        </ComplexType>
+        <ComplexType Name="SP_RPT_ANNUAL_SUMS_Result">
+          <Property Type="Guid" Name="MONITOR_IDX" Nullable="true" />
+          <Property Type="Int32" Name="MONTH1" Nullable="true" />
+          <Property Type="Int32" Name="DAY1" Nullable="true" />
+          <Property Type="Double" Name="MAX" Nullable="true" />
+          <Property Type="Double" Name="MIN" Nullable="true" />
+          <Property Type="Double" Name="AVG" Nullable="true" />
+          <Property Type="Double" Name="STDEV" Nullable="true" />
+          <Property Type="Int32" Name="CNT" Nullable="true" />
+          <Property Type="Int32" Name="CAP" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="SP_RPT_DAILY_Result">
+          <Property Type="Guid" Name="MONITOR_IDX" Nullable="true" />
+          <Property Type="String" Name="PAR_CODE" Nullable="true" MaxLength="6" />
+          <Property Type="String" Name="PAR_NAME" Nullable="true" MaxLength="100" />
+          <Property Type="Int32" Name="SearchDay" Nullable="true" />
+          <Property Type="String" Name="C0" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C1" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C2" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C3" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C4" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C5" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C6" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C7" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C8" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C9" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C10" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C11" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C12" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C13" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C14" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C15" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C16" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C17" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C18" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C19" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C20" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C21" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C22" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="C23" Nullable="true" MaxLength="20" />
+        </ComplexType>
+        <EntityType Name="T_QREST_REF_ACCESS_LEVEL">
+          <Key>
+            <PropertyRef Name="ACCESS_LEVEL" />
+          </Key>
+          <Property Name="ACCESS_LEVEL" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="ACCESS_LEVEL_DESC" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_USER_STATUS">
+          <Key>
+            <PropertyRef Name="STATUS_IND" />
+          </Key>
+          <Property Name="STATUS_IND" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS_IND_DESC" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_SITE_POLL_CONFIG">
+          <Key>
+            <PropertyRef Name="POLL_CONFIG_IDX" />
+          </Key>
+          <Property Name="POLL_CONFIG_IDX" Type="Guid" Nullable="false" />
+          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="RAW_DURATION_CODE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="LOGGER_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="LOGGER_SOURCE" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LOGGER_PORT" Type="Int32" />
+          <Property Name="LOGGER_USERNAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LOGGER_PASSWORD" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DELIMITER" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="DATE_COL" Type="Int32" />
+          <Property Name="DATE_FORMAT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="TIME_COL" Type="Int32" />
+          <Property Name="TIME_FORMAT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ACT_IND" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <Property Name="LOCAL_TIMEZONE" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_REF_DURATION" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_D" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_REF_DURATION" />
+          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG_DTL" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITE_POLL_CONFIG_DTL" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
+        </EntityType>
+        <Association Name="FK_T_SITE_POLL_CONFIG_D">
+          <End Type="QRESTModel.T_QREST_REF_DURATION" Role="T_QREST_REF_DURATION" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG" Role="T_QREST_SITE_POLL_CONFIG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_DURATION">
+              <PropertyRef Name="DURATION_CODE" />
+            </Principal>
+            <Dependent Role="T_QREST_SITE_POLL_CONFIG">
+              <PropertyRef Name="RAW_DURATION_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_SITE_POLL_CONFIG_DTL_P">
+          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG" Role="T_QREST_SITE_POLL_CONFIG" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG_DTL" Role="T_QREST_SITE_POLL_CONFIG_DTL" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITE_POLL_CONFIG">
+              <PropertyRef Name="POLL_CONFIG_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_SITE_POLL_CONFIG_DTL">
+              <PropertyRef Name="POLL_CONFIG_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_SITE_POLL_CONFIG_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG" Role="T_QREST_SITE_POLL_CONFIG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_SITE_POLL_CONFIG">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="T_QREST_SITE_NOTIFY">
+          <Key>
+            <PropertyRef Name="SITE_NOTIFY_IDX" />
+          </Key>
+          <Property Name="SITE_NOTIFY_IDX" Type="Guid" Nullable="false" />
+          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="NOTIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITE_NOTIFY" ToRole="T_QREST_SITES" />
+          <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_U" FromRole="T_QREST_SITE_NOTIFY" ToRole="T_QREST_USERS" />
+        </EntityType>
+        <Association Name="FK_T_QREST_SITE_NOTIFY_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_SITE_NOTIFY" Role="T_QREST_SITE_NOTIFY" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_SITE_NOTIFY">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_SITE_NOTIFY_U">
+          <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_SITE_NOTIFY" Role="T_QREST_SITE_NOTIFY" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_USERS">
+              <PropertyRef Name="USER_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_SITE_NOTIFY">
+              <PropertyRef Name="NOTIFY_USER_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="T_QREST_ASSESS_DOCS">
+          <Key>
+            <PropertyRef Name="ASSESS_DOC_IDX" />
+          </Key>
+          <Property Name="ASSESS_DOC_IDX" Type="Guid" Nullable="false" />
+          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="MONITOR_IDX" Type="Guid" />
+          <Property Name="YR" Type="Int32" Nullable="false" />
+          <Property Name="MON" Type="Int32" Nullable="false" />
+          <Property Name="DOC_CONTENT" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="DOC_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DOC_TYPE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DOC_FILE_TYPE" Type="String" MaxLength="75" FixedLength="false" Unicode="false" />
+          <Property Name="DOC_SIZE" Type="Int32" />
+          <Property Name="DOC_COMMENT" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="DOC_AUTHOR" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_M" FromRole="T_QREST_ASSESS_DOCS" ToRole="T_QREST_MONITORS" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_S" FromRole="T_QREST_ASSESS_DOCS" ToRole="T_QREST_SITES" />
+        </EntityType>
+        <Association Name="FK_T_QREST_ASSESS_DOCS_M">
+          <End Type="QRESTModel.T_QREST_MONITORS" Role="T_QREST_MONITORS" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_ASSESS_DOCS" Role="T_QREST_ASSESS_DOCS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_MONITORS">
+              <PropertyRef Name="MONITOR_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_ASSESS_DOCS">
+              <PropertyRef Name="MONITOR_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_ASSESS_DOCS_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_ASSESS_DOCS" Role="T_QREST_ASSESS_DOCS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_ASSESS_DOCS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="SP_AQS_REVIEW_STATUS_Result">
+          <Property Type="String" Name="PAR_CODE" Nullable="false" MaxLength="6" />
+          <Property Type="String" Name="PAR_NAME" Nullable="false" MaxLength="100" />
+          <Property Type="Guid" Name="MONITOR_IDX" Nullable="false" />
+          <Property Type="Int32" Name="hrs" Nullable="true" />
+          <Property Type="Int32" Name="hrs_data" Nullable="true" />
+          <Property Type="Int32" Name="aqs_ready" Nullable="true" />
+          <Property Type="Int32" Name="lvl1_val_ind" Nullable="true" />
+          <Property Type="Int32" Name="lvl2_val_ind" Nullable="true" />
+          <Property Type="Int32" Name="doc_cnt" Nullable="true" />
         </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2357,42 +2658,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="T_QREST_SITE_NOTIFY">
-            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_NOTIFY">
-              <MappingFragment StoreEntitySet="T_QREST_SITE_NOTIFY">
-                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
-                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
-                <ScalarProperty Name="NOTIFY_USER_IDX" ColumnName="NOTIFY_USER_IDX" />
-                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
-                <ScalarProperty Name="SITE_NOTIFY_IDX" ColumnName="SITE_NOTIFY_IDX" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG">
-            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG">
-              <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG">
-                <ScalarProperty Name="LOCAL_TIMEZONE" ColumnName="LOCAL_TIMEZONE" />
-                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
-                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
-                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
-                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
-                <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
-                <ScalarProperty Name="TIME_FORMAT" ColumnName="TIME_FORMAT" />
-                <ScalarProperty Name="TIME_COL" ColumnName="TIME_COL" />
-                <ScalarProperty Name="DATE_FORMAT" ColumnName="DATE_FORMAT" />
-                <ScalarProperty Name="DATE_COL" ColumnName="DATE_COL" />
-                <ScalarProperty Name="DELIMITER" ColumnName="DELIMITER" />
-                <ScalarProperty Name="LOGGER_PASSWORD" ColumnName="LOGGER_PASSWORD" />
-                <ScalarProperty Name="LOGGER_USERNAME" ColumnName="LOGGER_USERNAME" />
-                <ScalarProperty Name="LOGGER_PORT" ColumnName="LOGGER_PORT" />
-                <ScalarProperty Name="LOGGER_SOURCE" ColumnName="LOGGER_SOURCE" />
-                <ScalarProperty Name="LOGGER_TYPE" ColumnName="LOGGER_TYPE" />
-                <ScalarProperty Name="RAW_DURATION_CODE" ColumnName="RAW_DURATION_CODE" />
-                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
-                <ScalarProperty Name="POLL_CONFIG_IDX" ColumnName="POLL_CONFIG_IDX" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG_DTL">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG_DTL">
               <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG_DTL">
@@ -2622,6 +2887,14 @@
           <EntitySetMapping Name="T_QREST_DATA_HOURLY">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_HOURLY">
               <MappingFragment StoreEntitySet="T_QREST_DATA_HOURLY">
+                <ScalarProperty Name="NOTES" ColumnName="NOTES" />
+                <ScalarProperty Name="LVL2_VAL_DT" ColumnName="LVL2_VAL_DT" />
+                <ScalarProperty Name="LVL2_VAL_USERIDX" ColumnName="LVL2_VAL_USERIDX" />
+                <ScalarProperty Name="LVL2_VAL_IND" ColumnName="LVL2_VAL_IND" />
+                <ScalarProperty Name="LVL1_VAL_DT" ColumnName="LVL1_VAL_DT" />
+                <ScalarProperty Name="LVL1_VAL_USERIDX" ColumnName="LVL1_VAL_USERIDX" />
+                <ScalarProperty Name="LVL1_VAL_IND" ColumnName="LVL1_VAL_IND" />
+                <ScalarProperty Name="AQS_NULL_CODE" ColumnName="AQS_NULL_CODE" />
                 <ScalarProperty Name="VAL0_NOTIFY_IND" ColumnName="VAL0_NOTIFY_IND" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="VAL_CD" ColumnName="VAL_CD" />
@@ -2635,7 +2908,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="SP_CALC_HOURLY" FunctionName="QRESTModel.Store.SP_CALC_HOURLY" />
           <EntitySetMapping Name="T_QREST_REF_QUALIFIER">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_QUALIFIER">
               <MappingFragment StoreEntitySet="T_QREST_REF_QUALIFIER">
@@ -2691,6 +2963,178 @@
                 <ScalarProperty Name="STDEV" ColumnName="STDEV" />
                 <ScalarProperty Name="CNT" ColumnName="CNT" />
                 <ScalarProperty Name="CAP" ColumnName="CAP" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_RPT_ANNUAL" FunctionName="QRESTModel.Store.SP_RPT_ANNUAL">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_RPT_ANNUAL_Result">
+                <ScalarProperty Name="MonthDisp" ColumnName="MonthDisp" />
+                <ScalarProperty Name="SearchMonth" ColumnName="SearchMonth" />
+                <ScalarProperty Name="SearchDay" ColumnName="SearchDay" />
+                <ScalarProperty Name="C0" ColumnName="0" />
+                <ScalarProperty Name="C1" ColumnName="1" />
+                <ScalarProperty Name="C2" ColumnName="2" />
+                <ScalarProperty Name="C3" ColumnName="3" />
+                <ScalarProperty Name="C4" ColumnName="4" />
+                <ScalarProperty Name="C5" ColumnName="5" />
+                <ScalarProperty Name="C6" ColumnName="6" />
+                <ScalarProperty Name="C7" ColumnName="7" />
+                <ScalarProperty Name="C8" ColumnName="8" />
+                <ScalarProperty Name="C9" ColumnName="9" />
+                <ScalarProperty Name="C10" ColumnName="10" />
+                <ScalarProperty Name="C11" ColumnName="11" />
+                <ScalarProperty Name="C12" ColumnName="12" />
+                <ScalarProperty Name="C13" ColumnName="13" />
+                <ScalarProperty Name="C14" ColumnName="14" />
+                <ScalarProperty Name="C15" ColumnName="15" />
+                <ScalarProperty Name="C16" ColumnName="16" />
+                <ScalarProperty Name="C17" ColumnName="17" />
+                <ScalarProperty Name="C18" ColumnName="18" />
+                <ScalarProperty Name="C19" ColumnName="19" />
+                <ScalarProperty Name="C20" ColumnName="20" />
+                <ScalarProperty Name="C21" ColumnName="21" />
+                <ScalarProperty Name="C22" ColumnName="22" />
+                <ScalarProperty Name="C23" ColumnName="23" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_RPT_ANNUAL_SUMS" FunctionName="QRESTModel.Store.SP_RPT_ANNUAL_SUMS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_RPT_ANNUAL_SUMS_Result">
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="MONTH1" ColumnName="MONTH1" />
+                <ScalarProperty Name="DAY1" ColumnName="DAY1" />
+                <ScalarProperty Name="MAX" ColumnName="MAX" />
+                <ScalarProperty Name="MIN" ColumnName="MIN" />
+                <ScalarProperty Name="AVG" ColumnName="AVG" />
+                <ScalarProperty Name="STDEV" ColumnName="STDEV" />
+                <ScalarProperty Name="CNT" ColumnName="CNT" />
+                <ScalarProperty Name="CAP" ColumnName="CAP" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_RPT_DAILY" FunctionName="QRESTModel.Store.SP_RPT_DAILY">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_RPT_DAILY_Result">
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
+                <ScalarProperty Name="SearchDay" ColumnName="SearchDay" />
+                <ScalarProperty Name="C0" ColumnName="0" />
+                <ScalarProperty Name="C1" ColumnName="1" />
+                <ScalarProperty Name="C2" ColumnName="2" />
+                <ScalarProperty Name="C3" ColumnName="3" />
+                <ScalarProperty Name="C4" ColumnName="4" />
+                <ScalarProperty Name="C5" ColumnName="5" />
+                <ScalarProperty Name="C6" ColumnName="6" />
+                <ScalarProperty Name="C7" ColumnName="7" />
+                <ScalarProperty Name="C8" ColumnName="8" />
+                <ScalarProperty Name="C9" ColumnName="9" />
+                <ScalarProperty Name="C10" ColumnName="10" />
+                <ScalarProperty Name="C11" ColumnName="11" />
+                <ScalarProperty Name="C12" ColumnName="12" />
+                <ScalarProperty Name="C13" ColumnName="13" />
+                <ScalarProperty Name="C14" ColumnName="14" />
+                <ScalarProperty Name="C15" ColumnName="15" />
+                <ScalarProperty Name="C16" ColumnName="16" />
+                <ScalarProperty Name="C17" ColumnName="17" />
+                <ScalarProperty Name="C18" ColumnName="18" />
+                <ScalarProperty Name="C19" ColumnName="19" />
+                <ScalarProperty Name="C20" ColumnName="20" />
+                <ScalarProperty Name="C21" ColumnName="21" />
+                <ScalarProperty Name="C22" ColumnName="22" />
+                <ScalarProperty Name="C23" ColumnName="23" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_VALIDATE_HOURLY" FunctionName="QRESTModel.Store.SP_VALIDATE_HOURLY" />
+          <EntitySetMapping Name="T_QREST_REF_ACCESS_LEVEL">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_ACCESS_LEVEL">
+              <MappingFragment StoreEntitySet="T_QREST_REF_ACCESS_LEVEL">
+                <ScalarProperty Name="ACCESS_LEVEL_DESC" ColumnName="ACCESS_LEVEL_DESC" />
+                <ScalarProperty Name="ACCESS_LEVEL" ColumnName="ACCESS_LEVEL" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_USER_STATUS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_USER_STATUS">
+              <MappingFragment StoreEntitySet="T_QREST_REF_USER_STATUS">
+                <ScalarProperty Name="STATUS_IND_DESC" ColumnName="STATUS_IND_DESC" />
+                <ScalarProperty Name="STATUS_IND" ColumnName="STATUS_IND" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG">
+              <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG">
+                <ScalarProperty Name="LOCAL_TIMEZONE" ColumnName="LOCAL_TIMEZONE" />
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="ACT_IND" ColumnName="ACT_IND" />
+                <ScalarProperty Name="TIME_FORMAT" ColumnName="TIME_FORMAT" />
+                <ScalarProperty Name="TIME_COL" ColumnName="TIME_COL" />
+                <ScalarProperty Name="DATE_FORMAT" ColumnName="DATE_FORMAT" />
+                <ScalarProperty Name="DATE_COL" ColumnName="DATE_COL" />
+                <ScalarProperty Name="DELIMITER" ColumnName="DELIMITER" />
+                <ScalarProperty Name="LOGGER_PASSWORD" ColumnName="LOGGER_PASSWORD" />
+                <ScalarProperty Name="LOGGER_USERNAME" ColumnName="LOGGER_USERNAME" />
+                <ScalarProperty Name="LOGGER_PORT" ColumnName="LOGGER_PORT" />
+                <ScalarProperty Name="LOGGER_SOURCE" ColumnName="LOGGER_SOURCE" />
+                <ScalarProperty Name="LOGGER_TYPE" ColumnName="LOGGER_TYPE" />
+                <ScalarProperty Name="RAW_DURATION_CODE" ColumnName="RAW_DURATION_CODE" />
+                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
+                <ScalarProperty Name="POLL_CONFIG_IDX" ColumnName="POLL_CONFIG_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_SITE_NOTIFY">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_NOTIFY">
+              <MappingFragment StoreEntitySet="T_QREST_SITE_NOTIFY">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="NOTIFY_USER_IDX" ColumnName="NOTIFY_USER_IDX" />
+                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
+                <ScalarProperty Name="SITE_NOTIFY_IDX" ColumnName="SITE_NOTIFY_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_ASSESS_DOCS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_ASSESS_DOCS">
+              <MappingFragment StoreEntitySet="T_QREST_ASSESS_DOCS">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USERIDX" ColumnName="MODIFY_USERIDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USERIDX" ColumnName="CREATE_USERIDX" />
+                <ScalarProperty Name="DOC_AUTHOR" ColumnName="DOC_AUTHOR" />
+                <ScalarProperty Name="DOC_COMMENT" ColumnName="DOC_COMMENT" />
+                <ScalarProperty Name="DOC_SIZE" ColumnName="DOC_SIZE" />
+                <ScalarProperty Name="DOC_FILE_TYPE" ColumnName="DOC_FILE_TYPE" />
+                <ScalarProperty Name="DOC_TYPE" ColumnName="DOC_TYPE" />
+                <ScalarProperty Name="DOC_NAME" ColumnName="DOC_NAME" />
+                <ScalarProperty Name="DOC_CONTENT" ColumnName="DOC_CONTENT" />
+                <ScalarProperty Name="MON" ColumnName="MON" />
+                <ScalarProperty Name="YR" ColumnName="YR" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
+                <ScalarProperty Name="ASSESS_DOC_IDX" ColumnName="ASSESS_DOC_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_AQS_REVIEW_STATUS" FunctionName="QRESTModel.Store.SP_AQS_REVIEW_STATUS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_AQS_REVIEW_STATUS_Result">
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="hrs" ColumnName="hrs" />
+                <ScalarProperty Name="hrs_data" ColumnName="hrs_data" />
+                <ScalarProperty Name="aqs_ready" ColumnName="aqs_ready" />
+                <ScalarProperty Name="lvl1_val_ind" ColumnName="lvl1_val_ind" />
+                <ScalarProperty Name="lvl2_val_ind" ColumnName="lvl2_val_ind" />
+                <ScalarProperty Name="doc_cnt" ColumnName="doc_cnt" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>

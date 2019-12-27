@@ -117,36 +117,12 @@
                                         @Html.HiddenFor(modelItem => item.ORG_USER_IDX)
                                         @Html.HiddenFor(modelItem => item.USER_IDX)
                                     </td>
+                                    <td>@Html.DisplayFor(modelItem => item.USER_NAME)</td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.USER_NAME)
+                                        <span class="badge label-@(item.ACCESS_LEVEL)">@Html.DisplayFor(modelItem => item.ACCESS_LEVEL_DESC)</span>
                                     </td>
                                     <td>
-                                        @if (item.ACCESS_LEVEL == "A")
-                                        {
-                                            <span class="label label-success"> Admin</span>
-                                        }
-                                        else if (item.ACCESS_LEVEL == "U")
-                                        {
-                                            <span class="label label-info"> User</span>
-                                        }
-                                        else if (item.ACCESS_LEVEL == "R")
-                                        {
-                                            <span class="label label-warning"> Read Only</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @if (item.STATUS_IND == "A")
-                                        {
-                                            <span class="label label-success"> Active</span>
-                                        }
-                                        else if (item.STATUS_IND == "P")
-                                        {
-                                            <span class="label label-warning"> Pending</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="label label-danger"> Rejected</span>
-                                        }
+                                        <span class="badge label-@(item.STATUS_IND)">@Html.DisplayFor(modelItem => item.STATUS_IND_DESC)</span>
                                     </td>
                                 </tr>
                             }

@@ -70,21 +70,21 @@
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 300;
-    src: local('Open Sans Light'), local('OpenSans-Light'), url('../fonts/opensans-light-webfont.woff') format('woff');
+    src: local('Open Sans Light'), local('OpenSans-Light'), url('../../fonts/opensans-light-webfont.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 400;
-    src: local('Open Sans'), local('OpenSans'), url('../fonts/opensans-webfont.woff') format('woff');
+    src: local('Open Sans'), local('OpenSans'), url('../../fonts/opensans-webfont.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 700;
-    src: local('Open Sans Bold'), local('OpenSans-Bold'), url('../fonts/opensans-bold-webfont.woff') format('woff');
+    src: local('Open Sans Bold'), local('OpenSans-Bold'), url('../../fonts/opensans-bold-webfont.woff') format('woff');
 }
 
 
@@ -116,6 +116,13 @@
 .text-vcco-dk {
     color: #806a96;
 }*/
+
+.label-A { background-color: #5cb85c; } /*success*/ 
+.label-P { background-color: #f0ad4e; } /*warning*/ 
+.label-R { background-color: #d9534f; } /*danger*/ 
+.label-Q { background-color: #5bc0de; } /*info*/ 
+.label-U { background-color: #777777; } /*default*/ 
+
 
 .text-grey {
     color: #aaaaaa;
@@ -358,4 +365,32 @@ table.dataTable.no-footer {
 .panel.panel-noborder {
     border-width:0;
     box-shadow:none;
+}
+
+
+
+/*****DARKER STRIPED TABLE ******/
+.panel .table-striped-dk > tbody > tr:nth-child(odd) > td {
+    background-color: #eaeaea;
+}
+
+.panel .table-striped-dk > tbody > tr:nth-child(even) > td {
+    background-color: #fbfbfb;
+}
+
+.celldk {
+    background-color: #f3f4fff9 !important;
+}
+
+/*****DISPLAY AIR DATA ******/
+.max {
+    font-weight: bold;
+    text-decoration: underline;
+    color: #e20d0d;
+}
+
+
+.badge-xs {
+    font-size: 75%;
+    padding: 2px 4px !important;
 }

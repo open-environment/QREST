@@ -24,5 +24,13 @@ namespace QRESTModel.DAL
         public string VAL_CD { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
         public bool VAL0_NOTIFY_IND { get; set; }
+        public string AQS_NULL_CODE { get; set; }
+        public Nullable<bool> LVL1_VAL_IND { get; set; }
+        public string LVL1_VAL_USERIDX { get; set; }
+        public Nullable<System.DateTime> LVL1_VAL_DT { get; set; }
+        public Nullable<bool> LVL2_VAL_IND { get; set; }
+        public string LVL2_VAL_USERIDX { get; set; }
+        public Nullable<System.DateTime> LVL2_VAL_DT { get; set; }
+        public string NOTES { get; set; }
     }
 }

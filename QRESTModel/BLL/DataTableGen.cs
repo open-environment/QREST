@@ -1,4 +1,5 @@
 ﻿using QRESTModel.DAL;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -96,7 +97,149 @@ namespace QRESTModel.DataTableGen
             return dt;
         }
 
+        public static DataTable ReportMonthly(Guid monIDX, int mnth, int yr, string time)
+        {
+            DataTable dt = new DataTable("Monthly Data");
+            dt.Columns.AddRange(new DataColumn[31] {
+                                            new DataColumn("Day"),
+                                            new DataColumn("Mid"),
+                                            new DataColumn("1:00"),
+                                            new DataColumn("2:00"),
+                                            new DataColumn("3:00"),
+                                            new DataColumn("4:00"),
+                                            new DataColumn("5:00"),
+                                            new DataColumn("6:00"),
+                                            new DataColumn("7:00"),
+                                            new DataColumn("8:00"),
+                                            new DataColumn("9:00"),
+                                            new DataColumn("10:00"),
+                                            new DataColumn("11:00"),
+                                            new DataColumn("Noon"),
+                                            new DataColumn("13:00"),
+                                            new DataColumn("14:00"),
+                                            new DataColumn("15:00"),
+                                            new DataColumn("16:00"),
+                                            new DataColumn("17:00"),
+                                            new DataColumn("18:00"),
+                                            new DataColumn("19:00"),
+                                            new DataColumn("20:00"),
+                                            new DataColumn("21:00"),
+                                            new DataColumn("22:00"),
+                                            new DataColumn("23:00"),
+                                            new DataColumn("Day-"),
+                                            new DataColumn("Max"),
+                                            new DataColumn("Min"),
+                                            new DataColumn("Avg"),
+                                            new DataColumn("STD"),
+                                            new DataColumn("Cap")
+                                           });
 
+            List<SP_RPT_MONTHLY_Result> _datas = db_Air.SP_RPT_MONTHLY(monIDX, mnth, yr, time);
+            List<SP_RPT_MONTHLY_SUMS_Result> _datasums = db_Air.SP_RPT_MONTHLY_SUMS(monIDX, mnth, yr, time);
+            int i = 0;
+            foreach (var _data in _datas)
+            {
+                dt.Rows.Add(_data.SearchDay, _data.C0, _data.C1, _data.C2, _data.C3, _data.C4, _data.C5, _data.C6, _data.C7, _data.C8, _data.C9, _data.C10, _data.C11, _data.C12, _data.C13, _data.C14, 
+                    _data.C15, _data.C16, _data.C17, _data.C18, _data.C19, _data.C20, _data.C21, _data.C22, _data.C23, _data.SearchDay, _datasums[i].MAX, _datasums[i].MIN, _datasums[i].AVG, 
+                    _datasums[i].STDEV, _datasums[i].CAP);
+
+                i++;
+            }
+            return dt;
+        }
+
+        public static DataTable ReportAnnual(Guid monIDX, int yr, string time)
+        {
+            DataTable dt = new DataTable("Annual Data");
+            dt.Columns.AddRange(new DataColumn[31] {
+                                            new DataColumn("Day"),
+                                            new DataColumn("Mid"),
+                                            new DataColumn("1:00"),
+                                            new DataColumn("2:00"),
+                                            new DataColumn("3:00"),
+                                            new DataColumn("4:00"),
+                                            new DataColumn("5:00"),
+                                            new DataColumn("6:00"),
+                                            new DataColumn("7:00"),
+                                            new DataColumn("8:00"),
+                                            new DataColumn("9:00"),
+                                            new DataColumn("10:00"),
+                                            new DataColumn("11:00"),
+                                            new DataColumn("Noon"),
+                                            new DataColumn("13:00"),
+                                            new DataColumn("14:00"),
+                                            new DataColumn("15:00"),
+                                            new DataColumn("16:00"),
+                                            new DataColumn("17:00"),
+                                            new DataColumn("18:00"),
+                                            new DataColumn("19:00"),
+                                            new DataColumn("20:00"),
+                                            new DataColumn("21:00"),
+                                            new DataColumn("22:00"),
+                                            new DataColumn("23:00"),
+                                            new DataColumn("Day-"),
+                                            new DataColumn("Max"),
+                                            new DataColumn("Min"),
+                                            new DataColumn("Avg"),
+                                            new DataColumn("STD"),
+                                            new DataColumn("Cap")
+                                           });
+
+            List<SP_RPT_ANNUAL_Result> _datas = db_Air.SP_RPT_ANNUAL(monIDX, yr, time);
+            List<SP_RPT_ANNUAL_SUMS_Result> _datasums = db_Air.SP_RPT_ANNUAL_SUMS(monIDX, yr, time);
+            int i = 0;
+            foreach (var _data in _datas)
+            {
+                dt.Rows.Add(_data.MonthDisp + " "  + _data.SearchDay, _data.C0, _data.C1, _data.C2, _data.C3, _data.C4, _data.C5, _data.C6, _data.C7, _data.C8, _data.C9, _data.C10, _data.C11, _data.C12, _data.C13, _data.C14,
+                    _data.C15, _data.C16, _data.C17, _data.C18, _data.C19, _data.C20, _data.C21, _data.C22, _data.C23, _data.SearchDay, _datasums[i].MAX, _datasums[i].MIN, _datasums[i].AVG,
+                    _datasums[i].STDEV, _datasums[i].CAP);
+
+                i++;
+            }
+            return dt;
+        }
+
+        public static DataTable ReportDaily(Guid monIDX, int mnth, int yr, int day, string time)
+        {
+            DataTable dt = new DataTable("Daily Data");
+            dt.Columns.AddRange(new DataColumn[26] {
+                                            new DataColumn("Par Code"),
+                                            new DataColumn("Par Name"),
+                                            new DataColumn("Mid"),
+                                            new DataColumn("1:00"),
+                                            new DataColumn("2:00"),
+                                            new DataColumn("3:00"),
+                                            new DataColumn("4:00"),
+                                            new DataColumn("5:00"),
+                                            new DataColumn("6:00"),
+                                            new DataColumn("7:00"),
+                                            new DataColumn("8:00"),
+                                            new DataColumn("9:00"),
+                                            new DataColumn("10:00"),
+                                            new DataColumn("11:00"),
+                                            new DataColumn("Noon"),
+                                            new DataColumn("13:00"),
+                                            new DataColumn("14:00"),
+                                            new DataColumn("15:00"),
+                                            new DataColumn("16:00"),
+                                            new DataColumn("17:00"),
+                                            new DataColumn("18:00"),
+                                            new DataColumn("19:00"),
+                                            new DataColumn("20:00"),
+                                            new DataColumn("21:00"),
+                                            new DataColumn("22:00"),
+                                            new DataColumn("23:00")
+                                           });
+
+            List<SP_RPT_DAILY_Result> _datas = db_Air.SP_RPT_DAILY(monIDX, mnth, yr, day, time);
+            foreach (var _data in _datas)
+            {
+                dt.Rows.Add(_data.PAR_CODE, _data.PAR_NAME, _data.C0, _data.C1, _data.C2, _data.C3, _data.C4, _data.C5, _data.C6, _data.C7, _data.C8, _data.C9, _data.C10, _data.C11, _data.C12, _data.C13, _data.C14,
+                    _data.C15, _data.C16, _data.C17, _data.C18, _data.C19, _data.C20, _data.C21, _data.C22, _data.C23);
+
+            }
+            return dt;
+        }
 
         public static DataSet DataSetFromDataTables(DataTable dt1, DataTable dt2, DataTable dt3, DataTable dt4)
         {

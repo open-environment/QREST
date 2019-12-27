@@ -33,12 +33,7 @@ namespace QREST
                 realerror = realerror.InnerException;
 
             //try getting current user
-            string userIDX = null;
-            try {
-                userIDX = User.Identity.GetUserId();
-            }
-            catch { }
-
+            string userIDX = (Request.IsAuthenticated ? User.Identity.GetUserId() : "PublicUser");
 
             //log error
             db_Ref.CreateT_QREST_SYS_LOG(userIDX, null, realerror.Message);

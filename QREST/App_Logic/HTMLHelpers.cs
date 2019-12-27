@@ -53,5 +53,6 @@ namespace QREST.App_Logic.BusinessLogicLayer
             return MvcHtmlString.Create(label.ToString());
 
         }
+
     }
 }

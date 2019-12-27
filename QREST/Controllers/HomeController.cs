@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
 using Newtonsoft.Json;
-using QREST.App_Logic.BusinessLogicLayer;
+using QREST.App_Logic;
 using QREST.Models;
 using QRESTModel.DAL;
+using QRESTModel.DataTableGen;
 
 namespace QREST.Controllers
 {
@@ -19,6 +18,15 @@ namespace QREST.Controllers
         public ActionResult Index()
         {
             var model = new vmHomeIndex();
+            model.T_QREST_SITES = db_Air.GetT_QREST_SITES_All_Display();
+
+            return View(model);
+        }
+
+
+        public ActionResult SignUp()
+        {
+            var model = new vmHomeSignUp();
             return View(model);
         }
 
@@ -37,12 +45,53 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult Map()
+
+        public ActionResult ReportDaily(Guid? id, int? month, int? year, int? day, string time)
         {
-            var model = new vmHomeMap();
-            model.T_QREST_SITES = db_Air.GetT_QREST_SITES_All();
+            var model = new vmHomeReportDaily
+            {
+                selSite = id,
+                selMonth = month ?? System.DateTime.Now.Month,
+                selYear = year ?? System.DateTime.Now.Year,
+                selDay = day ?? System.DateTime.Now.Day,
+                selTime = time ?? "L"
+            };
+
+            model.Results = db_Air.SP_RPT_DAILY(id ?? Guid.Empty, model.selMonth, model.selYear, model.selDay, model.selTime);
 
             return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult ReportDaily(vmHomeReportDaily model)
+        {
+            return RedirectToAction("ReportDaily", new { id = model.selSite, month = model.selMonth, year = model.selYear, day = model.selDay, time = model.selTime });
+        }
+
+
+        public ActionResult ReportDailyExport(Guid? id, int? month, int? year, int? day, string time)
+        {
+            DataTable dt = DataTableGen.ReportDaily(id ?? Guid.Empty, month ?? 1, year ?? System.DateTime.Now.Year, day ?? 1, time);
+            if (dt.Rows.Count > 0)
+            {
+                MemoryStream ms = ExcelGen.GenExcelFromDataTables(dt, null, null, null);
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=QREST_Daily.xlsx");
+                ms.WriteTo(Response.OutputStream);
+                Response.Flush();
+                Response.End();
+
+                return null;
+            }
+            else
+            {
+                TempData["Error"] = "No data found to export";
+                return RedirectToAction("ReportDaily", new { id, month, year, day, time });
+            }
+
         }
 
 
@@ -68,10 +117,10 @@ namespace QREST.Controllers
             if (model.selMon != null)
             {
                 SiteMonitorDisplayType xxx = db_Air.GetT_QREST_MONITORS_ByID(model.selMon ?? Guid.Empty);
-                if (xxx != null)
+                if (xxx != null && xxx.T_QREST_MONITORS != null && xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE != null)
                 {
                     var yyy = db_Ref.GetT_QREST_REF_UNITS_ByID(xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE);
-                    model.Units = yyy.UNIT_DESC;
+                    model.Units = yyy?.UNIT_DESC;
                 }
 
             }
@@ -82,6 +131,31 @@ namespace QREST.Controllers
         public ActionResult ReportMonthly(vmHomeReportMonthly model)
         {
             return RedirectToAction("ReportMonthly", new { id = model.selSite, monid = model.selMon, month = model.selMonth, year = model.selYear, time = model.selTime });
+        }
+
+        public ActionResult ReportMonthlyExport(Guid? id, Guid? monid, int? month, int? year, string time)
+        {
+            DataTable dt = DataTableGen.ReportMonthly(monid ?? Guid.Empty, month ?? 1, year ?? 0, time);
+            if (dt.Rows.Count > 0)
+            {
+                MemoryStream ms = ExcelGen.GenExcelFromDataTables(dt, null, null, null);
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=QREST_Monthly.xlsx");
+                ms.WriteTo(Response.OutputStream);
+                Response.Flush();
+                Response.End();
+
+                return null;
+            }
+            else
+            {
+                TempData["Error"] = "No data found to export";
+                return RedirectToAction("ReportMonthly", new { id, monid, month, year, time });
+            }
+
         }
 
 
@@ -101,11 +175,11 @@ namespace QREST.Controllers
             else
                 model.ddl_Mons = new SelectList(Enumerable.Empty<SelectListItem>());
 
-            //model.Results = db_Air.SP_RPT_ANNUAL(model.selMon ?? Guid.Empty, model.selYear, model.selTime);
-            //model.ResultSums = db_Air.SP_RPT_ANNUAL_SUMS(model.selMon ?? Guid.Empty, model.selYear, model.selTime);
+            model.Results = db_Air.SP_RPT_ANNUAL(model.selMon ?? Guid.Empty, model.selYear, model.selTime);
+            model.ResultSums = db_Air.SP_RPT_ANNUAL_SUMS(model.selMon ?? Guid.Empty, model.selYear, model.selTime);
 
             SiteMonitorDisplayType xxx = db_Air.GetT_QREST_MONITORS_ByID(model.selMon ?? Guid.Empty);
-            if (xxx != null)
+            if (xxx != null && xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE != null)
             {
                 var yyy = db_Ref.GetT_QREST_REF_UNITS_ByID(xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE);
                 model.Units = yyy.UNIT_DESC;
@@ -119,6 +193,32 @@ namespace QREST.Controllers
         {
             return RedirectToAction("ReportAnnual", new { id = model.selSite, monid = model.selMon, year = model.selYear, time = model.selTime });
         }
+
+        public ActionResult ReportAnnualExport(Guid? id, Guid? monid, int? month, int? year, string time)
+        {
+            DataTable dt = DataTableGen.ReportAnnual(monid ?? Guid.Empty, year ?? 0, time);
+            if (dt.Rows.Count > 0)
+            {
+                MemoryStream ms = ExcelGen.GenExcelFromDataTables(dt, null, null, null);
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=QREST_Annual.xlsx");
+                ms.WriteTo(Response.OutputStream);
+                Response.Flush();
+                Response.End();
+
+                return null;
+            }
+            else
+            {
+                TempData["Error"] = "No data found to export";
+                return RedirectToAction("ReportMonthly", new { id, monid, month, year, time });
+            }
+
+        }
+
 
         public ActionResult Help()
         {
@@ -168,11 +268,42 @@ namespace QREST.Controllers
             return View();
         }
 
+        public ActionResult Test2()
+        {
+            //HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://raw.githubusercontent.com/open-environment/QREST/master/QREST/Content/Docs/DeployGuide.txt");
+            try
+            {
+                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
+                {
+                    string currentLine;
+                    while ((currentLine = csvreader.ReadLine()) != null)
+                    {
+                    }
+                    TempData["Success"] = "Worked";
+                 }
+            }
+            catch (AggregateException err)
+            {
+                foreach (var errInner in err.InnerExceptions)
+                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Failed to import monitor - code 5 " + errInner);
+                TempData["Error"] = "Unable to connect to AQS, please try again later.";
+            }
+            catch (Exception ex)
+            {
+                db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Failed to import monitor - code 4 " + ex.Message);
+                TempData["Error"] = "Unable to connect to AQS, please try again later.";
+            }
+
+
+            return RedirectToAction("Index");
+        }
 
         [HttpGet]
         public JsonResult FetchMonitorsBySite(Guid? ID)
         {
-            var data = ddlHelpers.get_monitors_by_site(ID ?? Guid.Empty);
+            var data = ddlHelpers.get_monitors_sampled_by_site(ID ?? Guid.Empty);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
     }

@@ -19,6 +19,7 @@ namespace QRESTModel.DAL
         {
             this.T_QREST_QC_ASSESSMENT = new HashSet<T_QREST_QC_ASSESSMENT>();
             this.T_QREST_SITE_POLL_CONFIG_DTL = new HashSet<T_QREST_SITE_POLL_CONFIG_DTL>();
+            this.T_QREST_ASSESS_DOCS = new HashSet<T_QREST_ASSESS_DOCS>();
         }
     
         public System.Guid MONITOR_IDX { get; set; }
@@ -49,5 +50,7 @@ namespace QRESTModel.DAL
         public virtual ICollection<T_QREST_QC_ASSESSMENT> T_QREST_QC_ASSESSMENT { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_SITE_POLL_CONFIG_DTL> T_QREST_SITE_POLL_CONFIG_DTL { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_ASSESS_DOCS> T_QREST_ASSESS_DOCS { get; set; }
     }
 }

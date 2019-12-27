@@ -196,6 +196,23 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<T_QREST_APP_TASKS> GetT_VCCB_TASKS_All()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from r in ctx.T_QREST_APP_TASKS
+                            select r).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    throw ex;
+                }
+            }
+        }
+
         public static List<T_QREST_APP_TASKS> GetT_VCCB_TASKS_ReadyToRun()
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -215,7 +232,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool UpdateT_VCCB_TASKS_ResetAll()
+        public static bool UpdateT_QREST_TASKS(int tASK_IDX, string fREQ_TYP, int? fREQ_NUM, DateTime? lAST_RUN_DT, DateTime? nEXT_RUN_DT, string sTATUS, string UserIDX)
         {
             try
             {
@@ -223,21 +240,74 @@ namespace QRESTModel.DAL
                 {
                     try
                     {
-                        ctx.Database.ExecuteSqlCommand("UPDATE T_QREST_APP_TASKS SET STATUS= {0}", "Stopped");
-                        return true;
+                        T_QREST_APP_TASKS e = (from r in ctx.T_QREST_APP_TASKS
+                                                 where r.TASK_IDX == tASK_IDX
+                                                 select r).FirstOrDefault();
+
+                        if (e != null)
+                        {
+                            if (fREQ_TYP != null) e.FREQ_TYPE = fREQ_TYP;
+                            if (fREQ_NUM != null) e.FREQ_NUM = fREQ_NUM ?? 1;
+                            //if (lAST_RUN_DT != null && lAST_RUN_DT > System.DateTime.Now.AddYears(10)) e.LAST_RUN_DT = lAST_RUN_DT.GetValueOrDefault();
+                            if (nEXT_RUN_DT != null && nEXT_RUN_DT > System.DateTime.Now.AddYears(10)) e.NEXT_RUN_DT = nEXT_RUN_DT.GetValueOrDefault();
+                            if (sTATUS != null) e.STATUS = sTATUS;
+                            e.MODIFY_DT = System.DateTime.Now;
+                            e.MODIFY_USER_IDX = UserIDX;
+                            ctx.SaveChanges();
+                            return true;
+                        }
+
+                        return false;
                     }
                     catch (Exception ex)
                     {
+                        logEF.LogEFException(ex);
                         return false;
                     }
                 }
             }
-            catch {
-                return false;
+            catch (Exception ex)
+            {
+                throw ex;
+                //return false;
             }
         }
 
-        public static bool UpdateT_VCCB_TASKS_SetRunning(int TaskID)
+
+        public static bool UpdateT_QREST_TASKS_ResetAll()
+        {
+            try
+            {
+                using (QRESTEntities ctx = new QRESTEntities())
+                {
+                    try
+                    {
+                        List<T_QREST_APP_TASKS> xxx = (from r in ctx.T_QREST_APP_TASKS
+                                                       where r.STATUS != "Stopped"
+                                                       select r).ToList();
+
+                        foreach (T_QREST_APP_TASKS x in xxx)
+                        {
+                            UpdateT_QREST_TASKS_SetStopped(x.TASK_IDX);
+                        }
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                        //logEF.LogEFException(ex);
+                        //return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+                //return false;
+            }
+        }
+
+        public static bool UpdateT_QREST_TASKS_SetRunning(int TaskID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -260,7 +330,30 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool UpdateT_VCCB_TASKS_SetCompleted(int TaskID)
+        public static bool UpdateT_QREST_TASKS_SetStopped(int TaskID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_APP_TASKS x = (from t in ctx.T_QREST_APP_TASKS
+                                           where t.TASK_IDX == TaskID
+                                           select t).FirstOrDefault();
+
+
+                    x.STATUS = "Stopped";
+                    ctx.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+        public static bool UpdateT_QREST_TASKS_SetCompleted(int TaskID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -290,6 +383,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
 
         //*****************EMAIL_TEMPLATE **********************************
@@ -604,6 +698,25 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        //*****************REF_ACCESS_LEVEL**********************************
+        public static List<T_QREST_REF_ACCESS_LEVEL> GetT_QREST_REF_ACCESS_LEVEL()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_ACCESS_LEVEL
+                            orderby a.ACCESS_LEVEL
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
 
 
         //***************** REF_AQS_AGENCY ******************************
@@ -1395,6 +1508,25 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<T_QREST_REF_QUALIFIER> GetT_QREST_REF_QUALIFIER_ByType(string type)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QUALIFIER
+                            where a.QUAL_TYPE == type
+                            orderby a.QUAL_CODE
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static int GetT_QREST_REF_QUALIFIERCount()
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1471,6 +1603,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
         //***************** REF_REGION ******************************
         public static List<T_QREST_REF_REGION> GetT_QREST_REF_REGION()
@@ -1710,7 +1843,7 @@ namespace QRESTModel.DAL
                 }
                 catch (Exception ex)
                 {
-                    return 0;
+                    throw ex;
                 }
             }
         }

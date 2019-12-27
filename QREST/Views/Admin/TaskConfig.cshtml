@@ -1,7 +1,89 @@
-﻿
+﻿@model QREST.Models.vmAdminTaskConfig
 @{
-    ViewBag.Title = "TaskConfig";
+    ViewBag.Title = "Task Configuration";
 }
 
-<h2>TaskConfig</h2>
+<section class="hbox">
+    <section class="aside-md panel panel-qrest" id="subNav" style="border-radius: 4px 0px 0px 4px;">
+        <header class="panel-heading font-bold" style="border-right: 1px solid #fff">Tasks</header>
+        <ul class="nav">
+            @foreach (var item in Model.Tasks)
+            {
+                <li class="b-b b-light">
+                    <a href="@Url.Action("TaskConfig", "Admin", new { id = item.TASK_IDX })" class="@(item.TASK_IDX==@Model.EditTask?.TASK_IDX ? "master-active" : "")">@item.TASK_NAME</a>
+                </li>
+            }
+        </ul>
+    </section>
+    @if (Model.EditTask != null)
+    {
+    <section class="panel panel-qrest" style="border-radius: 0px 4px 4px 0px;">
+        <header class="panel-heading font-bold">Task Details</header>
+        <div class="panel-body">
+            @using (Html.BeginForm("TaskConfig", "Admin", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.EditTask.TASK_IDX)
+
+                <article class="media">
+                    <div class="pull-left">
+                        @if (Model.EditTask.STATUS == "Completed")
+                        {
+                            <span class="label label-success"> @Html.DisplayFor(model => model.EditTask.STATUS)</span>
+                        }
+                        else
+                        {
+                            <span class="label label-warning"> @Html.DisplayFor(model => model.EditTask.STATUS)</span>
+                        }
+                    </div>
+                    <div class="media-body">
+                        <a href="#" class="h4">@Html.DisplayFor(model => model.EditTask.TASK_NAME)</a>
+                        <small class="block m-t-xs">@Html.DisplayFor(model => model.EditTask.TASK_DESC)</small>
+                        <em class="text-xs">Last ran <span class="text-danger">@Html.DisplayFor(model => model.EditTask.LAST_RUN_DT) UTC</span></em>
+                    </div>
+                </article>
+                <div class="line pull-in"></div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            Run Frequency
+                            @Html.TextBoxFor(model => model.EditTask.FREQ_TYPE, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.EditTask.FREQ_TYPE)
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            Run Frequency #
+                            @Html.TextBoxFor(model => model.EditTask.FREQ_NUM, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.EditTask.FREQ_NUM)
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            Next Run (UTC)
+                            @Html.TextBoxFor(model => model.EditTask.NEXT_RUN_DT, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.EditTask.NEXT_RUN_DT)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+
+                        @if (Model.EditTask.STATUS == "Running")
+                        {
+                            <a id="btnStop" href="@Url.Action("TaskStop", "Admin", new { id = Model.EditTask.TASK_IDX })" class="btn btn-danger">Stop Task</a>
+                        }
+                        else if (Model.EditTask.STATUS == "Stopped")
+                        {
+                        <a id="btnStart" href="@Url.Action("TaskStart", "Admin", new { id = Model.EditTask.TASK_IDX })" class="btn btn-warning">Start Task</a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+    }
+</section>
 

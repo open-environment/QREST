@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using QRESTModel.COMM;
 
 namespace QREST.Models
 {
@@ -51,7 +52,7 @@ namespace QREST.Models
             ddl_Region = ddlHelpers.get_ddl_region();
             ddl_AqsAgency = ddlHelpers.get_ddl_aqs_agency();
             ddl_user_status = ddlHelpers.get_ddl_user_status();
-            ddl_user_role = ddlHelpers.get_ddl_user_role();
+            ddl_user_role = ddlHelpers.get_ddl_org_user_role();
         }
 
     }
@@ -204,7 +205,9 @@ namespace QREST.Models
     public class vmSitePing
     {
         public Guid? POLL_CONFIG_IDX { get; set; }
-        public List<Tuple<bool, string>> pingResults { get; set; }
+        public List<Tuple<bool, string, string>> pingResults { get; set; }
+        public List<CommMessageLog> pingResults2 { get; set; }
+        public string loggerData { get; set; }
     }
 
     public class vmSiteMonitorList

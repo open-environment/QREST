@@ -1,0 +1,204 @@
+﻿@model QREST.Models.vmDataDocs
+@{
+    ViewBag.Title = "Supporting Documentation";
+}
+<h5 class="bold text-danger">@Model.PAR_NAME</h5>
+<h5 class="bold text-danger">Month: @Model.selMonth / @Model.selYear</h5>
+<div class="row">
+    <div class="col-md-6">
+        <section class="panel panel-qrest">
+            <header class="panel-heading font-bold">Site-wide Documents</header>
+            <div class="panel-body">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-sign"></i>
+                    Documents that apply generally for this site for this month.
+                </div>
+                <div class="table-responsive">
+                    <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Doc Name</th>
+                                <th>Type</th>
+                                <th>File Type</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+
+                        @foreach (var item in Model.SiteDocs)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline-block;">
+                                        <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DOC_NAME)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DOC_TYPE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DOC_FILE_TYPE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DOC_COMMENT)
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+                <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-primary btn-sm"><i class="fa fa-plus"></i> Upload</a>
+            </div>
+        </section>
+    </div>
+    <div class="col-md-6">
+        <section class="panel panel-qrest">
+            <header class="panel-heading font-bold">Parameter-specific Documents</header>
+            <div class="panel-body">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-sign"></i>
+                    Documents that apply to this parameter only.
+                </div>
+                <div class="table-responsive">
+                    <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Doc Name</th>
+                                <th>Type</th>
+                                <th>File Type</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+
+                        @foreach (var item in Model.MonDocs)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline-block;">
+                                        <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a class="text-info" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })">@item.DOC_NAME</a>                                    
+                                </td>
+                                <td>
+                                    <a class="text-info" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })">@item.DOC_TYPE</a>
+                                </td>
+                                <td>
+                                    <a class="text-info" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })">@item.DOC_FILE_TYPE</a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DOC_COMMENT)
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+                <a id="add-it2" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-primary btn-sm"><i class="fa fa-plus"></i> Upload</a>
+            </div>
+        </section>
+
+
+    </div>
+</div>
+
+
+<a href="@(Url.Action("DataReviewSummary", "Data", new { id = Model.selSite, month=Model.selMonth, year=Model.selYear }))" class="btn btn-sm btn-default "><i class="fa fa-chevron-left"></i> Return to Review Summary</a>
+
+
+<!-- START MODAL FORMS  -->
+<div class="modal fade" id="modal-formPhoto" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modal-title" style="float: left" class="modal-title">Add File</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("DataDocsAdd", "Data", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                
+                @Html.HiddenFor(model => model.editASSESS_DOC_IDX)
+                @Html.HiddenFor(model => model.selSite)
+                @Html.HiddenFor(model => model.selMon)
+                @Html.HiddenFor(model => model.selMonth)
+                @Html.HiddenFor(model => model.selYear)
+                @Html.HiddenFor(model => model.SiteMonInd)
+
+                <div class="modal-body">
+
+                    <div id="filer" class="form-group">
+                        Upload File
+                        <div class="input-group">
+                            <span id="file-selected"></span>
+                            @Html.TextBoxFor(m => m.fileUpload, new { type = "file" })
+                            @Html.ValidationMessageFor(model => model.fileUpload)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        @Html.TextAreaFor(model => model.fileDescription, new { @class = "form-control", @maxlength = "200", @rows = 4 })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="picLoc" type="submit" class="btn btn-sm btn-primary">Save</button>
+                    <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<!-- END MODAL FORMS -->
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $('#add-it').click(function () {
+            $("#editASSESS_DOC_IDX").val('');
+            $("#SiteMonInd").val('S');
+            $("#fileDescription").val('');
+            $("#modal-title").text("Add File");
+            $("#filer").show();
+        });
+        $('#add-it2').click(function () {
+            $("#editASSESS_DOC_IDX").val('');
+            $("#SiteMonInd").val('M');
+            $("#fileDescription").val('');
+            $("#modal-title").text("Add File");
+            $("#filer").show();
+        });
+        $('.edit-it').click(function () {
+            $("#editASSESS_DOC_IDX").val($(this).data("id"));
+            $("#SiteMonInd").val('E');
+            $("#fileDescription").val($(this).data("desc"));
+            $("#modal-title").text("Edit File Description");
+            $("#filer").hide();
+        });
+
+
+
+        $('#fileUpload').on('change', function() {  
+            const size =  
+               (this.files[0].size / 1024 / 1024).toFixed(2); 
+  
+            if (size > 25) { 
+                alert("File must be less than 25 MB"); 
+                $("#picLoc").prop('disabled', true);
+            } else { 
+                $("#picLoc").prop('disabled', false);
+            } 
+        }); 
+    </script>
+}

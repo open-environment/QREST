@@ -1,0 +1,141 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPub.cshtml";
+    ViewBag.Title = "Welcome to QREST";
+}
+
+<section id="content">
+    <div class="bg-primary dk">
+        <div class="text-center wrapper">
+            <div class="m-t-lg m-b-lg">
+                <div class="text-uc h2 font-bold inline"> <span class=" text-warning">QREST: </span> Quality Review and Exchange System for Tribes</div>
+                <br />
+                <br />
+                <br />
+                <p></p>
+                <div class="text-uc h3 font-bold inline">
+                    <div class="pull-left m-r-sm text-white">Tribal Air Quality Data <span class="font-thin ">Shared With</span></div>
+                    <div class="carousel slide carousel-fade inline auto aside text-left pull-left pull-none-xs" data-interval="2000">
+                        <div class="carousel-inner">
+                            <div class="item text-warning">
+                                The Public
+                            </div>
+                            <div class="item text-dark active">
+                                AirNOW
+                            </div>
+                            <div class="item">
+                                AQS
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center m-b-l">
+                <a class="btn btn-lg btn-rounded btn-dark m-sm btn-warning-hover" href="@(Url.Action("Register","Account"))">Create an Account</a>
+                <a href="@(Url.Action("Index","Home"))" class="btn btn-lg btn-rounded btn-warning b-white bg-empty m-sm">View Public Data</a>
+            </p>
+            <p class="h4 ">
+                Are you a tribal agency interested in sharing your data and making the AQS submission process easier?
+                <br />
+                Create an account to begin integrating your air monitoring data with QREST.<br /><br />
+            </p>
+        </div>
+        <div class="padder">
+            <div class="hbox">
+                <aside class="col-md-3 v-bottom text-right" style="z-index:900">
+                    <div class="hidden-sm hidden-xs">
+                        <section class="panel bg-dark inline m-b-n-lg m-r-n-xl aside-sm no-border device phone animated fadeInLeftBig" >
+                            <header class="panel-heading text-center">
+                                <i class="fa fa-minus fa-2x m-b-n-xs block"></i>
+                            </header>
+                            <div>
+                                <div class="m-l-xs m-r-xs">
+                                    <img src="~/Content/Images/phone-2.png" class="img-full">
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </aside>
+                <aside class="col-sm-10 col-md-6" style="z-index:998">
+                    <section class="panel bg-dark m-b-n-lg no-border device animated fadeInUp">
+                        <header class="panel-heading text-left">
+                            <i class="fa fa-circle fa-fw"></i>
+                            <i class="fa fa-circle fa-fw"></i>
+                            <i class="fa fa-circle fa-fw"></i>
+                        </header>
+                        <img src="~/Content/Images/main.png" class="img-full">
+                    </section>
+                </aside>
+                <aside class="col-md-3 v-bottom">
+                    <div class="hidden-sm hidden-xs">
+                        <section class="panel bg-light m-b-n-lg m-l-n-lg aside no-border device phone animated fadeInRightBig">
+                            <header class="panel-heading text-center">
+                                <i class="fa fa-minus fa-2x text-white m-b-n-xs block"></i>
+                            </header>
+                            <div class="">
+                                <div class="m-l-xs m-r-xs">
+                                    <img src="~/Content/Images/phone-1.png" class="img-full">
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </aside>
+            </div>
+        </div>
+        <div class="dker pos-rlt" style="z-index:999">
+            <div class="container wrapper">
+                <div class="m-t-lg m-b-lg text-center">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="about">
+        <div class="container">
+            <div class="m-t-xl m-b-xl text-center wrapper">
+                <h3>Online services for the following</h3>
+                <p class="text-muted">The following people can benefit from QREST features</p>
+            </div>
+            <div class="row m-t-xl m-b-xl text-center">
+                <div class="col-sm-4 fadeInLeft animated" data-ride="animated" data-animation="fadeInLeft" data-delay="300">
+                    <p class="h3 m-b-lg">
+                        <i class="fa fa-users fa-3x text-vcco-dk"></i>
+                    </p>
+                    <div class="">
+                        <h4 class="m-t-none">Public</h4>
+                        <p class="text-muted m-t-lg">QREST automatically provides the results of queries of historical data by such parameters including: date/time, parameter, monitor, sites, QA status of data, with disclaimers about non-QA-reviewed data. Files retrievable in CSV, XML and HTML file formats.</p>
+                    </div>
+                </div>
+                <div class="col-sm-4 fadeInLeft animated" data-ride="animated" data-animation="fadeInLeft" data-delay="600">
+                    <p class="h3 m-b-lg">
+                        <i class="fa fa-cloud fa-3x text-vcco-dk"></i>
+                    </p>
+                    <div class="">
+                        <h4 class="m-t-none">Tribal Air Professionals</h4>
+                        <p class="text-muted m-t-lg">Tribal air professionals can retrieve, review and distribute air quality data more efficiently.</p>
+                    </div>
+                </div>
+                <div class="col-sm-4 fadeInLeft animated" data-ride="animated" data-animation="fadeInLeft" data-delay="900">
+                    <p class="h3 m-b-lg">
+                        <i class="fa fa-bullhorn fa-3x text-vcco-dk"></i>
+                    </p>
+                    <div class="">
+                        <h4 class="m-t-none">EPA</h4>
+                        <p class="text-muted m-t-lg">EPA receives quality-reviewed air quality data faster and more consistently.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="newsletter" class="bg-dark clearfix wrapper-lg">
+        <div class="container text-center m-t-xl m-b-xl fadeIn animated" data-ride="animated" data-animation="fadeIn">
+            <h2>Still Have Questions?</h2>
+            <p>ITEP staff are eager to answer any questions you may have about QREST.</p>
+            <div class="form-inline m-t-xl m-b-xl">
+                <!--
+                          <div class="form-group">
+                            <input class="form-control input-lg" placeholder="Your email" data-ride="animated" data-animation="fadeInLeftBig" data-delay="300">
+                          </div> -->
+                <a class="btn btn-lg btn-primary m-sm" href="http://www7.nau.edu/itep/main/tams" target="_blank">Contact Us</a>
+            </div>
+        </div>
+    </div>
+</section>

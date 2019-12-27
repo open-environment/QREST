@@ -18,10 +18,10 @@ namespace QRESTModel.DAL
         public T_QREST_USERS()
         {
             this.T_QREST_ORG_USERS = new HashSet<T_QREST_ORG_USERS>();
-            this.T_QREST_SITE_NOTIFY = new HashSet<T_QREST_SITE_NOTIFY>();
             this.T_QREST_USER_CLAIMS = new HashSet<T_QREST_USER_CLAIMS>();
             this.T_QREST_USER_LOGINS = new HashSet<T_QREST_USER_LOGINS>();
             this.T_QREST_ROLES = new HashSet<T_QREST_ROLES>();
+            this.T_QREST_SITE_NOTIFY = new HashSet<T_QREST_SITE_NOTIFY>();
         }
     
         public string USER_IDX { get; set; }
@@ -51,12 +51,12 @@ namespace QRESTModel.DAL
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_ORG_USERS> T_QREST_ORG_USERS { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<T_QREST_SITE_NOTIFY> T_QREST_SITE_NOTIFY { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_USER_CLAIMS> T_QREST_USER_CLAIMS { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_USER_LOGINS> T_QREST_USER_LOGINS { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_ROLES> T_QREST_ROLES { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_SITE_NOTIFY> T_QREST_SITE_NOTIFY { get; set; }
     }
 }

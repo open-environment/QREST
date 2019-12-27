@@ -73,8 +73,8 @@
                                     <span class="title">Raw Data</span>
                                 </a>
                             </li>
-                            <li class="@Html.ActivePage("Data", "DataReview")">
-                                <a href="@Url.Action("DataReview", "Data")">
+                            <li class="@Html.ActivePage("Data", "DataReviewSummary,DataReview,DataReview2")">
+                                <a href="@Url.Action("DataReviewSummary", "Data")">
                                     <i class="fa fa-angle-right"></i>
                                     <span class="title">Data Review</span>
                                 </a>
@@ -124,6 +124,15 @@
                                             <span class="title">Example 2</span>
                                         </a>
                                     </li>
+                                    @if (User.IsInRole("ADMIN"))
+                                    {
+                                    <li class="@Html.ActivePage("Admin", "Connectivity")">
+                                        <a href="@Url.Action("Connectivity", "Admin")">
+                                            <i class="fa fa-angle-right"></i>
+                                            <span class="title">Connectivity</span>
+                                        </a>
+                                    </li>
+                                    }
                                 </ul>
                             </li>
                             <li>
@@ -161,10 +170,22 @@
                                         <span class="title">Users</span>
                                     </a>
                                 </li>
+                                <li class="@Html.ActivePage("Admin", "RefCollFreq,RefDuration,RefPar,RefParMethod,RefParUnit,RefUnit,ImportData")">
+                                    <a href="@Url.Action("RefParMethod", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Reference Data</span>
+                                    </a>
+                                </li>
                                 <li class="@Html.ActivePage("Admin", "AppSettings")">
                                     <a href="@Url.Action("AppSettings", "Admin")">
                                         <i class="fa fa-angle-right"></i>
                                         <span class="title">Global Config</span>
+                                    </a>
+                                </li>
+                                <li class="@Html.ActivePage("Admin", "TaskConfig")">
+                                    <a href="@Url.Action("TaskConfig", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Task Config</span>
                                     </a>
                                 </li>
                                 <li class="@Html.ActivePage("Admin", "EmailConfig")">
@@ -185,18 +206,6 @@
                                         <span class="title">Logging</span>
                                     </a>
                                 </li>
-                                <li class="@Html.ActivePage("Admin", "RefCollFreq,RefDuration,RefPar,RefParMethod,RefParUnit,RefUnit,ImportData")">
-                                    <a href="@Url.Action("RefParMethod", "Admin")">
-                                        <i class="fa fa-angle-right"></i>
-                                        <span class="title">Reference Data</span>
-                                    </a>
-                                </li>
-                                <li class="@Html.ActivePage("Admin", "Connectivity")">
-                                    <a href="@Url.Action("Connectivity", "Admin")">
-                                        <i class="fa fa-angle-right"></i>
-                                        <span class="title">Connectivity</span>
-                                    </a>
-                                </li>
 
                             </ul>
                         </li>
@@ -212,7 +221,7 @@
                 <i class="fa fa-angle-right text-active"></i>
             </a>
             <div class="btn-group hidden-nav-xs">
-                <a href="@Url.Action("Map", "Home")" class="btn btn-sm btn-rounded btn-default">Public Site <i class="fa fa-share-square-o"></i></a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-sm btn-rounded btn-default">Public Site <i class="fa fa-share-square-o"></i></a>
             </div>
         </footer>
     </section>

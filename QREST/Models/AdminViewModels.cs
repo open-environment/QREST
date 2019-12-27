@@ -59,12 +59,19 @@ namespace QREST.Models
     }
 
 
+
+    // ******************************** TASKS******** ****************************
+    //****************************************************************************
+    //****************************************************************************
     public class vmAdminTaskConfig
     {
+        public List<T_QREST_APP_TASKS> Tasks { get; set; }
+        public T_QREST_APP_TASKS EditTask { get; set; }
     }
 
-    //****************************************************************************
+
     // ******************************** ORGANIZATIONS ****************************
+    //****************************************************************************
     //****************************************************************************
     public class vmAdminOrgList
     {
@@ -111,7 +118,7 @@ namespace QREST.Models
             ddl_Region = ddlHelpers.get_ddl_region();
             ddl_AqsAgency = ddlHelpers.get_ddl_aqs_agency();
             ddl_user_status = ddlHelpers.get_ddl_user_status();
-            ddl_user_role = ddlHelpers.get_ddl_user_role();
+            ddl_user_role = ddlHelpers.get_ddl_org_user_role();
         }
 
     }
@@ -130,8 +137,8 @@ namespace QREST.Models
         public string edit_org_user_access_level { get; set; }
     }
 
-    //****************************************************************************
     // ******************************** USERS ************************************
+    //****************************************************************************
     //****************************************************************************
     public class vmAdminUserList
     {
@@ -165,7 +172,7 @@ namespace QREST.Models
         public vmAdminUserEdit()
         {
             ddl_user_status = ddlHelpers.get_ddl_user_status();
-            ddl_user_role = ddlHelpers.get_ddl_user_role();
+            ddl_user_role = ddlHelpers.get_ddl_org_user_role();
             ddl_Org = ddlHelpers.get_ddl_organizations(true, false);
         }
 
@@ -231,13 +238,12 @@ namespace QREST.Models
         
     }
 
-    //****************************************************************************
     // ******************************** CONNECTIVITY******************************
+    //****************************************************************************
     //****************************************************************************
     public class vmAdminConnectivity
     {
         public List<SitePollingConfigType> PollingConfig { get; set; }
-
     }
 
 }

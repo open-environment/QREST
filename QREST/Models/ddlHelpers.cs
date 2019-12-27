@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using QRESTModel.DAL;
+using QREST.App_Logic.BusinessLogicLayer;
 
 namespace QREST.Models
 {
@@ -111,13 +112,22 @@ namespace QREST.Models
                 Text = showID ? x.ORG_ID : x.ORG_NAME
             });
         }
-        
+
+        public static IEnumerable<SelectListItem> get_ddl_my_sites(string OrgID, string UserIDX)
+        {
+            return db_Air.GetT_QREST_SITES_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
+            {
+                Value = x.SITE_IDX.ToString(),
+                Text = x.SITE_ID + " " + x.SITE_NAME
+            });
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_my_monitors(string OrgID, string UserIDX)
         {
             return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
-                Text = x.ORG_ID + " | Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
+                Text = "Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
             });
         }
 
@@ -128,6 +138,36 @@ namespace QREST.Models
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
                 Text = "Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | Method: " + x.METHOD_CODE + " | POC: " + x.T_QREST_MONITORS.POC
             });
+        }
+
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_site(Guid SiteIDX)
+        {
+            return db_Air.GetT_QREST_MONITORS_Display_SampledBySiteIDX(SiteIDX).Select(x => new SelectListItem
+            {
+                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
+                Text = "Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | Method: " + x.METHOD_CODE + " | POC: " + x.T_QREST_MONITORS.POC
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_org(string orgID)
+        {
+            return db_Air.GetT_QREST_MONITORS_Display_SampledByOrgID(orgID).Select(x => new SelectListItem
+            {
+                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
+                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
+            });
+        }
+
+
+        public static IEnumerable<SelectListItem> get_ddl_days_in_month(int? month)
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            for (int i=1; i<32; i++)
+            {
+                _list.Add(new SelectListItem() { Value = i.ToString(), Text = i.ToString() });
+            }
+
+            return _list;
         }
 
         public static IEnumerable<SelectListItem> get_ddl_months()
@@ -175,6 +215,15 @@ namespace QREST.Models
             });
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_ref_qualifier(string type)
+        {
+            return db_Ref.GetT_QREST_REF_QUALIFIER_ByType(type).Select(x => new SelectListItem
+            {
+                Value = x.QUAL_CODE,
+                Text = x.QUAL_CODE + " - " + x.QUAL_DESC.Truncate(50)
+            });
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_ref_units(string parCode)
         {
             return db_Ref.GetT_QREST_REF_UNITS(parCode).Select(x => new SelectListItem
@@ -207,6 +256,15 @@ namespace QREST.Models
             });
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_sites_sampling()
+        {
+            return db_Air.GetT_QREST_SITES_Sampling().Select(x => new SelectListItem
+            {
+                Value = x.SITE_IDX.ToString(),
+                Text = x.ORG_ID + ": " + x.SITE_NAME
+            });
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_time_zone()
         {
             return db_Ref.GetT_QREST_REF_TIMEZONE().Select(x => new SelectListItem
@@ -224,13 +282,13 @@ namespace QREST.Models
             return _list;
         }
 
-
         public static IEnumerable<SelectListItem> get_ddl_sum_type()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "AVG", Text = "Average" });
             _list.Add(new SelectListItem() { Value = "MAX", Text = "Maximum" });
             _list.Add(new SelectListItem() { Value = "MIN", Text = "Minimum" });
+            _list.Add(new SelectListItem() { Value = "TOT", Text = "Total (Sum)" });
             _list.Add(new SelectListItem() { Value = "AAVG", Text = "Angular Average" });
             _list.Add(new SelectListItem() { Value = "DEV", Text = "Standard Deviation" });
             _list.Add(new SelectListItem() { Value = "ADEV", Text = "Angular StdDev (Yamartino)" });
@@ -246,13 +304,20 @@ namespace QREST.Models
             return _list;
         }
 
-        public static IEnumerable<SelectListItem> get_ddl_user_role()
+        public static IEnumerable<SelectListItem> get_ddl_org_user_role()
         {
-            List<SelectListItem> _list = new List<SelectListItem>();
-            _list.Add(new SelectListItem() { Value = "U", Text = "User" });
-            _list.Add(new SelectListItem() { Value = "A", Text = "Admin" });
-            _list.Add(new SelectListItem() { Value = "R", Text = "Read Only" });
-            return _list;
+            return db_Ref.GetT_QREST_REF_ACCESS_LEVEL().Select(x => new SelectListItem
+            {
+                Value = x.ACCESS_LEVEL,
+                Text = x.ACCESS_LEVEL_DESC
+            });
+
+            //List<SelectListItem> _list = new List<SelectListItem>();
+            //_list.Add(new SelectListItem() { Value = "U", Text = "Operator" });
+            //_list.Add(new SelectListItem() { Value = "A", Text = "Admin" });
+            //_list.Add(new SelectListItem() { Value = "Q", Text = "QA Reviewer" });
+            //_list.Add(new SelectListItem() { Value = "R", Text = "Read Only" });
+            //return _list;
         }
         
         public static IEnumerable<SelectListItem> get_ddl_users(bool ConfirmedOnly)

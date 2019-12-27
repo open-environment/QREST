@@ -21,7 +21,7 @@ namespace QRESTModel.DAL
         public string SUM_TYPE { get; set; }
         public Nullable<int> ROUNDING { get; set; }
     
-        public virtual T_QREST_SITE_POLL_CONFIG T_QREST_SITE_POLL_CONFIG { get; set; }
         public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
+        public virtual T_QREST_SITE_POLL_CONFIG T_QREST_SITE_POLL_CONFIG { get; set; }
     }
 }

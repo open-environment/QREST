@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
 using QREST.App_Logic.BusinessLogicLayer;
 using QREST.Models;
@@ -6,6 +7,7 @@ using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -15,6 +17,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Net.Sockets;
 using System.Text;
+using QRESTModel.COMM;
 
 namespace QREST.Controllers
 {
@@ -330,9 +333,12 @@ namespace QREST.Controllers
                 }
 
                 //grab remote CSV file from EPA AQS
+                //HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
                 try
                 {
+                    var sss = req.RequestUri;
+                    db_Ref.CreateT_QREST_SYS_LOG("", "DEBUG", sss.ToString());
                     HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
                     using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
                     {
@@ -380,7 +386,16 @@ namespace QREST.Controllers
                         }
                     }
                 }
-                catch {
+                catch (AggregateException err)
+                {
+                    foreach (var errInner in err.InnerExceptions)
+                        db_Ref.CreateT_QREST_SYS_LOG(UserIDX, "ERROR", "Failed to import monitor - code 5 " + errInner);
+                    TempData["Error"] = "Unable to connect to AQS, please try again later.";
+                    return View(model);
+                }
+                catch (Exception ex)
+                {
+                    db_Ref.CreateT_QREST_SYS_LOG(UserIDX, "ERROR", "Failed to import monitor - code 4 " + ex.Message);
                     TempData["Error"] = "Unable to connect to AQS, please try again later.";
                     return View(model);
                 }
@@ -393,8 +408,6 @@ namespace QREST.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult SiteImport(vmSiteSiteImport model)
         {
-            string UserIDX = User.Identity.GetUserId();
-
             //if user hasn't selected an org, return view now
             if (model.selOrgID == null)
             {
@@ -403,6 +416,7 @@ namespace QREST.Controllers
             }
 
             //reject if user doesn't have access to org
+            string UserIDX = User.Identity.GetUserId();
             RedirectToRouteResult r = CanAccessThisOrg(UserIDX, model.selOrgID, true);
             if (r != null) return r;
 
@@ -414,32 +428,46 @@ namespace QREST.Controllers
                 return View(model);
             }
 
-            //grab remote CSV file from EPA AQS
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
-            HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-            using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
+            try
             {
-                string currentLine;
-                while ((currentLine = csvreader.ReadLine()) != null)
+                //grab remote CSV file from EPA AQS
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
+                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
                 {
-                    //split row's columns into string array
-                    string[] cols = currentLine.Split('"');
-                    if (cols.Length > 0) //skip blank rows
+                    string currentLine;
+                    while ((currentLine = csvreader.ReadLine()) != null)
                     {
-                        if (cols[9] != "None")
+                        //split row's columns into string array
+                        string[] cols = currentLine.Split('"');
+                        if (cols.Length > 0) //skip blank rows
                         {
-                            if (_org.AQS_AGENCY_CODE == cols[9])
+                            if (cols[9] != "None")
                             {
-                                //check if QREST already has the site.
-                                T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
-                                if (_existSite == null)
-                                    db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null, 
-                                        null, null, null, false, null, null, null, null, false, false, null, UserIDX);
+                                if (_org.AQS_AGENCY_CODE == cols[9])
+                                {
+                                    //check if QREST already has the site.
+                                    T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
+                                    if (_existSite == null)
+                                        db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null,
+                                            null, null, null, false, null, null, null, null, false, false, null, UserIDX);
+                                }
                             }
                         }
-                    }
 
+                    }
                 }
+            }
+            catch (AggregateException err)
+            {
+                foreach (var errInner in err.InnerExceptions)
+                    db_Ref.CreateT_QREST_SYS_LOG(UserIDX, "ERROR", "Failed to import monitor - code 5 " + errInner);
+                TempData["Error"] = "Unable to connect to AQS, please try again later.";
+            }
+            catch (Exception ex)
+            {
+                db_Ref.CreateT_QREST_SYS_LOG(UserIDX, "ERROR", "Failed to import monitor - code 4 " + ex.Message);
+                TempData["Error"] = "Unable to connect to AQS, please try again later.";
             }
 
             return RedirectToAction("SiteList", new { selOrgID = model.selOrgID });
@@ -699,23 +727,73 @@ namespace QREST.Controllers
         }
 
 
-        public FileStreamResult DownloadTemplate(Guid? id)
+        public ActionResult DownloadTemplate(Guid? id)
         {
             T_QREST_SITE_POLL_CONFIG _pol = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
             if (id != null)
             {
-                List<PollConfigDtlDisplay> _poldtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(id ?? Guid.Empty);
+                List<PollConfigDtlDisplay> _poldtls = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(id ?? Guid.Empty);
+                if (_poldtls != null && _poldtls.Count > 0)
+                {
+                    using (XLWorkbook wb = new XLWorkbook())
+                    {
+                        int maxCol = new[] { 1, _pol.DATE_COL ?? 1, _pol.TIME_COL ?? 1 }.Max();
 
-                //for (int i=1)
+                        var ws = wb.Worksheets.Add("Inserting Data");
+                        wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
+                        ws.Cell(1, _pol.DATE_COL ?? 1).Value = "Date (" + _pol.DATE_FORMAT + ")";
+                        ws.Cell(1, _pol.TIME_COL ?? 1).Value = "Time (" + _pol.TIME_FORMAT + ")";
+
+                        foreach (PollConfigDtlDisplay _poldtl in _poldtls)
+                        {
+                            ws.Cell(1, _poldtl.COL ?? 1).Value = _poldtl.PAR_NAME;
+                            maxCol = (_poldtl.COL > maxCol ? _poldtl.COL ?? 1 : maxCol);
+                        }
+
+                        //apply formatting
+                        var range5 = ws.Range(1, 1, 1000, maxCol);
+                        range5.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                        range5.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                        ws.Columns().AdjustToContents();
+
+                        MemoryStream ms = new MemoryStream();
+                        wb.SaveAs(ms);
+                        ms.Position = 0;
+                        Response.Clear();
+                        Response.Buffer = true;
+                        Response.Charset = "";
+                        Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        Response.AddHeader("content-disposition", "attachment;filename=QRESTImportTemplate.xlsx");
+                        ms.WriteTo(Response.OutputStream);
+                        Response.Flush();
+                        Response.End();
+
+                        return null;
+                    }
+
+                }
+                else
+                {
+                    TempData["Error"] = "No parameters defined for configuration";
+                    return RedirectToAction("SitePollConfig", new { id });
+                }
             }
-
-            return null;
+            else
+            {
+                TempData["Error"] = "Unable to find configuration";
+                return RedirectToAction("SiteList");
+            }
         }
 
 
         public ActionResult SitePollPing(string id)
         {
+            //FAIL IF NO CONFIGURATION FOUND
+            if (id == null)
+                return RedirectToAction("SiteList", "Site");
+
             Guid idg = new Guid(id);
             T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(idg);
             
@@ -736,16 +814,17 @@ namespace QREST.Controllers
             var model = new vmSitePing
             {
                 POLL_CONFIG_IDX = idg,
-                pingResults = new List<Tuple<bool, string>>
+                pingResults2 = new List<CommMessageLog> { },
+                pingResults = new List<Tuple<bool, string, string>>
                 {
-                    new Tuple<bool, string>(true, "Ping Started")
+                    new Tuple<bool, string, string>(true, "Ping Started","")
                 }
             };
 
             //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
             if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
             {
-                model.pingResults.Add(new Tuple<bool, string>(false, "Polling configuration is incomplete: logger source, port, and password must be supplied."));
+                model.pingResults.Add(new Tuple<bool, string, string>(false, "Polling configuration is incomplete: logger source, port, and password must be supplied.",""));
                 return View(model);
             }
 
@@ -759,40 +838,50 @@ namespace QREST.Controllers
                 {
                     //Create a TCPClient object at the IP and port
                     TcpClient client = new TcpClient();
-                    System.Threading.Thread.Sleep(1000);
 
-                    if (!client.ConnectAsync(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>()).Wait(5000))
-                        model.pingResults.Add(new Tuple<bool, string>(false, "Unable to connect to device")); // connection failure
+                    if (!client.ConnectAsync(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>()).Wait(TimeSpan.FromSeconds(2)))
+                        model.pingResults.Add(new Tuple<bool, string, string>(false, "Unable to connect to device", "")); // connection failure
                     else
                     {
-                        model.pingResults.Add(new Tuple<bool, string>(true, "Connect to device " + _config.LOGGER_SOURCE + ":" + _config.LOGGER_PORT.ToString() + " successful."));
+                        model.pingResults.Add(new Tuple<bool, string, string>(true, "Connect to device " + _config.LOGGER_SOURCE + ":" + _config.LOGGER_PORT.ToString() + " successful.",""));
 
                         // Get a client stream for reading and writing.
                         using (NetworkStream stream = client.GetStream())
                         {
                             //*************** send u to enter user menu *****************************
-                            string msg1 = SendReceiveMessage(stream, "u\r\n");
-                            if (msg1.Contains("Level 1"))
+                            CommMessageLog _log = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Access Zeno User Menu", stream, "u\r\n", 700, 700, "Level 1");
+                            model.pingResults2.Add(_log);
+                            if (_log.CommMessageStatus)
                             {
-                                model.pingResults.Add(new Tuple<bool, string>(true, "Access Zeno user menu successful."));
-
                                 //*************** enter password when prompted *****************************
-                                string msg2 = SendReceiveMessage(stream, _config.LOGGER_PASSWORD + "\r");
-                                if (msg2.Contains("ommun"))
+                                CommMessageLog _log2 = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Enter password", stream, _config.LOGGER_PASSWORD + "\r", 700, 700, "ommun");
+                                model.pingResults2.Add(_log2);
+                                if (_log2.CommMessageStatus)
                                 {
-                                    model.pingResults.Add(new Tuple<bool, string>(true, "Password succeeds"));
+                                    //*************** enter Data Retrieval Menu*****************************
+                                    CommMessageLog _log3 = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Enter Data Retrieval Menu", stream, "D\r", 1500, 1500, "Logged");
+                                    model.pingResults2.Add(_log3);
+                                    if (_log3.CommMessageStatus)
+                                    {
+                                        //*************** retrieve data*****************************
+                                        CommMessageLog _log4 = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Retrieve Last 12 Records", stream, "L12\r", 2000, 2000, ":00");
 
-                                    //*************** quit zeno user menu*****************************
-                                    string msg5 = SendReceiveMessage(stream, "Q\r");
-                                    if (msg5.Contains("Exiting"))
-                                        model.pingResults.Add(new Tuple<bool, string>(true, "Exited Zeno interface gracefully."));
+                                        string line;
+                                        StringReader reader = new StringReader(_log4.CommResponse);
+                                        while ((line = reader.ReadLine()) != null)
+                                        {
+                                            if (line.Contains(":00"))
+                                                model.loggerData += line + Environment.NewLine;
+                                        };
+                                        _log4.CommResponse = "";
+                                        model.pingResults2.Add(_log4);
+                                    }
                                 }
-                                else
-                                    model.pingResults.Add(new Tuple<bool, string>(false, "Password fails"));
                             }
-                            else
-                                model.pingResults.Add(new Tuple<bool, string>(false, "Unable to access Zeno user menu. Please try again in 10 minutes"));
 
+                            //*************** quit zeno user menu*****************************
+                            CommMessageLog _log5 = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Exiting Zeno User Menu", stream, "Q\r", 1500, 1500, "Exiting");
+                            model.pingResults2.Add(_log5);
 
                             //disconnect
                             client.Client.Close();
@@ -806,45 +895,58 @@ namespace QREST.Controllers
                 }
                 catch (System.Net.Sockets.SocketException sex)
                 {
-                    model.pingResults.Add(new Tuple<bool, string>(false, "Ping socket exception: " + sex.Message));
+                    model.pingResults.Add(new Tuple<bool, string, string>(false, "Ping socket exception: " + sex.Message, ""));
+                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Ping - code 1 " + sex.Message);
                 }
                 catch (Exception ex)
                 {
-                    model.pingResults.Add(new Tuple<bool, string>(false, "General ping exception: " + ex.Message));
-                    model.pingResults.Add(new Tuple<bool, string>(false, "General ping exception: " + ex.InnerException.ToString()));
+                    model.pingResults.Add(new Tuple<bool, string, string>(false, "General ping exception: " + ex.Message, ""));
+                    model.pingResults.Add(new Tuple<bool, string, string>(false, "General ping exception: " + ex.InnerException.ToString(), ""));
+                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Ping - code 2 " + ex.Message);
                 }
             }
             else
             {
-                model.pingResults.Add(new Tuple<bool, string>(false, "Ping currently only available for Zeno dataloggers"));
+                model.pingResults.Add(new Tuple<bool, string, string>(false, "Ping currently only available for Zeno dataloggers",""));
             }
 
             return View(model);
         }
 
 
-        private static string SendReceiveMessage(NetworkStream stream, string message)
+        private static string SendReceiveMessage(NetworkStream stream, string message, int msWait)
         {
             // ****************Send message to the connected TcpServer. ********************************
-            System.Threading.Thread.Sleep(1000); //wait for terminal to write data
+            System.Threading.Thread.Sleep(700); //wait for terminal to be ready write data
             Byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(message);
             stream.Write(bytesToSend, 0, bytesToSend.Length);
-            
+
 
             // ****************Read response after the send command. ********************************
-            System.Threading.Thread.Sleep(2000); //wait for terminal to write response
+            string resp = "init";
+            string respPrev = "init";
+            System.Threading.Thread.Sleep(msWait); //wait for terminal to begin writing response
             var ms = new MemoryStream();
             byte[] data = new byte[1024];
             int numBytesRead;
-
             do
             {
+                //System.Diagnostics.Debug.WriteLine(stream.DataAvailable);
+                
+                respPrev = resp;
                 numBytesRead = stream.Read(data, 0, data.Length);
                 ms.Write(data, 0, numBytesRead);
+                resp = Encoding.ASCII.GetString(ms.ToArray());
 
-            } while (numBytesRead == data.Length);
+                //System.Diagnostics.Debug.WriteLine(numBytesRead);
+                //System.Diagnostics.Debug.WriteLine(data.Length);
+                //System.Diagnostics.Debug.WriteLine(Encoding.ASCII.GetString(ms.ToArray()));
 
-            return Encoding.ASCII.GetString(ms.ToArray());
+                System.Threading.Thread.Sleep(500);  //wait before reading again to let logger write out more if still writing
+            //} while (numBytesRead == data.Length);
+            } while (stream.DataAvailable && respPrev != resp);
+
+            return resp;
         }
 
 
@@ -1051,7 +1153,9 @@ namespace QREST.Controllers
                 {
                     try
                     {
-                        Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
+                        //https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=18&county=081&site=0002
+                        //Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
+                        Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=info@open-environment.org&key=dunhawk56&bdate=20000101&edate=20251231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
                         var json = httpClient.GetStringAsync(myUri).Result;
                         dynamic stuff = JsonConvert.DeserializeObject(json);
 
@@ -1090,10 +1194,12 @@ namespace QREST.Controllers
                     {
                         foreach (var errInner in err.InnerExceptions)
                             db_Ref.CreateT_QREST_SYS_LOG(UserIDX, "ERROR", "Failed to import monitor - code 5 " + errInner);
+                        TempData["Error"] = "Unable to connect to AQS, please try again later.";
                     }
                     catch (Exception ex)
                     {
                         db_Ref.CreateT_QREST_SYS_LOG(UserIDX, "ERROR", "Failed to import monitor - code 4 " + ex.Message);
+                        TempData["Error"] = "Unable to connect to AQS, please try again later.";
                     }
                 }
 

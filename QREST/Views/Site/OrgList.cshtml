@@ -67,35 +67,16 @@
                     },
                     { "data": "ORG_ID", "name": "ORG_ID", "autoWidth": true },
                     { "data": "ORG_NAME", "name": "ORG_NAME", "autoWidth": true },
-                    //{ "data": "ACCESS_LEVEL", "name": "ACCESS_LEVEL", "autoWidth": true },
                     {
                         "render": function (data, type, row) {
-                            if (row.ACCESS_LEVEL == 'A') {
-                                return '<span class="badge bg-success">Admin</span>';
-                            }
-                            else if (row.ACCESS_LEVEL == 'U') {
-                                return '<span class="badge bg-info">User</span>';
-                            }
-                            else {
-                                return '<span class="badge bg-warning">User</span>';
-                            }
-                            
+                            return '<span class="badge label-' + row.ACCESS_LEVEL + '">' + row.ACCESS_LEVEL_DESC + '</span>';                          
                         }
                     },
                     {
                         "render": function (data, type, row) {
-                            if (row.STATUS_IND == 'A') {
-                                return '<span class="badge bg-success">Active</span>';
-                            }
-                            else if (row.STATUS_IND == 'P') {
-                                return '<span class="badge bg-info">Pending</span>';
-                            }
-                            else {
-                                return '<span class="badge bg-danger">Rejected</span>';
-                            }
+                            return '<span class="badge label-' + row.STATUS_IND + '">' + row.STATUS_IND_DESC + '</span>';
                         }
-                    },
-                    //{ "data": "STATUS_IND", "name": "STATUS_IND", "autoWidth": true }
+                    }
                 ],
                 "createdRow": function (row, data, dataIndex) {
                     $('td:eq(0)', row).css('width', '90px');

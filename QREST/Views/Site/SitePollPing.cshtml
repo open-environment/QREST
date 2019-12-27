@@ -6,35 +6,73 @@
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">Ping Results</header>
     <div class="panel-body">
-        <div class="table-responsive">
-            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Status</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                @foreach (var item in Model.pingResults)
-                {
-                    <tr>
-                        <td>
-                            @if (item.Item1 == true)
-                            {
-                                <span class="label label-success"> Success</span>
-                            }
-                            else
-                            {
-                                <span class="label label-danger"> Failed</span>
-                            }
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Item2)
-                        </td>
-                    </tr>
-                }
-            </table>
-        </div>
+        <div class="row col-md-12">
 
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Full Details</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.pingResults)
+                    {
+                        <tr>
+                            <td>
+                                @if (item.Item1 == true)
+                                {
+                                    <span class="label label-success"> Success</span>
+                                }
+                                else
+                                {
+                                    <span class="label label-danger"> Failed</span>
+                                }
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Item2)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Item3)
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in Model.pingResults2)
+                    {
+                        <tr>
+                            <td>
+                                @if (item.CommMessageStatus == true)
+                                {
+                                    <span class="label label-success"> Success</span>
+                                }
+                                else
+                                {
+                                    <span class="label label-danger"> Failed</span>
+                                }
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CommMessageType)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CommResponse)
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+        @if (Model.loggerData != null)
+        {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    Last 12 records
+                    @Html.TextAreaFor(model => model.loggerData, new { @class = "form-control", @rows = "12" })
+                </div>
+            </div>
+        </div>
+        }
         <div class="row">
             <div class="col-md-12">
                 <a class=" btn btn-default" href="@Url.Action("SitePollConfig", new { configid = Model.POLL_CONFIG_IDX })">Back to Polling Config</a>

@@ -30,24 +30,26 @@ namespace QREST
                 "~/Scripts/jquery.dirtyforms.min.js",
                 "~/Scripts/jquery.dirtyforms.dialogs.bootstrap.min.js"));
             bundles.Add(new ScriptBundle("~/bundles/canvasjs").Include("~/Scripts/canvasjs.min.js"));
+            bundles.Add(new ScriptBundle("~/bundles/select2").Include("~/Scripts/select2.min.js"));
+            bundles.Add(new ScriptBundle("~/bundles/easypiechart").Include("~/Scripts/jquery.easypiechart.min.js"));
 
 
 
             //******************************************************************
             //************* CSS        *****************************************
             //******************************************************************
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/app.css",
-                      "~/Content/site.css",
-                      "~/Content/animate.css",
-                      "~/Content/font-awesome.min.css",
+            bundles.Add(new StyleBundle("~/Content/css/files").Include(
+                      "~/Content/css/bootstrap.css",
+                      "~/Content/css/app.css",
+                      "~/Content/css/site.css",
+                      "~/Content/css/animate.css",
+                      "~/Content/css/font-awesome.min.css",
                       "~/Scripts/dataTables/DataTables-1.10.18/css/jquery.dataTables.min.css",
-                      "~/Content/toastr.min.css",
-                      "~/Content/datepicker.min.css"
+                      "~/Content/css/toastr.min.css",
+                      "~/Content/css/datepicker.min.css",
+                      "~/Content/css/select2.min.css"
                       ));
 
-            bundles.Add(new StyleBundle("~/Content/css/radio").Include("~/Content/radio.css"));
         }
     }
 }

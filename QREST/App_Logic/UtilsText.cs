@@ -17,6 +17,9 @@ namespace QREST.App_Logic.BusinessLogicLayer
 {
     public static class UtilsText
     {
+        public static string Truncate(this string value, int length)
+            => (value != null && value.Length > length) ? value.Substring(0, length) : value;
+
         /// <summary>
         ///  Helper method to convert a string value to a nullable DateTime
         /// </summary>
@@ -30,6 +33,20 @@ namespace QREST.App_Logic.BusinessLogicLayer
         public static byte[] ConvertMemoryStreamToByteArray(System.IO.MemoryStream stream)
         {
             return stream.ToArray();
+        }
+
+        /// <summary>
+        /// Converts generic stream to byte array.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static byte[] ConvertStreamToByteArray(System.IO.Stream stream)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                stream.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
         }
 
         /// <summary>

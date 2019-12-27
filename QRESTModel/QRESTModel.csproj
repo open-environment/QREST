@@ -85,11 +85,12 @@
       <HintPath>..\packages\Twilio.5.33.0\lib\net451\Twilio.dll</HintPath>
     </Reference>
     <Reference Include="UnitsNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=f8601875a1f041da, processorArchitecture=MSIL">
-      <HintPath>..\packages\UnitsNet.4.39.0\lib\net40\UnitsNet.dll</HintPath>
+      <HintPath>..\packages\UnitsNet.4.40.0\lib\net40\UnitsNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BLL\DataTableGen.cs" />
+    <Compile Include="COMM\LoggerComm.cs" />
     <Compile Include="BLL\UnitConvert.cs" />
     <Compile Include="BLL\UtilsNotify.cs" />
     <Compile Include="BLL\UtilsEmail.cs" />
@@ -116,6 +117,18 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>QRESTModel.edmx</DependentUpon>
     </Compile>
+    <Compile Include="DAL\SP_AQS_REVIEW_STATUS_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\SP_RPT_ANNUAL_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\SP_RPT_ANNUAL_SUMS_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\SP_RPT_DAILY_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\SP_RPT_MONTHLY_Result.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
@@ -129,6 +142,9 @@
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_APP_TASKS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_ASSESS_DOCS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_DATA_FIVE_MIN.cs">
@@ -156,6 +172,9 @@
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_QC_ASSESSMENT.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_ACCESS_LEVEL.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_REF_AQS_AGENCY.cs">
@@ -195,6 +214,9 @@
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_REF_UNITS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_REF_USER_STATUS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_ROLES.cs">

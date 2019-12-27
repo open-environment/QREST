@@ -157,7 +157,10 @@ namespace QRESTModel.BLL
                 if (bodyHTML == null)
                     msg.AddContent(MimeType.Text, body);
                 else
+                {
+                    bodyHTML = bodyHTML.Replace("\r\n", "<br>");
                     msg.AddContent(MimeType.Html, bodyHTML);
+                }
                 msg.From = new EmailAddress(from);
                 msg.AddTo(to);
 

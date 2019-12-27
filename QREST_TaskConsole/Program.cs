@@ -99,7 +99,7 @@ namespace QREST_TaskConsole
                     hascript.haWait(3000);
                     hascript.haTypeText(0, "D\r\n");
                     hascript.haWait(3000);
-                    hascript.haTypeText(0, "XL20\r\n");
+                    hascript.haTypeText(0, "XL12\r\n");
                     hascript.haSetXferProtocol(2, 5);
                     hascript.haWait(7000);
                     hascript.haXferReceive("data_" + siteID + ".txt");

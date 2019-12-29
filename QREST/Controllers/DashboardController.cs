@@ -23,7 +23,8 @@ namespace QREST.Controllers
                 MySiteCount = db_Air.GetT_QREST_SITES_ByUser_OrgID_count(null, UserIDX),
                 MyMonitorCount = db_Air.GetT_QREST_MONITORS_ByUser_OrgID_Count(null, UserIDX),
                 MyAlertCount = db_Account.GetT_QREST_USER_NOTIFICATION_ByUserIDUnreadCount(UserIDX),
-                T_QREST_SITES = db_Air.GetT_QREST_SITES_ByUser_OrgID(null, UserIDX)
+                T_QREST_SITES = db_Air.GetT_QREST_SITES_ByUser_OrgID(null, UserIDX),
+                ddl_MyMonitors = ddlHelpers.get_monitors_sampled_by_user(UserIDX)
             };
 
             return View(model);

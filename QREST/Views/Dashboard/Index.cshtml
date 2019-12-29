@@ -79,14 +79,17 @@
         <section class="panel panel-qrest">
             <header class="panel-heading font-bold">
                 Monitor Quickview
-                <span class="pull-right"><small class="text-muted">Alerts: <span class="badge bg-primary">None</span></small></span>
+                <span class="pull-right"><small class="text-muted">Past 24 hours (UTC)</small></span>
             </header>
-            <div class="bg-light dk wrapper">
-                <span class="pull-right">Past 24 hours</span>
-                <span class="h3">PM2.5</span>
-                <div class="text-center m-b-n m-t-sm">
-                    <canvas id="myChart" width="400" height="200"></canvas>
+            <div class="bg-light">
+                @Html.DropDownListFor(model => model.selChartMon, Model.ddl_MyMonitors, new { @class = "form-control ", @onchange = "getDataChart()" })
 
+                @*<span class="pull-right"></span>
+                    <span class="h3">PM2.5</span>*@
+                <div class="text-center m-b-n m-t-sm">
+                    @*<canvas id="myChart" width="400" height="200"></canvas>*@
+                    <div id="chartContainer" class="collapse in" style="height: 200px; width: 100%;">
+                    </div>
                 </div>
             </div>
             <div class="panel-body">
@@ -97,19 +100,19 @@
                 <div class="row m-t-sm">
                     <div class="col-xs-3">
                         <small class="text-muted block">Last <br />Poll</small>
-                        <span class="badge bg-primary">35 Min</span>
+                        <span id="lastPol" class="badge bg-primary"></span>
                     </div>
                     <div class="col-xs-3">
                         <small class="text-muted block">Last <br />QC</small>
-                        <span class="badge bg-danger">80 Days</span>
+                        <span class="badge bg-danger">Never</span>
                     </div>
                     <div class="col-xs-3">
                         <small class="text-muted block">Last AQS <br />Review</small>
-                        <span class="badge bg-warning">12 Days</span>
+                        <span id="lastAqs" class="badge bg-warning"></span>
                     </div>
                     <div class="col-xs-3">
                         <small class="text-muted block">Last AQS <br />Submit</small>
-                        <span class="badge bg-danger">45 Days</span>
+                        <span class="badge bg-danger">Never</span>
                     </div>
                 </div>
             </div>
@@ -118,47 +121,132 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
-    <script>
-        var ctx = document.getElementById('myChart').getContext('2d');
-        Chart.defaults.global.legend.display = false;
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            label: '',
-            data: {
-                labels: ['11:00', '12:00', '13:00', '14:00', '15:00', '16:00'],
-                datasets: [{
-                    data: [12, 13, 11, 9, 8, 7],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: false
-                        }
-                    }]
-                }
-            }
+    @Scripts.Render("~/bundles/moment")
+    @Scripts.Render("~/bundles/canvasjs")
+<script>
+        $(document).ready(function () {
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+            getDataChart();
         });
-    </script>
+
+
+        function getDataChart() {
+
+            var dataPointsA = [];
+            var parName;
+            var dat1 = moment().utc().subtract(1, 'days').format("MM/DD/YYYY HH:00");
+            var dat2 = moment().utc().format("MM/DD/YYYY HH:00");
+
+            $.ajax({
+                type: "POST",
+                datatype: "json",
+                url: "@Url.Action("RawDataChart", "Data")",
+                data: jQuery.param({
+                    selOrg: $('#selOrgID').val(),
+                    selType: '1',
+                    selDate: dat1 + ' - ' + dat2,
+                    selMon: $('#selChartMon').val()
+                }),
+                success: function (field) {
+                    var fff = field;
+                    if (fff != null) {
+                        var lcolor="blue";
+                        for (var i = 0; i < fff.length; i++) {
+                            if (fff[i].DATA_VALUE == "FEW") {
+                                lcolor = "#ffee8c";
+                            }
+                            else if (fff[i].VAL_CD == "MIN") {
+                                lcolor = "#d32d41";
+                            }
+                            else if (fff[i].VAL_CD == "MAX") {
+                                lcolor = "#d32d41";
+                            }
+                            else if (fff[i].VAL_CD == "JUMP") {
+                                lcolor = "#6F2DA7";
+                            }
+                            else {
+                                lcolor = "#67B347";
+                            }
+                                dataPointsA.push({
+                                    x: new Date(moment(fff[i].DATA_DTTM).format('MM/DD/YYYY HH:mm')),
+                                    y: fff[i].DATA_VALUE == "FEW" ? 0 : Number(fff[i].DATA_VALUE),
+                                    lineColor: lcolor,
+                                    color: lcolor
+                                });
+                            parName = fff[i].PAR_NAME;
+                        }
+
+                        var chart = new CanvasJS.Chart("chartContainer", {
+                            zoomEnabled: true,
+                            animationEnabled: true,
+                            title: {
+                                text: parName
+                            },
+                            data: [{
+                                type: "column",
+                                connectNullData: true,
+                                xValueType: "dateTime",
+                                xValueFormatString: "MM/DD/YYYY HH:mm",
+                                name: "line1",
+                                dataPoints: dataPointsA
+                            }]
+                        });
+
+
+                        chart.render();
+                    }
+
+
+
+
+
+                    $.ajax({
+                        type: "POST",
+                        datatype: "json",
+                        url: "@Url.Action("MonitorSnapshot", "Data")",
+                        data: jQuery.param({
+                            selMon: $('#selChartMon').val()
+                        }),
+                        success: function (field) {
+                            var fff = field;
+                            if (fff != null) {
+                                //polling
+                                var dPol = moment(fff.POLLING_LAST_RUN_DT).format("MM/DD/YYYY HH:mm");
+                                var dNow = moment().utc().format("MM/DD/YYYY HH:mm");
+                                var diffPol = Math.abs((new Date(dPol) - new Date(dNow)) / 1000 / 60);
+                                $("#lastPol").text(diffPol + ' min');
+
+                                //aqs review
+                                var dAqs = moment(fff.lvl1).format("MM/DD/YYYY HH:mm");
+                                var diffAqs = Math.abs((new Date(dAqs) - new Date(dNow)) / 1000 / 60 / 60 / 24);
+                                if (isNaN(diffAqs)) {
+                                    $("#lastAqs").text('Never');
+                                }
+                                else {
+                                    $("#lastAqs").text(Math.round(diffAqs || 0) + ' days');
+                                }
+                            }
+                        }
+                    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                }
+            });
+
+        }
+</script>
 
     <link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/themes/light/main.css">
     <script src="https://js.arcgis.com/4.13/"></script>
@@ -225,11 +313,11 @@
                     view.hitTest(screenPoint)
                         .then(function (response) {
                             if (response.results.length > 0) {
-                                if (response.results[0].graphic.layer.title != 'World Topo') 
+                                if (response.results[0].graphic.layer.title != 'World Topo')
                                     document.getElementById("map_canvas").style.cursor = "pointer";
                                 else
                                     document.getElementById("map_canvas").style.cursor = "default";
-                            } 
+                            }
                         });
                 });
 

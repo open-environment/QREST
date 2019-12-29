@@ -129,11 +129,15 @@
                                     }
                                     else if (item.ACCESS_LEVEL == "U")
                                     {
-                                        <span class="badge bg-info"> User</span>
+                                        <span class="badge bg-info"> Operator</span>
                                     }
                                     else if (item.ACCESS_LEVEL == "R")
                                     {
-                                        <span class="badge bg-warning"> Read Only</span>
+                                        <span class="badge bg-danger"> Read Only</span>
+                                    }
+                                    else if (item.ACCESS_LEVEL == "Q")
+                                    {
+                                        <span class="badge bg-warning"> QA Reviewer</span>
                                     }
                                 </td>
                                 <td>

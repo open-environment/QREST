@@ -72,6 +72,7 @@
                             <th>POC</th>
                             <th>Time UTC</th>
                             <th>Value</th>
+                            <th>Unit</th>
                             <th>Flags</th>
                             <th>AQS Null Code</th>
                             <th>Lvl 1</th>
@@ -83,48 +84,51 @@
                         @for (int i = 0; i < Model.RawData.Count; i++)
                         {
 
-                            <tr data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
-                                <td>
-                                    @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX)
-                                    @Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].SITE_ID)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].PAR_CODE)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].PAR_NAME)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].POC)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].DATA_VALUE)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].VAL_CD)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
-                                </td>
-                                <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
-                                    @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
-                                    @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
-                                </td>
-                                <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
-                                    @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
-                                    @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].NOTES)
-                                </td>
+                        <tr data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
+                            <td>
+                                @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX)
+                                @Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].SITE_ID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].PAR_CODE)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].PAR_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].POC)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].DATA_VALUE)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].UNIT_DESC)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].VAL_CD)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
+                            </td>
+                            <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
+                                @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
+                                @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
+                            </td>
+                            <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
+                                @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
+                                @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.RawData[i].NOTES)
+                            </td>
 
-                            </tr>
+                        </tr>
                         }
                     </tbody>
                 </table>
@@ -134,60 +138,101 @@
 
 
             <!-- START EDIT MODAL  -->
-            <div class="modal fade" id="modal-form1" style="display: none;" aria-hidden="true">
+            <div class="modal fade" id="modal-form1" style="display: none" aria-hidden="true">
                 <div class="modal-dialog">
                     @Html.AntiForgeryToken()
-                    <div class="modal-content">
+                    <div class="modal-content" style="min-height:450px;">
                         <div class="modal-header">
                             <h4 style="float: left" class="modal-title">Bulk Edit</h4>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">×</span>
                             </button>
                         </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>AQS Null Qualifier</label><br />
-                                        @Html.DropDownListFor(model => model.editNullQual, Model.ddl_NullQual, "", new { @class = "form-control" })
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row m-t-sm">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>Update Level 1 Review Status</label>
-                                        <br />
-                                        <div class="btn-group" data-toggle="buttons">
-                                            <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl1, "")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
-                                            <label class="btn btn-sm btn-success"> @Html.RadioButtonFor(x => x.editLvl1, "Y")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Mark Level 1 Complete </label>
-                                            <label class="btn btn-sm btn-danger"> @Html.RadioButtonFor(x => x.editLvl1, "N")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Rollback Level 1 </label>
+                        <div class="modal-body no-padder">
+                            <section class="panel panel-default">
+                                <header class="panel-heading bg-light">
+                                    <ul class="nav nav-tabs nav-justified">
+                                        <li class="active">
+                                            <a href="#basic" data-toggle="tab">Basic</a>
+                                        </li>
+                                        <li class="">
+                                            <a href="#advanced" data-toggle="tab">Advanced</a>
+                                        </li>
+                                    </ul>
+                                </header>
+                                <div class="panel-body">
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="basic">
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label>AQS Null Qualifier</label>
+                                                        <br />
+                                                        @Html.DropDownListFor(model => model.editNullQual, Model.ddl_NullQual, "", new { @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @if (Model.secLvl1Ind == true)
+                                            {
+                                                <div class="row col-md-12">
+                                                    <div class="form-group">
+                                                        <label>Update Level 1 Review Status</label>
+                                                        <br />
+                                                        <div class="btn-group" data-toggle="buttons">
+                                                            <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl1, "")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
+                                                            <label class="btn btn-sm btn-success"> @Html.RadioButtonFor(x => x.editLvl1, "Y")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Mark Level 1 Complete </label>
+                                                            <label class="btn btn-sm btn-danger"> @Html.RadioButtonFor(x => x.editLvl1, "N")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Rollback Level 1 </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (Model.secLvl2Ind == true)
+                                            {
+                                                <div class="row col-md-12">
+                                                    <div class="form-group">
+                                                        <label>Update Level 2 Review Status</label>
+                                                        <br />
+                                                        <div class="btn-group" data-toggle="buttons">
+                                                            <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl2, "")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
+                                                            <label class="btn btn-sm btn-success"> @Html.RadioButtonFor(x => x.editLvl2, "Y")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Mark Level 2 Complete </label>
+                                                            <label class="btn btn-sm btn-danger"> @Html.RadioButtonFor(x => x.editLvl2, "N")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Rollback Level 2 </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="tab-pane" id="advanced">
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label>Unit Code</label>
+                                                        <br />
+                                                        @Html.DropDownListFor(model => model.editUnitCode, Model.ddl_ParUnits, "", new { @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Notes</label>
+                                                    <br />
+                                                    @Html.TextAreaFor(model => model.editNotes, new { @class = "form-control", @style = "width:100%" })
+                                                    @Html.ValidationMessageFor(model => model.editNotes)
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+
+
                                 </div>
-                            </div>
-                            <div class="row m-t-sm">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>Update Level 2 Review Status</label>
-                                        <br />
-                                        <div class="btn-group" data-toggle="buttons">
-                                            <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl2, "")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
-                                            <label class="btn btn-sm btn-success"> @Html.RadioButtonFor(x => x.editLvl2, "Y")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Mark Level 2 Complete </label>
-                                            <label class="btn btn-sm btn-danger"> @Html.RadioButtonFor(x => x.editLvl2, "N")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Rollback Level 2 </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>Notes</label><br />
-                                        @Html.TextAreaFor(model => model.editNotes, new { @class = "form-control", @style = "width:100%" })
-                                        @Html.ValidationMessageFor(model => model.editNotes)
-                                    </div>
-                                </div>
-                            </div>
+                            </section>
+
                         </div>
                         <div class="modal-footer">
                             <button id="btnSave" type="submit" class="btn btn-primary">Save</button>

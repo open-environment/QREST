@@ -102,6 +102,9 @@
     <Compile Include="DAL\db_Ref.cs" />
     <Compile Include="DAL\LinqExtensions.cs" />
     <Compile Include="DAL\logEF.cs" />
+    <Compile Include="DAL\MONITOR_SNAPSHOT.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\QRESTModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

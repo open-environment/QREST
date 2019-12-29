@@ -551,6 +551,17 @@
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'QREST_DB_TEST.dbo.MONITOR_SNAPSHOT' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="MONITOR_SNAPSHOT">
+          <Key>
+            <PropertyRef Name="MONITOR_IDX" />
+          </Key>
+          <Property Name="MONITOR_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="POLLING_LAST_RUN_DT" Type="datetime2" Precision="7" />
+          <Property Name="lvl1" Type="datetime2" Precision="0" />
+          <Property Name="lvl2" Type="datetime2" Precision="0" />
+        </EntityType>
         <Association Name="FK__T_QREST_O__AQS_A__4F12BBB9">
           <End Role="T_QREST_REF_AQS_AGENCY" Type="Self.T_QREST_REF_AQS_AGENCY" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
@@ -1015,6 +1026,14 @@
           <EntitySet Name="T_QREST_USER_NOTIFICATION" EntityType="Self.T_QREST_USER_NOTIFICATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USER_ROLES" EntityType="Self.T_QREST_USER_ROLES" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USERS" EntityType="Self.T_QREST_USERS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MONITOR_SNAPSHOT" EntityType="Self.MONITOR_SNAPSHOT" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [MONITOR_SNAPSHOT].[MONITOR_IDX] AS [MONITOR_IDX], 
+    [MONITOR_SNAPSHOT].[POLLING_LAST_RUN_DT] AS [POLLING_LAST_RUN_DT], 
+    [MONITOR_SNAPSHOT].[lvl1] AS [lvl1], 
+    [MONITOR_SNAPSHOT].[lvl2] AS [lvl2]
+    FROM [dbo].[MONITOR_SNAPSHOT] AS [MONITOR_SNAPSHOT]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK__T_QREST_O__AQS_A__4F12BBB9" Association="Self.FK__T_QREST_O__AQS_A__4F12BBB9">
             <End Role="T_QREST_REF_AQS_AGENCY" EntitySet="T_QREST_REF_AQS_AGENCY" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
@@ -1331,6 +1350,7 @@
             <Parameter Name="siteid" Mode="In" Type="Guid" />
             <Parameter Name="adate" Mode="In" Type="DateTime" />
           </FunctionImport>
+          <EntitySet Name="MONITOR_SNAPSHOT" EntityType="QRESTModel.MONITOR_SNAPSHOT" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -2408,6 +2428,15 @@
           <Property Type="Int32" Name="lvl2_val_ind" Nullable="true" />
           <Property Type="Int32" Name="doc_cnt" Nullable="true" />
         </ComplexType>
+        <EntityType Name="MONITOR_SNAPSHOT">
+          <Key>
+            <PropertyRef Name="MONITOR_IDX" />
+          </Key>
+          <Property Name="MONITOR_IDX" Type="Guid" Nullable="false" />
+          <Property Name="POLLING_LAST_RUN_DT" Type="DateTime" Precision="7" />
+          <Property Name="lvl1" Type="DateTime" Precision="0" />
+          <Property Name="lvl2" Type="DateTime" Precision="0" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3138,6 +3167,16 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <EntitySetMapping Name="MONITOR_SNAPSHOT">
+            <EntityTypeMapping TypeName="QRESTModel.MONITOR_SNAPSHOT">
+              <MappingFragment StoreEntitySet="MONITOR_SNAPSHOT">
+                <ScalarProperty Name="lvl2" ColumnName="lvl2" />
+                <ScalarProperty Name="lvl1" ColumnName="lvl1" />
+                <ScalarProperty Name="POLLING_LAST_RUN_DT" ColumnName="POLLING_LAST_RUN_DT" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

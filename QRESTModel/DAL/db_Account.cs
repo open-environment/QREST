@@ -352,6 +352,66 @@ namespace QRESTModel.DAL
             }
         }
 
+        /// <summary>
+        /// Checks if the user has Level 1 rights to a specified organization
+        /// </summary>
+        /// <param name="uSER_IDX"></param>
+        /// <param name="oRG_ID"></param>
+        /// <returns></returns>
+        /// 
+        public static bool IsOrgLvl1(string uSER_IDX, string oRG_ID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    int iCount = (from a in ctx.T_QREST_ORG_USERS
+                                  where a.USER_IDX == uSER_IDX
+                                  && (a.ACCESS_LEVEL == "A" || a.ACCESS_LEVEL == "Q" || a.ACCESS_LEVEL == "U")
+                                  && a.STATUS_IND == "A"
+                                  && a.ORG_ID == oRG_ID
+                                  select a).Count();
+
+                    return iCount > 0;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Checks if the user has Level 2 rights to a specified organization
+        /// </summary>
+        /// <param name="uSER_IDX"></param>
+        /// <param name="oRG_ID"></param>
+        /// <returns></returns>
+        /// 
+        public static bool IsOrgLvl2(string uSER_IDX, string oRG_ID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    int iCount = (from a in ctx.T_QREST_ORG_USERS
+                                  where a.USER_IDX == uSER_IDX
+                                  && (a.ACCESS_LEVEL == "A" || a.ACCESS_LEVEL == "Q")
+                                  && a.STATUS_IND == "A"
+                                  && a.ORG_ID == oRG_ID
+                                  select a).Count();
+
+                    return iCount > 0;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
 
         /// <summary>
         /// Checks if the user is an admin of any organization

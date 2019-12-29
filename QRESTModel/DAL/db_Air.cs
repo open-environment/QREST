@@ -108,6 +108,8 @@ namespace QRESTModel.DAL
         public string PAR_NAME { get; set; }
         public string METHOD_CODE { get; set; }
         public int? POC { get; set; }
+        public string UNIT_CODE { get; set; }
+        public string UNIT_DESC { get; set; }
         public string COLLECTION_DESC { get; set; }
         public DateTime? DATA_DTTM { get; set; }
         public string DATA_VALUE { get; set; }
@@ -1169,6 +1171,41 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<SiteMonitorDisplayType> GetT_QREST_MONITORS_Display_SampledByUser(string UserIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_MONITORS.AsNoTracking()
+                               join s in ctx.T_QREST_SITES.AsNoTracking() on a.SITE_IDX equals s.SITE_IDX
+                               join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on a.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
+                               join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on r.PAR_CODE equals p.PAR_CODE
+                               join h in ctx.T_QREST_DATA_HOURLY.AsNoTracking() on a.MONITOR_IDX equals h.MONITOR_IDX
+                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on s.ORG_ID equals u.ORG_ID
+                               where u.USER_IDX == UserIDX
+                               && u.STATUS_IND == "A"
+                               select new SiteMonitorDisplayType
+                               {
+                                   T_QREST_MONITORS = a,
+                                   METHOD_CODE = r.METHOD_CODE,
+                                   COLLECTION_DESC = r.COLLECTION_DESC,
+                                   PAR_CODE = p.PAR_CODE,
+                                   PAR_NAME = p.PAR_NAME,
+                                   SITE_ID = s.SITE_ID,
+                                   ORG_ID = u.ORG_ID
+                               }).Distinct().ToList();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Returns list of monitors a user has access to, optionally filtered by OrgID
@@ -1597,6 +1634,8 @@ namespace QRESTModel.DAL
                 {
                     DateTime DateFromDt = DateFrom.GetValueOrDefault(System.DateTime.UtcNow.AddDays(-1));
                     DateTime DateToDt = DateTo.GetValueOrDefault(System.DateTime.UtcNow.AddHours(1));
+                    if (string.IsNullOrEmpty(org))
+                        org = null;
 
                     string orderCol = (orderBy == 3 ? "DATA_DTTM" : "DATA_DTTM");
 
@@ -1607,7 +1646,7 @@ namespace QRESTModel.DAL
                             join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
                             where a.DATA_DTTM_UTC >= DateFromDt
                             && a.DATA_DTTM_UTC <= DateToDt
-                            && s.ORG_ID == org
+                            && (org != null ? s.ORG_ID == org : true)
                             && (mon != null ? a.MONITOR_IDX == mon : true)
                             orderby a.DATA_DTTM_UTC descending
                             select new RawDataDisplay
@@ -1677,7 +1716,9 @@ namespace QRESTModel.DAL
                             join u2 in ctx.T_QREST_USERS.AsNoTracking() on a.LVL2_VAL_USERIDX equals u2.USER_IDX
                                 into lj2
                             from u2 in lj2.DefaultIfEmpty() //left join on lvl2 user
-
+                            join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
+                                into lj3
+                            from u3 in lj3.DefaultIfEmpty() //left join on hourly unit
                             where a.DATA_DTTM_UTC >= DateFrom
                             && a.DATA_DTTM_UTC <= DateTo
                             && a.MONITOR_IDX == mon 
@@ -1692,6 +1733,8 @@ namespace QRESTModel.DAL
                                 DATA_VALUE = a.DATA_VALUE,
                                 PAR_CODE = p.PAR_CODE,
                                 PAR_NAME = p.PAR_NAME,
+                                UNIT_CODE = u3.UNIT_CODE,
+                                UNIT_DESC = u3.UNIT_DESC,
                                 POC = m.POC,
                                 VAL_IND = a.VAL_IND,
                                 VAL_CD = a.VAL_CD,
@@ -1819,7 +1862,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Guid? UpdateT_QREST_DATA_HOURLY(Guid dATA_HOURLY_IDX, string aQS_NULL_CODE, bool? lVL1_VAL_IND, bool? lVL2_VAL_IND, string lVL_VAL_USERIDX, string nOTES)
+        public static Guid? UpdateT_QREST_DATA_HOURLY(Guid dATA_HOURLY_IDX, string aQS_NULL_CODE, bool? lVL1_VAL_IND, bool? lVL2_VAL_IND, string lVL_VAL_USERIDX, string uNIT_CODE, string nOTES)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1857,6 +1900,7 @@ namespace QRESTModel.DAL
                             e.LVL2_VAL_DT = null;
                         }
 
+                        if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
                         if (nOTES != null) e.NOTES = nOTES;
 
                         ctx.SaveChanges();
@@ -2043,6 +2087,30 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
+        //*****************VIEWS**********************************
+        //*****************VIEWS**********************************
+        //*****************VIEWS**********************************
+        public static MONITOR_SNAPSHOT GetMONITOR_SNAPSHOT_ByMonitor(Guid? mONITOR_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.MONITOR_SNAPSHOT.AsNoTracking()
+                            where a.MONITOR_IDX == mONITOR_IDX
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
 
         //*****************STORED PROCEDURES**********************************
         //*****************STORED PROCEDURES**********************************

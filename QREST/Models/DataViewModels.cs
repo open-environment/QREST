@@ -104,24 +104,32 @@ namespace QREST.Models
         public string selDuration { get; set; }
         public DateTime? selDtStartSub { get; set; }
         public DateTime? selDtEndSub { get; set; }
-        public SiteMonitorDisplayType selSupp1 { get; set; }
-        public SiteMonitorDisplayType selSupp2 { get; set; }
-        public SiteMonitorDisplayType selSupp3 { get; set; }
 
 
         public List<RawDataDisplay> RawData { get; set; }
+
+
+        //supplemental 
+        public SiteMonitorDisplayType selSupp1 { get; set; }
+        public SiteMonitorDisplayType selSupp2 { get; set; }
+        public SiteMonitorDisplayType selSupp3 { get; set; }
         public List<RawDataDisplay> SuppData1 { get; set; }
         public List<RawDataDisplay> SuppData2 { get; set; }
         public List<RawDataDisplay> SuppData3 { get; set; }
 
+
         //bulk edit
         public string editNullQual { get; set; }
         public IEnumerable<SelectListItem> ddl_NullQual { get; set; }
+        public IEnumerable<SelectListItem> ddl_ParUnits { get; set; }
 
+        public bool secLvl1Ind { get; set; }  //indicates if user has Lvl1 Validation rights
+        public bool secLvl2Ind { get; set; }  //indicates if user has Lvl2 Validation rights
         public string editLvl1 { get; set; }
         public string editLvl2 { get; set; }
         [Required]
         public string editNotes { get; set; }
+        public string editUnitCode { get; set; }
 
         //initialize
         public vmDataReview2()

@@ -32,6 +32,7 @@ namespace QREST
             bundles.Add(new ScriptBundle("~/bundles/canvasjs").Include("~/Scripts/canvasjs.min.js"));
             bundles.Add(new ScriptBundle("~/bundles/select2").Include("~/Scripts/select2.min.js"));
             bundles.Add(new ScriptBundle("~/bundles/easypiechart").Include("~/Scripts/jquery.easypiechart.min.js"));
+            bundles.Add(new ScriptBundle("~/bundles/moment").Include("~/Scripts/dataTables/plugins/moment.js"));
 
 
 

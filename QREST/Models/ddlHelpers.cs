@@ -122,6 +122,12 @@ namespace QREST.Models
             });
         }
 
+        /// <summary>
+        /// Leave OrgID blank to list all monitors the user has access to
+        /// </summary>
+        /// <param name="OrgID"></param>
+        /// <param name="UserIDX"></param>
+        /// <returns></returns>
         public static IEnumerable<SelectListItem> get_ddl_my_monitors(string OrgID, string UserIDX)
         {
             return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
@@ -152,6 +158,15 @@ namespace QREST.Models
         public static IEnumerable<SelectListItem> get_monitors_sampled_by_org(string orgID)
         {
             return db_Air.GetT_QREST_MONITORS_Display_SampledByOrgID(orgID).Select(x => new SelectListItem
+            {
+                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
+                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_user(string userIDX)
+        {
+            return db_Air.GetT_QREST_MONITORS_Display_SampledByUser(userIDX).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
                 Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC

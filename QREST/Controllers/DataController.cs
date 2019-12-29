@@ -211,13 +211,11 @@ namespace QREST.Controllers
                 if (selType == "F")
                 {
                     var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, selMon, d1, d2, 25000, 0, 3, "asc");
-                    //var data1 = JsonConvert.SerializeObject(data);
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
                     var data = db_Air.GetT_QREST_DATA_HOURLY(selOrg, selMon, d1, d2, 25000, 0, 3, "asc");
-                    //var data1 = JsonConvert.SerializeObject(data);
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
             }
@@ -226,6 +224,20 @@ namespace QREST.Controllers
 
         }
 
+
+        public JsonResult MonitorSnapshot()
+        {
+            //filters
+            Guid? selMon = Request.Form.GetValues("selMon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
+
+            if (selMon != null)
+            {
+                var data = db_Air.GetMONITOR_SNAPSHOT_ByMonitor(selMon);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            else
+                return Json("Chart data error");
+        }
 
         #region MANUAL VALIDATION
 
@@ -302,6 +314,8 @@ namespace QREST.Controllers
             if (monid == null || sdt == null || edt == null || dur == null)
                 return RedirectToAction("DataReview");
 
+            string UserIDX = User.Identity.GetUserId();
+
             var model = new vmDataReview2
             {
                 selDtStart = sdt.GetValueOrDefault(),
@@ -312,6 +326,23 @@ namespace QREST.Controllers
                 //selDtEndSub = subedt,                
             };
 
+            string orgid = model.selMon.ORG_ID;
+
+            //security check
+            if (db_Account.CanAccessThisOrg(UserIDX, orgid, true) == false)
+            {
+                TempData["Error"] = "Access Denied.";
+                return RedirectToAction("SiteList", "Site");
+            }
+
+            //unit dropdown
+            model.ddl_ParUnits = ddlHelpers.get_ddl_ref_units(model.selMon.PAR_CODE);
+
+            //get security access rights
+            model.secLvl1Ind = db_Account.IsOrgLvl1(UserIDX, orgid);
+            model.secLvl2Ind = db_Account.IsOrgLvl2(UserIDX, orgid);
+
+            //get raw data
             if (dur == "H")
                 model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(null, monid, sdt, edt, 25000, 0, 3, "asc");
             else if (dur == "1")
@@ -356,7 +387,7 @@ namespace QREST.Controllers
                     {
                         editCount++;
 
-                        Guid? SuccID = db_Air.UpdateT_QREST_DATA_HOURLY(item.DATA_RAW_IDX, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editNotes);
+                        Guid? SuccID = db_Air.UpdateT_QREST_DATA_HOURLY(item.DATA_RAW_IDX, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes);
                         if (SuccID == null)
                             TempData["Error"] = "Error updating record";
                     }

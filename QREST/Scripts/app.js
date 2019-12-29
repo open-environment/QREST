@@ -37,7 +37,7 @@
         } else {
             $label.html($label.data('placeholder'));
         }
-    }
+    };
     $(document).on('click.dropdown-menu', '.dropdown-select > li > a', $.fn.dropdown.Constructor.prototype.change);
 
     // tooltip
@@ -69,11 +69,11 @@
     });
 
     // button loading
-    $(document).on('click.button.data-api', '[data-loading-text]', function (e) {
-        var $this = $(e.target);
-        $this.is('i') && ($this = $this.parent());
-        $this.button('loading');
-    });
+    //$(document).on('click.button.data-api', '[data-loading-text]', function (e) {
+    //    var $this = $(e.target);
+    //    $this.is('i') && ($this = $this.parent());
+    //    $this.button('loading');
+    //});
 
 
     // collapse left menu group headers
@@ -95,7 +95,7 @@
     $('.carousel.auto').carousel();
 
     // dropdown still
-    $(document).on('click.bs.dropdown.data-api', '.dropdown .on, .dropup .on', function (e) { e.stopPropagation() });
+    $(document).on('click.bs.dropdown.data-api', '.dropdown .on, .dropup .on', function (e) { e.stopPropagation(); });
 
 
     //left menu: make group active based on child active

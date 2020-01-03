@@ -83,6 +83,7 @@ namespace QREST.Models
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "ZENO", Text = "Zeno 3200 - TCP Connection" });
             _list.Add(new SelectListItem() { Value = "OTHER", Text = "Others (in development)" });
+            _list.Add(new SelectListItem() { Value = "NONE", Text = "None (manual import only)" });
             return _list;
         }
                 

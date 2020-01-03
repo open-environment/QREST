@@ -28,7 +28,6 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 @Html.LabelForRequired(m => m.SITE_ID, "Site ID", new { @class = "control-label" })
-                                @*@Html.TextBoxFor(model => model.SITE_ID, Model.SITE_IDX != null ? new { @class = "form-control", @readonly = "readonly" } : (object)new { @class = "form-control", @maxlength = "50" })*@
                                 @Html.TextBoxFor(model => model.SITE_ID, new { @class = "form-control", @maxlength = "50" })
                                 @Html.ValidationMessageFor(model => model.SITE_ID)
                             </div>

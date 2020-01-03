@@ -83,7 +83,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row loggerOnly">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 @Html.LabelForRequired(m => m.editLOGGER_SOURCE, "Logger Source", new { @class = "control-label" })
@@ -101,7 +101,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row loggerOnly">
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 Username
@@ -111,7 +111,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row loggerOnly">
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 Password
@@ -121,7 +121,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row loggerOnly">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 Last Run Time
@@ -377,6 +377,25 @@
                 }
             });
 
+            //hide fields if no logger
+            if ($('#editLOGGER_TYPE').val()=="NONE") {
+                $('.loggerOnly').hide();
+            }
+
+            //logger type value change
+            $('#editLOGGER_TYPE').change(function () {
+                if ($(this).val() == "NONE") {
+                    $('#editLOGGER_SOURCE').val("X.X.X.X");
+                    $('#editLOGGER_PORT').val("0");
+                    $('.loggerOnly').hide();
+                }
+                else {
+                    $('#editLOGGER_SOURCE').val(null);
+                    $('#editLOGGER_PORT').val(null);
+                    $('.loggerOnly').show();
+                }
+            });
+
             //******************load modal*******************
             $(document).on('click', '.modal-it', function () {
                 $("#editPOLL_CONFIG_DTL_IDX").val($(this).attr('data-id'));
@@ -387,7 +406,7 @@
             });
 
 
-            //submit modal
+            //******************submit modal*******************
             $("#modal-form").submit(function (e) {
                 e.preventDefault();
 

@@ -788,6 +788,23 @@ namespace QREST.Controllers
         }
 
 
+        public ActionResult DownloadTemplateBySite(Guid? id)
+        {
+
+            T_QREST_SITE_POLL_CONFIG _pol = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(id ?? Guid.Empty);
+            if (id != null)
+            {
+                return RedirectToAction("DownloadTemplate", new { id = _pol.POLL_CONFIG_IDX });
+            }
+            else
+            {
+                TempData["Error"] = "Unable to find configuration";
+                return RedirectToAction("ManualImport");
+            }
+        }
+
+
+
         public ActionResult SitePollPing(string id)
         {
             //FAIL IF NO CONFIGURATION FOUND

@@ -16,23 +16,25 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-inline m-b-sm" onsubmit="return false">
-                        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
-                        @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, "", new { @class = "form-control" })
+                        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "--Organization--", new { @class = "form-control" })
+                        @Html.DropDownListFor(model => model.selSite, Model.ddl_Sites, "--Site--", new { @class = "form-control" })
                         <select id="selType" class="form-control">
+                            <option value="">Please Select</option>
                             <option value="H">Hourly</option>
                             <option value="F">5-Minute</option>
                         </select>
+                        <a id="tempUrl" class="btn btn-warning pull-right" data-root="@Url.Action("DownloadTemplateBySite","Site")" href="@Url.Action("DownloadTemplateBySite","Site", new { id = "1" })">Download import template</a>
                     </div>
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                @Html.TextAreaFor(model => model.IMPORT_BLOCK, new { @class = "form-control", @placeholder = "(make sure to include column headers when pasting...)", @rows = "10" })
+                                @Html.TextAreaFor(model => model.IMPORT_BLOCK, new { @class = "form-control", @placeholder = "(Paste data here)", @rows = "10" })
                                 @Html.ValidationMessageFor(model => model.IMPORT_BLOCK)
                             </div>
                         </div>
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-primary">Import Data</button>
-                            <a class="btn btn-warning pull-right" href="@Url.Action("SiteList","Site")">Download import template</a>
                         </div>
                     </div>
                     <div class="row">
@@ -102,9 +104,9 @@
         $(document).ready(function () {
 
             //update monitor dropdown
-            var url = '@Url.Action("FetchMonitors")';
-            var mons = $('#selMon');
             $('#selOrgID').change(function () {
+                var url = '@Url.Action("FetchSites")';
+                var mons = $('#selSite');
                 mons.empty();
                 $.getJSON(url, { ID: $(this).val() }, function (data) {
                     if (!data) {
@@ -115,6 +117,12 @@
                         mons.append($('<option></option>').val(item.Value).text(item.Text));
                     });
                 });
+
+            });
+
+            $('#selSite').change(function () {
+                var xxx = $("#tempUrl").data('root');
+                $("#tempUrl").attr('href', xxx + '/' + $(this).val());
             });
 
         });

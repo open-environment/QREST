@@ -46,13 +46,14 @@ namespace QREST.Models
 
     public class vmDataImport
     {
+        [Required]
         public string selOrgID { get; set; }
         [Required]
-        public string selMon { get; set; }
+        public string selSite { get; set; }
         [Required]
         public string selDuration { get; set; }
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
-        public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
+        public IEnumerable<SelectListItem> ddl_Sites { get; set; }
         public IEnumerable<SelectListItem> ddl_Duration { get; set; }
         public string IMPORT_BLOCK { get; set; }  //raw text imported
         public List<RawDataDisplay> raw_data { get; set; }   //in-memory storage of array of projects to import

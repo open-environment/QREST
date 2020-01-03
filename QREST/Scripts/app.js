@@ -58,24 +58,6 @@
         $this.toggleClass('active');
     });
 
-    // panel toggle
-    $(document).on('click', '.panel-toggle', function (e) {
-        e && e.preventDefault();
-        var $this = $(e.target), $class = 'collapse', $target;
-        if (!$this.is('a')) $this = $this.closest('a');
-        $target = $this.closest('.panel');
-        $target.find('.panel-body').toggleClass($class);
-        $this.toggleClass('active');
-    });
-
-    // button loading
-    //$(document).on('click.button.data-api', '[data-loading-text]', function (e) {
-    //    var $this = $(e.target);
-    //    $this.is('i') && ($this = $this.parent());
-    //    $this.button('loading');
-    //});
-
-
     // collapse left menu group headers
     $(document).on('click', '.nav-primary a', function (e) {
         var $this = $(e.target), $active;
@@ -93,9 +75,6 @@
 
     // carousel
     $('.carousel.auto').carousel();
-
-    // dropdown still
-    $(document).on('click.bs.dropdown.data-api', '.dropdown .on, .dropup .on', function (e) { e.stopPropagation(); });
 
 
     //left menu: make group active based on child active

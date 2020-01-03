@@ -93,24 +93,14 @@
                             @if (ViewBag.HideTitle != true)
                             {
                                 <div class="m-b-md">
-                                    @if (ViewBag.PageConfig == true)
-                                    {
-                                        <a href="#notes" data-toggle="class:show animated fadeInRight" data-placement="left" data-original-title="Page Config" class="pull-right"><i class="fa fa-cog fa-2x text-dark "></i></a>
-                                    }
                                     <h3 class="m-b-none m-t-sm">@ViewBag.Title</h3>
                                     <span style="font-size:9pt; font-style:italic">@Html.Raw(ViewBag.SubTitle)</span>
                                 </div>
                             }
                             @RenderBody()
-
                         </section>
                     </section>
                 </section>
-
-                <!-- DASHBOARD CONFIG -->
-                <aside class="bg-light lter b-l aside-md hide hide" id="notes">
-                    <div class="wrapper"><h4>Dashboard Config</h4></div>
-                </aside>
             </section>
         </section>
     </div>
@@ -123,7 +113,6 @@
     @Html.Partial("_Alerts")
 
     @RenderSection("scripts", required: false)
-
 
 </body>
 </html>

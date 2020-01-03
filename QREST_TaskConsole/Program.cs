@@ -45,7 +45,7 @@ namespace QREST_TaskConsole
                             //****************** SUTRON DATA LOGGER *********************************************************
                             if (_site.LOGGER_TYPE == "SUTRON")
                             {
-                                    
+
                             }
 
                             WriteToFile("Ending poll for org:" + _site.ORG_ID + " site: " + _site.SITE_ID);

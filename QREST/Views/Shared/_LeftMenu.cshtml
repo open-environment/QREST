@@ -112,16 +112,10 @@
                                     <span>Reports</span>
                                 </a>
                                 <ul class="nav bg">
-                                    <li class="@Html.ActivePage("Reports", "Index")">
-                                        <a href="@Url.Action("Index", "Reports")">
+                                    <li class="@Html.ActivePage("Data", "AQS")">
+                                        <a href="@Url.Action("AQS", "Data")">
                                             <i class="fa fa-angle-right"></i>
-                                            <span class="title">Example 1</span>
-                                        </a>
-                                    </li>
-                                    <li class="@Html.ActivePage("Reports", "Index")">
-                                        <a href="@Url.Action("Index", "Reports")">
-                                            <i class="fa fa-angle-right"></i>
-                                            <span class="title">Example 2</span>
+                                            <span class="title">AQS Reporting</span>
                                         </a>
                                     </li>
                                     @if (User.IsInRole("ADMIN"))

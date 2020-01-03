@@ -29,10 +29,37 @@ namespace QREST.Controllers
 
             var model = new vmDataImport {
                 ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true),
-                ddl_Monitor = new List<SelectListItem>(),
+                ddl_Sites = new List<SelectListItem>(),
                 ddl_Duration = ddlHelpers.get_ddl_logger_duration()
             };
 
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult ManualImport(vmDataImport model) {
+
+            string UserIDX = User.Identity.GetUserId();
+
+            if (ModelState.IsValid)
+            {
+                //5 min
+                if (model.selDuration == "F")
+                {
+
+                }
+
+                //hourly
+                else if (model.selDuration == "H")
+                {
+
+                }
+            }
+
+            //reinitialize model
+            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
+            model.ddl_Sites = new List<SelectListItem>();
+            model.ddl_Duration = ddlHelpers.get_ddl_logger_duration();
             return View(model);
         }
 
@@ -528,7 +555,22 @@ namespace QREST.Controllers
             return null;
         }
 
+
+        public ActionResult AQS()
+        {
+            return View();
+        }
+
         #endregion
+
+
+        [HttpGet]
+        public JsonResult FetchSites(string ID)
+        {
+            string UserIDX = User.Identity.GetUserId();
+            var data = ddlHelpers.get_ddl_my_sites(ID, UserIDX);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
 
 
         [HttpGet]

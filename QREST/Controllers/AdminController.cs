@@ -851,6 +851,23 @@ namespace QREST.Controllers
         }
 
 
+        public ActionResult ImportHourlyData()
+        {
+            var model = new vmAdminImportHourly
+            {
+                ddl_Organization = ddlHelpers.get_ddl_organizations(true, false),
+                ddl_Monitor = new List<SelectListItem>(),
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ImportHourlyData(vmAdminImportHourly model) {
+            
+            db_Air.InsertUpdateT_QREST_DATA_HOURLY(null,  )
+        }
 
         //************************************* REF DATA ************************************************************
         // GET: /Admin/RefData

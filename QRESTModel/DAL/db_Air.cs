@@ -1814,7 +1814,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
+        
         public static List<T_QREST_DATA_HOURLY> GetT_QREST_DATA_HOURLY_NotNotified()
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1834,6 +1834,52 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+        public static Guid? InsertUpdateT_QREST_DATA_HOURLY(Guid mONITOR_IDX, DateTime dATA_DTTM_LOCAL, DateTime? dATA_DTTM_UTC, int timezoneOffset, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    if (dATA_DTTM_LOCAL != null && dATA_DTTM_UTC == null)
+                        dATA_DTTM_UTC = dATA_DTTM_LOCAL.AddHours(timezoneOffset*(-1));
+                    else if (dATA_DTTM_LOCAL == null && dATA_DTTM_UTC != null)
+                        dATA_DTTM_UTC = dATA_DTTM_LOCAL.AddHours(timezoneOffset);
+
+                    T_QREST_DATA_HOURLY e = (from c in ctx.T_QREST_DATA_HOURLY
+                                               where c.MONITOR_IDX == mONITOR_IDX
+                                               && c.DATA_DTTM_LOCAL == dATA_DTTM_LOCAL
+                                               select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        e = new T_QREST_DATA_HOURLY();
+                        e.DATA_HOURLY_IDX = Guid.NewGuid();
+                        e.MONITOR_IDX = mONITOR_IDX;
+                        e.DATA_DTTM_LOCAL = dATA_DTTM_LOCAL;
+                        e.DATA_DTTM_UTC = dATA_DTTM_UTC;
+                    }
+                    
+                    if (e.DATA_VALUE != null) e.DATA_VALUE = dATA_VALUE;
+                    if (e.UNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
+                    if (vAL_IND != null) e.VAL_IND = vAL_IND;
+                    if (vAL_CD != null) e.VAL_CD = vAL_CD;
+                    e.MODIFY_DT = System.DateTime.Now;
+
+
+                    ctx.T_QREST_DATA_HOURLY.Add(e);
+                    ctx.SaveChanges();
+
+                    return e.DATA_HOURLY_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
         public static Guid? UpdateT_QREST_DATA_HOURLY_Notified(Guid dATA_HOURLY_IDX)
         {

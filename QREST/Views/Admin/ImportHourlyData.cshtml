@@ -1,0 +1,77 @@
+﻿@model QREST.Models.vmAdminImportHourly
+@{
+    ViewBag.Title = "Import Hourly Data from TREX";
+}
+
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">Select Data to Import</header>
+    <div class="panel-body">
+        @using (Html.BeginForm("ImportHourlyData", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+        {
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Organization</label>
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Review Parameter</label>
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.selMon)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        @Html.TextAreaFor(model => model.IMPORT_BLOCK, new { @class = "form-control", @placeholder = "(Paste data here)", @rows = "10" })
+                        @Html.ValidationMessageFor(model => model.IMPORT_BLOCK)
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Import Data</button>
+                </div>
+            </div>
+        }
+
+    </div>
+
+</section>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //initialize monitor dropdown on page load
+            fetchMonitors('@Model.selMon');
+
+            //update monitor dropdown
+            $('#selOrgID').change(function () {
+                fetchMonitors(null);
+            });
+
+        });
+
+        function fetchMonitors(mon) {
+            $('#selMon').empty();
+
+            $.getJSON('@Url.Action("FetchMonitors", "Data")', { ID: $("#selOrgID").val() }, function (data) {
+                if (!data) {
+                    return;
+                }
+                $('#selMon').append($('<option></option>').val('').text('Please select'));
+                $.each(data, function (index, item) {
+                    $('#selMon').append($('<option></option>').val(item.Value).text(item.Text));
+                });
+                $('#selMon').val(mon);
+            });
+        };
+
+    </script>
+
+}

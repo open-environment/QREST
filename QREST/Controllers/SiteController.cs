@@ -1170,8 +1170,6 @@ namespace QREST.Controllers
                 {
                     try
                     {
-                        //https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=18&county=081&site=0002
-                        //Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
                         Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=info@open-environment.org&key=dunhawk56&bdate=20000101&edate=20251231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
                         var json = httpClient.GetStringAsync(myUri).Result;
                         dynamic stuff = JsonConvert.DeserializeObject(json);
@@ -1180,31 +1178,34 @@ namespace QREST.Controllers
                         {
                             string _parcode = item.parameter_code;
                             string _method_code = item.last_method_code;
-                            T_QREST_REF_PAR_METHODS _refMeth = db_Ref.GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(_parcode, _method_code);
-
-                            T_QREST_MONITORS m = new T_QREST_MONITORS
+                            if (_method_code != null)
                             {
-                                MONITOR_IDX = Guid.NewGuid(),
-                                SITE_IDX = _site.SITE_IDX,
-                                PAR_METHOD_IDX = _refMeth.PAR_METHOD_IDX,
-                                POC = item.poc,
-                                CREATE_DT = System.DateTime.Now,
-                                CREATE_USER_IDX = UserIDX
-                            };
+                                T_QREST_REF_PAR_METHODS _refMeth = db_Ref.GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(_parcode, _method_code);
 
-                            SiteMonitorDisplayType md = new SiteMonitorDisplayType
-                            {
-                                T_QREST_MONITORS = m,
-                                SITE_ID = _site.STATE_CD + "-" + _site.COUNTY_CD + "-" + _site.AQS_SITE_ID,
-                                PAR_NAME = _parcode + " - " + item.parameter_name,
-                                METHOD_CODE = _method_code + " - " + item.last_method_description,
-                                ORG_ID = _site.ORG_ID
-                            };
+                                T_QREST_MONITORS m = new T_QREST_MONITORS
+                                {
+                                    MONITOR_IDX = Guid.NewGuid(),
+                                    SITE_IDX = _site.SITE_IDX,
+                                    PAR_METHOD_IDX = _refMeth.PAR_METHOD_IDX,
+                                    POC = item.poc,
+                                    CREATE_DT = System.DateTime.Now,
+                                    CREATE_USER_IDX = UserIDX
+                                };
 
-                            //check if QREST already has the monitor
-                            T_QREST_MONITORS _existMonitor = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(_site.SITE_IDX, _refMeth.PAR_METHOD_IDX, (int)item.poc);
-                            m.MODIFY_USER_IDX = _existMonitor != null ? "U" : "I";
-                            model.ImportMonitors.Add(md);
+                                SiteMonitorDisplayType md = new SiteMonitorDisplayType
+                                {
+                                    T_QREST_MONITORS = m,
+                                    SITE_ID = _site.STATE_CD + "-" + _site.COUNTY_CD + "-" + _site.AQS_SITE_ID,
+                                    PAR_NAME = _parcode + " - " + item.parameter_name,
+                                    METHOD_CODE = _method_code + " - " + item.last_method_description,
+                                    ORG_ID = _site.ORG_ID
+                                };
+
+                                //check if QREST already has the monitor
+                                T_QREST_MONITORS _existMonitor = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(_site.SITE_IDX, _refMeth.PAR_METHOD_IDX, (int)item.poc);
+                                m.MODIFY_USER_IDX = _existMonitor != null ? "U" : "I";
+                                model.ImportMonitors.Add(md);
+                            }
                         }
                     }
                     catch (AggregateException err)

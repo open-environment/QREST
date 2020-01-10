@@ -7,6 +7,8 @@
     <header class="panel-heading font-bold">
         Monthly Data Review Summary
     </header>
+    <a href="@Url.Action("DataReview")" class="btn btn-xs btn-default pull-right" >Advanced Selection</a>
+
     <div class="panel-body">
         @using (Html.BeginForm("DataReviewSummary", "Data", FormMethod.Post, new { @id = "", role = "form", @class = "form-inline m-b-sm" }))
         {

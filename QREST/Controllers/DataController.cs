@@ -400,7 +400,7 @@ namespace QREST.Controllers
                 if (model.editLvl1 == "Y") lvl1ind = true;
                 else if (model.editLvl1 == "N") lvl1ind = false;
 
-                //lvl1
+                //lvl2
                 bool? lvl2ind = null;
                 if (model.editLvl2 == "Y") lvl2ind = true;
                 else if (model.editLvl2 == "N") lvl2ind = false;

@@ -631,6 +631,8 @@
     <Content Include="Scripts\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
     <Content Include="Scripts\tinymce\langs\readme.md" />
     <Content Include="Views\Data\AQS.cshtml" />
+    <Content Include="Views\Shared\_PleaseWait.cshtml" />
+    <Content Include="Views\Admin\ImportHourlyData.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

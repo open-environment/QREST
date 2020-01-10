@@ -190,7 +190,7 @@
                         }
 
                         <a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
-                        <a href="@(Url.Action("MonitorImport", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded pull-right">Import Monitors from AQS</a>
+                        <a href="@(Url.Action("MonitorImport", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded pull-right" onclick="pleaseWait()">Import Monitors from AQS</a>
                     </div>
                 </section>
 
@@ -314,7 +314,6 @@
     </div>
 </div>
 <!-- END NOTIFY MODAL -->
-
 <!-- START MAP MODAL  -->
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
@@ -359,6 +358,8 @@
     </div>
 </div>
 <!-- END MAP MODAL  -->
+
+@Html.Partial("_PleaseWait", "Shared")
 
 @section scripts {
     @Scripts.Render("~/bundles/confirm-delete")
@@ -412,6 +413,7 @@
 
 
         });
+
     </script>
 
     <script src="https://js.arcgis.com/3.25/"></script>

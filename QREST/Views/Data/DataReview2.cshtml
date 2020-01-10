@@ -26,7 +26,7 @@
 
         @if (Model.SuppData1 != null)
         {
-            <div id="chartContainerSupp1" class="collapse in" style="height: 320px; width: 100%;">
+            <div id="chartContainerSupp1" class="collapse in" style="height: 160px; width: 100%;">
             </div>
         }
 
@@ -39,25 +39,7 @@
 
             <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, month=Model.selDtStart.Month, year=Model.selDtStart.Year })">Back</a>
             <a id="divBulk" class="btn btn-success" href="#modal-form1" data-toggle="modal" style="display:none;">Bulk Edit Selected</a>
-            @*<div id="divBulk" class="btn-group" style="display:none;">
 
-                    <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">Bulk Edit Selected<span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#">Qualifier</a>
-                        </li>
-                        <li>
-                            <a href="#modal-form1" data-toggle="modal">AQS Null Code</a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#">Mark Level 1 Review</a>
-                        </li>
-                        <li>
-                            <a href="#">Mark Level 2 Review</a>
-                        </li>
-                    </ul>
-                </div>*@
             if (Model.RawData != null)
             {
                 <table id="gridData" class="table table-striped table-bordered" style="width:100%; ">
@@ -155,9 +137,12 @@
                                         <li class="active">
                                             <a href="#basic" data-toggle="tab">Basic</a>
                                         </li>
-                                        <li class="">
-                                            <a href="#advanced" data-toggle="tab">Advanced</a>
-                                        </li>
+                                        @if (Model.secLvl2Ind == true)
+                                        {
+                                            <li class="">
+                                                <a href="#advanced" data-toggle="tab">Advanced</a>
+                                            </li>
+                                        }
                                     </ul>
                                 </header>
                                 <div class="panel-body">
@@ -249,13 +234,12 @@
 </section>
 
 
-
 @section Scripts {
     @Scripts.Render("~/bundles/datatables")
     @Scripts.Render("~/bundles/canvasjs")
     @Scripts.Render("~/bundles/jqueryval")
 
-    <script type="text/javascript">
+<script type="text/javascript">
     $(document).ready(function () {
 
         moment.updateLocale(moment.locale(), { invalidDate: "" });
@@ -267,20 +251,30 @@
             "searching": false,
         });
 
+        var dataPointsA = [], dataPointsSupp1 = [], dataPointsSupp2 = [];
+        var parName, parNameSupp1, parNameSupp2;
+        var chart, chart1;
 
-        var dataPointsA = [];
-        var dataPointsSupp1 = [];
-        var parName;
+
+        @if (Model.RawData != null && Model.RawData.Count > 0)
+        {
+            <text>parName = '@Model.RawData[0].PAR_NAME (' + '@Model.RawData[0].UNIT_DESC' + ')'</text>
+        }
 
         @foreach (var item in Model.RawData)
         {
-            <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsA);</text>
+            <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsA);
+            </text>
         }
 
-        @if (Model.SuppData1 != null) {
+        @if (Model.SuppData1 != null && Model.SuppData1.Count > 0) {
+            
+            <text>parNameSupp1 = '@Model.SuppData1[0].PAR_NAME (' + '@Model.SuppData1[0].UNIT_DESC' + ')'</text>
+
             foreach (var item in Model.SuppData1)
             {
-                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsSupp1);</text>
+                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsSupp1);
+                </text>
             }
         }
 
@@ -308,7 +302,7 @@
         }
 
 
-        var chart = new CanvasJS.Chart("chartContainer", {
+        chart = new CanvasJS.Chart("chartContainer", {
             zoomEnabled: true,
             animationEnabled: true,
             title: {
@@ -323,9 +317,11 @@
                 dataPoints: dataPointsA
             }],
             rangeChanged: function (e) {
+
                 var x1 = moment(e.axisX[0].viewportMinimum).format('MM-DD-YYYY HH:mm');
                 var x2 = moment(e.axisX[0].viewportMaximum).format('MM-DD-YYYY HH:mm');
 
+                console.log(x1);
                 $('#gridData tbody tr').each(function (index, element) {
                     rowdt = $(this).attr('data-date');
                     rowdt = new Date(rowdt);
@@ -338,23 +334,35 @@
                         $(this).css('display', '');
                     }
                 });
+
+                if (!chart1.options.axisX)
+                    chart1.options.axisX = {};
+
+                if (e.trigger === "reset") {
+                    chart1.options.axisX.viewportMinimum = chart1.options.axisX.viewportMaximum = null;
+                    chart1.render();
+                }
+                else {
+                    chart1.options.axisX.viewportMinimum = e.axisX[0].viewportMinimum;
+                    chart1.options.axisX.viewportMaximum = e.axisX[0].viewportMaximum;
+                    chart1.render();
+                }
             }
         });
 
         chart.render();
 
-
         //supp parameters
         if (dataPointsSupp1.length > 0) {
-            var chart1 = new CanvasJS.Chart("chartContainerSupp1", {
-                zoomEnabled: true,
+            chart1 = new CanvasJS.Chart("chartContainerSupp1", {
+                zoomEnabled: false,
                 animationEnabled: true,
                 title: {
-                    text: parName
+                    text: parNameSupp1
                 },
                 data: [{
                     type: "column",
-                    connectNullData: false,
+                    connectNullData: true,
                     xValueType: "dateTime",
                     xValueFormatString: "MM/DD/YYYY HH:mm",
                     name: "line2",
@@ -364,7 +372,6 @@
 
             chart1.render();
         }
-
 
     });
 
@@ -387,12 +394,7 @@
             $('#divBulk').show();
     });
 
-    function decodeHtml(html) {
-        var txt = document.createElement("textarea");
-        txt.innerHTML = html;
-        return txt.value;
-    }
-    </script>
+</script>
 }
 
 

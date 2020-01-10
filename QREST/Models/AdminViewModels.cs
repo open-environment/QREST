@@ -197,7 +197,6 @@ namespace QREST.Models
     //****************************************************************************
     public class vmAdminImport
     {
-        public List<T_QREST_SYS_LOG> T_QREST_SYS_LOG { get; set; }
         public List<AgencyImportType> agencies { get; set; }
         public string ImportType { get; set; }
         public int? ExistCount { get; set; }
@@ -205,6 +204,24 @@ namespace QREST.Models
         public int? InsertCount { get; set; }
         public List<string> UpdateDetails { get; set; }
     }
+
+
+    public class vmAdminImportHourly
+    {
+        public string selOrgID { get; set; }
+
+        [Required]
+        public string selMon { get; set; }
+        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+        public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
+
+        public string IMPORT_BLOCK { get; set; }
+        public List<T_QREST_DATA_HOURLY> ImportData { get; set; }
+        public int? ExistCount { get; set; }
+        public int? ErrorCount { get; set; }
+        public int? InsertCount { get; set; }
+    }
+
 
 
     // ******************************** REF DATA************************************

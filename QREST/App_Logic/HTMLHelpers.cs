@@ -29,7 +29,7 @@ namespace QREST.App_Logic.BusinessLogicLayer
 
             if (metaData.IsRequired)
             {
-                labelText = translatedlabelText + "<span class=\"required\" style=\"color:red;\"> <span style=\"vertical-align: super;\" class=\"glyphicon glyphicon-asterisk\" data-unicode=\"270f\"></span></span>";
+                labelText = translatedlabelText + "<span class=\"required\" style=\"color:#ac2925;\"> <span style=\"vertical-align: super;\" class=\"fa fa-asterisk\" data-unicode=\"270f\"></span></span>";
 
             }
             else

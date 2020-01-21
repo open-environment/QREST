@@ -865,8 +865,9 @@ namespace QREST.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ImportHourlyData(vmAdminImportHourly model) {
-            
-            db_Air.InsertUpdateT_QREST_DATA_HOURLY(null,  )
+
+            //db_Air.InsertUpdateT_QREST_DATA_HOURLY(null,  )
+            return null;
         }
 
         //************************************* REF DATA ************************************************************

@@ -4,13 +4,7 @@
     <section class="vbox">
         <header class="header bg-vcco text-center clearfix">
             <div class="btn-group hidden-nav-xs">
-                @*<a href="#" class="btn btn-sm btn-dark disabled" title="New claim">Claim</a>
-                    <div class="input-group">
-                        <input type="text" class="form-control input-sm" placeholder="enter claim" maxlength="6" />
-                        <span class="input-group-btn">
-                            <button class="btn btn-vcco input-sm" type="button">Go</button>
-                        </span>
-                    </div>*@
+
             </div>
         </header>
         <section class="w-f scrollable" style="top:33px;">
@@ -85,6 +79,13 @@
                                     <span class="title">Quality Control</span>
                                 </a>
                             </li>
+                            <li class="@Html.ActivePage("Data", "AQS")">
+                                <a href="@Url.Action("AQS", "Data")">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span class="title">AQS Submission</span>
+                                </a>
+                            </li>
+
                         </ul>
                     </li>
                     <li class="leftmenuhead">
@@ -105,36 +106,21 @@
                                     <span class="title">Data Export</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="#table">
-                                    <i class="fa fa-angle-down text"></i>
-                                    <i class="fa fa-angle-up text-active"></i>
-                                    <span>Reports</span>
-                                </a>
-                                <ul class="nav bg">
-                                    <li class="@Html.ActivePage("Data", "AQS")">
-                                        <a href="@Url.Action("AQS", "Data")">
-                                            <i class="fa fa-angle-right"></i>
-                                            <span class="title">AQS Reporting</span>
-                                        </a>
-                                    </li>
-                                    @if (User.IsInRole("ADMIN"))
-                                    {
-                                    <li class="@Html.ActivePage("Admin", "Connectivity")">
-                                        <a href="@Url.Action("Connectivity", "Admin")">
-                                            <i class="fa fa-angle-right"></i>
-                                            <span class="title">Connectivity</span>
-                                        </a>
-                                    </li>
-                                    }
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="@Url.Action("Index", "Reports")">
+                            <li class="@Html.ActivePage("Reports", "AQS")">
+                                <a href="@Url.Action("AQS", "Reports")">
                                     <i class="fa fa-angle-right"></i>
-                                    <span>Charts</span>
+                                    <span class="title">AQS Reporting</span>
                                 </a>
                             </li>
+                            @if (User.IsInRole("ADMIN"))
+                            {
+                                <li class="@Html.ActivePage("Admin", "Connectivity")">
+                                    <a href="@Url.Action("Connectivity", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Connectivity</span>
+                                    </a>
+                                </li>
+                            }
                         </ul>
                     </li>
 

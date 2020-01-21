@@ -9,8 +9,8 @@
     //numbers only (with comma)
     $('.cleave-num-no-comma').toArray().forEach(function (field) {
         new Cleave(field, {
-            numeral: true,
-            numeralThousandsGroupStyle: 'none'
+            numericOnly: true,
+            blocks: [4]
         });
     });
 

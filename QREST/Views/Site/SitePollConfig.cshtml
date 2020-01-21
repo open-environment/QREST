@@ -15,7 +15,7 @@
                     <li class="b-b b-light">
                         <a href="@Url.Action("SitePollConfig", "Site", new { id = item.SITE_IDX, configid = item.POLL_CONFIG_IDX })" class="@(item.POLL_CONFIG_IDX == Model.editPOLL_CONFIG_IDX ? "master-active" : "")">
                             @if (item.ACT_IND == true)
-                            {<span class="label label-success pull-right"> Active</span>}Config
+                            {<span class="label label-success pull-right"> Active</span>}@item.CONFIG_NAME
                         </a>
                     </li>
                 }
@@ -75,7 +75,14 @@
                                 </header>
                                 <div class="panel-body">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                @Html.LabelForRequired(m => m.editCONFIG_NAME, "Config Name", new { @class = "control-label" })
+                                                @Html.TextBoxFor(model => model.editCONFIG_NAME, new { @class = "form-control", @maxlength = "20" })
+                                                @Html.ValidationMessageFor(model => model.editCONFIG_NAME)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 @Html.LabelForRequired(m => m.editLOGGER_TYPE, "Logger Type", new { @class = "control-label" })
                                                 @Html.DropDownListFor(model => model.editLOGGER_TYPE, Model.ddl_LoggerType, "", new { @class = "form-control" })
@@ -248,7 +255,7 @@
                         <div id="telemetrySource" class="col-md-12">
                             <div class="form-group ">
                                 @Html.CheckBoxFor(model => model.editACT_IND, new { @class = "checkbox-inline checkbox-lg" })
-                                <label class="label-lg font-bold">Set this config to Active for the site</label>
+                                <label class="label-lg font-bold">Set this config to Active for polling this site</label>
                             </div>
                         </div>
                     </div>

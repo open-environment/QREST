@@ -21,6 +21,7 @@ namespace QRESTModel.DAL
             this.T_QREST_SITE_POLL_CONFIG = new HashSet<T_QREST_SITE_POLL_CONFIG>();
             this.T_QREST_SITE_NOTIFY = new HashSet<T_QREST_SITE_NOTIFY>();
             this.T_QREST_ASSESS_DOCS = new HashSet<T_QREST_ASSESS_DOCS>();
+            this.T_QREST_AQS = new HashSet<T_QREST_AQS>();
         }
     
         public System.Guid SITE_IDX { get; set; }
@@ -61,5 +62,7 @@ namespace QRESTModel.DAL
         public virtual ICollection<T_QREST_SITE_NOTIFY> T_QREST_SITE_NOTIFY { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_ASSESS_DOCS> T_QREST_ASSESS_DOCS { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_AQS> T_QREST_AQS { get; set; }
     }
 }

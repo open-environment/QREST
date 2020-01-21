@@ -45,7 +45,6 @@ namespace QREST.Controllers
         }
 
 
-
         public ActionResult ReportDaily(Guid? id, int? month, int? year, int? day, string time)
         {
             var model = new vmHomeReportDaily
@@ -107,7 +106,7 @@ namespace QREST.Controllers
 
             //monitor dropdown
             if (model.selSite != null)
-                model.ddl_Mons = ddlHelpers.get_monitors_by_site(id ?? Guid.Empty);
+                model.ddl_Mons = ddlHelpers.get_monitors_by_site(id ?? Guid.Empty, false, true);
             else
                 model.ddl_Mons = new SelectList(Enumerable.Empty<SelectListItem>());
 
@@ -171,7 +170,7 @@ namespace QREST.Controllers
 
             //monitor dropdown
             if (model.selSite != null)
-                model.ddl_Mons = ddlHelpers.get_monitors_by_site(id ?? Guid.Empty);
+                model.ddl_Mons = ddlHelpers.get_monitors_by_site(id ?? Guid.Empty, false, true);
             else
                 model.ddl_Mons = new SelectList(Enumerable.Empty<SelectListItem>());
 
@@ -228,7 +227,7 @@ namespace QREST.Controllers
         }
 
         
-        public ActionResult Terms ()
+        public ActionResult Terms()
         {
             var model = new vmHomeTerms();
             T_QREST_APP_SETTINGS_CUSTOM cust = db_Ref.GetT_QREST_APP_SETTING_CUSTOM();

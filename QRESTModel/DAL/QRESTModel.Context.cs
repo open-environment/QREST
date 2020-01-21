@@ -69,6 +69,7 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_SITE_NOTIFY> T_QREST_SITE_NOTIFY { get; set; }
         public virtual DbSet<T_QREST_ASSESS_DOCS> T_QREST_ASSESS_DOCS { get; set; }
         public virtual DbSet<MONITOR_SNAPSHOT> MONITOR_SNAPSHOT { get; set; }
+        public virtual DbSet<T_QREST_AQS> T_QREST_AQS { get; set; }
     
         public virtual ObjectResult<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)
         {

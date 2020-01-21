@@ -39,6 +39,7 @@ namespace QRESTModel.DAL
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
         public string LOCAL_TIMEZONE { get; set; }
+        public string CONFIG_NAME { get; set; }
     
         public virtual T_QREST_REF_DURATION T_QREST_REF_DURATION { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -50,7 +50,7 @@
                             }
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Data Collection Unit</label>
+                                    @Html.LabelForRequired(m => m.PAR_METHOD_IDX, "Parameter / Method", new { @class = "control-label" })
                                     @Html.DropDownListFor(model => model.COLLECT_UNIT_CODE, Model.ddl_Unit, "", new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.COLLECT_UNIT_CODE)
                                 </div>

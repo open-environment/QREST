@@ -40,7 +40,16 @@ namespace QREST.Models
                 Text = x.COUNTY_CD + " - " + x.COUNTY_NAME
             });
         }
-        
+
+        public static IEnumerable<SelectListItem> get_ddl_import_type()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "H1", Text = "Hourly: 1-Param, Hours are 24 Columns" });
+            _list.Add(new SelectListItem() { Value = "H", Text = "Hourly" });
+            _list.Add(new SelectListItem() { Value = "F", Text = "5-Minute" });
+            return _list;
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_logger_date()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
@@ -138,12 +147,12 @@ namespace QREST.Models
             });
         }
 
-        public static IEnumerable<SelectListItem> get_monitors_by_site(Guid SiteIDX)
+        public static IEnumerable<SelectListItem> get_monitors_by_site(Guid SiteIDX, bool dispUnit, bool dispPOC)
         {
             return db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(SiteIDX).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
-                Text = "Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | Method: " + x.METHOD_CODE + " | POC: " + x.T_QREST_MONITORS.POC
+                Text = "Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | Method: " + x.METHOD_CODE + (dispPOC==true ? " | " + x.T_QREST_MONITORS.POC : "") + (dispUnit == true ? " | " + x.UNIT_DESC : "")
             });
         }
 
@@ -174,7 +183,6 @@ namespace QREST.Models
             });
         }
 
-
         public static IEnumerable<SelectListItem> get_ddl_days_in_month(int? month)
         {
             List<SelectListItem> _list = new List<SelectListItem>();
@@ -202,6 +210,15 @@ namespace QREST.Models
             _list.Add(new SelectListItem() { Value = "11", Text = "November" });
             _list.Add(new SelectListItem() { Value = "12", Text = "December" });
             return _list;
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_polling_config(Guid siteIDX)
+        {
+            return db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(siteIDX, false).Select(x => new SelectListItem
+            {
+                Value = x.POLL_CONFIG_IDX.ToString(),
+                Text = x.CONFIG_NAME
+            });
         }
 
         public static IEnumerable<SelectListItem> get_ddl_ref_assess_type()
@@ -327,13 +344,6 @@ namespace QREST.Models
                 Value = x.ACCESS_LEVEL,
                 Text = x.ACCESS_LEVEL_DESC
             });
-
-            //List<SelectListItem> _list = new List<SelectListItem>();
-            //_list.Add(new SelectListItem() { Value = "U", Text = "Operator" });
-            //_list.Add(new SelectListItem() { Value = "A", Text = "Admin" });
-            //_list.Add(new SelectListItem() { Value = "Q", Text = "QA Reviewer" });
-            //_list.Add(new SelectListItem() { Value = "R", Text = "Read Only" });
-            //return _list;
         }
         
         public static IEnumerable<SelectListItem> get_ddl_users(bool ConfirmedOnly)
@@ -345,12 +355,20 @@ namespace QREST.Models
             });
         }
 
-        public static IEnumerable<SelectListItem> get_ddl_years()
+        public static IEnumerable<SelectListItem> get_ddl_years(int startYr)
         {
             List<SelectListItem> _list = new List<SelectListItem>();
-            for (int i = 2019; i <= System.DateTime.Now.Year; i++)
+            for (int i = startYr; i <= System.DateTime.Now.Year; i++)
                 _list.Add(new SelectListItem() { Value = i.ToString(), Text = i.ToString() });
                 
+            return _list;
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_yes_no()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "Y", Text = "Yes" });
+            _list.Add(new SelectListItem() { Value = "N", Text = "No" });
             return _list;
         }
 

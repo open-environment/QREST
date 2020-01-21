@@ -333,7 +333,6 @@ namespace QREST.Controllers
                 }
 
                 //grab remote CSV file from EPA AQS
-                //HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
                 try
                 {
@@ -528,7 +527,7 @@ namespace QREST.Controllers
                 var model = new vmSiteSitePollConfig {
                     SITE_IDX = id,
                     ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(id.ConvertOrDefault<Guid>(), false),
-                    ddl_Monitors = ddlHelpers.get_monitors_by_site(_site.SITE_IDX),
+                    ddl_Monitors = ddlHelpers.get_monitors_by_site(_site.SITE_IDX, false, true),
                     POLLING_LAST_RUN_DT = _site.POLLING_LAST_RUN_DT,
                     POLLING_NEXT_RUN_DT = _site.POLLING_NEXT_RUN_DT,
                 };
@@ -552,6 +551,7 @@ namespace QREST.Controllers
 
                     if (e != null)
                     {
+                        model.editCONFIG_NAME = e.CONFIG_NAME;
                         model.editPOLL_CONFIG_IDX = e.POLL_CONFIG_IDX;
                         model.editRAW_DURATION_CODE = e.RAW_DURATION_CODE;
                         model.editLOGGER_TYPE = e.LOGGER_TYPE;
@@ -616,7 +616,7 @@ namespace QREST.Controllers
 
 
 
-                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
+                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
                         model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
                         model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME);
 
@@ -632,7 +632,7 @@ namespace QREST.Controllers
 
             //reinitialize model
             model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), false);
-            model.ddl_Monitors = ddlHelpers.get_monitors_by_site(model.SITE_IDX.ConvertOrDefault<Guid>());
+            model.ddl_Monitors = ddlHelpers.get_monitors_by_site(model.SITE_IDX.ConvertOrDefault<Guid>(), false, true);
             return View(model);
         }
 
@@ -831,7 +831,7 @@ namespace QREST.Controllers
             var model = new vmSitePing
             {
                 POLL_CONFIG_IDX = idg,
-                pingResults2 = new List<CommMessageLog> { },
+                pingResults2 = new List<CommMessageLog> {},
                 pingResults = new List<Tuple<bool, string, string>>
                 {
                     new Tuple<bool, string, string>(true, "Ping Started","")
@@ -930,6 +930,107 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
+
+        public ActionResult SitePollPing2(string id)
+        {
+            //FAIL IF NO CONFIGURATION FOUND
+            if (id == null)
+                return RedirectToAction("SiteList", "Site");
+
+            Guid idg = new Guid(id);
+            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(idg);
+
+            //FAIL IF NO CONFIGURATION FOUND
+            if (_config == null)
+            {
+                TempData["Error"] = "Monitor polling configuration not found";
+                return RedirectToAction("SiteList", "Site");
+            }
+
+            //reject if user doesn't have access to org
+            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(idg);
+            RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
+            if (r != null) return r;
+
+
+            //initialize model
+            var model = new vmSitePing
+            {
+                POLL_CONFIG_IDX = idg,
+                pingResults2 = new List<CommMessageLog> { },
+                pingResults = new List<Tuple<bool, string, string>>
+                {
+                    new Tuple<bool, string, string>(true, "Ping Started","")
+                }
+            };
+
+            //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
+            if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
+            {
+                model.pingResults.Add(new Tuple<bool, string, string>(false, "Polling configuration is incomplete: logger source, port, and password must be supplied.", ""));
+                return View(model);
+            }
+
+
+            //*********** PINGING ZENO ************************************************************************
+            //*********** PINGING ZENO ************************************************************************
+            //*********** PINGING ZENO ************************************************************************
+            if (_config.LOGGER_TYPE == "ZENO")
+            {
+                try
+                {
+                    //Create a TCPClient object at the IP and port
+                    TcpClient client = new TcpClient();
+
+                    if (!client.ConnectAsync(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>()).Wait(TimeSpan.FromSeconds(2)))
+                        model.pingResults.Add(new Tuple<bool, string, string>(false, "Unable to connect to device", "")); // connection failure
+                    else
+                    {
+                        model.pingResults.Add(new Tuple<bool, string, string>(true, "Connect to device " + _config.LOGGER_SOURCE + ":" + _config.LOGGER_PORT.ToString() + " successful.", ""));
+
+                        // Get a client stream for reading and writing.
+                        using (NetworkStream stream = client.GetStream())
+                        {
+
+
+
+                            byte[] EXT = new byte[] { 0x03 };
+
+                            //*************** send u to enter user menu *****************************
+                            CommMessageLog _log = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Access Zeno User Menu", stream, "#01001036DL289" + EXT, 700, 700, "Level 1");
+                            model.pingResults2.Add(_log);
+
+
+                            //disconnect
+                            client.Client.Close();
+                            System.Threading.Thread.Sleep(250);
+                            client.Close();
+
+                        }
+                    }
+
+
+                }
+                catch (System.Net.Sockets.SocketException sex)
+                {
+                    model.pingResults.Add(new Tuple<bool, string, string>(false, "Ping socket exception: " + sex.Message, ""));
+                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Ping - code 1 " + sex.Message);
+                }
+                catch (Exception ex)
+                {
+                    model.pingResults.Add(new Tuple<bool, string, string>(false, "General ping exception: " + ex.Message, ""));
+                    model.pingResults.Add(new Tuple<bool, string, string>(false, "General ping exception: " + ex.InnerException.ToString(), ""));
+                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Ping - code 2 " + ex.Message);
+                }
+            }
+            else
+            {
+                model.pingResults.Add(new Tuple<bool, string, string>(false, "Ping currently only available for Zeno dataloggers", ""));
+            }
+
+            return View(model);
+        }
 
         private static string SendReceiveMessage(NetworkStream stream, string message, int msWait)
         {
@@ -1170,6 +1271,7 @@ namespace QREST.Controllers
                 {
                     try
                     {
+                        //https://aqs.epa.gov/data/api/monitors/bySite?email=info@open-environment.org&key=dunhawk56&bdate=20000101&edate=20251231&state=04&county=013&site=5100
                         Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=info@open-environment.org&key=dunhawk56&bdate=20000101&edate=20251231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
                         var json = httpClient.GetStringAsync(myUri).Result;
                         dynamic stuff = JsonConvert.DeserializeObject(json);

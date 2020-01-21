@@ -60,6 +60,7 @@ namespace QRESTModel.DAL
         public string METHOD_CODE { get; set; }
         public string COLLECTION_DESC { get; set; }
         public string ORG_ID { get; set; }
+        public string UNIT_DESC { get; set; }
         public bool monSelInd { get; set; }
     }
 
@@ -140,6 +141,14 @@ namespace QRESTModel.DAL
 
     }
 
+
+    public class ImportResponse
+    {
+        public bool SuccInd { get; set; }
+        public Guid? DATA_IDX { get; set; }
+        public DateTime? DATA_DTTM { get; set; }
+        public string DATA_VALUE { get; set; }
+    }
 
     public class db_Air
     {
@@ -544,6 +553,7 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************SITE POLL CONFIG**********************************
         public static T_QREST_SITE_POLL_CONFIG GetT_QREST_SITE_POLL_CONFIG_ActiveByID(Guid SiteIDX)
         {
@@ -738,7 +748,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG(Guid? pOLL_CONFIG_IDX, Guid? sITE_IDX, string rAW_DURATION_CODE, string lOGGER_TYPE, string lOGGER_SOURCE,
+        public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG(Guid? pOLL_CONFIG_IDX, Guid? sITE_IDX, string cONFIG_NAME, string rAW_DURATION_CODE, string lOGGER_TYPE, string lOGGER_SOURCE,
             int? lOGGER_PORT, string lOGGER_USERNAME, string lOGGER_PASSWORD, string dELIMITER, int? dATE_COL, string dATE_FORMAT, int? tIME_COL, string tIME_FORMAT, string lOCAL_TIMEZONE,
             bool aCT_IND, string cREATE_USER, string sITE_NAME)
         {
@@ -769,6 +779,7 @@ namespace QRESTModel.DAL
                     }
 
                     if (sITE_IDX != null) e.SITE_IDX = sITE_IDX.ConvertOrDefault<Guid>();
+                    if (cONFIG_NAME != null) e.CONFIG_NAME = cONFIG_NAME;
                     if (rAW_DURATION_CODE != null) e.RAW_DURATION_CODE = rAW_DURATION_CODE;
                     if (lOGGER_TYPE != null) e.LOGGER_TYPE = lOGGER_TYPE;
                     if (lOGGER_SOURCE != null) e.LOGGER_SOURCE = lOGGER_SOURCE;
@@ -1002,6 +1013,24 @@ namespace QRESTModel.DAL
 
 
         //*****************MONITORS**********************************
+        public static T_QREST_MONITORS GetT_QREST_MONITORS_ByID_Simple(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_MONITORS.AsNoTracking()
+                            where a.MONITOR_IDX == id
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static SiteMonitorDisplayType GetT_QREST_MONITORS_ByID(Guid id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1082,21 +1111,18 @@ namespace QRESTModel.DAL
                     var xxx = (from a in ctx.T_QREST_MONITORS.AsNoTracking()
                                join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on a.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
                                join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on r.PAR_CODE equals p.PAR_CODE
-                               join d in ctx.T_QREST_REF_DURATION.AsNoTracking() on a.DURATION_CODE equals d.DURATION_CODE
-                                   into lj
-                               from d in lj.DefaultIfEmpty() //left join on duration
-                               join f in ctx.T_QREST_REF_COLLECT_FREQ.AsNoTracking() on a.COLLECT_FREQ_CODE equals f.COLLECT_FREQ_CODE
-                                   into lj2
-                               from f in lj.DefaultIfEmpty() //left join on coll freq
+                               join d in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.COLLECT_UNIT_CODE equals d.UNIT_CODE
+                                   into lj from d in lj.DefaultIfEmpty() //left join on monitor's unit
                                where a.SITE_IDX == SiteIDX
-                               orderby a.CREATE_DT
+                               orderby p.PAR_CODE
                                select new SiteMonitorDisplayType
                                {
                                    T_QREST_MONITORS = a,
                                    METHOD_CODE = r.METHOD_CODE,
                                    COLLECTION_DESC = r.COLLECTION_DESC,
                                    PAR_CODE = p.PAR_CODE,
-                                   PAR_NAME = p.PAR_NAME
+                                   PAR_NAME = p.PAR_NAME,
+                                   UNIT_DESC = d.UNIT_DESC
                                }).ToList();
 
                     return xxx;
@@ -1224,12 +1250,6 @@ namespace QRESTModel.DAL
                                join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
                                join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
                                join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on r.PAR_CODE equals p.PAR_CODE
-                               join d in ctx.T_QREST_REF_DURATION.AsNoTracking() on m.DURATION_CODE equals d.DURATION_CODE
-                                   into lj
-                               from d in lj.DefaultIfEmpty() //left join on duration
-                               join f in ctx.T_QREST_REF_COLLECT_FREQ.AsNoTracking() on m.COLLECT_FREQ_CODE equals f.COLLECT_FREQ_CODE
-                                   into lj2
-                               from f in lj.DefaultIfEmpty() //left join on coll freq
                                where u.USER_IDX == UserIDX
                                && u.STATUS_IND == "A"
                                && (OrgID != null ? a.ORG_ID == OrgID : true)
@@ -1365,6 +1385,7 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************QC_ASSESSMENT**********************************
         public static Guid? InsertUpdatetT_QREST_QC_ASSESSMENT(Guid? qC_ASSESS_IDX, Guid? mONITOR_IDX, DateTime? aSSESSMENT_DT, string aSSESSMENT_TYPE,
             string uNIT_CODE, int? aSSESSMENT_NUM, string aSSESSED_BY, string cREATE_USER)
@@ -1469,8 +1490,9 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************FIVE MIN**********************************
-        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD)
+        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1491,7 +1513,7 @@ namespace QRESTModel.DAL
                         e.UNIT_CODE = uNIT_CODE;
                         e.VAL_IND = vAL_IND ?? false;
                         e.VAL_CD = vAL_CD;
-                        e.MODIFY_DT = System.DateTime.Now;
+                        e.MODIFY_DT = mODIFY_DT ?? System.DateTime.Now;
                         ctx.T_QREST_DATA_FIVE_MIN.Add(e);
                         ctx.SaveChanges();
                     }
@@ -1500,7 +1522,7 @@ namespace QRESTModel.DAL
                         e.DATA_VALUE = dATA_VALUE;
                         if (vAL_IND != null) e.VAL_IND = vAL_IND;
                         if (vAL_CD != null) e.VAL_CD = vAL_CD;
-                        e.MODIFY_DT = System.DateTime.Now;
+                        e.MODIFY_DT = mODIFY_DT ?? System.DateTime.Now;
                         ctx.SaveChanges();
                     }
 
@@ -1512,6 +1534,19 @@ namespace QRESTModel.DAL
                     return null;
                 }
             }
+        }
+
+        public static ImportResponse ImportT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT)
+        {
+            Guid? SuccID = db_Air.InsertT_QREST_DATA_FIVE_MIN(mONITOR_IDX, dATA_DTTM, dATA_VALUE, uNIT_CODE, vAL_IND, vAL_CD, mODIFY_DT);
+
+            return new ImportResponse
+            {
+                SuccInd = SuccID != null,
+                DATA_IDX = SuccID,
+                DATA_DTTM = dATA_DTTM,
+                DATA_VALUE = dATA_VALUE
+            };
         }
 
         public static bool InsertT_QREST_DATA_FIVE_MIN_fromLine(string line, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl)
@@ -1539,7 +1574,7 @@ namespace QRESTModel.DAL
                             if (val != null && _map.ALERT_MIN_TYPE == "N" && val > _map.ALERT_MIN_VALUE)
                                 valCd = "MIN";
 
-                            db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd);
+                            db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd, null);
                         }
                     }
                 }
@@ -1570,6 +1605,9 @@ namespace QRESTModel.DAL
                             join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
                             join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
                             join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
+                            join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
+                            into lj3 
+                            from u3 in lj3.DefaultIfEmpty() //left join on minute unit
                             where a.DATA_DTTM >= DateFromDt
                             && a.DATA_DTTM <= DateToDt
                             && (org != null ? s.ORG_ID == org : true)
@@ -1580,6 +1618,8 @@ namespace QRESTModel.DAL
                                 SITE_ID = s.SITE_ID,
                                 MONITOR_IDX = m.MONITOR_IDX,
                                 DATA_RAW_IDX = a.DATA_FIVE_IDX,
+                                UNIT_CODE = m.COLLECT_UNIT_CODE,
+                                UNIT_DESC = u3.UNIT_DESC,
                                 DATA_DTTM = a.DATA_DTTM,
                                 DATA_VALUE = a.DATA_VALUE,
                                 PAR_CODE = p.PAR_CODE,
@@ -1623,6 +1663,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
 
         //*****************HOURLY**********************************
@@ -1835,24 +1876,27 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Guid? InsertUpdateT_QREST_DATA_HOURLY(Guid mONITOR_IDX, DateTime dATA_DTTM_LOCAL, DateTime? dATA_DTTM_UTC, int timezoneOffset, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD)
+        public static ImportResponse InsertUpdateT_QREST_DATA_HOURLY(Guid mONITOR_IDX, DateTime? dATA_DTTM_LOCAL, DateTime? dATA_DTTM_UTC, int timezoneOffset, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    if (dATA_DTTM_LOCAL != null && dATA_DTTM_UTC == null)
-                        dATA_DTTM_UTC = dATA_DTTM_LOCAL.AddHours(timezoneOffset*(-1));
-                    else if (dATA_DTTM_LOCAL == null && dATA_DTTM_UTC != null)
-                        dATA_DTTM_UTC = dATA_DTTM_LOCAL.AddHours(timezoneOffset);
+                    bool insInd = false;
 
-                    T_QREST_DATA_HOURLY e = (from c in ctx.T_QREST_DATA_HOURLY
+                    if (dATA_DTTM_LOCAL != null && dATA_DTTM_UTC == null)
+                        dATA_DTTM_UTC = dATA_DTTM_LOCAL.GetValueOrDefault().AddHours(timezoneOffset * (-1));
+                    else if (dATA_DTTM_LOCAL == null && dATA_DTTM_UTC != null)
+                        dATA_DTTM_LOCAL = dATA_DTTM_UTC.GetValueOrDefault().AddHours(timezoneOffset);
+
+                    T_QREST_DATA_HOURLY e = (from c in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
                                                where c.MONITOR_IDX == mONITOR_IDX
                                                && c.DATA_DTTM_LOCAL == dATA_DTTM_LOCAL
                                                select c).FirstOrDefault();
 
                     if (e == null)
                     {
+                        insInd = true;
                         e = new T_QREST_DATA_HOURLY();
                         e.DATA_HOURLY_IDX = Guid.NewGuid();
                         e.MONITOR_IDX = mONITOR_IDX;
@@ -1860,26 +1904,39 @@ namespace QRESTModel.DAL
                         e.DATA_DTTM_UTC = dATA_DTTM_UTC;
                     }
                     
-                    if (e.DATA_VALUE != null) e.DATA_VALUE = dATA_VALUE;
-                    if (e.UNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
+                    if (dATA_VALUE != null) e.DATA_VALUE = dATA_VALUE;
+                    if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
                     if (vAL_IND != null) e.VAL_IND = vAL_IND;
-                    if (vAL_CD != null) e.VAL_CD = vAL_CD;
+                    if (vAL_CD != null) e.VAL_CD = vAL_CD.SubStringPlus(0,5);
                     e.MODIFY_DT = System.DateTime.Now;
 
 
-                    ctx.T_QREST_DATA_HOURLY.Add(e);
+                    if (insInd)
+                        ctx.T_QREST_DATA_HOURLY.Add(e);
+                    
                     ctx.SaveChanges();
 
-                    return e.DATA_HOURLY_IDX;
+                    return new ImportResponse
+                    {
+                        SuccInd = true,
+                        DATA_IDX = e.DATA_HOURLY_IDX,
+                        DATA_DTTM = e.DATA_DTTM_UTC,
+                        DATA_VALUE = e.DATA_VALUE
+                    }; 
                 }
                 catch (Exception ex)
                 {
                     logEF.LogEFException(ex);
-                    return null;
+                    return new ImportResponse
+                    {
+                        SuccInd = false,
+                        DATA_IDX = null,
+                        DATA_DTTM = dATA_DTTM_UTC,
+                        DATA_VALUE = dATA_VALUE
+                    };
                 }
             }
         }
-
 
         public static Guid? UpdateT_QREST_DATA_HOURLY_Notified(Guid dATA_HOURLY_IDX)
         {
@@ -1964,6 +2021,7 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************ASSESS DOCS**********************************
         public static T_QREST_ASSESS_DOCS GetT_QREST_ASSESS_DOCS_ByID(Guid aSSESS_DOC_IDX)
         {
@@ -1982,7 +2040,6 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
 
         public static List<AssessDocDisplay> GetT_QREST_ASSESS_DOCS_BySite(Guid sITE_IDX, int year, int month)
         {
@@ -2133,6 +2190,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
 
         //*****************VIEWS**********************************

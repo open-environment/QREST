@@ -75,6 +75,9 @@
         <AssociationConnector Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_M" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_S" />
         <EntityTypeShape EntityType="QRESTModel.MONITOR_SNAPSHOT" Width="1.5" PointX="5.375" PointY="20.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_AQS" Width="1.5" PointX="13.5" PointY="20.75" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_AQS_O" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_AQS_S" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

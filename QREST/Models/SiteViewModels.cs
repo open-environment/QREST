@@ -147,6 +147,10 @@ namespace QREST.Models
         
         //EDITED CONFIG
         public Guid? editPOLL_CONFIG_IDX { get; set; }
+
+        [Required]
+        [Display(Name = "Configuration Name")]
+        public string editCONFIG_NAME { get; set; }
         public string editRAW_DURATION_CODE { get; set; }
 
         [Required]
@@ -236,8 +240,13 @@ namespace QREST.Models
 
         [Required]
         public string DURATION_CODE { get; set; }
+
         public string COLLECT_FREQ_CODE { get; set; }
+
+        [Required]
+        [Display(Name = "Data Collection Unit")]
         public string COLLECT_UNIT_CODE { get; set; }
+
         public double? ALERT_MIN_VALUE { get; set; }
         public double? ALERT_MAX_VALUE { get; set; }
         public double? ALERT_AMT_CHANGE { get; set; }

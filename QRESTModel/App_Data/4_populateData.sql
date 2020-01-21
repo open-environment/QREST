@@ -96,7 +96,7 @@ Particulate monitors using automated methods usually sample continuously and rep
 
 --****************ROLES *****************************************************************************************
 INSERT INTO [T_QREST_ROLES] ([ROLE_IDX], [Name]) VALUES (NEWID(), 'ADMIN'); --'Global administration role for QREST, spanning all organizations.'
-INSERT INTO [T_QREST_ROLES] ([ROLE_IDX], [Name]) VALUES (NEWID(), 'CERTIFIED QA REVIEWER'); 
+--INSERT INTO [T_QREST_ROLES] ([ROLE_IDX], [Name]) VALUES (NEWID(), 'CERTIFIED QA REVIEWER'); 
 
 GO
 

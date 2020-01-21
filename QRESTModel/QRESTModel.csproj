@@ -147,6 +147,9 @@
     <Compile Include="DAL\T_QREST_APP_TASKS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\T_QREST_AQS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\T_QREST_ASSESS_DOCS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>

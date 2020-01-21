@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -30,36 +31,210 @@ namespace QREST.Controllers
             var model = new vmDataImport {
                 ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true),
                 ddl_Sites = new List<SelectListItem>(),
-                ddl_Duration = ddlHelpers.get_ddl_logger_duration()
-            };
+                ddl_Monitors = new List<SelectListItem>(),
+                ddl_PollConfig = new List<SelectListItem>(),
+                ddl_ImportType = ddlHelpers.get_ddl_import_type(),
+                ddl_Time = ddlHelpers.get_ddl_time_type(),
+                ddl_Calc = ddlHelpers.get_ddl_yes_no(),
+                selTimeType = "L"
+        };
 
             return View(model);
         }
+
 
         [HttpPost]
         public ActionResult ManualImport(vmDataImport model) {
 
             string UserIDX = User.Identity.GetUserId();
+            model.error_data = new List<ImportResponse>();
 
-            if (ModelState.IsValid)
+            //*********************** ADDITIONAL CUSTOM MODEL ERRORS **************************************8
+            if (model.selImportType == "F" && model.selTimeType == "L")
+                ModelState.AddModelError("selTimeType", "Local time import not supported for 5 minute data.");
+
+            if (ModelState.IsValid)            
             {
-                //5 min
-                if (model.selDuration == "F")
+                //**************************************************************************************
+                //    F                five-minute
+                //**************************************************************************************
+                if (model.selImportType == "F")
                 {
+                    T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
+                    if (_pollConfig != null)
+                    {
+                        int tzOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
+
+                        if (_pollConfig.DATE_COL != null && _pollConfig.TIME_COL != null)
+                        {
+                            int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
+                            int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
+
+                            //get polling config dtl
+                            List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX);
+
+                            //import
+                            bool impAny = false;
+                            foreach (string row in model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                //split row's columns into string array
+                                string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
+                                if (cols.Length > 2) //skip blank rows
+                                {
+                                    impAny = true;
+                                    DateTime dt = DateTime.ParseExact(cols[dateCol] + " " + cols[timeCol], "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+                                    foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
+                                    {
+                                        if (_item.COLLECT_UNIT_CODE != null && _item.COL != null && string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()) == false)
+                                        {
+                                            string val = cols[(_item.COL ?? 1) - 1].ToString();
+
+                                            ImportResponse xxx = db_Air.ImportT_QREST_DATA_FIVE_MIN(_item.MONITOR_IDX, dt, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, model.selCalc == "N" ? true : false, "", model.selCalc == "N" ? new DateTime(1888,8,8) : System.DateTime.Now);
+                                            if (xxx.SuccInd)
+                                                model.ImportSuccCount += 1;
+                                            else
+                                                model.error_data.Add(xxx);
+                                        }
+                                        else
+                                            ModelState.AddModelError("selMonitor", "No collection unit defined for " + _item.PAR_CODE + ". Record not imported.");
+                                    }
+                                }
+
+                                if (!impAny)
+                                    ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found.");
+                            }
+
+                        }
+                        else
+                            ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
+                    }
+                    else
+                        ModelState.AddModelError("selPollConfig", "No polling configuration found.");
+                }
+
+
+                //**************************************************************************************
+                //    H                hourly
+                //**************************************************************************************
+                else if (model.selImportType == "H")
+                {
+                    T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
+                    if (_pollConfig != null)
+                    {
+                        int tzOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
+
+                        if (_pollConfig.DATE_COL != null && _pollConfig.TIME_COL != null)
+                        {
+                            int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
+                            int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
+
+                            //get polling config dtl
+                            List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX);
+
+                            //import
+                            bool impAny = false;
+                            foreach (string row in model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                //split row's columns into string array
+                                string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
+                                if (cols.Length > 2) //skip blank rows
+                                {
+                                    impAny = true;
+                                    DateTime dt = DateTime.ParseExact(cols[dateCol] + " " + cols[timeCol], "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+                                    foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
+                                    {
+                                        if (_item.COLLECT_UNIT_CODE != null && _item.COL != null && string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()) == false)
+                                        {
+                                            string val = cols[(_item.COL ?? 1) - 1].ToString();
+                                            ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_item.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, true, double.TryParse(val, out _) ? null : val);
+                                            if (xxx.SuccInd)
+                                                model.ImportSuccCount += 1;
+                                            else
+                                                model.error_data.Add(xxx);
+                                        }
+                                        else
+                                            ModelState.AddModelError("selMonitor", "No collection unit defined for " + _item.PAR_CODE + ". Record not imported.");
+                                    }
+                                }
+
+                                if (!impAny)
+                                    ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found.");
+                            }
+
+                        }
+                        else
+                            ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
+                    }
+                    else
+                        ModelState.AddModelError("selPollConfig", "No polling configuration found.");
 
                 }
 
-                //hourly
-                else if (model.selDuration == "H")
+
+                //**************************************************************************************
+                //    H1                hourly (1 parameter with hours arranged as columns)
+                //**************************************************************************************
+                else if (model.selImportType == "H1")
                 {
+                    T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(model.selSite);
+                    if (_pollConfig != null && _pollConfig.LOCAL_TIMEZONE != null)
+                    {
+                        int tzOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
+                        T_QREST_MONITORS _monitor = db_Air.GetT_QREST_MONITORS_ByID_Simple(model.selMonitor ?? Guid.Empty);
+                        if (_monitor != null && _monitor.COLLECT_UNIT_CODE != null)
+                        {
+                            bool impAny = false;
+                            foreach (string row in model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                //split row's columns into string array
+                                string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
+                                if (cols.Length > 20 && cols[0] != "Date") //skip blank rows
+                                {
+                                    impAny = true;
+                                    DateTime dt = DateTime.ParseExact(cols[0], "MM/dd/yyyy", CultureInfo.InvariantCulture);
+
+                                    for (int i = 0; i <= 23; i++)
+                                    {
+                                        ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_monitor.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(cols[i + 1], out _) ? cols[i + 1] : null, _monitor.COLLECT_UNIT_CODE, true, double.TryParse(cols[i + 1], out _) ? null : cols[i + 1]);
+                                        if (xxx.SuccInd)
+                                            model.ImportSuccCount += 1;
+                                        else
+                                            model.error_data.Add(xxx);
+
+                                        dt = dt.AddHours(1);
+                                    }
+                                }
+                            }
+
+                            if (!impAny)
+                                ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found. Data needs to be datetime followed by 24 hourly columns, comma separated.");
+
+                        }
+                        else
+                            ModelState.AddModelError("selMonitor", "No collection unit defined for this monitor. No data imported.");
 
                 }
+                else
+                    TempData["Error"] = "Either no polling config defined, or the local timezone offset not defined for site's active polling config. No data imported.";
+
+            }
+
+
+
             }
 
             //reinitialize model
+            model.ddl_ImportType = ddlHelpers.get_ddl_import_type();
+            model.ddl_Time = ddlHelpers.get_ddl_time_type();
             model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
-            model.ddl_Sites = new List<SelectListItem>();
-            model.ddl_Duration = ddlHelpers.get_ddl_logger_duration();
+            model.ddl_Sites = model.selOrgID == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_my_sites(model.selOrgID, UserIDX);
+            model.ddl_Monitors = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_monitors_by_site(model.selSite, true, false);
+            model.ddl_PollConfig = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_polling_config(model.selSite);
+            model.ddl_Calc = ddlHelpers.get_ddl_yes_no();
+            model.IMPORT_BLOCK = "";
+
             return View(model);
         }
 
@@ -556,9 +731,14 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult AQS()
+        public ActionResult AQS(string selOrgID)
         {
-            return View();
+            string UserIDX = User.Identity.GetUserId();
+            var model = new vmDataAQS {
+                selOrgID = selOrgID,
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
+            };
+            return View(model);
         }
 
         #endregion
@@ -573,6 +753,11 @@ namespace QREST.Controllers
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ID">ORG ID</param>
+        /// <returns></returns>
         [HttpGet]
         public JsonResult FetchMonitors(string ID)
         {
@@ -581,12 +766,37 @@ namespace QREST.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ID">SITE IDX</param>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult FetchMonitorsBySite(Guid? ID)
+        {
+            var data = ddlHelpers.get_monitors_by_site(ID ?? Guid.Empty, true, false);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpGet]
         public JsonResult FetchMonitorsWithData(string ID)
         {
             var data = ddlHelpers.get_monitors_sampled_by_org(ID);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+
+        [HttpGet]
+        public JsonResult FetchImportTemplates(Guid? ID)
+        {
+            string UserIDX = User.Identity.GetUserId();
+            var data = ddlHelpers.get_ddl_polling_config(ID ?? Guid.Empty);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+
 
 
     }

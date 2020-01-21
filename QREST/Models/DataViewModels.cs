@@ -47,16 +47,39 @@ namespace QREST.Models
     public class vmDataImport
     {
         [Required]
+        [Display(Name = "Organization")]
         public string selOrgID { get; set; }
+        
         [Required]
-        public string selSite { get; set; }
+        [Display(Name = "Site")]
+        public Guid selSite { get; set; }
+
         [Required]
-        public string selDuration { get; set; }
+        [Display(Name = "Import Type")]
+        public string selImportType { get; set; }
+        
+        [Display(Name = "Monitor")]
+        public Guid? selMonitor { get; set; }
+
+        public Guid? selPollConfig { get; set; }
+
+        public string selTimeType { get; set; }
+        public string selCalc { get; set; }
+
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_Sites { get; set; }
-        public IEnumerable<SelectListItem> ddl_Duration { get; set; }
+        public IEnumerable<SelectListItem> ddl_Monitors { get; set; }
+        public IEnumerable<SelectListItem> ddl_ImportType { get; set; }
+        public IEnumerable<SelectListItem> ddl_PollConfig { get; set; }
+        public IEnumerable<SelectListItem> ddl_Time { get; set; }
+        public IEnumerable<SelectListItem> ddl_Calc { get; set; }
+
+
+        [Required]
+        [Display(Name = "Import Data")]
         public string IMPORT_BLOCK { get; set; }  //raw text imported
-        public List<RawDataDisplay> raw_data { get; set; }   //in-memory storage of array of projects to import
+        public List<ImportResponse> error_data { get; set; }   //in-memory storage of array of data to import
+        public int ImportSuccCount { get; set; }
 
     }
 
@@ -75,7 +98,7 @@ namespace QREST.Models
         public vmDataReviewSummary()
         {
             ddl_Month = ddlHelpers.get_ddl_months();
-            ddl_Year = ddlHelpers.get_ddl_years();
+            ddl_Year = ddlHelpers.get_ddl_years(2009);
         }
     }
 
@@ -162,6 +185,14 @@ namespace QREST.Models
 
         public List<AssessDocDisplay> SiteDocs { get; set; }
         public List<AssessDocDisplay> MonDocs { get; set; }
+    }
+
+
+    public class vmDataAQS {
+        public string selOrgID { get; set; }
+        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+
+        public List<T_QREST_AQS> T_QREST_AQS { get; set; }
     }
 
 }

@@ -4,6 +4,13 @@
     ViewBag.SubTitle = "Import hourly or n-minute raw data";
 }
 
+@if (Model.ImportSuccCount > 0)
+{
+    <div class="alert alert-success">
+        @Model.ImportSuccCount records imported successfully.
+    </div>
+}
+
 <div class="row">
     <div class="col-md-12">
         @using (Html.BeginForm("ManualImport", "Data", FormMethod.Post, new { @class = "", enctype = "multipart/form-data", @id = "norepostform" }))
@@ -16,20 +23,40 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-inline m-b-sm" onsubmit="return false">
-                        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "--Organization--", new { @class = "form-control" })
-                        @Html.DropDownListFor(model => model.selSite, Model.ddl_Sites, "--Site--", new { @class = "form-control" })
-                        <select id="selType" class="form-control">
-                            <option value="">Please Select</option>
-                            <option value="H">Hourly</option>
-                            <option value="F">5-Minute</option>
-                        </select>
-                        <a id="tempUrl" class="btn btn-warning pull-right" data-root="@Url.Action("DownloadTemplateBySite","Site")" href="@Url.Action("DownloadTemplateBySite","Site", new { id = "1" })">Download import template</a>
+                        @Html.DropDownListFor(model => model.selImportType, Model.ddl_ImportType, "--Select Import Type--", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.selImportType)
+                    </div>
+                    <div id="subPar" class="form-inline m-b-sm collapse" onsubmit="return false">
+                        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "--Select Tribe--", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.selOrgID)
+
+                        @Html.DropDownListFor(model => model.selSite, Model.ddl_Sites, "--Select Site--", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.selSite)
+
+                        @Html.DropDownListFor(model => model.selMonitor, Model.ddl_Monitors, "--Select Parameter--", new { @class = "form-control", @style = "display:none" })
+                        @Html.ValidationMessageFor(model => model.selMonitor)
+
+                        @Html.DropDownListFor(model => model.selPollConfig, Model.ddl_PollConfig, "--Select Import Template--", new { @class = "form-control", @style = "display:none" })
+                        @Html.ValidationMessageFor(model => model.selPollConfig)
+
+                        @Html.DropDownListFor(model => model.selTimeType, Model.ddl_Time, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.selTimeType)
+
+
+                        <a id="tempUrl" class="btn btn-sm btn-warning" data-root="@Url.Action("DownloadTemplate","Site")" style="display:none;" href="">Download import template</a>
+                    </div>
+                    <div id="recalcDiv" class="row col-md-6" style="display:none;">
+                        <div class="form-group">
+                            <label class="text-danger">Calculate Hourly Data Upon Import <b>(WARNING: will override any existing hourly data!)</b></label>                            
+                            @Html.DropDownListFor(model => model.selCalc, Model.ddl_Calc, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.selCalc)
+                        </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                @Html.TextAreaFor(model => model.IMPORT_BLOCK, new { @class = "form-control", @placeholder = "(Paste data here)", @rows = "10" })
+                                @Html.TextAreaFor(model => model.IMPORT_BLOCK, new { @class = "form-control ", @placeholder = "(Paste data here)", @rows = "10" })
                                 @Html.ValidationMessageFor(model => model.IMPORT_BLOCK)
                             </div>
                         </div>
@@ -45,84 +72,170 @@
     </div>
 </div>
 
-@*@if (Model.raw_data != null)
-    {
-        <h3>Validation Summary</h3>
-        <span class="">Some records have import validation errors. Please fix and reimport the entire data set.</span>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered" data-ride="datatables">
-                        <tr>
-                            <th>Validation Message</th>
-                            <th>Organization</th>
-                            <th>Record Source</th>
-                            <th>Project Name</th>
-                            <th>Project Description</th>
-                            <th>Media</th>
-                            <th>Start Year</th>
-                            <th>Project Status</th>
-                            <th>Last Update</th>
-                            <th>URL</th>
-                            <th>Mobile</th>
-                            <th>Adv Mon</th>
-                            <th>BP Improve</th>
+
+@if (Model.error_data != null && Model.error_data.Count > 0)
+{
+    <!-- DISPLAY ERRORS-->
+    <h3>Validation Summary</h3>
+    <span class="">Some records have import validation errors. Please fix and reimport the entire data set.</span>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered" data-ride="datatables">
+                    <tr>
+                        <th>DateTime</th>
+                        <th>Value</th>
+                    </tr>
+                    @foreach (var item in Model.error_data)
+                    {
+                        <tr class="danger">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.DATA_DTTM)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.DATA_VALUE)
+                            </td>
                         </tr>
-
-                        @foreach (var item in Model.raw_data)
-                        {
-                            <tr class="@(item.VALIDATE_CD ? "success":"danger")">
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.VALIDATE_MSG)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.ORG_NAME)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.T_OE_PROJECT.RECORD_SOURCE)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.T_OE_PROJECT.PROJ_NAME)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.T_OE_PROJECT.PROJ_DESC)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.MEDIA_NAME)
-                                </td>
-
-                            </tr>
-                        }
-                    </table>
-                </div>
+                    }
+                </table>
             </div>
         </div>
-    }*@
+    </div>
+}
+
+@Html.Partial("_PleaseWait", "Shared")
 
 @section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+
     <script>
         $(document).ready(function () {
 
-            //update monitor dropdown
+            dispSubPar();
+
+            //import type dropdown change
+            $('#selImportType').change(function () {
+                dispSubPar();
+            });
+
+            // org dropdown change
             $('#selOrgID').change(function () {
+                dispSites();
+            });
+
+
+            function dispSubPar() {
+                var xxx = $('#selImportType').val();
+                if (xxx != "") {
+                    $("#subPar").addClass("show");
+
+                    if (xxx == "H1") {
+                        $("#selMonitor").show();
+                        $("#selPollConfig").hide();
+                    }
+                    else {
+                        $("#selMonitor").hide();
+                        $("#selPollConfig").show();
+                    }
+
+                    if (xxx == "F") 
+                        $("#recalcDiv").show();
+                    else
+                        $("#recalcDiv").hide();
+                }
+                else
+                    $("#subPar").removeClass("show");
+            }
+
+
+
+
+
+            function dispSites() {
                 var url = '@Url.Action("FetchSites")';
-                var mons = $('#selSite');
-                mons.empty();
-                $.getJSON(url, { ID: $(this).val() }, function (data) {
+                var sites = $('#selSite');
+                sites.empty();
+
+                $('#selMonitor').empty();   //clear out monitors too
+
+                $.getJSON(url, { ID: $('#selOrgID').val() }, function (data) {
                     if (!data) {
                         return;
                     }
-                    mons.append($('<option></option>').val('').text('Please select'));
+                    sites.append($('<option></option>').val('').text('--Select Site--'));
                     $.each(data, function (index, item) {
-                        mons.append($('<option></option>').val(item.Value).text(item.Text));
+                        sites.append($('<option></option>').val(item.Value).text(item.Text));
                     });
                 });
+            }
+
+
+
+
+            //update monitor dropdown
+            $('#selSite').change(function () {
+                $("#tempUrl").hide();
+
+                var yyy = $("#selImportType").val();
+
+                if (yyy == "H1") {
+                    $("#selPollConfig").hide();
+
+                    //fetch parameters to import
+                    var url = '@Url.Action("FetchMonitorsBySite")';
+                    var mons = $('#selMonitor');
+                    mons.empty();
+                    $.getJSON(url, { ID: $(this).val() }, function (data) {
+                        if (!data) {
+                            return;
+                        }
+                        mons.append($('<option></option>').val('').text('--Select Parameter--'));
+                        $.each(data, function (index, item) {
+                            mons.append($('<option></option>').val(item.Value).text(item.Text));
+                        });
+                    });
+
+                }
+                else {
+                    $("#selPollConfig").show();
+
+                    //fetch polling import template
+                    var url = '@Url.Action("FetchImportTemplates")';
+                    var polls = $('#selPollConfig');
+                    polls.empty();
+                    $.getJSON(url, { ID: $(this).val() }, function (data) {
+                        if (!data) {
+                            return;
+                        }
+                        polls.append($('<option></option>').val('').text('--Select Import Template--'));
+                        $.each(data, function (index, item) {
+                            polls.append($('<option></option>').val(item.Value).text(item.Text));
+                        });
+                    });
+                }
 
             });
 
-            $('#selSite').change(function () {
+
+            //update import template dropdown
+            $('#selPollConfig').change(function () {
                 var xxx = $("#tempUrl").data('root');
                 $("#tempUrl").attr('href', xxx + '/' + $(this).val());
+
+                $("#tempUrl").show();
+            });
+
+
+
+            $("form").submit(function () {
+                if (!$(this).valid()) {
+                    return false;
+                }
+                else
+                {
+                    pleaseWait();
+                    return true;
+                }
             });
 
         });

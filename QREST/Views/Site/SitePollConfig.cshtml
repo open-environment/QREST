@@ -179,12 +179,20 @@
                                                     </div>
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-md-12">
+                                                    <div class="col-md-6">
                                                         <div class="form-group">
                                                             Local Time Zone
                                                             @Html.DropDownListFor(model => model.editLOCAL_TIMEZONE, Model.ddl_TimeZone, "", new { @class = "form-control" })
                                                             @Html.ValidationMessageFor(model => model.editLOCAL_TIMEZONE)
                                                             <span class="help-block">What time zone is site located?</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            Date/Time Output Type
+                                                            @Html.DropDownListFor(model => model.editTIME_POLL_TYPE, Model.ddl_LoggerTimeType, "", new { @class = "form-control" })
+                                                            @Html.ValidationMessageFor(model => model.editTIME_POLL_TYPE)
+                                                            <span class="help-block">How is date/time output from logger?</span>
                                                         </div>
                                                     </div>
                                                 </div>

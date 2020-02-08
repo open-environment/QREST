@@ -1694,6 +1694,23 @@ namespace QRESTModel.DAL
                 }
             }
         }
+        public static T_QREST_REF_TIMEZONE GetT_QREST_REF_TIMEZONE_ByCode(string tz_code)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_TIMEZONE
+                            where a.TZ_CODE == tz_code
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
 
 
         //***************** REF_UNITS ******************************

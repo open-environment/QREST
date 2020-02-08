@@ -209,8 +209,6 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                string UserIDX = User.Identity.GetUserId();
-
                 model.EditHelp.HELP_IDX = db_Ref.InsertUpdateT_QREST_HELP_DOCS(model.EditHelp.HELP_IDX, model.EditHelp.HELP_TITLE, model.editHelpHtml, model.EditHelp.SORT_SEQ);
                 if (model.EditHelp.HELP_IDX > 0)
                     TempData["Success"] = "Data Saved.";
@@ -851,24 +849,6 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult ImportHourlyData()
-        {
-            var model = new vmAdminImportHourly
-            {
-                ddl_Organization = ddlHelpers.get_ddl_organizations(true, false),
-                ddl_Monitor = new List<SelectListItem>(),
-            };
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ImportHourlyData(vmAdminImportHourly model) {
-
-            //db_Air.InsertUpdateT_QREST_DATA_HOURLY(null,  )
-            return null;
-        }
 
         //************************************* REF DATA ************************************************************
         // GET: /Admin/RefData

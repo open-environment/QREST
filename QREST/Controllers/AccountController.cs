@@ -153,7 +153,7 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult Register(string regType)
+        public ActionResult Register()
         {
             return View(new RegisterViewModel()
             {

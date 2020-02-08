@@ -40,7 +40,9 @@ namespace QREST_Service
                     timer.AutoReset = true;
                     timer.Enabled = true;
                     timer.Start();
+                    General.WriteToFile("*************************************************");
                     General.WriteToFile("QREST Task Service timer successfully initialized");
+                    General.WriteToFile("*************************************************");
                     General.WriteToFile("QREST Task Service timer set to run every " + timer.Interval + " ms");
                 }
                 else
@@ -51,7 +53,7 @@ namespace QREST_Service
             }
             catch (Exception ex)
             {
-                General.WriteToFile("Failed to start QREST - Unspecified error." + ex.Message);
+                General.WriteToFile("Failed to start QREST - Unspecified error. " + ex.Message);
             }
         }
 

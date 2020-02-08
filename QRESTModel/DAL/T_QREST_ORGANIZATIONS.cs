@@ -21,6 +21,7 @@ namespace QRESTModel.DAL
             this.T_QREST_ORG_USERS = new HashSet<T_QREST_ORG_USERS>();
             this.T_QREST_SITES = new HashSet<T_QREST_SITES>();
             this.T_QREST_AQS = new HashSet<T_QREST_AQS>();
+            this.T_QREST_DATA_IMPORTS = new HashSet<T_QREST_DATA_IMPORTS>();
         }
     
         public string ORG_ID { get; set; }
@@ -48,5 +49,7 @@ namespace QRESTModel.DAL
         public virtual ICollection<T_QREST_SITES> T_QREST_SITES { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_AQS> T_QREST_AQS { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_DATA_IMPORTS> T_QREST_DATA_IMPORTS { get; set; }
     }
 }

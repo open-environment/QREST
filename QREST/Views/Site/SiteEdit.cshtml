@@ -205,7 +205,7 @@
                                             @Html.CheckBoxFor(model => model.POLLING_ONLINE_IND, new { @class = "checkbox-inline checkbox-lg" })
                                             <label class="label-lg font-bold">Enable Automatic Data Retrieval</label>
                                             @Html.ValidationMessageFor(model => model.POLLING_ONLINE_IND)
-                                            <div id="pollCollapse" class="col-md-9">
+                                            <div id="pollCollapse" class="row col-md-12 text-center">
                                                 <a href="@(Url.Action("SitePollConfig", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded ">Configure Polling</a>
                                             </div>
                                         </div>
@@ -213,18 +213,34 @@
                                 </div>
                                 <div class="line line-dashed line-lg pull-in"></div>
                                 <div class="row">
-                                    <div id="telemetrySource" class="col-md-12">
+                                    <div id="airnowSource" class="col-md-12">
                                         <div class="form-group ">
-                                            <input checked="checked" class="checkbox-inline checkbox-lg" type="checkbox" value="true">
+                                            @Html.CheckBoxFor(model => model.AIRNOW_IND, new { @class = "checkbox-inline checkbox-lg" })
                                             <label class="label-lg font-bold">Enable Submission to AirNow</label>
+                                            <div id="airnowCollapse" class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Username</label>
+                                                        @Html.TextBoxFor(model => model.AIRNOW_USR, new { @class = "form-control", @maxlength = "50" })
+                                                        @Html.ValidationMessageFor(model => model.ZIP_CODE)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Password</label>
+                                                        @Html.PasswordFor(model => model.AIRNOW_PWD, new { @class = "form-control", @maxlength = "50" })
+                                                        @Html.ValidationMessageFor(model => model.ZIP_CODE)
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="line line-dashed line-lg pull-in"></div>
                                 <div class="row">
-                                    <div id="telemetrySource" class="col-md-12">
+                                    <div id="aqsSource" class="col-md-12">
                                         <div class="form-group ">
-                                            <input checked="checked" class="checkbox-inline checkbox-lg" type="checkbox" value="true">
+                                            @Html.CheckBoxFor(model => model.AQS_IND, new { @class = "checkbox-inline checkbox-lg" })
                                             <label class="label-lg font-bold">Enable Submission to AQS</label>
                                         </div>
                                     </div>

@@ -153,10 +153,10 @@ namespace QREST.App_Logic.BusinessLogicLayer
         /// <summary>
         /// Used to pass all string input in the system  - Strips all nasties from a string/html
         /// </summary>
-        public static string GetSafeHtml(string html, bool useXssSantiser = false)
+        public static string GetSafeHtml(string html)
         {
             // Scrub html
-            html = ScrubHtml(html, useXssSantiser);
+            html = ScrubHtml(html);
 
             // remove unwanted html
             html = RemoveUnwantedTags(html);
@@ -170,12 +170,10 @@ namespace QREST.App_Logic.BusinessLogicLayer
         /// <param name="html"></param>
         /// <param name="useXssSantiser"></param>
         /// <returns></returns>
-        public static string ScrubHtml(string html, bool useXssSantiser = false)
+        public static string ScrubHtml(string html)
         {
             if (string.IsNullOrEmpty(html))
-            {
                 return html;
-            }
 
             // clear the flags on P so unclosed elements in P will be auto closed.
             HtmlNode.ElementsFlags.Remove("p");
@@ -200,17 +198,13 @@ namespace QREST.App_Logic.BusinessLogicLayer
                         {
                             // Prepend children to parent node in reverse order
                             foreach (var node in item.ChildNodes.Reverse())
-                            {
                                 item.ParentNode.PrependChild(node);
-                            }
                         }
                         else
                         {
                             // Insert children after previous sibling
                             foreach (var node in item.ChildNodes)
-                            {
                                 item.ParentNode.InsertAfter(node, item.PreviousSibling);
-                            }
                         }
 
                         // remove from tree
@@ -224,21 +218,15 @@ namespace QREST.App_Logic.BusinessLogicLayer
                 if (nc != null)
                 {
                     foreach (var node in nc)
-                    {
                         node.ParentNode.RemoveChild(node, false);
-
-                    }
                 }
 
                 //remove hrefs to java/j/vbscript URLs
                 nc = doc.DocumentNode.SelectNodes("//a[starts-with(translate(@href, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'javascript')]|//a[starts-with(translate(@href, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'jscript')]|//a[starts-with(translate(@href, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'vbscript')]");
                 if (nc != null)
                 {
-
                     foreach (var node in nc)
-                    {
                         node.SetAttributeValue("href", "#");
-                    }
                 }
 
                 //remove img with refs to java/j/vbscript URLs
@@ -246,9 +234,7 @@ namespace QREST.App_Logic.BusinessLogicLayer
                 if (nc != null)
                 {
                     foreach (var node in nc)
-                    {
                         node.SetAttributeValue("src", "#");
-                    }
                 }
 
                 //remove on<Event> handlers from all tags
@@ -274,9 +260,7 @@ namespace QREST.App_Logic.BusinessLogicLayer
                 if (nc != null)
                 {
                     foreach (var node in nc)
-                    {
                         node.Attributes.Remove("stYle");
-                    }
                 }
 
                 // build a list of nodes ordered by stream position

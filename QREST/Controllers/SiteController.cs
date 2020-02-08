@@ -37,7 +37,6 @@ namespace QREST.Controllers
         //**********************AGENCY **************************************
         public ActionResult OrgList()
         {
-            string UserIDX = User.Identity.GetUserId();
             var model = new vmSiteOrgList();
             return View(model);
         }
@@ -195,6 +194,8 @@ namespace QREST.Controllers
                 model.POLLING_ONLINE_IND = _site.POLLING_ONLINE_IND ?? false;
                 model.AIRNOW_IND = _site.AIRNOW_IND ?? false;
                 model.AQS_IND = _site.AQS_IND ?? false;
+                model.AIRNOW_USR = _site.AIRNOW_USR;
+                model.AIRNOW_PWD = _site.AIRNOW_PWD;
                 model.SITE_COMMENTS = _site.SITE_COMMENTS;
             }
             else if (id != null)
@@ -244,7 +245,7 @@ namespace QREST.Controllers
 
                 Guid? SuccId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
                     model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
-                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.SITE_COMMENTS ?? "", UserIDX);
+                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR, model.AIRNOW_PWD, model.SITE_COMMENTS ?? "", UserIDX);
 
                 if (SuccId != null)
                 {
@@ -449,7 +450,7 @@ namespace QREST.Controllers
                                     T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
                                     if (_existSite == null)
                                         db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null,
-                                            null, null, null, false, null, null, null, null, false, false, null, UserIDX);
+                                            null, null, null, false, null, null, null, null, false, false, null, null, null, UserIDX);
                                 }
                             }
                         }
@@ -565,6 +566,7 @@ namespace QREST.Controllers
                         model.editTIME_COL = e.TIME_COL;
                         model.editTIME_FORMAT = e.TIME_FORMAT;
                         model.editLOCAL_TIMEZONE = e.LOCAL_TIMEZONE;
+                        model.editTIME_POLL_TYPE = e.TIME_POLL_TYPE;
                         model.editACT_IND = e.ACT_IND;
 
                         if (e.RAW_DURATION_CODE == null || e.DELIMITER == null || e.LOCAL_TIMEZONE == null || e.DATE_COL == null || e.TIME_COL == null)
@@ -615,10 +617,9 @@ namespace QREST.Controllers
                     }
 
 
-
                     Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
                         model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
-                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME);
+                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE);
 
                     if (SuccID != null)
                     {
@@ -804,25 +805,23 @@ namespace QREST.Controllers
         }
 
 
-
-        public ActionResult SitePollPing(string id)
+        public ActionResult SitePollPing(Guid? id)
         {
-            //FAIL IF NO CONFIGURATION FOUND
-            if (id == null)
-                return RedirectToAction("SiteList", "Site");
-
-            Guid idg = new Guid(id);
-            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(idg);
-            
-            //FAIL IF NO CONFIGURATION FOUND
+            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
             if (_config == null)
             {
                 TempData["Error"] = "Monitor polling configuration not found";
                 return RedirectToAction("SiteList", "Site");
             }
+            //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
+            else if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
+            {
+                TempData["Error"] = "Polling configuration is incomplete: logger source, port, and password must be supplied";
+                return RedirectToAction("SiteList", "Site");
+            }
 
             //reject if user doesn't have access to org
-            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(idg);
+            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(id ?? Guid.Empty);
             RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
             if (r != null) return r;
 
@@ -830,207 +829,66 @@ namespace QREST.Controllers
             //initialize model
             var model = new vmSitePing
             {
-                POLL_CONFIG_IDX = idg,
-                pingResults2 = new List<CommMessageLog> {},
-                pingResults = new List<Tuple<bool, string, string>>
-                {
-                    new Tuple<bool, string, string>(true, "Ping Started","")
-                }
+                POLL_CONFIG_IDX = id ?? Guid.Empty,
+                recCount = 5
             };
-
-            //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
-            if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
-            {
-                model.pingResults.Add(new Tuple<bool, string, string>(false, "Polling configuration is incomplete: logger source, port, and password must be supplied.",""));
-                return View(model);
-            }
-
-
-            //*********** PINGING ZENO ************************************************************************
-            //*********** PINGING ZENO ************************************************************************
-            //*********** PINGING ZENO ************************************************************************
-            if (_config.LOGGER_TYPE == "ZENO")
-            {
-                try
-                {
-                    //Create a TCPClient object at the IP and port
-                    TcpClient client = new TcpClient();
-
-                    if (!client.ConnectAsync(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>()).Wait(TimeSpan.FromSeconds(2)))
-                        model.pingResults.Add(new Tuple<bool, string, string>(false, "Unable to connect to device", "")); // connection failure
-                    else
-                    {
-                        model.pingResults.Add(new Tuple<bool, string, string>(true, "Connect to device " + _config.LOGGER_SOURCE + ":" + _config.LOGGER_PORT.ToString() + " successful.",""));
-
-                        // Get a client stream for reading and writing.
-                        using (NetworkStream stream = client.GetStream())
-                        {
-                            //*************** send u to enter user menu *****************************
-                            CommMessageLog _log = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Access Zeno User Menu", stream, "u\r\n", 700, 700, "Level 1");
-                            model.pingResults2.Add(_log);
-                            if (_log.CommMessageStatus)
-                            {
-                                //*************** enter password when prompted *****************************
-                                CommMessageLog _log2 = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Enter password", stream, _config.LOGGER_PASSWORD + "\r", 700, 700, "ommun");
-                                model.pingResults2.Add(_log2);
-                                if (_log2.CommMessageStatus)
-                                {
-                                    //*************** enter Data Retrieval Menu*****************************
-                                    CommMessageLog _log3 = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Enter Data Retrieval Menu", stream, "D\r", 1500, 1500, "Logged");
-                                    model.pingResults2.Add(_log3);
-                                    if (_log3.CommMessageStatus)
-                                    {
-                                        //*************** retrieve data*****************************
-                                        CommMessageLog _log4 = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Retrieve Last 12 Records", stream, "L12\r", 2000, 2000, ":00");
-
-                                        string line;
-                                        StringReader reader = new StringReader(_log4.CommResponse);
-                                        while ((line = reader.ReadLine()) != null)
-                                        {
-                                            if (line.Contains(":00"))
-                                                model.loggerData += line + Environment.NewLine;
-                                        };
-                                        _log4.CommResponse = "";
-                                        model.pingResults2.Add(_log4);
-                                    }
-                                }
-                            }
-
-                            //*************** quit zeno user menu*****************************
-                            CommMessageLog _log5 = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Exiting Zeno User Menu", stream, "Q\r", 1500, 1500, "Exiting");
-                            model.pingResults2.Add(_log5);
-
-                            //disconnect
-                            client.Client.Close();
-                            System.Threading.Thread.Sleep(250);
-                            client.Close();
-
-                        }
-                    }
-
-
-                }
-                catch (System.Net.Sockets.SocketException sex)
-                {
-                    model.pingResults.Add(new Tuple<bool, string, string>(false, "Ping socket exception: " + sex.Message, ""));
-                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Ping - code 1 " + sex.Message);
-                }
-                catch (Exception ex)
-                {
-                    model.pingResults.Add(new Tuple<bool, string, string>(false, "General ping exception: " + ex.Message, ""));
-                    model.pingResults.Add(new Tuple<bool, string, string>(false, "General ping exception: " + ex.InnerException.ToString(), ""));
-                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Ping - code 2 " + ex.Message);
-                }
-            }
-            else
-            {
-                model.pingResults.Add(new Tuple<bool, string, string>(false, "Ping currently only available for Zeno dataloggers",""));
-            }
 
             return View(model);
         }
 
 
-
-        public ActionResult SitePollPing2(string id)
+        [HttpPost]
+        public ActionResult SitePollPing(vmSitePing model)
         {
-            //FAIL IF NO CONFIGURATION FOUND
-            if (id == null)
-                return RedirectToAction("SiteList", "Site");
-
-            Guid idg = new Guid(id);
-            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(idg);
-
-            //FAIL IF NO CONFIGURATION FOUND
-            if (_config == null)
-            {
-                TempData["Error"] = "Monitor polling configuration not found";
-                return RedirectToAction("SiteList", "Site");
-            }
-
             //reject if user doesn't have access to org
-            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(idg);
+            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(model.POLL_CONFIG_IDX);
             RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
             if (r != null) return r;
 
+            //FAIL IF NO CONFIGURATION FOUND
+            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.POLL_CONFIG_IDX);
+            if (_config == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null || _config.LOGGER_PASSWORD == null)
+                ModelState.AddModelError("pingType", "Polling configuration is incomplete: logger source, port, and password must be supplied.");
 
-            //initialize model
-            var model = new vmSitePing
+            //SITE ID MUST BE 4 DIGITS 
+            string siteID = db_Air.GetT_QREST_SITE_POLL_CONFIG_SiteID_ByID(_config.POLL_CONFIG_IDX);
+            if (siteID == null || siteID.Length != 4)
+                ModelState.AddModelError("pingType", "Site ID must be a 4 digit number that corresponds to ID configured on logger.");
+
+            if (_config?.LOGGER_TYPE == "SUTRON" && model.pingType == "Ping Only")
+                ModelState.AddModelError("pingType", "Ping Only not available for Sutron logger.");
+
+
+            if (ModelState.IsValid)
             {
-                POLL_CONFIG_IDX = idg,
-                pingResults2 = new List<CommMessageLog> { },
-                pingResults = new List<Tuple<bool, string, string>>
+
+                //*********** PINGING ZENO ************************************************************************
+                //*********** PINGING ZENO ************************************************************************
+                //*********** PINGING ZENO ************************************************************************
+                if (_config.LOGGER_TYPE == "ZENO" || _config.LOGGER_TYPE == "SUTRON")
                 {
-                    new Tuple<bool, string, string>(true, "Ping Started","")
-                }
-            };
-
-            //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
-            if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
-            {
-                model.pingResults.Add(new Tuple<bool, string, string>(false, "Polling configuration is incomplete: logger source, port, and password must be supplied.", ""));
-                return View(model);
-            }
-
-
-            //*********** PINGING ZENO ************************************************************************
-            //*********** PINGING ZENO ************************************************************************
-            //*********** PINGING ZENO ************************************************************************
-            if (_config.LOGGER_TYPE == "ZENO")
-            {
-                try
-                {
-                    //Create a TCPClient object at the IP and port
-                    TcpClient client = new TcpClient();
-
-                    if (!client.ConnectAsync(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>()).Wait(TimeSpan.FromSeconds(2)))
-                        model.pingResults.Add(new Tuple<bool, string, string>(false, "Unable to connect to device", "")); // connection failure
-                    else
+                    // ***************** PING ONLY: THIS ATTEMPTS TO ACCESS THE USER INTERFACE **********************
+                    if (model.pingType == "Ping Only")
+                        model.pingResults2 = LoggerComm.ConnectTcpClientPing(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_PASSWORD);
+                    // ***************** RETRIEVE DATA: THIS POLLS DATA FROM THE LOGGER USING SAIL **********************
+                    else if (model.pingType == "Retrieve Data")
                     {
-                        model.pingResults.Add(new Tuple<bool, string, string>(true, "Connect to device " + _config.LOGGER_SOURCE + ":" + _config.LOGGER_PORT.ToString() + " successful.", ""));
-
-                        // Get a client stream for reading and writing.
-                        using (NetworkStream stream = client.GetStream())
-                        {
-
-
-
-                            byte[] EXT = new byte[] { 0x03 };
-
-                            //*************** send u to enter user menu *****************************
-                            CommMessageLog _log = LoggerComm.SendReceiveMessage_CheckSuccessAndLog("Access Zeno User Menu", stream, "#01001036DL289" + EXT, 700, 700, "Level 1");
-                            model.pingResults2.Add(_log);
-
-
-                            //disconnect
-                            client.Client.Close();
-                            System.Threading.Thread.Sleep(250);
-                            client.Close();
-
-                        }
+                        CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_PASSWORD, "#" + siteID + "0001DL" + model.recCount + ",");
+                        if (_log.CommMessageStatus)
+                            model.loggerData = LoggerComm.stripMessage(_log.CommResponse, "#0001" + siteID);
+                        else
+                            model.pingResults2 = new List<CommMessageLog> { _log };
                     }
+                }
+                else
+                    ModelState.AddModelError("pingType", "Ping currently only available for Zeno and Sutron dataloggers.");
 
+            }
 
-                }
-                catch (System.Net.Sockets.SocketException sex)
-                {
-                    model.pingResults.Add(new Tuple<bool, string, string>(false, "Ping socket exception: " + sex.Message, ""));
-                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Ping - code 1 " + sex.Message);
-                }
-                catch (Exception ex)
-                {
-                    model.pingResults.Add(new Tuple<bool, string, string>(false, "General ping exception: " + ex.Message, ""));
-                    model.pingResults.Add(new Tuple<bool, string, string>(false, "General ping exception: " + ex.InnerException.ToString(), ""));
-                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Ping - code 2 " + ex.Message);
-                }
-            }
-            else
-            {
-                model.pingResults.Add(new Tuple<bool, string, string>(false, "Ping currently only available for Zeno dataloggers", ""));
-            }
 
             return View(model);
         }
+
 
         private static string SendReceiveMessage(NetworkStream stream, string message, int msWait)
         {

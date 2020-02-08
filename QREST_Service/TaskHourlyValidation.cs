@@ -33,7 +33,7 @@ namespace QRESTServiceCatalog
             }
             catch (Exception ex)
             {
-                General.WriteToFile("Error in ExecuteLoggerPolling: Error Message : " + ex.ToString());
+                General.WriteToFile("Error in HourlyValidation: Error Message : " + ex.ToString());
                 bExecutingGenLedSvcStatus = false;
             }
         }
@@ -41,7 +41,6 @@ namespace QRESTServiceCatalog
         private void ExecuteHourlyValidation()
         {
             bExecutingGenLedSvcStatus = true;
-            General.WriteToFile("ExecuteHourlyValidation process started.");
 
             //this is where logic for the task goes
             db_Air.SP_VALIDATE_HOURLY();
@@ -68,9 +67,6 @@ namespace QRESTServiceCatalog
                 db_Air.UpdateT_QREST_DATA_HOURLY_Notified(xx.DATA_HOURLY_IDX);
             }
 
-
-
-            General.WriteToFile("ExecuteHourlyValidation process finished.");
             bExecutingGenLedSvcStatus = false;
         }
 

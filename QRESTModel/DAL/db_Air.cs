@@ -30,6 +30,8 @@ namespace QRESTModel.DAL
         public string DATE_FORMAT { get; set; }
         public int? TIME_COL { get; set; }
         public string TIME_FORMAT { get; set; }
+        public string TIME_POLL_TYPE { get; set; }
+        public string LOCAL_TIMEZONE { get; set; }
         public DateTime? POLLING_LAST_RUN_DT { get; set; }
         public DateTime? POLLING_NEXT_RUN_DT { get; set; }
         public List<SitePollingConfigDetailType> PollingConfigDetails { get; set; }
@@ -367,7 +369,7 @@ namespace QRESTModel.DAL
         public static Guid? InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, string sTATE, string cOUNTY, 
             decimal? lATITUDE, decimal? lONGITUDE, string eLEVATION, string aDDRESS, string cITY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, 
             bool? pOLLING_ONLINE_IND, string pOLLING_FREQ_TYPE, int? pOLLING_FREQ_NUM, DateTime? pOLLING_LAST_RUN_DT, DateTime? pOLLING_NEXT_RUN_DT, bool? aIRNOW_IND, bool? aQS_IND,
-            string sITE_COMMENTS, string cREATE_USER)
+            string aIRNOW_USR, string aIRNOW_PWD, string sITE_COMMENTS, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -417,6 +419,8 @@ namespace QRESTModel.DAL
                     if (pOLLING_NEXT_RUN_DT != null) e.POLLING_NEXT_RUN_DT = pOLLING_NEXT_RUN_DT;
                     if (aIRNOW_IND != null) e.AIRNOW_IND = aIRNOW_IND;
                     if (aQS_IND != null) e.AQS_IND = aQS_IND;
+                    if (aIRNOW_USR != null) e.AIRNOW_USR = aIRNOW_USR;
+                    if (aIRNOW_PWD != null) e.AIRNOW_PWD = aIRNOW_PWD;
                     if (sITE_COMMENTS != null) e.SITE_COMMENTS = sITE_COMMENTS;
 
                     if (insInd)
@@ -646,7 +650,9 @@ namespace QRESTModel.DAL
                                    DATE_COL = b.DATE_COL,
                                    DATE_FORMAT = b.DATE_FORMAT,
                                    TIME_COL = b.TIME_COL,
-                                   TIME_FORMAT = b.TIME_FORMAT
+                                   TIME_FORMAT = b.TIME_FORMAT,
+                                   LOCAL_TIMEZONE = b.LOCAL_TIMEZONE,
+                                   TIME_POLL_TYPE = b.TIME_POLL_TYPE
                                }).ToList();
 
                     return xxx;
@@ -748,9 +754,29 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static string GetT_QREST_SITE_POLL_CONFIG_SiteID_ByID(Guid PollConfigIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking()
+                            join c in ctx.T_QREST_SITES.AsNoTracking() on a.SITE_IDX equals c.SITE_IDX
+                            where a.POLL_CONFIG_IDX == PollConfigIDX
+                            select c).FirstOrDefault()?.SITE_ID;
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG(Guid? pOLL_CONFIG_IDX, Guid? sITE_IDX, string cONFIG_NAME, string rAW_DURATION_CODE, string lOGGER_TYPE, string lOGGER_SOURCE,
             int? lOGGER_PORT, string lOGGER_USERNAME, string lOGGER_PASSWORD, string dELIMITER, int? dATE_COL, string dATE_FORMAT, int? tIME_COL, string tIME_FORMAT, string lOCAL_TIMEZONE,
-            bool aCT_IND, string cREATE_USER, string sITE_NAME)
+            bool aCT_IND, string cREATE_USER, string sITE_NAME, string tIME_POLL_TYPE)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -792,6 +818,7 @@ namespace QRESTModel.DAL
                     if (tIME_COL != null) e.TIME_COL = tIME_COL;
                     if (tIME_FORMAT != null) e.TIME_FORMAT = tIME_FORMAT;
                     if (lOCAL_TIMEZONE != null) e.LOCAL_TIMEZONE = lOCAL_TIMEZONE;
+                    if (tIME_POLL_TYPE != null) e.TIME_POLL_TYPE = tIME_POLL_TYPE;
 
 
                     if (cREATE_USER != null) e.MODIFY_USER_IDX = cREATE_USER;
@@ -1561,7 +1588,14 @@ namespace QRESTModel.DAL
                     //date
                     string sDate = cols[config.DATE_COL.GetValueOrDefault() - 1].ToString();
                     string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].ToString();
+
+                    
+                    //raw date time coming from logger, assumed UTC time by default
                     DateTime dt = DateTime.ParseExact(sDate + " " + sTime, config.DATE_FORMAT + " " + config.TIME_FORMAT, CultureInfo.InvariantCulture);
+
+                    //if logger outputs in local time, need to convert to UTC time
+                    if (config.TIME_POLL_TYPE == "L")
+                        dt = dt.AddHours(config.LOCAL_TIMEZONE.ConvertOrDefault<int>() * -1);
 
                     foreach (SitePollingConfigDetailType _map in config_dtl) {
                         if (_map.COL != null)

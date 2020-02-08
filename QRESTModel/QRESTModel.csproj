@@ -159,6 +159,9 @@
     <Compile Include="DAL\T_QREST_DATA_HOURLY.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\T_QREST_DATA_IMPORTS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\T_QREST_EMAIL_TEMPLATE.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
@@ -288,6 +291,9 @@
     </EntityDeploy>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="App.Config" />
     <None Include="DAL\QRESTModel.edmx.diagram">
       <DependentUpon>QRESTModel.edmx</DependentUpon>

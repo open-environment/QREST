@@ -98,6 +98,8 @@ namespace QREST.Models
         public bool POLLING_ONLINE_IND { get; set; }
         public bool AIRNOW_IND { get; set; }
         public bool AQS_IND { get; set; }
+        public string AIRNOW_USR { get; set; }
+        public string AIRNOW_PWD { get; set; }
         public string SITE_COMMENTS { get; set; }
 
 
@@ -172,6 +174,7 @@ namespace QREST.Models
         public int? editTIME_COL{ get; set; }
         public string editTIME_FORMAT { get; set; }
         public string editLOCAL_TIMEZONE { get; set; }
+        public string editTIME_POLL_TYPE { get; set; }
         public bool editACT_IND { get; set; }
 
         //EDIT COLUMN MAPPING
@@ -189,6 +192,7 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_Monitors { get; set; }
         public IEnumerable<SelectListItem> ddl_SumType { get; set; }
         public IEnumerable<SelectListItem> ddl_TimeZone { get; set; }
+        public IEnumerable<SelectListItem> ddl_LoggerTimeType { get; set; }
         public IEnumerable<SelectListItem> ddl_Rounding { get; set; }
 
 
@@ -201,6 +205,7 @@ namespace QREST.Models
             ddl_LoggerDuration = ddlHelpers.get_ddl_logger_duration();
             ddl_SumType = ddlHelpers.get_ddl_sum_type();
             ddl_TimeZone = ddlHelpers.get_ddl_time_zone();
+            ddl_LoggerTimeType = ddlHelpers.get_ddl_time_type();
             ddl_Rounding = ddlHelpers.get_ddl_rounding_decimals();
         }
     }
@@ -208,11 +213,15 @@ namespace QREST.Models
 
     public class vmSitePing
     {
-        public Guid? POLL_CONFIG_IDX { get; set; }
-        public List<Tuple<bool, string, string>> pingResults { get; set; }
+        [Required]
+        public string pingType { get; set; }
+        public Guid POLL_CONFIG_IDX { get; set; }
         public List<CommMessageLog> pingResults2 { get; set; }
         public string loggerData { get; set; }
+        [Required]
+        public int recCount { get; set; }
     }
+
 
     public class vmSiteMonitorList
     {

@@ -32,5 +32,6 @@ namespace QRESTModel.DAL
         public string LVL2_VAL_USERIDX { get; set; }
         public Nullable<System.DateTime> LVL2_VAL_DT { get; set; }
         public string NOTES { get; set; }
+        public Nullable<System.Guid> IMPORT_IDX { get; set; }
     }
 }

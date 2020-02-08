@@ -78,6 +78,9 @@
         <EntityTypeShape EntityType="QRESTModel.T_QREST_AQS" Width="1.5" PointX="13.5" PointY="20.75" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_AQS_O" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_AQS_S" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_IMPORTS" Width="1.5" PointX="10.5" PointY="23.5" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_O" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_S" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

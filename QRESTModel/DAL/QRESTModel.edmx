@@ -93,6 +93,7 @@
           <Property Name="VAL_IND" Type="bit" />
           <Property Name="VAL_CD" Type="varchar" MaxLength="5" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="IMPORT_IDX" Type="uniqueidentifier" />
         </EntityType>
         <EntityType Name="T_QREST_DATA_HOURLY">
           <Key>
@@ -116,6 +117,19 @@
           <Property Name="LVL2_VAL_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="LVL2_VAL_DT" Type="datetime2" Precision="0" />
           <Property Name="NOTES" Type="varchar" MaxLength="100" />
+          <Property Name="IMPORT_IDX" Type="uniqueidentifier" />
+        </EntityType>
+        <EntityType Name="T_QREST_DATA_IMPORTS">
+          <Key>
+            <PropertyRef Name="IMPORT_IDX" />
+          </Key>
+          <Property Name="IMPORT_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ORG_ID" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="SITE_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="COMMENT" Type="varchar" MaxLength="1000" />
+          <Property Name="SUBMISSION_STATUS" Type="varchar" MaxLength="20" />
+          <Property Name="IMPORT_USERIDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="IMPORT_DT" Type="datetime2" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_EMAIL_TEMPLATE">
           <Key>
@@ -421,6 +435,7 @@
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
           <Property Name="CONFIG_NAME" Type="varchar" MaxLength="20" />
+          <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
         </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
@@ -464,6 +479,8 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="AIRNOW_USR" Type="varchar" MaxLength="50" />
+          <Property Name="AIRNOW_PWD" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG">
           <Key>
@@ -740,6 +757,34 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
               <PropertyRef Name="SITE_IDX" />
             </Principal>
             <Dependent Role="T_QREST_ASSESS_DOCS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_DATA_IMPORTS_O">
+          <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_DATA_IMPORTS" Type="Self.T_QREST_DATA_IMPORTS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_IMPORTS">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_DATA_IMPORTS_S">
+          <End Role="T_QREST_SITES" Type="Self.T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_DATA_IMPORTS" Type="Self.T_QREST_DATA_IMPORTS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_IMPORTS">
               <PropertyRef Name="SITE_IDX" />
             </Dependent>
           </ReferentialConstraint>
@@ -1040,6 +1085,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <EntitySet Name="T_QREST_ASSESS_DOCS" EntityType="Self.T_QREST_ASSESS_DOCS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_FIVE_MIN" EntityType="Self.T_QREST_DATA_FIVE_MIN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_HOURLY" EntityType="Self.T_QREST_DATA_HOURLY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_DATA_IMPORTS" EntityType="Self.T_QREST_DATA_IMPORTS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_EMAIL_TEMPLATE" EntityType="Self.T_QREST_EMAIL_TEMPLATE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_HELP_DOCS" EntityType="Self.T_QREST_HELP_DOCS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_MONITORS" EntityType="Self.T_QREST_MONITORS" Schema="dbo" store:Type="Tables" />
@@ -1130,6 +1176,14 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_S" Association="Self.FK_T_QREST_ASSESS_DOCS_S">
             <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
             <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_DATA_IMPORTS_O" Association="Self.FK_T_QREST_DATA_IMPORTS_O">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_DATA_IMPORTS_S" Association="Self.FK_T_QREST_DATA_IMPORTS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
           </AssociationSet>
           <AssociationSet Name="FK_T_QREST_MONITORS_C" Association="Self.FK_T_QREST_MONITORS_C">
             <End Role="T_QREST_REF_COLLECT_FREQ" EntitySet="T_QREST_REF_COLLECT_FREQ" />
@@ -1417,6 +1471,15 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
             <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
             <End Role="T_QREST_AQS" EntitySet="T_QREST_AQS" />
           </AssociationSet>
+          <EntitySet Name="T_QREST_DATA_IMPORTS" EntityType="QRESTModel.T_QREST_DATA_IMPORTS" />
+          <AssociationSet Name="FK_T_QREST_DATA_IMPORTS_O" Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_O">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_DATA_IMPORTS_S" Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -1526,6 +1589,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_SITES" />
           <Property Name="SELF_REG_IND" Type="Boolean" />
           <NavigationProperty Name="T_QREST_AQS" Relationship="QRESTModel.FK_T_QREST_AQS_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_AQS" />
+          <NavigationProperty Name="T_QREST_DATA_IMPORTS" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_DATA_IMPORTS" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -1725,6 +1789,9 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_NOTIFY" />
           <NavigationProperty Name="T_QREST_ASSESS_DOCS" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_ASSESS_DOCS" />
           <NavigationProperty Name="T_QREST_AQS" Relationship="QRESTModel.FK_T_QREST_AQS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_AQS" />
+          <NavigationProperty Name="T_QREST_DATA_IMPORTS" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_DATA_IMPORTS" />
+          <Property Name="AIRNOW_USR" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AIRNOW_PWD" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG">
           <Key>
@@ -2165,6 +2232,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <Property Name="VAL_IND" Type="Boolean" />
           <Property Name="VAL_CD" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <Property Name="IMPORT_IDX" Type="Guid" />
         </EntityType>
         <EntityType Name="T_QREST_REF_TIMEZONE">
           <Key>
@@ -2195,6 +2263,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <Property Name="LVL2_VAL_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="LVL2_VAL_DT" Type="DateTime" Precision="0" />
           <Property Name="NOTES" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="IMPORT_IDX" Type="Guid" />
         </EntityType>
         <EntityType Name="T_QREST_REF_QUALIFIER">
           <Key>
@@ -2356,6 +2425,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG_DTL" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITE_POLL_CONFIG_DTL" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
           <Property Name="CONFIG_NAME" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="TIME_POLL_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_T_SITE_POLL_CONFIG_D">
           <End Type="QRESTModel.T_QREST_REF_DURATION" Role="T_QREST_REF_DURATION" Multiplicity="0..1" />
@@ -2551,6 +2621,48 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
               <PropertyRef Name="SITE_IDX" />
             </Principal>
             <Dependent Role="T_QREST_AQS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="T_QREST_DATA_IMPORTS">
+          <Key>
+            <PropertyRef Name="IMPORT_IDX" />
+          </Key>
+          <Property Name="IMPORT_IDX" Type="Guid" Nullable="false" />
+          <Property Name="ORG_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="COMMENT" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="SUBMISSION_STATUS" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="IMPORT_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="IMPORT_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_O" FromRole="T_QREST_DATA_IMPORTS" ToRole="T_QREST_ORGANIZATIONS" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_S" FromRole="T_QREST_DATA_IMPORTS" ToRole="T_QREST_SITES" />
+        </EntityType>
+        <Association Name="FK_T_QREST_DATA_IMPORTS_O">
+          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_DATA_IMPORTS" Role="T_QREST_DATA_IMPORTS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_IMPORTS">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_DATA_IMPORTS_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_DATA_IMPORTS" Role="T_QREST_DATA_IMPORTS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_IMPORTS">
               <PropertyRef Name="SITE_IDX" />
             </Dependent>
           </ReferentialConstraint>
@@ -2820,6 +2932,8 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <EntitySetMapping Name="T_QREST_SITES">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITES">
               <MappingFragment StoreEntitySet="T_QREST_SITES">
+                <ScalarProperty Name="AIRNOW_PWD" ColumnName="AIRNOW_PWD" />
+                <ScalarProperty Name="AIRNOW_USR" ColumnName="AIRNOW_USR" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
@@ -3012,6 +3126,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <EntitySetMapping Name="T_QREST_DATA_FIVE_MIN">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_FIVE_MIN">
               <MappingFragment StoreEntitySet="T_QREST_DATA_FIVE_MIN">
+                <ScalarProperty Name="IMPORT_IDX" ColumnName="IMPORT_IDX" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="VAL_CD" ColumnName="VAL_CD" />
                 <ScalarProperty Name="VAL_IND" ColumnName="VAL_IND" />
@@ -3034,6 +3149,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <EntitySetMapping Name="T_QREST_DATA_HOURLY">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_HOURLY">
               <MappingFragment StoreEntitySet="T_QREST_DATA_HOURLY">
+                <ScalarProperty Name="IMPORT_IDX" ColumnName="IMPORT_IDX" />
                 <ScalarProperty Name="NOTES" ColumnName="NOTES" />
                 <ScalarProperty Name="LVL2_VAL_DT" ColumnName="LVL2_VAL_DT" />
                 <ScalarProperty Name="LVL2_VAL_USERIDX" ColumnName="LVL2_VAL_USERIDX" />
@@ -3215,6 +3331,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG">
               <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG">
+                <ScalarProperty Name="TIME_POLL_TYPE" ColumnName="TIME_POLL_TYPE" />
                 <ScalarProperty Name="CONFIG_NAME" ColumnName="CONFIG_NAME" />
                 <ScalarProperty Name="LOCAL_TIMEZONE" ColumnName="LOCAL_TIMEZONE" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
@@ -3313,6 +3430,19 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
                 <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
                 <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
                 <ScalarProperty Name="AQS_IDX" ColumnName="AQS_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_DATA_IMPORTS">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_IMPORTS">
+              <MappingFragment StoreEntitySet="T_QREST_DATA_IMPORTS">
+                <ScalarProperty Name="IMPORT_DT" ColumnName="IMPORT_DT" />
+                <ScalarProperty Name="IMPORT_USERIDX" ColumnName="IMPORT_USERIDX" />
+                <ScalarProperty Name="SUBMISSION_STATUS" ColumnName="SUBMISSION_STATUS" />
+                <ScalarProperty Name="COMMENT" ColumnName="COMMENT" />
+                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
+                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
+                <ScalarProperty Name="IMPORT_IDX" ColumnName="IMPORT_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

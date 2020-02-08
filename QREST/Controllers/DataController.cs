@@ -55,6 +55,8 @@ namespace QREST.Controllers
 
             if (ModelState.IsValid)            
             {
+                Guid importIDX = Guid.NewGuid();
+
                 //**************************************************************************************
                 //    F                five-minute
                 //**************************************************************************************
@@ -63,8 +65,6 @@ namespace QREST.Controllers
                     T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
                     if (_pollConfig != null)
                     {
-                        int tzOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
-
                         if (_pollConfig.DATE_COL != null && _pollConfig.TIME_COL != null)
                         {
                             int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
@@ -791,7 +791,6 @@ namespace QREST.Controllers
         [HttpGet]
         public JsonResult FetchImportTemplates(Guid? ID)
         {
-            string UserIDX = User.Identity.GetUserId();
             var data = ddlHelpers.get_ddl_polling_config(ID ?? Guid.Empty);
             return Json(data, JsonRequestBehavior.AllowGet);
         }

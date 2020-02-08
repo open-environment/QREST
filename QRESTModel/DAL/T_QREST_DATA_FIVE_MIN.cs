@@ -22,5 +22,6 @@ namespace QRESTModel.DAL
         public Nullable<bool> VAL_IND { get; set; }
         public string VAL_CD { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
+        public Nullable<System.Guid> IMPORT_IDX { get; set; }
     }
 }

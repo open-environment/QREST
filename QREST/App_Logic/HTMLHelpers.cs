@@ -28,15 +28,9 @@ namespace QREST.App_Logic.BusinessLogicLayer
             string labelText = metaData.DisplayName ?? metaData.PropertyName ?? htmlFieldName.Split('.').Last();
 
             if (metaData.IsRequired)
-            {
                 labelText = translatedlabelText + "<span class=\"required\" style=\"color:#ac2925;\"> <span style=\"vertical-align: super;\" class=\"fa fa-asterisk\" data-unicode=\"270f\"></span></span>";
-
-            }
             else
-            {
                 labelText = translatedlabelText;
-
-            }
 
             if (String.IsNullOrEmpty(labelText))
                 return MvcHtmlString.Empty;
@@ -45,13 +39,10 @@ namespace QREST.App_Logic.BusinessLogicLayer
             label.Attributes.Add("for", helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldId(htmlFieldName));
 
             foreach (PropertyDescriptor prop in TypeDescriptor.GetProperties(htmlAttributes))
-            {
                 label.MergeAttribute(prop.Name.Replace('_', '-'), prop.GetValue(htmlAttributes).ToString(), true);
-            }
 
             label.InnerHtml = labelText;
             return MvcHtmlString.Create(label.ToString());
-
         }
 
     }

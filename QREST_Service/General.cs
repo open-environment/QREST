@@ -24,5 +24,24 @@ namespace QREST_Service
             }
         }
 
+        public static void WriteToPollingFile(string Message, string SiteID)
+        {
+            string path = AppDomain.CurrentDomain.BaseDirectory + "\\Polls";
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\Polls\\Poll_" + SiteID + DateTime.Now.Date.ToShortDateString().Replace('/', '_') + ".txt";
+            if (!File.Exists(filepath))
+            {
+                using (StreamWriter sw = File.CreateText(filepath))
+                    sw.WriteLine(Message);
+            }
+            else
+            {
+                using (StreamWriter sw = File.AppendText(filepath))
+                    sw.WriteLine(Message);
+            }
+        }
+
     }
 }

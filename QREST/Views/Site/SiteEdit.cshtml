@@ -59,7 +59,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group">
+                            <div class="form-group2">
                                 <label>Site Comments</label>
                                 @Html.TextAreaFor(model => model.SITE_COMMENTS, new { @class = "form-control" })
                                 @Html.ValidationMessageFor(model => model.SITE_COMMENTS)
@@ -68,7 +68,7 @@
                     </div>
                     <div class="line line-dashed line-lg pull-in"></div>
                     <h4 class="font-bold">LOCATION</h4>
-                    <div class="row">
+                    <div class="row ">
                         <div class="col-md-8">
                             <div class="form-group">
                                 <label>Latitude / Longitude</label>
@@ -132,167 +132,156 @@
                         </div>
 
                     </div>
+                    <div class="line line-dashed line-lg pull-in "></div>
+                    <h4 class="font-bold" style="margin-left:-5px;">DATA CONNECTIVITY</h4>
+                    <div class="form-group">
+                        <label class="checkbox-inline label-lg">
+                            @Html.CheckBoxFor(model => model.POLLING_ONLINE_IND, new { @class = "" })
+                            Enable Automatic Data Retrieval
+                        </label>
+                        @Html.ValidationMessageFor(model => model.POLLING_ONLINE_IND)
+                        <a href="@(Url.Action("SitePollConfig", "Site", new { id = Model.SITE_IDX }))" class="btn btn-xs btn-warning btn-rounded m-l-xs ">Configure Polling</a>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-inline label-lg">
+                            @Html.CheckBoxFor(model => model.AIRNOW_IND, new { @class = "checkbox-inline" })
+                            Enable Realtime Sharing
+                        </label>
+                        <span class="label bg-dark m-l-xs" data-toggle="tooltip" data-placement="right" title="" data-original-title="Allows sharing of hourly data to AirNow and QREST public website.">?</span>
+                        <div class="row" style="padding-left:25px; padding-top:10px;">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>AirNow User</label>
+                                    @Html.TextBoxFor(model => model.AIRNOW_USR, new { @class = "form-control", @maxlength = "50" })
+                                    @Html.ValidationMessageFor(model => model.AIRNOW_USR)
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>AirNow Password</label>
+                                    @Html.PasswordFor(model => model.AIRNOW_PWD, new { @class = "form-control", @maxlength = "50" })
+                                    @Html.ValidationMessageFor(model => model.AIRNOW_PWD)
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-inline label-lg">
+                            @Html.CheckBoxFor(model => model.AQS_IND, new { @class = "checkbox-inline" })
+                            Enable Submission to AQS
+                        </label>
+                    </div>
+                    <div class="line line-dashed pull-in"></div>
                     <p>
                         <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
-                        <a class=" btn btn-default" href="@Url.Action("SiteList")">Back to List</a>
+                        <a class="btn btn-default" href="@Url.Action("SiteList")">Back to List</a>
                     </p>
                 </div>
             </section>
         </div>
+    }
+    
+    @if (Model.SITE_IDX != null)
+    {
+    <div class="col-md-6">
+        <section class="panel panel-qrest">
+            <header class="panel-heading font-bold">Site Monitors</header>
+            <div class="panel-body">
 
-        if (Model.SITE_IDX != null)
-        {
-            <div class="col-md-6">
+                @if (Model.monitors != null)
+                {
+
+                    <div class="table-responsive">
+                        <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;"></th>
+                                    <th>Parameter</th>
+                                    <th>Method Code</th>
+                                    <th>POC</th>
+                                </tr>
+                            </thead>
+                            @foreach (var item in Model.monitors)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="@(Url.Action("MonitorEdit", "Site", new { id = item.T_QREST_MONITORS.MONITOR_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
+                                        <div class="delete-section" style="display:inline-block">
+                                            <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete">
+                                                <b>Confirm Delete</b>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PAR_CODE)
+                                        @Html.DisplayFor(modelItem => item.PAR_NAME)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.METHOD_CODE)
+                                        @Html.DisplayFor(modelItem => item.COLLECTION_DESC)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.POC)
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                }
+
+                <a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
+                <a href="@(Url.Action("MonitorImport", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded pull-right" onclick="pleaseWait()">Import Monitors from AQS</a>
+            </div>
+        </section>
+
+        <div class="row">
+            <div class="col-md-12">
                 <section class="panel panel-qrest">
-                    <header class="panel-heading font-bold">Site Monitors</header>
+                    <header class="panel-heading font-bold">Alerting</header>
                     <div class="panel-body">
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-sign"></i>
+                            The following users will be notified when an exceptional polling event is detected at this site.
+                        </div>
 
-                        @if (Model.monitors != null)
-                        {
-
-                            <div class="table-responsive">
-                                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 120px;"></th>
-                                            <th>Parameter</th>
-                                            <th>Method Code</th>
-                                            <th>POC</th>
-                                        </tr>
-                                    </thead>
-                                    @foreach (var item in Model.monitors)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <a href="@(Url.Action("MonitorEdit", "Site", new { id = item.T_QREST_MONITORS.MONITOR_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
-                                                <div class="delete-section" style="display:inline-block">
-                                                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete">
-                                                        <b>Confirm Delete</b>
-                                                    </div>
+                        <div class="table-responsive">
+                            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"></th>
+                                        <th>Person</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var item in Model.notifiees)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="delete-section" style="display:inline-block">
+                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_SITE_NOTIFY.SITE_NOTIFY_IDX" data-delete-p="/Site/SiteNotifyDelete">
+                                                    <b>Confirm Delete</b>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.PAR_CODE)
-                                                @Html.DisplayFor(modelItem => item.PAR_NAME)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.METHOD_CODE)
-                                                @Html.DisplayFor(modelItem => item.COLLECTION_DESC)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.POC)
-                                            </td>
-                                        </tr>
-                                    }
-                                </table>
-                            </div>
-                        }
-
-                        <a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
-                        <a href="@(Url.Action("MonitorImport", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded pull-right" onclick="pleaseWait()">Import Monitors from AQS</a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.UserName)
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                        <a id="add-it" href="#modal-form1" data-toggle="modal" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add User</a>
                     </div>
                 </section>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <section class="panel panel-qrest">
-                            <header class="panel-heading font-bold">Data Synchronization</header>
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div id="telemetrySource" class="col-md-12">
-                                        <div class="form-group ">
-                                            @Html.CheckBoxFor(model => model.POLLING_ONLINE_IND, new { @class = "checkbox-inline checkbox-lg" })
-                                            <label class="label-lg font-bold">Enable Automatic Data Retrieval</label>
-                                            @Html.ValidationMessageFor(model => model.POLLING_ONLINE_IND)
-                                            <div id="pollCollapse" class="row col-md-12 text-center">
-                                                <a href="@(Url.Action("SitePollConfig", "Site", new { id = Model.SITE_IDX }))" class="btn btn-sm btn-warning btn-rounded ">Configure Polling</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="line line-dashed line-lg pull-in"></div>
-                                <div class="row">
-                                    <div id="airnowSource" class="col-md-12">
-                                        <div class="form-group ">
-                                            @Html.CheckBoxFor(model => model.AIRNOW_IND, new { @class = "checkbox-inline checkbox-lg" })
-                                            <label class="label-lg font-bold">Enable Submission to AirNow</label>
-                                            <div id="airnowCollapse" class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label>Username</label>
-                                                        @Html.TextBoxFor(model => model.AIRNOW_USR, new { @class = "form-control", @maxlength = "50" })
-                                                        @Html.ValidationMessageFor(model => model.ZIP_CODE)
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label>Password</label>
-                                                        @Html.PasswordFor(model => model.AIRNOW_PWD, new { @class = "form-control", @maxlength = "50" })
-                                                        @Html.ValidationMessageFor(model => model.ZIP_CODE)
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="line line-dashed line-lg pull-in"></div>
-                                <div class="row">
-                                    <div id="aqsSource" class="col-md-12">
-                                        <div class="form-group ">
-                                            @Html.CheckBoxFor(model => model.AQS_IND, new { @class = "checkbox-inline checkbox-lg" })
-                                            <label class="label-lg font-bold">Enable Submission to AQS</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                    <div class="col-md-6">
-                        <section class="panel panel-qrest">
-                            <header class="panel-heading font-bold">Alerting</header>
-                            <div class="panel-body">
-                                <div class="alert alert-info">
-                                    <i class="fa fa-info-sign"></i>
-                                    The following users will be notified when an exceptional polling event is detected at this site.
-                                </div>
-
-                                <div class="table-responsive">
-                                    <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 40px;"></th>
-                                                <th>Person</th>
-                                            </tr>
-                                        </thead>
-                                        @foreach (var item in Model.notifiees)
-                                        {
-                                            <tr>
-                                                <td>
-                                                    <div class="delete-section" style="display:inline-block">
-                                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_SITE_NOTIFY.SITE_NOTIFY_IDX" data-delete-p="/Site/SiteNotifyDelete">
-                                                            <b>Confirm Delete</b>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.UserName)
-                                                </td>
-                                            </tr>
-                                        }
-                                    </table>
-                                </div>
-                                <a id="add-it" href="#modal-form1" data-toggle="modal" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add User</a>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-
-
             </div>
-        }
+        </div>
+
+
+    </div>
     }
+
 </div>
 
 <!-- START NOTIFY MODAL  -->
@@ -330,6 +319,7 @@
     </div>
 </div>
 <!-- END NOTIFY MODAL -->
+
 <!-- START MAP MODAL  -->
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">

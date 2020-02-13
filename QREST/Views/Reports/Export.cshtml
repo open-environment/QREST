@@ -1,4 +1,5 @@
-﻿@{
+﻿@model QREST.Models.vmReportsExport
+@{
     ViewBag.Title = "Export Data";
     ViewBag.SubTitle = "Export your data to Excel.";
 }
@@ -9,17 +10,29 @@
 
     <section class="panel panel-qrest ">
         <div class="panel-heading">
-            Export Data
+            Data for My Organizations
         </div>
         <div class="panel-body">
-            <h4>Data for My Organizations</h4>
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
-
                         <input type="checkbox" name="exportdata" value="Sites" class="checkbox-inline checkbox-lg" /> <span style="font-size:16px">Sites</span>
                         <br />
                         <input type="checkbox" name="exportdata" value="Monitors" class="checkbox-inline checkbox-lg" />  <span style="font-size:16px">Monitors</span>
+                        <br />
+                        <input type="checkbox" name="exportdata" value="Data" class="checkbox-inline checkbox-lg" />  <span style="font-size:16px">Air Data</span>
+                        <br />
+                    </div>
+                    <div class="form-inline m-b-sm raw" style="padding-left:20px">
+                        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
+                        @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, "", new { @class = "form-control" })
+                    </div>
+                    <div class="form-inline m-b-sm raw" style="padding-left:20px">
+                        <select id="selType" name="selType" class="form-control">
+                            <option value="H">Hourly</option>
+                            <option value="F">5-Minute</option>
+                        </select>
+                        <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
                     </div>
                     <button type="submit" class="btn btn-primary">Export Data</button>
                 </div>
@@ -28,3 +41,68 @@
     </section>
 }
 
+
+@section Scripts {
+    @Scripts.Render("~/bundles/datatables")
+    @Scripts.Render("~/bundles/canvasjs")
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+
+            //daterange selector initialization
+            $('input[name="selDate"]').daterangepicker({
+                timePicker: true,
+                timePickerIncrement: 60,
+                timePicker24Hour: true,
+                autoUpdateInput: true,
+                startDate: moment().startOf('day'),
+                endDate: moment().endOf('day'),
+                ranges: {
+                    'Today': [moment().startOf('day'), moment().endOf('day')],
+                    'Yesterday': [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')],
+                    'Last 7 Days': [moment().subtract(6, 'days').startOf('day'), moment().endOf('day')],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                locale: {
+                    format: 'M/DD/YYYY HH:00'
+                }
+            }
+                , function (start, end, label) {
+                    $('#selDate').data('start', start.format('YYYY-MM-DD'));
+                    $('#selDate').data('end', end.format('YYYY-MM-DD'));
+                }
+            );
+
+
+            //initialize monitor dropdown on page load
+            fetchMonitors();
+
+            //update monitor dropdown
+            $('#selOrgID').change(function () {
+                fetchMonitors();
+            });
+
+            //update monitor dropdown
+            function fetchMonitors() {
+                $('#selMon').empty();
+                $.getJSON('@Url.Action("FetchMonitorsWithData","Data")', { ID: $("#selOrgID").val() }, function (data) {
+                    if (!data) {
+                        return;
+                    }
+                    $('#selMon').append($('<option></option>').val('').text('Please select'));
+                    $.each(data, function (index, item) {
+                        $('#selMon').append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+                });
+            };
+
+        });
+
+    </script>
+}

@@ -351,9 +351,6 @@ namespace QREST.Controllers
                 ddl_Monitor = new List<SelectListItem>()
             };
 
-            //string xxx = model.ddl_Organization.First().Value;
-            //model.ddl_Monitor = ddlHelpers.get_monitors_sampled_by_org(xxx);
-
             return View(model);
         }
 
@@ -379,7 +376,7 @@ namespace QREST.Controllers
 
             if (selType == "F")
             {
-                var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, selMon, d1, d2, pageSize, start, orderCol, orderDir);
+                var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, null, selMon, d1, d2, pageSize, start, orderCol, orderDir);
                 var recordsTotal = db_Air.GetT_QREST_DATA_FIVE_MINcount(selOrg, selMon, d1, d2);
 
                 return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
@@ -412,7 +409,7 @@ namespace QREST.Controllers
 
                 if (selType == "F")
                 {
-                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, selMon, d1, d2, 25000, 0, 3, "asc");
+                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, null, selMon, d1, d2, 25000, 0, 3, "asc");
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
                 else
@@ -546,7 +543,7 @@ namespace QREST.Controllers
 
             //get raw data
             if (dur == "H")
-                model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(null, monid, sdt, edt, 25000, 0, 3, "asc");
+                model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, monid, sdt, edt, 25000, 0, 3, "asc");
             else if (dur == "1")
                 model.RawData = db_Air.GetT_QREST_DATA_HOURLY_ManVal(monid.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
 
@@ -554,7 +551,7 @@ namespace QREST.Controllers
             if (supp1 != null)
             {
                 if (dur == "H")
-                    model.SuppData1 = db_Air.GetT_QREST_DATA_FIVE_MIN(null, supp1, sdt, edt, 25000, 0, 3, "asc");
+                    model.SuppData1 = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, supp1, sdt, edt, 25000, 0, 3, "asc");
                 else if (dur == "1")
                     model.SuppData1 = db_Air.GetT_QREST_DATA_HOURLY_ManVal(supp1.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
 
@@ -619,7 +616,7 @@ namespace QREST.Controllers
             {
                 if (selType == "F")
                 {
-                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(null, selMon, selDateStart, selDateEnd, 25000, 0, 3, "asc");
+                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, selMon, selDateStart, selDateEnd, 25000, 0, 3, "asc");
                     var data1 = JsonConvert.SerializeObject(data);
                     return Json(new { data = data });
                 }

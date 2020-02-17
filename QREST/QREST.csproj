@@ -211,6 +211,7 @@
     <Compile Include="Models\ddlHelpers.cs" />
     <Compile Include="Models\HomeViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\ReportsViewModels.cs" />
     <Compile Include="Models\SharedViewModels.cs" />
     <Compile Include="Models\SiteViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

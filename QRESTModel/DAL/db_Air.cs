@@ -239,7 +239,7 @@ namespace QRESTModel.DAL
         }
 
         /// <summary>
-        /// Returns all sites
+        /// Returns all sites that are available for public display
         /// </summary>
         /// <returns></returns>
         public static List<SiteDisplay> GetT_QREST_SITES_All_Display()
@@ -250,6 +250,7 @@ namespace QRESTModel.DAL
                 {
                     var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
                                join b in ctx.T_QREST_ORGANIZATIONS.AsNoTracking() on a.ORG_ID equals b.ORG_ID
+                               where a.AIRNOW_IND == true
                                orderby a.ORG_ID, a.SITE_ID
                                select new SiteDisplay { 
                                    T_QREST_SITES = a,
@@ -1622,7 +1623,7 @@ namespace QRESTModel.DAL
 
         }
 
-        public static List<RawDataDisplay> GetT_QREST_DATA_FIVE_MIN(string org, Guid? mon, DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, int orderBy, string orderDir = "desc")
+        public static List<RawDataDisplay> GetT_QREST_DATA_FIVE_MIN(string org, Guid? site, Guid? mon, DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, int orderBy, string orderDir = "desc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1631,8 +1632,9 @@ namespace QRESTModel.DAL
                     DateTime DateFromDt = DateFrom.GetValueOrDefault(System.DateTime.UtcNow.AddDays(-1));
                     DateTime DateToDt = DateTo.GetValueOrDefault(System.DateTime.UtcNow.AddHours(1));
 
-                    string orderCol = (orderBy == 3 ? "DATA_DTTM" : "DATA_DTTM");
-
+                    string orderCol = "DATA_DTTM";
+                    if (orderBy == 5) orderCol = "DATA_VALUE";
+                    else if (orderBy == 6) orderCol = "VAL_CD";
 
                     return (from a in ctx.T_QREST_DATA_FIVE_MIN.AsNoTracking()
                             join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
@@ -1645,6 +1647,7 @@ namespace QRESTModel.DAL
                             where a.DATA_DTTM >= DateFromDt
                             && a.DATA_DTTM <= DateToDt
                             && (org != null ? s.ORG_ID == org : true)
+                            && (site != null ? s.SITE_IDX == site : true)
                             && (mon != null ? a.MONITOR_IDX == mon : true)
                             orderby a.DATA_DTTM descending
                             select new RawDataDisplay {
@@ -1712,7 +1715,9 @@ namespace QRESTModel.DAL
                     if (string.IsNullOrEmpty(org))
                         org = null;
 
-                    string orderCol = (orderBy == 3 ? "DATA_DTTM" : "DATA_DTTM");
+                    string orderCol = "DATA_DTTM";
+                    if (orderBy == 5) orderCol = "DATA_VALUE";
+                    else if (orderBy == 6) orderCol = "VAL_CD";
 
                     return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
                             join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX

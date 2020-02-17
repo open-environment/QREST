@@ -999,7 +999,7 @@ namespace QREST.Controllers
         public ActionResult ExportRefParMethod()
         {
             DataTable dt = DataTableGen.RefParMethod("", "");
-            DataSet dsExport = DataTableGen.DataSetFromDataTables(dt, null, null, null);
+            DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dt });
             if (dsExport.Tables.Count > 0)
             {
                 MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);

@@ -97,6 +97,45 @@ namespace QRESTModel.DataTableGen
             return dt;
         }
 
+        public static DataTable RawData(string Freq, string orgid, Guid? SiteIDX, Guid? MonIDX, DateTime startDt, DateTime endDt)
+        {
+            DataTable dtData = new DataTable("Data");
+            dtData.Columns.AddRange(new DataColumn[13] {
+                                            new DataColumn("Org ID"),
+                                            new DataColumn("Site ID"),
+                                            new DataColumn("Par Code"),
+                                            new DataColumn("Par Name"),
+                                            new DataColumn("Method Code"),
+                                            new DataColumn("POC"),
+                                            new DataColumn("DateTime"),
+                                            new DataColumn("Value"),
+                                            new DataColumn("Flag"),
+                                            new DataColumn("AQS Null Code"),
+                                            new DataColumn("Lvl1 Review"),
+                                            new DataColumn("Lvl2 Review"),
+                                            new DataColumn("")
+                                           });
+
+            if (Freq == "F")
+            {
+                List<RawDataDisplay> _mons = db_Air.GetT_QREST_DATA_FIVE_MIN(orgid, SiteIDX, MonIDX, startDt, endDt, 50000, null, 3, "asc");
+                foreach (var _mon in _mons)
+                {
+                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
+                        _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND, "");
+                }
+            }
+            else if (Freq == "H") {
+                List<RawDataDisplay> _mons = db_Air.GetT_QREST_DATA_HOURLY(orgid, MonIDX, startDt, endDt, 50000, null, 3, "asc");
+                foreach (var _mon in _mons)
+                {
+                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
+                        _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND, "");
+                }
+            }
+            return dtData;
+        }
+
         public static DataTable ReportMonthly(Guid monIDX, int mnth, int yr, string time)
         {
             DataTable dt = new DataTable("Monthly Data");
@@ -241,19 +280,13 @@ namespace QRESTModel.DataTableGen
             return dt;
         }
 
-        public static DataSet DataSetFromDataTables(DataTable dt1, DataTable dt2, DataTable dt3, DataTable dt4)
+        public static DataSet DataSetFromDataTables(List<DataTable> dts)
         {
             DataSet ds = new DataSet();
-
-            if (dt1 != null && dt1.Rows.Count > 0)
-                ds.Tables.Add(dt1);
-            if (dt2 != null && dt2.Rows.Count > 0)
-                ds.Tables.Add(dt2);
-            if (dt3 != null && dt3.Rows.Count > 0)
-                ds.Tables.Add(dt3);
-            if (dt4 != null && dt4.Rows.Count > 0)
-                ds.Tables.Add(dt4);
-
+            foreach (DataTable dt in dts) {
+                if (dt.Rows.Count > 0)
+                    ds.Tables.Add(dt);
+            }
             return ds;
         }
     }

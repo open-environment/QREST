@@ -28,11 +28,8 @@ namespace QREST_BrowserUnitTests
 
         public SeleniumBrowserStackTests()
         {
-            //QRestUserName = Decrypt(ConfigurationManager.AppSettings["QRestUserName"]);
-            //QRestPassword = Decrypt(ConfigurationManager.AppSettings["QRestPassword"]);
-            QRestUserName = "kshitij.mehta@open-environment.org";
-            QRestPassword = "Mehta@2020";
-
+            QRestUserName = Decrypt(ConfigurationManager.AppSettings["QRestUserName"]);
+            QRestPassword = Decrypt(ConfigurationManager.AppSettings["QRestPassword"]);
             browserStackUser = Decrypt(ConfigurationManager.AppSettings["browserStackUser"]);
             browserStackKey = Decrypt(ConfigurationManager.AppSettings["browserStackKey"]);
         }
@@ -48,7 +45,7 @@ namespace QREST_BrowserUnitTests
         public void ChromeSiteListTest()
         {
             IWebDriver driver = BrowserProperties.SetTestDriver("Chrome", "75.0", "Windows", "10", "1920x1200", "QREST Site List, Chrome", "true", browserStackUser, browserStackKey);
-            loginToQREST(driver);
+            LoginToQREST(driver);
             driver.Navigate().GoToUrl($"{ConfigurationManager.AppSettings["testBaseUrl"]}/Site/SiteList");
             driver.Quit();
         }
@@ -57,8 +54,8 @@ namespace QREST_BrowserUnitTests
         public void ChromeSiteAddTest()
         {
             IWebDriver driver = BrowserProperties.SetTestDriver("Chrome", "75.0", "Windows", "10", "1920x1200", "QREST Site Add Chrome", "true", browserStackUser, browserStackKey);
-            loginToQREST(driver);
-            addSiteTest(driver, "Chrome");
+            LoginToQREST(driver);
+            AddSiteTest(driver, "Chrome");
             driver.Quit();
         }
 
@@ -67,7 +64,7 @@ namespace QREST_BrowserUnitTests
         {
 
             IWebDriver driver = BrowserProperties.SetTestDriver("Chrome", "75.0", "Windows", "10", "1920x1200", "QREST Site Edit Chrome", "true", browserStackUser, browserStackKey);
-            loginToQREST(driver);
+            LoginToQREST(driver);
             editSiteTest(driver, "Chrome");
             driver.Quit();
         }
@@ -77,7 +74,7 @@ namespace QREST_BrowserUnitTests
         {
             string loginUrl = $"{ConfigurationManager.AppSettings["testBaseUrl"]}{ConfigurationManager.AppSettings["QRestLoginURL"]}";
             IWebDriver driver = BrowserProperties.SetTestDriver("Chrome", "75.0", "Windows", "10", "1920x1200", "QREST Site Delete Chrome", "true", browserStackUser, browserStackKey);
-            loginToQREST(driver);
+            LoginToQREST(driver);
             deleteSiteTest(driver, "Chrome");
             driver.Quit();
         }
@@ -87,7 +84,7 @@ namespace QREST_BrowserUnitTests
         {
             string loginUrl = $"{ConfigurationManager.AppSettings["testBaseUrl"]}{ConfigurationManager.AppSettings["QRestLoginURL"]}";
             IWebDriver driver = BrowserProperties.SetTestDriver("Chrome", "75.0", "Windows", "10", "1920x1200", "QREST Site Delete Chrome", "true", browserStackUser, browserStackKey);
-            loginToQREST(driver);
+            LoginToQREST(driver);
             deleteSiteMonitorTest(driver, "Chrome");
             driver.Quit();
         }
@@ -97,7 +94,7 @@ namespace QREST_BrowserUnitTests
         {
             string loginUrl = $"{ConfigurationManager.AppSettings["testBaseUrl"]}{ConfigurationManager.AppSettings["QRestLoginURL"]}";
             IWebDriver driver = BrowserProperties.SetTestDriver("Chrome", "75.0", "Windows", "10", "1920x1200", "QRest Site Add Chrome", "true", browserStackUser, browserStackKey);
-            loginToQREST(driver);
+            LoginToQREST(driver);
             addSiteMonitorTest(driver, "Chrome");
             driver.Quit();
         }
@@ -107,126 +104,91 @@ namespace QREST_BrowserUnitTests
         {
             string loginUrl = $"{ConfigurationManager.AppSettings["testBaseUrl"]}{ConfigurationManager.AppSettings["QRestLoginURL"]}";
             IWebDriver driver = BrowserProperties.SetTestDriver("Chrome", "75.0", "Windows", "10", "1920x1200", "QRest Site Edit Chrome", "true", browserStackUser, browserStackKey);
-            loginToQREST(driver);
+            LoginToQREST(driver);
             editSiteMonitorTest(driver, "Chrome");
             driver.Quit();
         }
         #endregion
 
-        private void loginToQREST(IWebDriver driver)
+        private void LoginToQREST(IWebDriver driver)
         {
+            //Go to loging page
             string loginUrl = $"{ConfigurationManager.AppSettings["testBaseUrl"]}{ConfigurationManager.AppSettings["QRestLoginURL"]}";
             driver.Navigate().GoToUrl(loginUrl);
             IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
-            //wait for login page to load
             wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+            //Provide crendentials
             driver.FindElement(By.Id("Username")).SendKeys(QRestUserName);
             driver.FindElement(By.Id("Password")).SendKeys(QRestPassword);
-            driver.FindElements(By.ClassName("btn")).Where(x => x.Text.ToLower() == "sign in").FirstOrDefault().Click();
 
-            wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
+            //Click sign in button
+            driver.FindElements(By.ClassName("btn")).Where(x => x.Text.ToLower() == "sign in").FirstOrDefault().Click();
             wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-            Console.WriteLine(driver.Title);
         }
 
-        private void addSiteTest(IWebDriver driver, string browser)
+        private void AddSiteTest(IWebDriver driver, string browser)
         {
+            //Goto site entry page
             string returnVal = string.Empty;
             driver.Navigate().GoToUrl($"{ConfigurationManager.AppSettings["testBaseUrl"]}/Site/SiteList");
             IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30));
             wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-
             driver.FindElement(By.LinkText("Add")).Click();
             wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
+            //Setup data
             NameValueCollection siteAddEditFieldCollection = getSiteAddFieldCollection();
             BrowserProperties.SetFieldValues(siteAddEditFieldCollection, ref driver);
+
+            //Save data
             driver.FindElement(By.Id("btnSave")).Click();
-
-            //verify it has been added
-            //driver.Navigate().GoToUrl($"{ConfigurationManager.AppSettings["testBaseUrl"]}/Site/SiteList");
-            //wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-            //var deleteSections = driver.FindElement(By.CssSelector($"[data-delete-id*='{siteDeleteId}'"));
-
-            //Try to get the newly created SiteID and pass it accross test chain
-            //wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-            //string newSiteID = driver.Url.Substring(driver.Url.LastIndexOf("/") + 1);
-            //if (newSiteID.Length > 0 && newSiteID.Contains("SiteEdit") == false)
-            //{
-            //    //Verify it has been added
-            //    NameValueCollection siteAddEditFieldCollectionProcessed = getSiteAddFieldCollectionProcessed(driver);
-            //    if (!IsCollectionMatch(siteAddEditFieldCollection, siteAddEditFieldCollectionProcessed))
-            //    {
-            //        Assert.Fail("addSiteTest: Data values does not match");
-            //    }
-            //    returnVal = newSiteID;
-
-            //}
-            //else
-            //{
-            //    Assert.Fail("addSiteTest: unable to get new site id!");
-            //}
-
-
-
-            //return returnVal;
-
         }
 
         private void editSiteTest(IWebDriver driver, string browser)
         {
-            NameValueCollection siteAddEditFieldCollection = getSiteAddFieldCollection();
-            siteAddEditFieldCollection["SITE_NAME"] = $"{browser}_Edit";
+            
+            //Go to site list and click edit button
             IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             driver.Navigate().GoToUrl($"{ConfigurationManager.AppSettings["testBaseUrl"]}/Site/SiteList");
             wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-            //driver.FindElement(By.CssSelector($"[href*='/Site/SiteEdit/{siteEditId}']")).Click();
             driver.FindElement(By.XPath("//table[@id=\'gridData\']/tbody/tr/td/a")).Click();
-            //By.XPath("//table[@id=\'gridData\']/tbody/tr/td/a")
+
+            //Setup data
+            NameValueCollection siteAddEditFieldCollection = getSiteAddFieldCollection();
+            siteAddEditFieldCollection["SITE_NAME"] = $"{browser}_Edit";
             BrowserProperties.SetFieldValues(siteAddEditFieldCollection, ref driver);
+
+            //Save data
             driver.FindElement(By.Id("btnSave")).Click();
-            Console.WriteLine(driver.Title);
         }
 
         private void deleteSiteTest(IWebDriver driver, string browser)
         {
+            //Go to site list
             IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             driver.Navigate().GoToUrl($"{ConfigurationManager.AppSettings["testBaseUrl"]}/Site/SiteList");
             wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-            //var deleteSections = driver.FindElement(By.CssSelector($"[data-delete-id*='{siteDeleteId}'"));
-            //deleteSections.FindElement(By.XPath("..")).FindElement(By.ClassName("delete-link")).Click();
-            //deleteSections.Click();
+
+            //Find and click delete button for site
             driver.FindElement(By.XPath("//table[@id='gridData']/tbody/tr/td/div/a")).Click();
             wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+            //Find and click confirm delete button
             driver.FindElement(By.XPath("//table[@id='gridData']/tbody/tr/td/div/div/b")).Click();
-            driver.Quit();
         }
 
         private void deleteSiteMonitorTest(IWebDriver driver, string browser)
         {
             IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
-
-            //driver.Navigate().GoToUrl("https://qrest-test.azurewebsites.net/Site/SiteList");
             driver.Navigate().GoToUrl($"{ConfigurationManager.AppSettings["testBaseUrl"]}/Site/SiteList");
             driver.Manage().Window.Size = new System.Drawing.Size(1056, 644);
             driver.FindElement(By.LinkText("Edit")).Click();
             driver.FindElement(By.CssSelector(".fa-times")).Click();
             driver.FindElement(By.CssSelector(".btn > b")).Click();
             driver.FindElement(By.LinkText("Back to List")).Click();
-
-            //driver.Navigate().GoToUrl($"{ConfigurationManager.AppSettings["testBaseUrl"]}/Site/SiteEdit/{siteEditId}");
-
-            //driver.Navigate().GoToUrl($"{ConfigurationManager.AppSettings["testBaseUrl"]}/Site/SiteList");
-            //wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
-            //wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-            //driver.FindElement(By.CssSelector($"[href*='/Site/SiteEdit/{siteEditId}']")).Click();
-            //var deleteSections = driver.FindElement(By.CssSelector($"[data-delete-id*='{siteMonitorDeleteId}'"));
-            //deleteSections.FindElement(By.XPath("..")).FindElement(By.ClassName("delete-link")).Click();
-            //deleteSections.Click();
-            //Console.WriteLine(driver.Title);
-            //driver.Quit();
         }
 
         private void addSiteMonitorTest(IWebDriver driver, string browser)
@@ -457,7 +419,7 @@ namespace QREST_BrowserUnitTests
             IWebDriver driver = BrowserProperties.SetTestDriver("Chrome", "75.0", "Windows", "10", "1920x1200", "QREST Site List, Chrome", "true", browserStackUser, browserStackKey);
 
             //LOGIN TO SITE
-            loginToQREST(driver);
+            LoginToQREST(driver);
             string siteID = "";
 
             //CREATE NEW SITE AND VERIFY

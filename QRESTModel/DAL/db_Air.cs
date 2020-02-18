@@ -37,7 +37,12 @@ namespace QRESTModel.DAL
         public List<SitePollingConfigDetailType> PollingConfigDetails { get; set; }
         public List<string> NotifyUsers { get; set; }
     }
-
+    public class SitePollingConfigTypeExtended : SitePollingConfigType
+    {
+        public string CONFIG_NAME { get; set; }
+        public string LOGGER_USERNAME { get; set; }
+        public bool ACT_IND { get; set; }
+    }
     public class SitePollingConfigDetailType
     {
         public Guid POLL_CONFIG_DTL_IDX { get; set; }
@@ -50,8 +55,15 @@ namespace QRESTModel.DAL
         public double? ALERT_MAX_VALUE { get; set; }
         public string ALERT_MIN_TYPE { get; set; }
         public string ALERT_MAX_TYPE { get; set; }
+        
     }
-
+    public class SitePollingConfigDetailTypeExtended : SitePollingConfigDetailType
+    {
+        public string SUM_TYPE { get; set; }
+        public int? ROUNDING { get; set; }
+        public Guid ORG_ID { get; set; }
+        public Guid SITE_ID { get; set; }
+    }
 
     public class SiteMonitorDisplayType
     {
@@ -882,8 +894,85 @@ namespace QRESTModel.DAL
             }
         }
 
+        
+        public static List<SitePollingConfigTypeExtended> GetT_QREST_SITES_POLLING_CONFIG_List(string USER_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
+                               join b in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
+                               join c in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals c.ORG_ID
+                               where c.USER_IDX == USER_IDX
+                               && b.ACT_IND == true
+                               && b.DATE_COL != null
+                               && b.TIME_COL != null
+                               && b.DELIMITER != ""
+                               orderby a.ORG_ID, a.SITE_ID
+                               select new SitePollingConfigTypeExtended
+                               {
+                                   SITE_IDX = a.SITE_IDX,
+                                   SITE_ID = a.SITE_ID,
+                                   ORG_ID = a.ORG_ID,
+                                   POLLING_ONLINE_IND = a.POLLING_ONLINE_IND,
+                                   POLLING_FREQ_TYPE = a.POLLING_FREQ_TYPE,
+                                   POLLING_FREQ_NUM = a.POLLING_FREQ_NUM,
+                                   POLL_CONFIG_IDX = b.POLL_CONFIG_IDX,
+                                   LOGGER_TYPE = b.LOGGER_TYPE,
+                                   RAW_DURATION_CODE = b.RAW_DURATION_CODE,
+                                   LOGGER_SOURCE = b.LOGGER_SOURCE,
+                                   LOGGER_PORT = b.LOGGER_PORT,
+                                   LOGGER_PASSWORD = b.LOGGER_PASSWORD,
+                                   DELIMITER = b.DELIMITER,
+                                   DATE_COL = b.DATE_COL,
+                                   DATE_FORMAT = b.DATE_FORMAT,
+                                   TIME_COL = b.TIME_COL,
+                                   TIME_FORMAT = b.TIME_FORMAT,
+                                   POLLING_LAST_RUN_DT = a.POLLING_LAST_RUN_DT,
+                                   POLLING_NEXT_RUN_DT = a.POLLING_NEXT_RUN_DT
+                               }).ToList();
 
-
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+        public static List<SitePollingConfigDetailTypeExtended> GetT_QREST_SITES_POLLING_CONFIG_DetailList(String USER_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_SITES.AsNoTracking()
+                            join b in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
+                            join c in ctx.T_QREST_SITE_POLL_CONFIG_DTL.AsNoTracking() on b.POLL_CONFIG_IDX equals c.POLL_CONFIG_IDX
+                            join d in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals d.ORG_ID
+                            where d.USER_IDX == USER_IDX
+                            select new SitePollingConfigDetailTypeExtended
+                            {
+                                POLL_CONFIG_DTL_IDX = c.POLL_CONFIG_DTL_IDX,
+                                POLL_CONFIG_IDX = c.POLL_CONFIG_IDX,
+                                MONITOR_IDX = c.MONITOR_IDX,
+                                COL = c.COL,
+                                SUM_TYPE = c.SUM_TYPE,
+                                ROUNDING = Convert.ToInt32(c.ROUNDING),
+                                ORG_ID = new Guid(a.ORG_ID),
+                                SITE_ID = new Guid(a.SITE_ID)
+                            }).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+       
         //*****************SITE POLL CONFIG_DTL**********************************
         public static List<SitePollingConfigDetailType> GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(Guid PollConfigIDX)
         {

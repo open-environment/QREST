@@ -17,7 +17,7 @@ using QREST.App_Logic;
 
 namespace QREST.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
+    [Authorize(Roles = "GLOBAL ADMIN")]
     public class AdminController : Controller
     {
         #region CONSTRUCTOR
@@ -996,9 +996,12 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult ExportRefParMethod()
+        public ActionResult ExportExcel(string Action)
         {
-            DataTable dt = DataTableGen.RefParMethod("", "");
+            DataTable dt = null;
+            if (Action == "RefParMethod")
+                dt = DataTableGen.RefParMethod("", "");
+
             DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dt });
             if (dsExport.Tables.Count > 0)
             {
@@ -1017,9 +1020,8 @@ namespace QREST.Controllers
             else
             {
                 TempData["Error"] = "No data found to export";
-                return RedirectToAction("RefParMethod");
+                return RedirectToAction(Action);
             }
-
         }
 
 
@@ -1102,116 +1104,7 @@ namespace QREST.Controllers
 
 
 
-        //************************************* POLLING ************************************************************
-
-        // GET: /Admin/ImportData
-        public ActionResult PollData()
-        {
-
-            //attempt #1 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^6
-            //using (Client client = new Client("68.185.0.142", 14109, new System.Threading.CancellationToken()))
-            //{
-            //    var xxx = client.IsConnected;
-            //    client.WriteLine("u" + Environment.NewLine);
-
-            //    string response = client.ReadAsync().Result;
-            //    //string response = client.TerminatedReadAsync(":", TimeSpan.FromMilliseconds(10000)).Result;
-            //}
-
-
-
-
-            ////attempt #2 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^6
-
-            ////Create a TCPClient object at the IP and port
-            //TcpClient client = new TcpClient("1.1.1.1", 14109);
-
-            //// Get a client stream for reading and writing.
-            //NetworkStream stream = client.GetStream();
-
-
-            //// Send "U" to the connected TcpServer. 
-            //Byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes("u\r\n");
-            //stream.Write(bytesToSend, 0, bytesToSend.Length);
-
-
-            ////Read back the text---
-            //byte[] bytesToRead = new byte[client.ReceiveBufferSize];
-            //int bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
-            //string responseData = System.Text.Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-
-
-            //// Send password to the connected TcpServer. 
-            //bytesToSend = System.Text.Encoding.ASCII.GetBytes("password");
-            //stream.Write(bytesToSend, 0, bytesToSend.Length);
-
-            ////Read back the text---
-            //bytesToRead = new byte[client.ReceiveBufferSize];
-            //bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
-            //responseData = System.Text.Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-
-
-            //// Send "D" to the connected TcpServer. 
-            //bytesToSend = System.Text.Encoding.ASCII.GetBytes("D"  );
-            //stream.Write(bytesToSend, 0, bytesToSend.Length);
-
-            ////Read back the text---
-            //bytesToRead = new byte[client.ReceiveBufferSize];
-            //bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
-            //responseData = System.Text.Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-
-
-            //// Close everything.
-            //stream.Close();
-            //client.Close();
-
-            //try { 
-
-            //    var fileToOpen = @"C:\Users\dougt\Downloads\hyperterminal1\hyperterminal\ttt.ht";
-            //    var myProcess = new Process();
-            //    myProcess.StartInfo = new ProcessStartInfo()
-            //    {
-            //        UseShellExecute = true,
-            //        FileName = fileToOpen
-            //    };
-
-            //    myProcess.Start();
-
-            //    if (myProcess.Responding)
-            //    {
-            //        string username = "u";
-            //        System.Windows.Forms.SendKeys.SendWait(username + "{ENTER}");
-            //        Application.DoEvents();
-            //        Thread.Sleep(5000);
-            //        string password = "";
-            //        System.Windows.Forms.SendKeys.SendWait(password + "{ENTER}");
-            //        Application.DoEvents();
-            //        Thread.Sleep(5000);
-            //        string Command = "";
-            //        System.Windows.Forms.SendKeys.SendWait(Command + "{ENTER}");
-            //        Application.DoEvents();
-            //        Thread.Sleep(5000);
-
-            //        using (var writer = new StreamWriter(@"C:\Users\dougt\Downloads\hyperterminal1\hyperterminal\data.txt"))
-            //        {
-            //            writer.Write(myProcess.StandardOutput.ReadToEnd());
-            //        }
-
-            //        myProcess.Close();
-
-            //    }
-
-            //}           
-            //catch
-            //{
-            //}
-
-
-            return View();
-        }
-
-
-
+        //************************************* TEST METHODS ************************************************************
         public ActionResult Testing()
         {
             return View();

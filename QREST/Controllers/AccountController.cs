@@ -195,9 +195,9 @@ namespace QREST.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    //if first user, initialize with ADMIN role
+                    //if first user, initialize with GLOBAL ADMIN role
                     if (UserManager.Users.Count() == 1)
-                        UserManager.AddToRole(user.Id, "ADMIN");
+                        UserManager.AddToRole(user.Id, "GLOBAL ADMIN");
 
                     // Generate secure verification link for email
                     bool succInd = await SendEmailConfirmationTokenAsync(user.Id, model.Email, "EMAIL_CONFIRM");
@@ -238,7 +238,7 @@ namespace QREST.Controllers
                                     fullUrl = "<a href='" + fullUrl + "'>" + fullUrl + "</a>";
                                     var emailParams = new Dictionary<string, string> { { "UserName", model.Email }, { "orgName", model.selOrgID }, { "siteUrl", fullUrl } };
 
-                                    List<T_QREST_USERS> _admins = db_Account.GetT_QREST_USERSInRole("ADMIN");
+                                    List<T_QREST_USERS> _admins = db_Account.GetT_QREST_USERSInRole("GLOBAL ADMIN");
                                     if (_admins != null)
                                     {
                                         foreach (T_QREST_USERS _admin in _admins)

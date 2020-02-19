@@ -84,7 +84,7 @@
                             <!--breadcrumbs -->
                             @if (ViewBag.HideCrumbs != true)
                             {
-                                <ul class="breadcrumb no-border no-radius b-b b-light pull-in">
+                                <ul class="breadcrumb no-border no-radius b-b b-light pull-in hidden-print">
                                     <li><a href="@Url.Action("Index", "Dashboard")"><i class="fa fa-home"></i> Home</a></li>
                                     <li class="active">@ViewBag.Title</li>
                                 </ul>
@@ -92,7 +92,7 @@
                             <!-- page title-->
                             @if (ViewBag.HideTitle != true)
                             {
-                                <div class="m-b-md">
+                                <div class="m-b-md hidden-print">
                                     <h3 class="m-b-none m-t-sm">@ViewBag.Title</h3>
                                     <span style="font-size:9pt; font-style:italic">@Html.Raw(ViewBag.SubTitle)</span>
                                 </div>

@@ -7,7 +7,6 @@ namespace QRESTModel.DataTableGen
 {
     public static class DataTableGen
     {
-
         public static DataTable SitesByUser(string UserIDX)
         {
             DataTable dtSites = new DataTable("Sites");

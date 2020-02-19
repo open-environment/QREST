@@ -196,6 +196,8 @@ namespace QREST.Controllers
                 model.AQS_IND = _site.AQS_IND ?? false;
                 model.AIRNOW_USR = _site.AIRNOW_USR;
                 model.AIRNOW_PWD = _site.AIRNOW_PWD;
+                model.AIRNOW_ORG = _site.AIRNOW_ORG;
+                model.AIRNOW_SITE = _site.AIRNOW_SITE;
                 model.SITE_COMMENTS = _site.SITE_COMMENTS;
             }
             else if (id != null)
@@ -245,7 +247,8 @@ namespace QREST.Controllers
 
                 Guid? SuccId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
                     model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
-                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR, model.AIRNOW_PWD, model.SITE_COMMENTS ?? "", UserIDX);
+                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR, model.AIRNOW_PWD, 
+                    model.AIRNOW_ORG, model.AIRNOW_SITE, model.SITE_COMMENTS ?? "", UserIDX);
 
                 if (SuccId != null)
                 {
@@ -337,8 +340,6 @@ namespace QREST.Controllers
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
                 try
                 {
-                    var sss = req.RequestUri;
-                    db_Ref.CreateT_QREST_SYS_LOG("", "DEBUG", sss.ToString());
                     HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
                     using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
                     {
@@ -450,7 +451,7 @@ namespace QREST.Controllers
                                     T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
                                     if (_existSite == null)
                                         db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null,
-                                            null, null, null, false, null, null, null, null, false, false, null, null, null, UserIDX);
+                                            null, null, null, false, null, null, null, null, false, false, null, null, null, null, null, UserIDX);
                                 }
                             }
                         }
@@ -661,7 +662,7 @@ namespace QREST.Controllers
 
 
         [HttpPost]
-        public ActionResult SitePollConfigDtlData()
+        public JsonResult SitePollConfigDtlData()
         {
             var id = Request.Form.GetValues("pollid")?.FirstOrDefault();
             if (id != null)
@@ -669,7 +670,6 @@ namespace QREST.Controllers
                 Guid idg = new Guid(id);
                 var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
                 var data = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(idg);
-
                 return Json(new { draw, recordsFiltered = 100, recordsTotal = 100, data = data });
             }
             else
@@ -678,7 +678,7 @@ namespace QREST.Controllers
 
 
         [HttpPost, ValidateAntiForgeryToken]
-        public JsonResult SitePollConfigDtlEdit(Guid? configid, Guid? configdtlid, Guid? monid, int? col, string sumtype, int? rounding)
+        public JsonResult SitePollConfigDtlEdit(Guid? configid, Guid? configdtlid, Guid? monid, int? col, string sumtype, int? rounding, double? adjustfactor)
         {
             if (configid != null && monid != null && col != null)
             {
@@ -693,7 +693,7 @@ namespace QREST.Controllers
                         RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _site.ORG_ID, true);
                         if (r != null) return Json(new { msg = "Access Denied" });
 
-                        Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(configdtlid, configid, monid, col, sumtype, rounding);
+                        Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(configdtlid, configid, monid, col, sumtype, rounding, adjustfactor);
                         if (SuccID != null)
                             return Json(new { msg = "Success" });
 
@@ -1314,7 +1314,5 @@ namespace QREST.Controllers
                 return null;
         }
 
-
     }
-
 }

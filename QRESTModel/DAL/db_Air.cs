@@ -36,6 +36,8 @@ namespace QRESTModel.DAL
         public DateTime? POLLING_NEXT_RUN_DT { get; set; }
         public List<SitePollingConfigDetailType> PollingConfigDetails { get; set; }
         public List<string> NotifyUsers { get; set; }
+        public bool? AIRNOW_IND { get; set; }
+        public string ConnectivityStatus { get; set; }
     }
 
     public class SitePollingConfigDetailType
@@ -50,6 +52,7 @@ namespace QRESTModel.DAL
         public double? ALERT_MAX_VALUE { get; set; }
         public string ALERT_MIN_TYPE { get; set; }
         public string ALERT_MAX_TYPE { get; set; }
+        public double? ADJUST_FACTOR { get; set; }
     }
 
 
@@ -93,6 +96,7 @@ namespace QRESTModel.DAL
         public int? COL { get; set; }
         public string SUM_TYPE { get; set; }
         public int? ROUNDING { get; set; }
+        public double? ADJUST_FACTOR { get; set; }
 
         public string PAR_CODE { get; set; }
         public string PAR_NAME { get; set; }
@@ -370,7 +374,7 @@ namespace QRESTModel.DAL
         public static Guid? InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, string sTATE, string cOUNTY, 
             decimal? lATITUDE, decimal? lONGITUDE, string eLEVATION, string aDDRESS, string cITY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, 
             bool? pOLLING_ONLINE_IND, string pOLLING_FREQ_TYPE, int? pOLLING_FREQ_NUM, DateTime? pOLLING_LAST_RUN_DT, DateTime? pOLLING_NEXT_RUN_DT, bool? aIRNOW_IND, bool? aQS_IND,
-            string aIRNOW_USR, string aIRNOW_PWD, string sITE_COMMENTS, string cREATE_USER)
+            string aIRNOW_USR, string aIRNOW_PWD, string aIRNOW_ORG, string aIRNOW_SITE, string sITE_COMMENTS, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -422,6 +426,8 @@ namespace QRESTModel.DAL
                     if (aQS_IND != null) e.AQS_IND = aQS_IND;
                     if (aIRNOW_USR != null) e.AIRNOW_USR = aIRNOW_USR;
                     if (aIRNOW_PWD != null) e.AIRNOW_PWD = aIRNOW_PWD;
+                    if (aIRNOW_ORG != null) e.AIRNOW_ORG = aIRNOW_ORG;
+                    if (aIRNOW_SITE != null) e.AIRNOW_SITE = aIRNOW_SITE;
                     if (sITE_COMMENTS != null) e.SITE_COMMENTS = sITE_COMMENTS;
 
                     if (insInd)
@@ -674,11 +680,8 @@ namespace QRESTModel.DAL
                 {
                     var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
                                join b in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
-                               where //a.POLLING_ONLINE_IND == true && 
+                               where 
                                b.ACT_IND == true
-                               && b.DATE_COL != null
-                               && b.TIME_COL != null
-                               && b.DELIMITER != ""
                                orderby a.ORG_ID, a.SITE_ID
                                select new SitePollingConfigType
                                {
@@ -686,6 +689,7 @@ namespace QRESTModel.DAL
                                    SITE_ID = a.SITE_ID,
                                    ORG_ID = a.ORG_ID,
                                    POLLING_ONLINE_IND = a.POLLING_ONLINE_IND,
+                                   AIRNOW_IND = a.AIRNOW_IND,
                                    POLLING_FREQ_TYPE = a.POLLING_FREQ_TYPE,
                                    POLLING_FREQ_NUM = a.POLLING_FREQ_NUM,
                                    POLL_CONFIG_IDX = b.POLL_CONFIG_IDX,
@@ -724,6 +728,11 @@ namespace QRESTModel.DAL
                                                   where a2.SITE_IDX == a.SITE_IDX
                                                   select b2.FNAME + " " + b2.LNAME).ToList()
                                }).ToList();
+
+                    
+                    xxx.Where(w => w.DELIMITER == "").ToList().ForEach(i => i.ConnectivityStatus = "No delimiter");
+                    xxx.Where(w => w.DATE_COL == null).ToList().ForEach(i => i.ConnectivityStatus = "No date column");
+                    xxx.Where(w => w.TIME_COL == null).ToList().ForEach(i => i.ConnectivityStatus = "No time column");
 
                     return xxx;
                 }
@@ -903,7 +912,8 @@ namespace QRESTModel.DAL
                                 ALERT_MIN_TYPE = b.ALERT_MIN_TYPE,
                                 ALERT_MIN_VALUE = b.ALERT_MIN_VALUE,
                                 ALERT_MAX_TYPE = b.ALERT_MAX_TYPE,
-                                ALERT_MAX_VALUE = b.ALERT_MAX_VALUE
+                                ALERT_MAX_VALUE = b.ALERT_MAX_VALUE,
+                                ADJUST_FACTOR = a.ADJUST_FACTOR ?? 1
                             }).ToList();
 
                 }
@@ -933,6 +943,7 @@ namespace QRESTModel.DAL
                                 COL = a.COL,
                                 SUM_TYPE = a.SUM_TYPE,
                                 ROUNDING = a.ROUNDING,
+                                ADJUST_FACTOR = a.ADJUST_FACTOR,
                                 MONITOR_IDX = a.MONITOR_IDX,
                                 PAR_CODE = c.PAR_CODE,
                                 PAR_NAME = d.PAR_NAME,
@@ -949,7 +960,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(Guid? pOLL_CONFIG_DTL_IDX, Guid? pOLL_CONFIG_IDX, Guid? mONITOR_IDX, int? cOL, string sUM_TYPE, int? rOUNDING)
+        public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(Guid? pOLL_CONFIG_DTL_IDX, Guid? pOLL_CONFIG_IDX, Guid? mONITOR_IDX, int? cOL, string sUM_TYPE, int? rOUNDING, double? aDJUST_FACTOR)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -957,7 +968,7 @@ namespace QRESTModel.DAL
                 {
                     bool insInd = false;
 
-                    T_QREST_SITE_POLL_CONFIG_DTL e = (from c in ctx.T_QREST_SITE_POLL_CONFIG_DTL.AsNoTracking()
+                    T_QREST_SITE_POLL_CONFIG_DTL e = (from c in ctx.T_QREST_SITE_POLL_CONFIG_DTL
                                                       where c.POLL_CONFIG_DTL_IDX == pOLL_CONFIG_DTL_IDX
                                                       select c).FirstOrDefault();
 
@@ -980,6 +991,7 @@ namespace QRESTModel.DAL
                     if (cOL != null) e.COL = cOL;
                     if (sUM_TYPE != null) e.SUM_TYPE = sUM_TYPE;
                     if (rOUNDING != null) e.ROUNDING = rOUNDING;
+                    if (aDJUST_FACTOR != null) e.ADJUST_FACTOR = aDJUST_FACTOR;
 
                     if (insInd)
                         ctx.T_QREST_SITE_POLL_CONFIG_DTL.Add(e);
@@ -1520,7 +1532,7 @@ namespace QRESTModel.DAL
 
 
         //*****************FIVE MIN**********************************
-        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT)
+        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT, double? aDJUST_FACTOR)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1538,6 +1550,10 @@ namespace QRESTModel.DAL
                         e.MONITOR_IDX = mONITOR_IDX;
                         e.DATA_DTTM = dATA_DTTM;
                         e.DATA_VALUE = dATA_VALUE;
+
+                        if (double.TryParse(dATA_VALUE, out double n))
+                            e.DATA_VALUE = (n * aDJUST_FACTOR).ToString();
+
                         e.UNIT_CODE = uNIT_CODE;
                         e.VAL_IND = vAL_IND ?? false;
                         e.VAL_CD = vAL_CD;
@@ -1548,6 +1564,10 @@ namespace QRESTModel.DAL
                     else if (e.DATA_VALUE != dATA_VALUE)
                     {
                         e.DATA_VALUE = dATA_VALUE;
+
+                        if (double.TryParse(dATA_VALUE, out double n))
+                            e.DATA_VALUE = (n * aDJUST_FACTOR).ToString();
+
                         if (vAL_IND != null) e.VAL_IND = vAL_IND;
                         if (vAL_CD != null) e.VAL_CD = vAL_CD;
                         e.MODIFY_DT = mODIFY_DT ?? System.DateTime.Now;
@@ -1566,7 +1586,7 @@ namespace QRESTModel.DAL
 
         public static ImportResponse ImportT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT)
         {
-            Guid? SuccID = db_Air.InsertT_QREST_DATA_FIVE_MIN(mONITOR_IDX, dATA_DTTM, dATA_VALUE, uNIT_CODE, vAL_IND, vAL_CD, mODIFY_DT);
+            Guid? SuccID = db_Air.InsertT_QREST_DATA_FIVE_MIN(mONITOR_IDX, dATA_DTTM, dATA_VALUE, uNIT_CODE, vAL_IND, vAL_CD, mODIFY_DT, 1);
 
             return new ImportResponse
             {
@@ -1609,7 +1629,7 @@ namespace QRESTModel.DAL
                             if (val != null && _map.ALERT_MIN_TYPE == "N" && val > _map.ALERT_MIN_VALUE)
                                 valCd = "MIN";
 
-                            db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd, null);
+                            db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd, null, _map.ADJUST_FACTOR);
                         }
                     }
                 }

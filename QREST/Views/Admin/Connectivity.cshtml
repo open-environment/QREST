@@ -12,7 +12,7 @@
             <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Status</th>
+                        <th>Polling Status</th>
                         <th>Org</th>
                         <th>Site</th>
                         <th>Logger Type</th>
@@ -23,6 +23,7 @@
                         <th>Next Run</th>
                         <th>Polled Parameters (Column/Par Code)</th>
                         <th>Notifications</th>
+                        <th>AirNow / Public Website</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,11 +34,17 @@
                             @if (item.POLLING_ONLINE_IND == true)
                             {
                                 <span class="label label-success">Active</span>
+                                if (item.ConnectivityStatus != null)
+                                {
+                                    <span class="label label-warning">Polling Configuration Error: @Html.DisplayFor(modelItem => item.ConnectivityStatus)</span>
+                                }
+
                             }
                             else
                             {
                                 <span class="label label-danger">Inactive</span>
                             }
+
                         </td>
                         <td>
                             @Html.HiddenFor(modelItem => item.POLL_CONFIG_IDX)
@@ -76,6 +83,16 @@
                             {
                                 <span>@Html.DisplayFor(modelItem => dtl2)</span>
                                 <br />
+                            }
+                        </td>
+                        <td>
+                            @if (item.AIRNOW_IND == true)
+                            {
+                                <span class="label label-success">Enabled</span>
+                            }
+                            else
+                            {
+                                <span class="label label-danger">Disabled</span>
                             }
                         </td>
                     </tr>

@@ -106,25 +106,11 @@
                                     <span class="title">Data Export</span>
                                 </a>
                             </li>
-                            <li class="@Html.ActivePage("Reports", "AQS")">
-                                <a href="@Url.Action("AQS", "Reports")">
-                                    <i class="fa fa-angle-right"></i>
-                                    <span class="title">AQS Reporting</span>
-                                </a>
-                            </li>
-                            @if (User.IsInRole("ADMIN"))
-                            {
-                                <li class="@Html.ActivePage("Admin", "Connectivity")">
-                                    <a href="@Url.Action("Connectivity", "Admin")">
-                                        <i class="fa fa-angle-right"></i>
-                                        <span class="title">Connectivity</span>
-                                    </a>
-                                </li>
-                            }
+
                         </ul>
                     </li>
 
-                    @if (User.IsInRole("ADMIN"))
+                    @if (User.IsInRole("GLOBAL ADMIN"))
                     {
                         <li class="leftmenuhead">
                             <a href="#pages">
@@ -185,6 +171,18 @@
                                         <i class="fa fa-angle-right"></i>
                                         <span class="title">Logging</span>
                                     </a>
+                                </li>
+
+                                <li class="@Html.ActivePage("Admin", "Connectivity")">
+                                    <a href="#table"> <i class="fa fa-angle-down text"></i> <i class="fa fa-angle-up text-active"></i> <span>Reports</span> </a>
+                                    <ul class="nav bg">
+                                        <li class="@Html.ActivePage("Admin", "Connectivity")">
+                                            <a href="@Url.Action("Connectivity", "Admin")">
+                                                <i class="fa fa-angle-right"></i>
+                                                <span class="title">Connectivity</span>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </li>
 
                             </ul>

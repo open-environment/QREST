@@ -18,5 +18,6 @@ namespace QREST.Controllers
 
             return PartialView(model);
         }
+
     }
 }

@@ -100,6 +100,8 @@ namespace QREST.Models
         public bool AQS_IND { get; set; }
         public string AIRNOW_USR { get; set; }
         public string AIRNOW_PWD { get; set; }
+        public string AIRNOW_ORG { get; set; }
+        public string AIRNOW_SITE { get; set; }
         public string SITE_COMMENTS { get; set; }
 
 
@@ -183,6 +185,7 @@ namespace QREST.Models
         public Guid? editMONITOR_IDX { get; set; }
         public string editSUM_TYPE { get; set; }
         public int? editROUNDING { get; set; }
+        public double? editADJUST_FACTOR { get; set; }
 
         public IEnumerable<SelectListItem> ddl_LoggerDate { get; set; }
         public IEnumerable<SelectListItem> ddl_LoggerTime { get; set; }

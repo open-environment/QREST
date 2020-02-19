@@ -54,6 +54,8 @@ namespace QRESTModel.DAL
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
         public string AIRNOW_USR { get; set; }
         public string AIRNOW_PWD { get; set; }
+        public string AIRNOW_ORG { get; set; }
+        public string AIRNOW_SITE { get; set; }
     
         public virtual T_QREST_ORGANIZATIONS T_QREST_ORGANIZATIONS { get; set; }
         public virtual T_QREST_REF_COUNTY T_QREST_REF_COUNTY { get; set; }

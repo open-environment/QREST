@@ -115,7 +115,7 @@ namespace QRESTServiceCatalog
                     nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
 
                 db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                    System.DateTime.Now, nextrun, null, null, null, null, null, null);
+                    System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null);
 
                 return true;
             }

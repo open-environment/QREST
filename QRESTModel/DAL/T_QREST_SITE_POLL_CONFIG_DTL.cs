@@ -20,6 +20,7 @@ namespace QRESTModel.DAL
         public Nullable<int> COL { get; set; }
         public string SUM_TYPE { get; set; }
         public Nullable<int> ROUNDING { get; set; }
+        public Nullable<double> ADJUST_FACTOR { get; set; }
     
         public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
         public virtual T_QREST_SITE_POLL_CONFIG T_QREST_SITE_POLL_CONFIG { get; set; }

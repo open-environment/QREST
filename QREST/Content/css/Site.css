@@ -166,14 +166,17 @@
     background-color: #d2d2d2;
 }
 
-/* tables: compress */
+/*****CONDENSED TABLE ******/
 .panel .table td {
     padding: 4px 12px;
 }
 
-
 .panel .table th {
     padding: 12px 12px;
+}
+
+.panel .table-tiny td, .table-tiny th {
+    padding: 2px 6px;
 }
 
 .help-block {
@@ -381,6 +384,8 @@ table.dataTable.no-footer {
 .celldk {
     background-color: #f3f4fff9 !important;
 }
+
+
 
 /*****DISPLAY AIR DATA ******/
 .max {

@@ -250,7 +250,7 @@
                                                         </table>
                                                     </div>
                                                 </div>
-                                                <a type="button" id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-sm btn-primary  modal-it"><i class="fa fa-plus"></i> Add</a>
+                                                <a type="button" id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-sm btn-primary modal-it"><i class="fa fa-plus"></i> Add</a>
                                             </div>
                                         </div>
 
@@ -291,37 +291,46 @@
                 </button>
             </div>
             @Html.HiddenFor(model => model.editPOLL_CONFIG_DTL_IDX)
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Monitor</label>
-                            @Html.DropDownListFor(model => model.editMONITOR_IDX, Model.ddl_Monitors, "", new { @class = "form-control" })
-                            <span class="field-validation-valid" data-valmsg-for="editMONITOR_IDX" data-valmsg-replace="true"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Column</label>
-                            @Html.TextBoxFor(model => model.editCOL, new { @class = "form-control", @maxlength = "2" })
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Summary Type</label>
-                            @Html.DropDownListFor(model => model.editSUM_TYPE, Model.ddl_SumType, "", new { @class = "form-control" })
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Rounding Decimals</label>
-                            @Html.DropDownListFor(model => model.editROUNDING, Model.ddl_Rounding, "", new { @class = "form-control" })
-                        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Monitor</label>
+                        @Html.DropDownListFor(model => model.editMONITOR_IDX, Model.ddl_Monitors, "", new { @class = "form-control" })
+                        <span class="field-validation-valid" data-valmsg-for="editMONITOR_IDX" data-valmsg-replace="true"></span>
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Column</label>
+                        @Html.TextBoxFor(model => model.editCOL, new { @class = "form-control", @maxlength = "2" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Summary Type</label>
+                        @Html.DropDownListFor(model => model.editSUM_TYPE, Model.ddl_SumType, "", new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Rounding Decimals</label>
+                        @Html.DropDownListFor(model => model.editROUNDING, Model.ddl_Rounding, "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-xs btn-warning btn-rounded m-l-xs" data-toggle="collapse" data-target="#advanced">Advanced Options</button>
+            <div id="advanced" class="row collapse">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Adjustment Factor</label>
+                        @Html.TextBoxFor(model => model.editADJUST_FACTOR, new { @class = "form-control", @maxlength = "10" })
+                    </div>
+                </div>
+            </div>
+        </div>
             <div class="modal-footer">
                 <button id="btnSaveDtl" type="submit" class="btn btn-primary">Save</button>
                 <button class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -370,7 +379,7 @@
                     { "data": "POLL_CONFIG_DTL_IDX", "name": "POLL_CONFIG_DTL_IDX", "autoWidth": true },
                     {
                         "render": function (data, type, row) {
-                            return '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum=' + row.SUM_TYPE + ' data-monid=' + row.MONITOR_IDX + ' data-rounding=' + row.ROUNDING + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
+                            return '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum=' + row.SUM_TYPE + ' data-monid=' + row.MONITOR_IDX + ' data-rounding=' + row.ROUNDING + ' data-adjust=' + row.ADJUST_FACTOR + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
                                                             + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
                                                             + row.POLL_CONFIG_DTL_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Site/SitePollConfigDtlDelete"><b>Confirm Delete</b></div></div>';
                         }
@@ -418,8 +427,13 @@
                 $("#editSUM_TYPE").val($(this).attr('data-sum'));
                 $("#editROUNDING").val($(this).attr('data-rounding'));
                 $("#editMONITOR_IDX").val($(this).attr('data-monid'));
+                if ($(this).attr('data-adjust'))
+                    $("#editADJUST_FACTOR").val(($(this).attr('data-adjust')).replace('null', ''));
+                else
+                    $("#editADJUST_FACTOR").val('');
             });
 
+            
 
             //******************submit modal*******************
             $("#modal-form").submit(function (e) {
@@ -432,7 +446,8 @@
                         monid: $("#editMONITOR_IDX").val(),
                         col: $("#editCOL").val(),
                         sumtype: $("#editSUM_TYPE").val(),
-                        rounding: $("#editROUNDING").val()
+                        rounding: $("#editROUNDING").val(),
+                        adjustfactor: $("#editADJUST_FACTOR").val()
                     }))
                     .done(function (response) {
                         if (response.msg == "Success") {

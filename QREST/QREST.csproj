@@ -601,7 +601,6 @@
     <Content Include="Views\Home\Help.cshtml" />
     <Content Include="Views\Admin\HelpConfig.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
-    <Content Include="Views\Admin\PollData.cshtml" />
     <Content Include="Views\Site\SitePollConfig.cshtml" />
     <Content Include="Views\Account\Notifications.cshtml" />
     <Content Include="Views\Shared\_PartialHeadNotification.cshtml" />

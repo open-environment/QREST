@@ -34,4 +34,4 @@ We are always open to [your feedback](https://github.com/open-environment/QREST/
 ## BrowserStack
 QREST uses Browserstack to perform automated application testing on the latest deployed solution to the test environment.
 
-[![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=K3ozNXFIK2xHZFVLWDN5cVJXcnFpWXpLYTNMZitNdWlCbTl1NWphYW1GRT0tLUs2YjNXZXhTMWVReDcxeUV0VDdoeFE9PQ==--6554cf0e5dc36ed6bb43475ac0d9f3e1b71143c3)](https://automate.browserstack.com/public-build/K3ozNXFIK2xHZFVLWDN5cVJXcnFpWXpLYTNMZitNdWlCbTl1NWphYW1GRT0tLUs2YjNXZXhTMWVReDcxeUV0VDdoeFE9PQ==--6554cf0e5dc36ed6bb43475ac0d9f3e1b71143c3)
+[![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=Sm5jWFJqcDVkZEZMUE9WVUw2TzJ5cTBYS1FHZVRrRWFvNDVPOUdLSERtRT0tLW0zeC9jS1NML3plV0s2MmpsOWg5RGc9PQ==--c20c975e4629edd13e4548bed839e172bd1a8238)](https://automate.browserstack.com/public-build/Sm5jWFJqcDVkZEZMUE9WVUw2TzJ5cTBYS1FHZVRrRWFvNDVPOUdLSERtRT0tLW0zeC9jS1NML3plV0s2MmpsOWg5RGc9PQ==--c20c975e4629edd13e4548bed839e172bd1a8238)

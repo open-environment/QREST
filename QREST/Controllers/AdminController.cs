@@ -145,7 +145,8 @@ namespace QREST.Controllers
         // GET: /Admin/EmailConfig
         public ActionResult EmailConfig(int? id)
         {
-            var model = new vmAdminEmailConfig {
+            var model = new vmAdminEmailConfig
+            {
                 T_QREST_EMAIL_TEMPLATE = db_Ref.GetT_QREST_EMAIL_TEMPLATE()
             };
 
@@ -368,7 +369,25 @@ namespace QREST.Controllers
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
 
+        [HttpPost]
+        public ContentResult ImagePosted(HttpPostedFileBase imageFile)
+        {
+            var jsonString = "";
+            if (Request.Files.Count > 0)
+            {
+                imageFile = Request.Files[0];
+                int fileSize = imageFile.ContentLength;
+                string fileName = imageFile.FileName;
+                string mimeType = imageFile.ContentType;
+                System.IO.Stream fileContent = imageFile.InputStream;
+                //To save file, use SaveAs method
+                string filePath = Server.MapPath("~/tinymceimg/") + fileName;
+                imageFile.SaveAs(filePath);
+                jsonString = String.Format("{{\"location\":\"{0}\"}}", "/tinymceimg/" + fileName);
+            }
+            return Content(jsonString);
 
+        }
         [HttpPost]
         public async Task<JsonResult> UserDelete(string id)
         {
@@ -502,7 +521,7 @@ namespace QREST.Controllers
             {
                 string UserIDX = User.Identity.GetUserId();
 
-                bool SuccInd =  db_Ref.UpdateT_QREST_TASKS(model.EditTask.TASK_IDX, model.EditTask.FREQ_TYPE, model.EditTask.FREQ_NUM,
+                bool SuccInd = db_Ref.UpdateT_QREST_TASKS(model.EditTask.TASK_IDX, model.EditTask.FREQ_TYPE, model.EditTask.FREQ_NUM,
                     model.EditTask.LAST_RUN_DT, model.EditTask.NEXT_RUN_DT, model.EditTask.STATUS, UserIDX);
 
                 if (SuccInd)
@@ -517,7 +536,7 @@ namespace QREST.Controllers
 
         public ActionResult TaskStop(int? id)
         {
-            bool SuccInd = db_Ref.UpdateT_QREST_TASKS_SetStopped(id??-1);
+            bool SuccInd = db_Ref.UpdateT_QREST_TASKS_SetStopped(id ?? -1);
 
             if (SuccInd)
                 TempData["Success"] = "Task Stopped.";
@@ -852,7 +871,8 @@ namespace QREST.Controllers
 
         //************************************* REF DATA ************************************************************
         // GET: /Admin/RefData
-        public ActionResult RefCollFreq() {
+        public ActionResult RefCollFreq()
+        {
             return View();
         }
 

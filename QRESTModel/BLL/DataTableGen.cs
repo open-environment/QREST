@@ -295,7 +295,7 @@ namespace QRESTModel.DataTableGen
         public static DataTable GetPollingConfig(string UserIDX)
         {
             DataTable pollingConfig = new DataTable("Polling_Config");
-            pollingConfig.Columns.AddRange(new DataColumn[17] {
+            pollingConfig.Columns.AddRange(new DataColumn[18] {
                 new DataColumn("POLL_CONFIG_IDX"),
                 new DataColumn("SITE_IDX"),
                 new DataColumn("CONFIG_NAME"),
@@ -304,7 +304,6 @@ namespace QRESTModel.DataTableGen
                 new DataColumn("LOGGER_SOURCE"),
                 new DataColumn("LOGGER_PORT"),
                 new DataColumn("LOGGER_USERNAME"),
-                new DataColumn("LOGGER_PASSWORD"),
                 new DataColumn("DELIMITER"),
                 new DataColumn("DATE_COL"),
                 new DataColumn("DATE_FORMAT"),
@@ -312,7 +311,9 @@ namespace QRESTModel.DataTableGen
                 new DataColumn("TIME_FORMAT"),
                 new DataColumn("LOCAL_TIMEZONE"),
                 new DataColumn("TIME_POLL_TYPE"),
-                new DataColumn("ACT_IND")
+                new DataColumn("ACT_IND"),
+                new DataColumn("ORG_ID"),
+                new DataColumn("SITE_ID")
                 });
 
             List<SitePollingConfigTypeExtended> _sitePollingConfigTypes = db_Air.GetT_QREST_SITES_POLLING_CONFIG_List(UserIDX);
@@ -328,7 +329,6 @@ namespace QRESTModel.DataTableGen
                         _sitePollingConfigType.LOGGER_SOURCE,
                         _sitePollingConfigType.LOGGER_PORT,
                         _sitePollingConfigType.LOGGER_USERNAME,
-                        _sitePollingConfigType.LOGGER_PASSWORD,
                         _sitePollingConfigType.DELIMITER,
                         _sitePollingConfigType.DATE_COL,
                         _sitePollingConfigType.DATE_FORMAT,
@@ -336,7 +336,9 @@ namespace QRESTModel.DataTableGen
                         _sitePollingConfigType.TIME_FORMAT,
                         _sitePollingConfigType.LOCAL_TIMEZONE,
                         _sitePollingConfigType.TIME_POLL_TYPE,
-                        _sitePollingConfigType.ACT_IND);
+                        _sitePollingConfigType.ACT_IND,
+                        _sitePollingConfigType.ORG_ID,
+                        _sitePollingConfigType.SITE_ID);
                 }
             }
 

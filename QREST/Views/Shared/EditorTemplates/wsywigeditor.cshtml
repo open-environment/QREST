@@ -1,29 +1,107 @@
 ﻿<script src="@Url.Content("~/scripts/tinymce/tinymce.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/tinymce/plugins/image/plugin.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/tinymce/plugins/imagetools/plugin.js")" type="text/javascript"></script>
 <script type="text/javascript">
 
     tinymce.init({
         selector: "textarea.rte",
+        image_title: true,
+        automatic_uploads: true,
         browser_spellcheck: true,
+        file_picker_types: 'image',
         branding: false,
         relative_urls: false,
         convert_urls: false,
-        plugins: [ "link lists hr code wordcount table"],
+        plugins: ["link lists hr code wordcount table image imagetools"],
         //plugins: [
         //    "autosave image anchor forumimageinsert",
         //    "visualblocks visualchars code fullscreen media nonbreaking"
         //],
-        toolbar1: "bold italic underline strikethrough bullist hr | link unlink code blockquote | formatselect | table",
+        toolbar1: "bold italic underline strikethrough bullist hr | link unlink code blockquote | formatselect | table image",
         remove_linebreaks: false,
         relative_urls: false,
         menubar: false,
         toolbar_items_size: 'small',
-       // content_css: app_base + "content/tinymce.css",
+        // content_css: app_base + "content/tinymce.css",
         height: 300,
-        nonbreaking_force_tab: true
+        nonbreaking_force_tab: true,
+        images_upload_handler: function (blobInfo, success, failure) {
+            var xhr, formData;
+            xhr = new XMLHttpRequest();
+            xhr.withCredentials = false;
+            xhr.open('POST', '@Url.Action("ImagePosted", "Admin")');
+            xhr.onload = function () {
+                var json;
+
+                if (xhr.status != 200) {
+                    failure('HTTP Error: ' + xhr.status);
+                    return;
+                }
+                json = JSON.parse(xhr.responseText);
+
+                if (!json || typeof json.location != 'string') {
+                    failure('Invalid JSON: ' + xhr.responseText);
+                    return;
+                }
+                success(json.location);
+            };
+            formData = new FormData();
+            var fileName;
+            if (typeof (blobInfo.blob().name) !== undefined)
+                fileName = blobInfo.blob().name;
+            else
+                fileName = blobInfo.filename();
+            formData.append('file', blobInfo.blob(), fileName);
+            xhr.send(formData);
+        }
+
     });
-
 </script>
+<script>
+    //======================================================
+    // Keep this code for reference
+    //======================================================
 
+    //images_upload_url: "@Url.Action("ImagePosted", "Admin")",
+
+    //file_picker_callback: function (cb, value, meta) {
+        //    var input = document.createElement('input');
+        //    input.setAttribute('type', 'file');
+        //    input.setAttribute('accept', 'image/*');
+
+        //    /*
+        //      Note: In modern browsers input[type="file"] is functional without
+        //      even adding it to the DOM, but that might not be the case in some older
+        //      or quirky browsers like IE, so you might want to add it to the DOM
+        //      just in case, and visually hide it. And do not forget do remove it
+        //      once you do not need it anymore.
+        //    */
+
+        //    input.onchange = function () {
+        //        var file = this.files[0];
+
+        //        var reader = new FileReader();
+        //        reader.onload = function () {
+        //            /*
+        //              Note: Now we need to register the blob in TinyMCEs image blob
+        //              registry. In the next release this part hopefully won't be
+        //              necessary, as we are looking to handle it internally.
+        //            */
+        //            var id = 'blobid' + (new Date()).getTime();
+        //            var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+        //            var base64 = reader.result.split(',')[1];
+        //            var blobInfo = blobCache.create(id, file, base64);
+        //            blobCache.add(blobInfo);
+
+        //            /* call the callback and populate the Title field with the file name */
+        //            cb(blobInfo.blobUri(), { title: file.name });
+        //        };
+        //        reader.readAsDataURL(file);
+        //    };
+
+        //    input.click();
+        //},
+</script>
 <div class="tinymceholder">
     @Html.TextArea(string.Empty, new { @class = "rte" })
 </div>

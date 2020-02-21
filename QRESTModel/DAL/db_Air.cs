@@ -6,13 +6,15 @@ using QRESTModel.BLL;
 
 namespace QRESTModel.DAL
 {
-    public class SiteDisplay {
+    public class SiteDisplay
+    {
         public T_QREST_SITES T_QREST_SITES { get; set; }
         public string ORG_NAME { get; set; }
         public List<RawDataDisplay> LatestData { get; set; }
     }
 
-    public class SitePollingConfigType {
+    public class SitePollingConfigType
+    {
         public Guid SITE_IDX { get; set; }
         public string SITE_ID { get; set; }
         public string ORG_ID { get; set; }
@@ -39,12 +41,20 @@ namespace QRESTModel.DAL
     }
     public class SitePollingConfigTypeExtended : SitePollingConfigType
     {
+        public SitePollingConfigTypeExtended()
+        {
+
+        }
         public string CONFIG_NAME { get; set; }
         public string LOGGER_USERNAME { get; set; }
         public bool ACT_IND { get; set; }
     }
     public class SitePollingConfigDetailType
     {
+        public SitePollingConfigDetailType()
+        {
+
+        }
         public Guid POLL_CONFIG_DTL_IDX { get; set; }
         public Guid POLL_CONFIG_IDX { get; set; }
         public Guid MONITOR_IDX { get; set; }
@@ -55,14 +65,18 @@ namespace QRESTModel.DAL
         public double? ALERT_MAX_VALUE { get; set; }
         public string ALERT_MIN_TYPE { get; set; }
         public string ALERT_MAX_TYPE { get; set; }
-        
+
     }
     public class SitePollingConfigDetailTypeExtended : SitePollingConfigDetailType
     {
+        public SitePollingConfigDetailTypeExtended()
+        {
+
+        }
         public string SUM_TYPE { get; set; }
         public int? ROUNDING { get; set; }
-        public Guid ORG_ID { get; set; }
-        public Guid SITE_ID { get; set; }
+        public String ORG_ID { get; set; }
+        public String SITE_ID { get; set; }
     }
 
     public class SiteMonitorDisplayType
@@ -211,12 +225,12 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from a in ctx.T_QREST_SITES.AsNoTracking()
-                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
-                               where u.USER_IDX == UserIDX
-                               && u.STATUS_IND == "A"
-                               && (OrgID != null ? a.ORG_ID == OrgID : true)
-                               orderby a.SITE_ID
-                               select a).Count();
+                            join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
+                            where u.USER_IDX == UserIDX
+                            && u.STATUS_IND == "A"
+                            && (OrgID != null ? a.ORG_ID == OrgID : true)
+                            orderby a.SITE_ID
+                            select a).Count();
                 }
                 catch (Exception ex)
                 {
@@ -264,7 +278,8 @@ namespace QRESTModel.DAL
                                join b in ctx.T_QREST_ORGANIZATIONS.AsNoTracking() on a.ORG_ID equals b.ORG_ID
                                where a.AIRNOW_IND == true
                                orderby a.ORG_ID, a.SITE_ID
-                               select new SiteDisplay { 
+                               select new SiteDisplay
+                               {
                                    T_QREST_SITES = a,
                                    ORG_NAME = b.ORG_NAME
                                }).ToList();
@@ -346,7 +361,7 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from a in ctx.T_QREST_SITES.AsNoTracking()
-                            where a.POLLING_ONLINE_IND == true 
+                            where a.POLLING_ONLINE_IND == true
                             && (a.POLLING_NEXT_RUN_DT < System.DateTime.Now || a.POLLING_NEXT_RUN_DT == null)
                             orderby a.SITE_ID
                             select a).ToList();
@@ -379,8 +394,8 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Guid? InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, string sTATE, string cOUNTY, 
-            decimal? lATITUDE, decimal? lONGITUDE, string eLEVATION, string aDDRESS, string cITY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT, 
+        public static Guid? InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, string sTATE, string cOUNTY,
+            decimal? lATITUDE, decimal? lONGITUDE, string eLEVATION, string aDDRESS, string cITY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT,
             bool? pOLLING_ONLINE_IND, string pOLLING_FREQ_TYPE, int? pOLLING_FREQ_NUM, DateTime? pOLLING_LAST_RUN_DT, DateTime? pOLLING_NEXT_RUN_DT, bool? aIRNOW_IND, bool? aQS_IND,
             string aIRNOW_USR, string aIRNOW_PWD, string sITE_COMMENTS, string cREATE_USER)
         {
@@ -490,7 +505,8 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_SITE_NOTIFY.AsNoTracking()
                             join u in ctx.T_QREST_USERS on a.NOTIFY_USER_IDX equals u.USER_IDX
                             where a.SITE_IDX == SiteIDX
-                            select new SiteNotifyDisplay {
+                            select new SiteNotifyDisplay
+                            {
                                 T_QREST_SITE_NOTIFY = a,
                                 UserName = u.FNAME + " " + u.LNAME
                             }).ToList();
@@ -600,8 +616,8 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from a in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking()
-                               where a.POLL_CONFIG_IDX == PollConfigIDX
-                               select a).FirstOrDefault();
+                            where a.POLL_CONFIG_IDX == PollConfigIDX
+                            select a).FirstOrDefault();
 
                 }
                 catch (Exception ex)
@@ -619,9 +635,9 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from a in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking()
-                               where a.SITE_IDX == SiteIDX
-                               && (OnlyActInd == true ? a.ACT_IND == true : true)
-                               select a).ToList();
+                            where a.SITE_IDX == SiteIDX
+                            && (OnlyActInd == true ? a.ACT_IND == true : true)
+                            select a).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -836,7 +852,7 @@ namespace QRESTModel.DAL
 
                     if (cREATE_USER != null) e.MODIFY_USER_IDX = cREATE_USER;
                     e.ACT_IND = aCT_IND;
-                    
+
 
                     if (insInd)
                         ctx.T_QREST_SITE_POLL_CONFIG.Add(e);
@@ -894,7 +910,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        
+
         public static List<SitePollingConfigTypeExtended> GetT_QREST_SITES_POLLING_CONFIG_List(string USER_IDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -960,9 +976,9 @@ namespace QRESTModel.DAL
                                 MONITOR_IDX = c.MONITOR_IDX,
                                 COL = c.COL,
                                 SUM_TYPE = c.SUM_TYPE,
-                                ROUNDING = Convert.ToInt32(c.ROUNDING),
-                                ORG_ID = new Guid(a.ORG_ID),
-                                SITE_ID = new Guid(a.SITE_ID)
+                                ROUNDING = c.ROUNDING,
+                                ORG_ID = a.ORG_ID,
+                                SITE_ID = a.SITE_ID
                             }).ToList();
                 }
                 catch (Exception ex)
@@ -972,7 +988,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
-       
+
         //*****************SITE POLL CONFIG_DTL**********************************
         public static List<SitePollingConfigDetailType> GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(Guid PollConfigIDX)
         {
@@ -983,7 +999,8 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_SITE_POLL_CONFIG_DTL.AsNoTracking()
                             join b in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals b.MONITOR_IDX
                             where a.POLL_CONFIG_IDX == PollConfigIDX
-                            select new SitePollingConfigDetailType { 
+                            select new SitePollingConfigDetailType
+                            {
                                 POLL_CONFIG_DTL_IDX = a.POLL_CONFIG_DTL_IDX,
                                 POLL_CONFIG_IDX = a.POLL_CONFIG_IDX,
                                 MONITOR_IDX = a.MONITOR_IDX,
@@ -1016,7 +1033,8 @@ namespace QRESTModel.DAL
                             join d in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on c.PAR_CODE equals d.PAR_CODE
                             where a.POLL_CONFIG_IDX == PollConfigIDX
                             orderby a.COL
-                            select new PollConfigDtlDisplay {
+                            select new PollConfigDtlDisplay
+                            {
                                 POLL_CONFIG_DTL_IDX = a.POLL_CONFIG_DTL_IDX,
                                 POLL_CONFIG_IDX = a.POLL_CONFIG_IDX,
                                 COL = a.COL,
@@ -1229,7 +1247,8 @@ namespace QRESTModel.DAL
                                join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on a.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
                                join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on r.PAR_CODE equals p.PAR_CODE
                                join d in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.COLLECT_UNIT_CODE equals d.UNIT_CODE
-                                   into lj from d in lj.DefaultIfEmpty() //left join on monitor's unit
+                                   into lj
+                               from d in lj.DefaultIfEmpty() //left join on monitor's unit
                                where a.SITE_IDX == SiteIDX
                                orderby p.PAR_CODE
                                select new SiteMonitorDisplayType
@@ -1397,12 +1416,12 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from m in ctx.T_QREST_MONITORS.AsNoTracking()
-                               join a in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals a.SITE_IDX
-                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
-                               where u.USER_IDX == UserIDX
-                               && u.STATUS_IND == "A"
-                               && (OrgID != null ? a.ORG_ID == OrgID : true)
-                               select m).Count();
+                            join a in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals a.SITE_IDX
+                            join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
+                            where u.USER_IDX == UserIDX
+                            && u.STATUS_IND == "A"
+                            && (OrgID != null ? a.ORG_ID == OrgID : true)
+                            select m).Count();
                 }
                 catch (Exception ex)
                 {
@@ -1414,7 +1433,7 @@ namespace QRESTModel.DAL
 
 
         public static Guid? InsertUpdatetT_QREST_MONITORS(Guid? mONITOR_IDX, Guid? sITE_IDX, Guid? pAR_METHOD_IDX, int? pOC, string dURATION_CODE, string cOLLECT_FREQ_CODE,
-            string cOLLECT_UNIT_CODE, double? aLERT_MIN_VALUE, double? aLERT_MAX_VALUE, double? aLERT_AMT_CHANGE, int? aLERT_STUCK_REC_COUNT, 
+            string cOLLECT_UNIT_CODE, double? aLERT_MIN_VALUE, double? aLERT_MAX_VALUE, double? aLERT_AMT_CHANGE, int? aLERT_STUCK_REC_COUNT,
             string aLERT_MIN_TYPE, string aLERT_MAX_TYPE, string aLERT_AMT_CHANGE_TYPE, string aLERT_STUCK_TYPE, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1484,11 +1503,11 @@ namespace QRESTModel.DAL
                     //List<T_QREST_MONITORS> _mon = GetT_QREST_MONITORS_bySiteIDX(id);
                     //if (_mon == null || _mon.Count == 0)
                     //{
-                        T_QREST_MONITORS rec = new T_QREST_MONITORS { MONITOR_IDX = id };
-                        ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
-                        ctx.SaveChanges();
+                    T_QREST_MONITORS rec = new T_QREST_MONITORS { MONITOR_IDX = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
 
-                        return 1;
+                    return 1;
                     //}
                     //else
                     //    return -1;
@@ -1563,11 +1582,12 @@ namespace QRESTModel.DAL
                     var xxx = (from a in ctx.T_QREST_QC_ASSESSMENT.AsNoTracking()
                                join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
                                join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
-                               join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX                              
+                               join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
                                where (MonitorIDX != null ? a.MONITOR_IDX == MonitorIDX : true)
                                && (SiteIDX != null ? m.SITE_IDX == SiteIDX : true)
                                && (orgIDX != null ? s.ORG_ID == orgIDX : true)
-                               select new QcAssessmentDisplay {
+                               select new QcAssessmentDisplay
+                               {
                                    QC_ASSESS_IDX = a.QC_ASSESS_IDX,
                                    MONITOR_IDX = a.MONITOR_IDX,
                                    ASSESSMENT_DT = a.ASSESSMENT_DT,
@@ -1595,8 +1615,8 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from a in ctx.T_QREST_QC_ASSESSMENT.AsNoTracking()
-                               where a.QC_ASSESS_IDX == AssessIDX 
-                               select a).FirstOrDefault();
+                            where a.QC_ASSESS_IDX == AssessIDX
+                            select a).FirstOrDefault();
                 }
                 catch (Exception ex)
                 {
@@ -1679,7 +1699,7 @@ namespace QRESTModel.DAL
                     string sDate = cols[config.DATE_COL.GetValueOrDefault() - 1].ToString();
                     string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].ToString();
 
-                    
+
                     //raw date time coming from logger, assumed UTC time by default
                     DateTime dt = DateTime.ParseExact(sDate + " " + sTime, config.DATE_FORMAT + " " + config.TIME_FORMAT, CultureInfo.InvariantCulture);
 
@@ -1687,7 +1707,8 @@ namespace QRESTModel.DAL
                     if (config.TIME_POLL_TYPE == "L")
                         dt = dt.AddHours(config.LOCAL_TIMEZONE.ConvertOrDefault<int>() * -1);
 
-                    foreach (SitePollingConfigDetailType _map in config_dtl) {
+                    foreach (SitePollingConfigDetailType _map in config_dtl)
+                    {
                         if (_map.COL != null)
                         {
                             //apply N-minute alerts if available
@@ -1731,7 +1752,7 @@ namespace QRESTModel.DAL
                             join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
                             join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
                             join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
-                            into lj3 
+                            into lj3
                             from u3 in lj3.DefaultIfEmpty() //left join on minute unit
                             where a.DATA_DTTM >= DateFromDt
                             && a.DATA_DTTM <= DateToDt
@@ -1739,7 +1760,8 @@ namespace QRESTModel.DAL
                             && (site != null ? s.SITE_IDX == site : true)
                             && (mon != null ? a.MONITOR_IDX == mon : true)
                             orderby a.DATA_DTTM descending
-                            select new RawDataDisplay {
+                            select new RawDataDisplay
+                            {
                                 ORG_ID = s.ORG_ID,
                                 SITE_ID = s.SITE_ID,
                                 MONITOR_IDX = m.MONITOR_IDX,
@@ -1880,7 +1902,7 @@ namespace QRESTModel.DAL
                             join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
                             join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
                             join u1 in ctx.T_QREST_USERS.AsNoTracking() on a.LVL1_VAL_USERIDX equals u1.USER_IDX
-                                into lj1 
+                                into lj1
                             from u1 in lj1.DefaultIfEmpty() //left join on lvl1 user
                             join u2 in ctx.T_QREST_USERS.AsNoTracking() on a.LVL2_VAL_USERIDX equals u2.USER_IDX
                                 into lj2
@@ -1890,7 +1912,7 @@ namespace QRESTModel.DAL
                             from u3 in lj3.DefaultIfEmpty() //left join on hourly unit
                             where a.DATA_DTTM_UTC >= DateFrom
                             && a.DATA_DTTM_UTC <= DateTo
-                            && a.MONITOR_IDX == mon 
+                            && a.MONITOR_IDX == mon
                             orderby a.DATA_DTTM_UTC ascending
                             select new RawDataDisplay
                             {
@@ -1983,7 +2005,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
-        
+
         public static List<T_QREST_DATA_HOURLY> GetT_QREST_DATA_HOURLY_NotNotified()
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -2018,9 +2040,9 @@ namespace QRESTModel.DAL
                         dATA_DTTM_LOCAL = dATA_DTTM_UTC.GetValueOrDefault().AddHours(timezoneOffset);
 
                     T_QREST_DATA_HOURLY e = (from c in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
-                                               where c.MONITOR_IDX == mONITOR_IDX
-                                               && c.DATA_DTTM_LOCAL == dATA_DTTM_LOCAL
-                                               select c).FirstOrDefault();
+                                             where c.MONITOR_IDX == mONITOR_IDX
+                                             && c.DATA_DTTM_LOCAL == dATA_DTTM_LOCAL
+                                             select c).FirstOrDefault();
 
                     if (e == null)
                     {
@@ -2031,17 +2053,17 @@ namespace QRESTModel.DAL
                         e.DATA_DTTM_LOCAL = dATA_DTTM_LOCAL;
                         e.DATA_DTTM_UTC = dATA_DTTM_UTC;
                     }
-                    
+
                     if (dATA_VALUE != null) e.DATA_VALUE = dATA_VALUE;
                     if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
                     if (vAL_IND != null) e.VAL_IND = vAL_IND;
-                    if (vAL_CD != null) e.VAL_CD = vAL_CD.SubStringPlus(0,5);
+                    if (vAL_CD != null) e.VAL_CD = vAL_CD.SubStringPlus(0, 5);
                     e.MODIFY_DT = System.DateTime.Now;
 
 
                     if (insInd)
                         ctx.T_QREST_DATA_HOURLY.Add(e);
-                    
+
                     ctx.SaveChanges();
 
                     return new ImportResponse
@@ -2050,7 +2072,7 @@ namespace QRESTModel.DAL
                         DATA_IDX = e.DATA_HOURLY_IDX,
                         DATA_DTTM = e.DATA_DTTM_UTC,
                         DATA_VALUE = e.DATA_VALUE
-                    }; 
+                    };
                 }
                 catch (Exception ex)
                 {
@@ -2180,7 +2202,8 @@ namespace QRESTModel.DAL
                             && a.MONITOR_IDX == null
                             && a.YR == year
                             && a.MON == month
-                            select new AssessDocDisplay {
+                            select new AssessDocDisplay
+                            {
                                 ASSESS_DOC_IDX = a.ASSESS_DOC_IDX,
                                 DOC_NAME = a.DOC_NAME,
                                 DOC_TYPE = a.DOC_TYPE,
@@ -2246,7 +2269,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Guid? InsertUpdatetT_QREST_ASSESS_DOCS(Guid? aSSESS_DOC_IDX, Guid? sITE_IDX, Guid? mONITOR_IDX, int? yEAR, int? mONTH, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, 
+        public static Guid? InsertUpdatetT_QREST_ASSESS_DOCS(Guid? aSSESS_DOC_IDX, Guid? sITE_IDX, Guid? mONITOR_IDX, int? yEAR, int? mONTH, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE,
             string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT, string dOC_AUTHOR, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -2256,8 +2279,8 @@ namespace QRESTModel.DAL
                     Boolean insInd = false;
 
                     T_QREST_ASSESS_DOCS e = (from c in ctx.T_QREST_ASSESS_DOCS
-                                          where c.ASSESS_DOC_IDX == aSSESS_DOC_IDX
-                                          select c).FirstOrDefault();
+                                             where c.ASSESS_DOC_IDX == aSSESS_DOC_IDX
+                                             select c).FirstOrDefault();
 
                     if (e == null)
                     {

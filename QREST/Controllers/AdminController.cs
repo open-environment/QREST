@@ -380,10 +380,11 @@ namespace QREST.Controllers
                 string fileName = imageFile.FileName;
                 string mimeType = imageFile.ContentType;
                 System.IO.Stream fileContent = imageFile.InputStream;
-                //To save file, use SaveAs method
-                string filePath = Server.MapPath("~/tinymceimg/") + fileName;
+                if (!Directory.Exists(Server.MapPath("~/TinyMCEImg/")))
+                    Directory.CreateDirectory(Server.MapPath("~/TinyMCEImg/"));
+                string filePath = Server.MapPath("~/TinyMCEImg/") + fileName;
                 imageFile.SaveAs(filePath);
-                jsonString = String.Format("{{\"location\":\"{0}\"}}", "/tinymceimg/" + fileName);
+                jsonString = String.Format("{{\"location\":\"{0}\"}}", "/TinyMCEImg/" + fileName);
             }
             return Content(jsonString);
 

@@ -193,17 +193,23 @@ namespace QREST.Controllers
                                 if (cols.Length > 20 && cols[0] != "Date") //skip blank rows
                                 {
                                     impAny = true;
-                                    DateTime dt = DateTime.ParseExact(cols[0], "MM/dd/yyyy", CultureInfo.InvariantCulture);
-
-                                    for (int i = 0; i <= 23; i++)
+                                    try
                                     {
-                                        ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_monitor.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(cols[i + 1], out _) ? cols[i + 1] : null, _monitor.COLLECT_UNIT_CODE, true, double.TryParse(cols[i + 1], out _) ? null : cols[i + 1]);
-                                        if (xxx.SuccInd)
-                                            model.ImportSuccCount += 1;
-                                        else
-                                            model.error_data.Add(xxx);
+                                        DateTime dt = DateTime.ParseExact(cols[0], "MM/dd/yyyy", CultureInfo.InvariantCulture);
 
-                                        dt = dt.AddHours(1);
+                                        for (int i = 0; i <= 23; i++)
+                                        {
+                                            ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_monitor.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(cols[i + 1], out _) ? cols[i + 1] : null, _monitor.COLLECT_UNIT_CODE, true, double.TryParse(cols[i + 1], out _) ? null : cols[i + 1]);
+                                            if (xxx.SuccInd)
+                                                model.ImportSuccCount += 1;
+                                            else
+                                                model.error_data.Add(xxx);
+
+                                            dt = dt.AddHours(1);
+                                        }
+                                    }
+                                    catch {
+                                        ModelState.AddModelError("IMPORT_BLOCK", "Date is not in the correct format (MM/DD/YYYY).");
                                     }
                                 }
                             }
@@ -213,16 +219,15 @@ namespace QREST.Controllers
 
                         }
                         else
-                            ModelState.AddModelError("selMonitor", "No collection unit defined for this monitor. No data imported.");
-
+                            ModelState.AddModelError("selMonitor", "No collection unit defined for this monitor. No data imported.");                
+                    }                
+                    else
+                        ModelState.AddModelError("IMPORT_BLOCK", "Either no polling config defined, or the local timezone offset not defined for site's active polling config. No data imported.");
                 }
-                else
-                    TempData["Error"] = "Either no polling config defined, or the local timezone offset not defined for site's active polling config. No data imported.";
-
-            }
 
 
 
+            
             }
 
             //reinitialize model
@@ -437,6 +442,7 @@ namespace QREST.Controllers
             else
                 return Json("Chart data error");
         }
+
 
         #region MANUAL VALIDATION
 

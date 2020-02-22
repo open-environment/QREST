@@ -351,6 +351,28 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<T_QREST_SITES> GetT_QREST_SITES_ReadyToAirNow()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_SITES.AsNoTracking()
+                            where a.AIRNOW_IND == true
+                            && a.AIRNOW_USR != null
+                            && a.AIRNOW_PWD != null
+                            && a.AIRNOW_SITE != null 
+                            && a.AIRNOW_ORG != null
+                            orderby a.SITE_ID
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
 
         public static List<T_QREST_SITES> GetT_QREST_SITES_Sampling()
         {
@@ -2273,6 +2295,23 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        public static List<AIRNOW_LAST_HOUR> GetAIRNOW_LAST_HOUR()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.AIRNOW_LAST_HOUR.AsNoTracking()
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
 
 
         //*****************STORED PROCEDURES**********************************

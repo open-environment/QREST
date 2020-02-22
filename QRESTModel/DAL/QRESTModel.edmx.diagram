@@ -81,6 +81,7 @@
         <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_IMPORTS" Width="1.5" PointX="10.5" PointY="23.5" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_O" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_S" />
+        <EntityTypeShape EntityType="QRESTModel.AIRNOW_LAST_HOUR" Width="1.5" PointX="20.375" PointY="20.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

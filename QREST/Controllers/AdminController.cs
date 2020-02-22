@@ -1107,6 +1107,16 @@ namespace QREST.Controllers
         //************************************* TEST METHODS ************************************************************
         public ActionResult Testing()
         {
+
+            List<AIRNOW_LAST_HOUR> _recs = db_Air.GetAIRNOW_LAST_HOUR();
+            if (_recs != null)
+            {
+                foreach (AIRNOW_LAST_HOUR _rec in _recs)
+                {
+                    
+                }
+            }
+
             return View();
         }
 

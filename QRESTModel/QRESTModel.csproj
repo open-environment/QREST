@@ -97,6 +97,9 @@
     <Compile Include="BLL\UtilsSMS.cs" />
     <Compile Include="BLL\UtilsText.cs" />
     <Compile Include="Class1.cs" />
+    <Compile Include="DAL\AIRNOW_LAST_HOUR.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\db_Account.cs" />
     <Compile Include="DAL\db_Air.cs" />
     <Compile Include="DAL\db_Ref.cs" />

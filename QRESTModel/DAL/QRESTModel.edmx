@@ -592,6 +592,23 @@
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
         <!--Errors Found During Generation:
+warning 6002: The table/view 'QREST.dbo.AIRNOW_LAST_HOUR' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="AIRNOW_LAST_HOUR">
+          <Key>
+            <PropertyRef Name="DATA_STATUS" />
+            <PropertyRef Name="PAR_CODE" />
+            <PropertyRef Name="POC" />
+          </Key>
+          <Property Name="AIRNOW_ORG" Type="varchar" MaxLength="3" />
+          <Property Name="AIRNOW_SITE" Type="varchar" MaxLength="13" />
+          <Property Name="DATA_STATUS" Type="varchar" MaxLength="1" Nullable="false" />
+          <Property Name="DT" Type="nvarchar" MaxLength="4000" />
+          <Property Name="PAR_CODE" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="DATA_VALUE" Type="varchar" MaxLength="20" />
+          <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="POC" Type="int" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
 warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="MONITOR_SNAPSHOT">
           <Key>
@@ -1124,6 +1141,18 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <EntitySet Name="T_QREST_USER_NOTIFICATION" EntityType="Self.T_QREST_USER_NOTIFICATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USER_ROLES" EntityType="Self.T_QREST_USER_ROLES" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_USERS" EntityType="Self.T_QREST_USERS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AIRNOW_LAST_HOUR" EntityType="Self.AIRNOW_LAST_HOUR" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [AIRNOW_LAST_HOUR].[AIRNOW_ORG] AS [AIRNOW_ORG], 
+    [AIRNOW_LAST_HOUR].[AIRNOW_SITE] AS [AIRNOW_SITE], 
+    [AIRNOW_LAST_HOUR].[DATA_STATUS] AS [DATA_STATUS], 
+    [AIRNOW_LAST_HOUR].[DT] AS [DT], 
+    [AIRNOW_LAST_HOUR].[PAR_CODE] AS [PAR_CODE], 
+    [AIRNOW_LAST_HOUR].[DATA_VALUE] AS [DATA_VALUE], 
+    [AIRNOW_LAST_HOUR].[UNIT_CODE] AS [UNIT_CODE], 
+    [AIRNOW_LAST_HOUR].[POC] AS [POC]
+    FROM [dbo].[AIRNOW_LAST_HOUR] AS [AIRNOW_LAST_HOUR]</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="MONITOR_SNAPSHOT" EntityType="Self.MONITOR_SNAPSHOT" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [MONITOR_SNAPSHOT].[MONITOR_IDX] AS [MONITOR_IDX], 
@@ -1483,6 +1512,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
             <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
             <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
           </AssociationSet>
+          <EntitySet Name="AIRNOW_LAST_HOUR" EntityType="QRESTModel.AIRNOW_LAST_HOUR" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -2673,6 +2703,21 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="AIRNOW_LAST_HOUR">
+          <Key>
+            <PropertyRef Name="DATA_STATUS" />
+            <PropertyRef Name="PAR_CODE" />
+            <PropertyRef Name="POC" />
+          </Key>
+          <Property Name="AIRNOW_ORG" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="AIRNOW_SITE" Type="String" MaxLength="13" FixedLength="false" Unicode="false" />
+          <Property Name="DATA_STATUS" Type="String" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="DT" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="PAR_CODE" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="DATA_VALUE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="POC" Type="Int32" Nullable="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3452,6 +3497,20 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
                 <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
                 <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
                 <ScalarProperty Name="IMPORT_IDX" ColumnName="IMPORT_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AIRNOW_LAST_HOUR">
+            <EntityTypeMapping TypeName="QRESTModel.AIRNOW_LAST_HOUR">
+              <MappingFragment StoreEntitySet="AIRNOW_LAST_HOUR">
+                <ScalarProperty Name="POC" ColumnName="POC" />
+                <ScalarProperty Name="UNIT_CODE" ColumnName="UNIT_CODE" />
+                <ScalarProperty Name="DATA_VALUE" ColumnName="DATA_VALUE" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="DT" ColumnName="DT" />
+                <ScalarProperty Name="DATA_STATUS" ColumnName="DATA_STATUS" />
+                <ScalarProperty Name="AIRNOW_SITE" ColumnName="AIRNOW_SITE" />
+                <ScalarProperty Name="AIRNOW_ORG" ColumnName="AIRNOW_ORG" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

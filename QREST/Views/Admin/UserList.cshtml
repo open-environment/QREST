@@ -22,6 +22,7 @@
                         <th>Created</th>
                         <th>Last Login</th>
                         <th>Status</th>
+                        <th>Is Global Admin</th>
                     </tr>
                 </thead>
             </table>
@@ -36,7 +37,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-
+            
             moment.updateLocale(moment.locale(), { invalidDate: "" });
 
             // datatable initialization
@@ -72,7 +73,7 @@
                                                             + row.USER_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/UserDelete"><b>Confirm Delete</b></div></div>';
                         }
                     },
-                    { "data": "Email", "name": "Email", "autoWidth": true },
+                    { "data": "EMAIL", "name": "EMAIL", "autoWidth": true },
                     { "data": "FNAME", "name": "FNAME", "autoWidth": true },
                     { "data": "LNAME", "name": "LNAME", "autoWidth": true },
                     {
@@ -101,6 +102,18 @@
                                 if (row.EmailConfirmed == false) {
                                     xxx = '<span class="label label-warning"> Awaiting Email Confirmation</span>';
                                 }
+                            }
+                            return xxx;
+                        }
+                    },
+                    {
+                        "data": "ISGLOBALADMIN",
+                        "name": "IS GLOBAL ADMIN",
+                        "autoWidth": true,
+                        "render": function (d) {
+                            var xxx = '<span class="label label-success"> Yes</span>';
+                            if (d != true) {
+                                xxx = '<span class="label label-warning"> No</span>';
                             }
                             return xxx;
                         }

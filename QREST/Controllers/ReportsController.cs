@@ -74,7 +74,16 @@ namespace QREST.Controllers
                 }
             }
 
-            DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dtSites, dtMonitors, dtData });
+            //Polling Config
+            DataTable dtPollingConfig = new DataTable("Polling_Config");
+            DataTable dtPollingConfigDetail = new DataTable("Polling_Config_Detail");
+            if (exportdata.Contains("ProfileConfig"))
+            {
+                dtPollingConfig = DataTableGen.GetPollingConfig(UserIDX);
+                dtPollingConfigDetail = DataTableGen.GetPollingConfigDetail(UserIDX);
+            }
+
+            DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dtSites, dtMonitors, dtData, dtPollingConfig, dtPollingConfigDetail });
             if (dsExport.Tables.Count > 0)
             {
                 MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);

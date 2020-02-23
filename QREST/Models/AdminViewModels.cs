@@ -142,7 +142,7 @@ namespace QREST.Models
     //****************************************************************************
     public class vmAdminUserList
     {
-        public List<T_QREST_USERS> T_QREST_USERS { get; set; }
+        public List<UserListDisplayType> T_QREST_USERS { get; set; }
     }
 
 

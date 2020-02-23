@@ -5,34 +5,34 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="52d12f0a5c244845a61fb1ca82ca06f3" Name="Diagram1" ZoomLevel="73">
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_SETTINGS" Width="1.5" PointX="12.75" PointY="9.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_SETTINGS_CUSTOM" Width="1.5" PointX="13.75" PointY="1.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_TASKS" Width="1.5" PointX="13.75" PointY="4.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_EMAIL_TEMPLATE" Width="1.5" PointX="15.75" PointY="1.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_HELP_DOCS" Width="1.5" PointX="14.75" PointY="8.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORG_EMAIL_RULE" Width="1.5" PointX="5.875" PointY="10.5" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORG_USERS" Width="1.5" PointX="5.25" PointY="13.5" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORGANIZATIONS" Width="1.5" PointX="3" PointY="12.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_QC_ASSESSMENT" Width="1.5" PointX="15.75" PointY="15.25" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_AQS_AGENCY" Width="1.5" PointX="5.5" PointY="17.625" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_ASSESS_TYPE" Width="1.5" PointX="7.75" PointY="1.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_COUNTY" Width="1.5" PointX="3" PointY="19.25" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_DURATION" Width="1.5" PointX="8.25" PointY="9.625" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PAR_METHODS" Width="1.5" PointX="11.25" PointY="2.875" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PARAMETERS" Width="1.5" PointX="9" PointY="3.625" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_REGION" Width="1.5" PointX="0.75" PointY="11" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_STATE" Width="1.5" PointX="0.75" PointY="14" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_UNITS" Width="1.5" PointX="6.75" PointY="3.875" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_ROLES" Width="1.5" PointX="0.875" PointY="2.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITE_POLL_CONFIG_DTL" Width="1.5" PointX="15.75" PointY="11.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITES" Width="1.5" PointX="8.25" PointY="13.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG" Width="1.5" PointX="15.75" PointY="5.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG_ACTIVITY" Width="1.5" PointX="16.75" PointY="8.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG_EMAIL" Width="1.5" PointX="17.75" PointY="1.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_CLAIMS" Width="1.5" PointX="0.875" PointY="5" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_LOGINS" Width="1.5" PointX="5.25" PointY="8.5" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_NOTIFICATION" Width="1.5" PointX="17.75" PointY="11.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_USERS" Width="1.5" PointX="3" PointY="2.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_SETTINGS" Width="1.5" PointX="12.75" PointY="9.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_SETTINGS_CUSTOM" Width="1.5" PointX="13.75" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_APP_TASKS" Width="1.5" PointX="13.75" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_EMAIL_TEMPLATE" Width="1.5" PointX="15.75" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_HELP_DOCS" Width="1.5" PointX="14.75" PointY="8.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORG_EMAIL_RULE" Width="1.5" PointX="5.875" PointY="10.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORG_USERS" Width="1.5" PointX="5.25" PointY="13.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ORGANIZATIONS" Width="1.5" PointX="3" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_QC_ASSESSMENT" Width="1.5" PointX="15.75" PointY="15.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_AQS_AGENCY" Width="1.5" PointX="5.5" PointY="17.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_ASSESS_TYPE" Width="1.5" PointX="7.75" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_COUNTY" Width="1.5" PointX="3" PointY="19.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_DURATION" Width="1.5" PointX="8.25" PointY="9.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PAR_METHODS" Width="1.5" PointX="11.25" PointY="2.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PARAMETERS" Width="1.5" PointX="9" PointY="3.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_REGION" Width="1.5" PointX="0.75" PointY="11" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_STATE" Width="1.5" PointX="0.75" PointY="14" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_UNITS" Width="1.5" PointX="6.75" PointY="3.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ROLES" Width="1.5" PointX="0.875" PointY="2.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITE_POLL_CONFIG_DTL" Width="1.5" PointX="15.75" PointY="11.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITES" Width="1.5" PointX="8.25" PointY="13.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG" Width="1.5" PointX="15.75" PointY="5.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG_ACTIVITY" Width="1.5" PointX="16.75" PointY="8.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SYS_LOG_EMAIL" Width="1.5" PointX="17.75" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_CLAIMS" Width="1.5" PointX="0.875" PointY="5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_LOGINS" Width="1.5" PointX="5.25" PointY="8.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_USER_NOTIFICATION" Width="1.5" PointX="17.75" PointY="11.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_USERS" Width="1.5" PointX="3" PointY="2.75" IsExpanded="true" />
         <AssociationConnector Association="QRESTModel.FK__T_QREST_O__ORG_I__4BD727B2" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_ORG_USERS_T" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_ORG_USERS_U" />
@@ -49,39 +49,40 @@
         <AssociationConnector Association="QRESTModel.FK_AspNetUserClaims_Users_UserId" />
         <AssociationConnector Association="QRESTModel.FK_AspNetUserLogins_Users_UserId" />
         <AssociationConnector Association="QRESTModel.T_QREST_USER_ROLES" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_MONITORS" Width="1.5" PointX="13.5" PointY="13.125" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_COLLECT_FREQ" Width="1.5" PointX="11.25" PointY="19.375" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_MONITORS" Width="1.5" PointX="13.5" PointY="13.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_COLLECT_FREQ" Width="1.5" PointX="11.25" PointY="19.375" IsExpanded="true" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_C" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_D" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_P" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_MONITORS_S" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_QC_ASSESSMENT_M" />
         <AssociationConnector Association="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_M" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PAR_UNITS" Width="1.5" PointX="15.75" PointY="19.375" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_FIVE_MIN" Width="1.5" PointX="18.375" PointY="4.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_TIMEZONE" Width="1.5" PointX="18.375" PointY="15.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_HOURLY" Width="1.5" PointX="18.375" PointY="18.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_QUALIFIER" Width="1.5" PointX="20.375" PointY="0.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_ACCESS_LEVEL" Width="1.5" PointX="19.375" PointY="8.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_USER_STATUS" Width="1.5" PointX="20.375" PointY="4.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITE_POLL_CONFIG" Width="1.5" PointX="10.5" PointY="9.5" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_PAR_UNITS" Width="1.5" PointX="15.75" PointY="19.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_FIVE_MIN" Width="1.5" PointX="18.375" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_TIMEZONE" Width="1.5" PointX="18.375" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_HOURLY" Width="1.5" PointX="18.375" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_QUALIFIER" Width="1.5" PointX="20.375" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_ACCESS_LEVEL" Width="1.5" PointX="19.375" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_USER_STATUS" Width="1.5" PointX="20.375" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITE_POLL_CONFIG" Width="1.5" PointX="10.5" PointY="9.5" IsExpanded="true" />
         <AssociationConnector Association="QRESTModel.FK_T_SITE_POLL_CONFIG_D" />
         <AssociationConnector Association="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" />
         <AssociationConnector Association="QRESTModel.FK_T_SITE_POLL_CONFIG_S" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITE_NOTIFY" Width="1.5" PointX="10.5" PointY="15.5" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_SITE_NOTIFY" Width="1.5" PointX="10.5" PointY="15.5" IsExpanded="true" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_U" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_ASSESS_DOCS" Width="1.5" PointX="20.75" PointY="14.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_ASSESS_DOCS" Width="1.5" PointX="20.75" PointY="14.75" IsExpanded="true" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_M" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_S" />
-        <EntityTypeShape EntityType="QRESTModel.MONITOR_SNAPSHOT" Width="1.5" PointX="5.375" PointY="20.75" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_AQS" Width="1.5" PointX="13.5" PointY="20.75" />
+        <EntityTypeShape EntityType="QRESTModel.MONITOR_SNAPSHOT" Width="1.5" PointX="5.375" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_AQS" Width="1.5" PointX="13.5" PointY="20.75" IsExpanded="true" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_AQS_O" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_AQS_S" />
-        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_IMPORTS" Width="1.5" PointX="10.5" PointY="23.5" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_IMPORTS" Width="1.5" PointX="10.5" PointY="23.5" IsExpanded="true" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_O" />
         <AssociationConnector Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_S" />
         <EntityTypeShape EntityType="QRESTModel.AIRNOW_LAST_HOUR" Width="1.5" PointX="20.375" PointY="20.75" />
+        <EntityTypeShape EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" Width="1.5" PointX="20.375" PointY="20.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

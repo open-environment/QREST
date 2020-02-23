@@ -267,6 +267,9 @@
     <Compile Include="DAL\T_QREST_USER_NOTIFICATION.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\USERLIST_DISPLAY_VIEW.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -297,7 +300,9 @@
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
-    <None Include="App.Config" />
+    <None Include="App.Config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="DAL\QRESTModel.edmx.diagram">
       <DependentUpon>QRESTModel.edmx</DependentUpon>
     </None>

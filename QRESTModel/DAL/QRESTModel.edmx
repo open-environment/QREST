@@ -105,17 +105,17 @@
           <Property Name="DATA_DTTM_LOCAL" Type="datetime2" Precision="0" />
           <Property Name="DATA_VALUE" Type="varchar" MaxLength="20" />
           <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="AQS_NULL_CODE" Type="varchar" MaxLength="2" />
           <Property Name="VAL_IND" Type="bit" />
           <Property Name="VAL_CD" Type="varchar" MaxLength="5" />
-          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="VAL0_NOTIFY_IND" Type="bit" Nullable="false" />
-          <Property Name="AQS_NULL_CODE" Type="varchar" MaxLength="2" />
           <Property Name="LVL1_VAL_IND" Type="bit" />
           <Property Name="LVL1_VAL_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="LVL1_VAL_DT" Type="datetime2" Precision="0" />
           <Property Name="LVL2_VAL_IND" Type="bit" />
           <Property Name="LVL2_VAL_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="LVL2_VAL_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="NOTES" Type="varchar" MaxLength="100" />
           <Property Name="IMPORT_IDX" Type="uniqueidentifier" />
         </EntityType>
@@ -167,14 +167,14 @@
           <Property Name="ALERT_MAX_VALUE" Type="float" />
           <Property Name="ALERT_AMT_CHANGE" Type="float" />
           <Property Name="ALERT_STUCK_REC_COUNT" Type="int" />
-          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
-          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
-          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
-          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="ALERT_MIN_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="ALERT_MAX_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="ALERT_AMT_CHANGE_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="ALERT_STUCK_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_ORG_EMAIL_RULE">
           <Key>
@@ -211,12 +211,12 @@
           <Property Name="EPA_REGION" Type="int" />
           <Property Name="AQS_NAAS_UID" Type="varchar" MaxLength="100" />
           <Property Name="AQS_NAAS_PWD" Type="varchar" MaxLength="250" />
+          <Property Name="SELF_REG_IND" Type="bit" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
-          <Property Name="SELF_REG_IND" Type="bit" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -305,13 +305,13 @@
           <Property Name="FED_MDL" Type="float" />
           <Property Name="MIN_VALUE" Type="float" />
           <Property Name="MAX_VALUE" Type="float" />
+          <Property Name="CUST_MIN_VALUE" Type="float" />
+          <Property Name="CUST_MAX_VALUE" Type="float" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
-          <Property Name="CUST_MIN_VALUE" Type="float" />
-          <Property Name="CUST_MAX_VALUE" Type="float" />
         </EntityType>
         <EntityType Name="T_QREST_REF_PAR_UNITS">
           <Key>
@@ -333,12 +333,12 @@
           <Property Name="CAS_NUM" Type="varchar" MaxLength="100" />
           <Property Name="STD_UNIT_CODE" Type="varchar" MaxLength="3" />
           <Property Name="SHORTLIST_IND" Type="bit" Nullable="false" />
+          <Property Name="AQS_IND" Type="bit" Nullable="false" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
-          <Property Name="AQS_IND" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="T_QREST_REF_QUALIFIER">
           <Key>
@@ -417,6 +417,7 @@
           </Key>
           <Property Name="POLL_CONFIG_IDX" Type="uniqueidentifier" Nullable="false" />
           <Property Name="SITE_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="CONFIG_NAME" Type="varchar" MaxLength="20" />
           <Property Name="RAW_DURATION_CODE" Type="varchar" MaxLength="1" />
           <Property Name="LOGGER_TYPE" Type="varchar" MaxLength="20" />
           <Property Name="LOGGER_SOURCE" Type="varchar" MaxLength="150" />
@@ -428,14 +429,13 @@
           <Property Name="DATE_FORMAT" Type="varchar" MaxLength="10" />
           <Property Name="TIME_COL" Type="int" />
           <Property Name="TIME_FORMAT" Type="varchar" MaxLength="10" />
+          <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
+          <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
-          <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
-          <Property Name="CONFIG_NAME" Type="varchar" MaxLength="20" />
-          <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
         </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
@@ -474,6 +474,8 @@
           <Property Name="POLLING_LAST_RUN_DT" Type="datetime2" Precision="7" />
           <Property Name="POLLING_NEXT_RUN_DT" Type="datetime2" Precision="7" />
           <Property Name="AIRNOW_IND" Type="bit" />
+          <Property Name="AIRNOW_USR" Type="varchar" MaxLength="50" />
+          <Property Name="AIRNOW_PWD" Type="varchar" MaxLength="50" />
           <Property Name="AQS_IND" Type="bit" />
           <Property Name="SITE_COMMENTS" Type="varchar(max)" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
@@ -619,7 +621,27 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <Property Name="lvl1" Type="datetime2" Precision="0" />
           <Property Name="lvl2" Type="datetime2" Precision="0" />
         </EntityType>
-        <Association Name="FK__T_QREST_O__AQS_A__48FABB07">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="USERLIST_DISPLAY_VIEW">
+          <Key>
+            <PropertyRef Name="USER_IDX" />
+            <PropertyRef Name="FNAME" />
+            <PropertyRef Name="LNAME" />
+            <PropertyRef Name="EmailConfirmed" />
+          </Key>
+          <Property Name="USER_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="256" />
+          <Property Name="FNAME" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="LNAME" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="LAST_LOGIN_DT" Type="datetime2" Precision="0" />
+          <Property Name="LockoutEndDateUtc" Type="datetime" />
+          <Property Name="EmailConfirmed" Type="bit" Nullable="false" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="Name" Type="nvarchar" MaxLength="256" />
+          <Property Name="ORG_ID" Type="varchar" MaxLength="30" />
+        </EntityType>
+        <Association Name="FK__T_QREST_O__AQS_A__6D0D32F4">
           <End Role="T_QREST_REF_AQS_AGENCY" Type="Self.T_QREST_REF_AQS_AGENCY" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -631,7 +653,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__EPA_R__480696CE">
+        <Association Name="FK__T_QREST_O__EPA_R__6C190EBB">
           <End Role="T_QREST_REF_REGION" Type="Self.T_QREST_REF_REGION" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -643,7 +665,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__ORG_I__4BD727B2">
+        <Association Name="FK__T_QREST_O__ORG_I__6FE99F9F">
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
@@ -657,7 +679,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__STATE__47127295">
+        <Association Name="FK__T_QREST_O__STATE__6B24EA82">
           <End Role="T_QREST_REF_STATE" Type="Self.T_QREST_REF_STATE" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -1161,19 +1183,33 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
     [MONITOR_SNAPSHOT].[lvl2] AS [lvl2]
     FROM [dbo].[MONITOR_SNAPSHOT] AS [MONITOR_SNAPSHOT]</DefiningQuery>
           </EntitySet>
-          <AssociationSet Name="FK__T_QREST_O__AQS_A__48FABB07" Association="Self.FK__T_QREST_O__AQS_A__48FABB07">
+          <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="Self.USERLIST_DISPLAY_VIEW" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [USERLIST_DISPLAY_VIEW].[USER_IDX] AS [USER_IDX], 
+    [USERLIST_DISPLAY_VIEW].[Email] AS [Email], 
+    [USERLIST_DISPLAY_VIEW].[FNAME] AS [FNAME], 
+    [USERLIST_DISPLAY_VIEW].[LNAME] AS [LNAME], 
+    [USERLIST_DISPLAY_VIEW].[LAST_LOGIN_DT] AS [LAST_LOGIN_DT], 
+    [USERLIST_DISPLAY_VIEW].[LockoutEndDateUtc] AS [LockoutEndDateUtc], 
+    [USERLIST_DISPLAY_VIEW].[EmailConfirmed] AS [EmailConfirmed], 
+    [USERLIST_DISPLAY_VIEW].[CREATE_DT] AS [CREATE_DT], 
+    [USERLIST_DISPLAY_VIEW].[Name] AS [Name], 
+    [USERLIST_DISPLAY_VIEW].[ORG_ID] AS [ORG_ID]
+    FROM [dbo].[USERLIST_DISPLAY_VIEW] AS [USERLIST_DISPLAY_VIEW]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="FK__T_QREST_O__AQS_A__6D0D32F4" Association="Self.FK__T_QREST_O__AQS_A__6D0D32F4">
             <End Role="T_QREST_REF_AQS_AGENCY" EntitySet="T_QREST_REF_AQS_AGENCY" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__EPA_R__480696CE" Association="Self.FK__T_QREST_O__EPA_R__480696CE">
+          <AssociationSet Name="FK__T_QREST_O__EPA_R__6C190EBB" Association="Self.FK__T_QREST_O__EPA_R__6C190EBB">
             <End Role="T_QREST_REF_REGION" EntitySet="T_QREST_REF_REGION" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__ORG_I__4BD727B2" Association="Self.FK__T_QREST_O__ORG_I__4BD727B2">
+          <AssociationSet Name="FK__T_QREST_O__ORG_I__6FE99F9F" Association="Self.FK__T_QREST_O__ORG_I__6FE99F9F">
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
             <End Role="T_QREST_ORG_EMAIL_RULE" EntitySet="T_QREST_ORG_EMAIL_RULE" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__STATE__47127295" Association="Self.FK__T_QREST_O__STATE__47127295">
+          <AssociationSet Name="FK__T_QREST_O__STATE__6B24EA82" Association="Self.FK__T_QREST_O__STATE__6B24EA82">
             <End Role="T_QREST_REF_STATE" EntitySet="T_QREST_REF_STATE" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
@@ -1513,6 +1549,7 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
             <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
           </AssociationSet>
           <EntitySet Name="AIRNOW_LAST_HOUR" EntityType="QRESTModel.AIRNOW_LAST_HOUR" />
+          <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -2718,6 +2755,24 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <Property Name="UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="POC" Type="Int32" Nullable="false" />
         </EntityType>
+        <EntityType Name="USERLIST_DISPLAY_VIEW">
+          <Key>
+            <PropertyRef Name="USER_IDX" />
+            <PropertyRef Name="FNAME" />
+            <PropertyRef Name="LNAME" />
+            <PropertyRef Name="EmailConfirmed" />
+          </Key>
+          <Property Name="USER_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="FNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="LNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="LAST_LOGIN_DT" Type="DateTime" Precision="0" />
+          <Property Name="LockoutEndDateUtc" Type="DateTime" Precision="3" />
+          <Property Name="EmailConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="Name" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="ORG_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3497,6 +3552,22 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
                 <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
                 <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
                 <ScalarProperty Name="IMPORT_IDX" ColumnName="IMPORT_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="USERLIST_DISPLAY_VIEW">
+            <EntityTypeMapping TypeName="IsTypeOf(QRESTModel.USERLIST_DISPLAY_VIEW)">
+              <MappingFragment StoreEntitySet="USERLIST_DISPLAY_VIEW">
+                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />
+                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
+                <ScalarProperty Name="LAST_LOGIN_DT" ColumnName="LAST_LOGIN_DT" />
+                <ScalarProperty Name="LNAME" ColumnName="LNAME" />
+                <ScalarProperty Name="FNAME" ColumnName="FNAME" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -124,7 +124,8 @@ namespace QRESTModel.DataTableGen
                         _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND, "");
                 }
             }
-            else if (Freq == "H") {
+            else if (Freq == "H")
+            {
                 List<RawDataDisplay> _mons = db_Air.GetT_QREST_DATA_HOURLY(orgid, MonIDX, startDt, endDt, 50000, null, 3, "asc");
                 foreach (var _mon in _mons)
                 {
@@ -177,8 +178,8 @@ namespace QRESTModel.DataTableGen
             int i = 0;
             foreach (var _data in _datas)
             {
-                dt.Rows.Add(_data.SearchDay, _data.C0, _data.C1, _data.C2, _data.C3, _data.C4, _data.C5, _data.C6, _data.C7, _data.C8, _data.C9, _data.C10, _data.C11, _data.C12, _data.C13, _data.C14, 
-                    _data.C15, _data.C16, _data.C17, _data.C18, _data.C19, _data.C20, _data.C21, _data.C22, _data.C23, _data.SearchDay, _datasums[i].MAX, _datasums[i].MIN, _datasums[i].AVG, 
+                dt.Rows.Add(_data.SearchDay, _data.C0, _data.C1, _data.C2, _data.C3, _data.C4, _data.C5, _data.C6, _data.C7, _data.C8, _data.C9, _data.C10, _data.C11, _data.C12, _data.C13, _data.C14,
+                    _data.C15, _data.C16, _data.C17, _data.C18, _data.C19, _data.C20, _data.C21, _data.C22, _data.C23, _data.SearchDay, _datasums[i].MAX, _datasums[i].MIN, _datasums[i].AVG,
                     _datasums[i].STDEV, _datasums[i].CAP);
 
                 i++;
@@ -228,7 +229,7 @@ namespace QRESTModel.DataTableGen
             int i = 0;
             foreach (var _data in _datas)
             {
-                dt.Rows.Add(_data.MonthDisp + " "  + _data.SearchDay, _data.C0, _data.C1, _data.C2, _data.C3, _data.C4, _data.C5, _data.C6, _data.C7, _data.C8, _data.C9, _data.C10, _data.C11, _data.C12, _data.C13, _data.C14,
+                dt.Rows.Add(_data.MonthDisp + " " + _data.SearchDay, _data.C0, _data.C1, _data.C2, _data.C3, _data.C4, _data.C5, _data.C6, _data.C7, _data.C8, _data.C9, _data.C10, _data.C11, _data.C12, _data.C13, _data.C14,
                     _data.C15, _data.C16, _data.C17, _data.C18, _data.C19, _data.C20, _data.C21, _data.C22, _data.C23, _data.SearchDay, _datasums[i].MAX, _datasums[i].MIN, _datasums[i].AVG,
                     _datasums[i].STDEV, _datasums[i].CAP);
 
@@ -282,11 +283,110 @@ namespace QRESTModel.DataTableGen
         public static DataSet DataSetFromDataTables(List<DataTable> dts)
         {
             DataSet ds = new DataSet();
-            foreach (DataTable dt in dts) {
+            foreach (DataTable dt in dts)
+            {
                 if (dt.Rows.Count > 0)
                     ds.Tables.Add(dt);
             }
             return ds;
+        }
+
+        public static DataTable GetPollingConfig(string UserIDX)
+        {
+            DataTable pollingConfig = new DataTable("Polling_Config");
+            pollingConfig.Columns.AddRange(new DataColumn[18] {
+                new DataColumn("POLL_CONFIG_IDX"),
+                new DataColumn("SITE_IDX"),
+                new DataColumn("CONFIG_NAME"),
+                new DataColumn("RAW_DURATION_CODE"),
+                new DataColumn("LOGGER_TYPE"),
+                new DataColumn("LOGGER_SOURCE"),
+                new DataColumn("LOGGER_PORT"),
+                new DataColumn("LOGGER_USERNAME"),
+                new DataColumn("DELIMITER"),
+                new DataColumn("DATE_COL"),
+                new DataColumn("DATE_FORMAT"),
+                new DataColumn("TIME_COL"),
+                new DataColumn("TIME_FORMAT"),
+                new DataColumn("LOCAL_TIMEZONE"),
+                new DataColumn("TIME_POLL_TYPE"),
+                new DataColumn("ACT_IND"),
+                new DataColumn("ORG_ID"),
+                new DataColumn("SITE_ID")
+                });
+
+            List<SitePollingConfigTypeExtended> _sitePollingConfigTypes = db_Air.GetT_QREST_SITES_POLLING_CONFIG_List(UserIDX);
+            if (_sitePollingConfigTypes != null)
+            {
+                foreach (var _sitePollingConfigType in _sitePollingConfigTypes)
+                {
+                    pollingConfig.Rows.Add(_sitePollingConfigType.POLL_CONFIG_IDX,
+                        _sitePollingConfigType.SITE_IDX,
+                        _sitePollingConfigType.CONFIG_NAME,
+                        _sitePollingConfigType.RAW_DURATION_CODE,
+                        _sitePollingConfigType.LOGGER_TYPE,
+                        _sitePollingConfigType.LOGGER_SOURCE,
+                        _sitePollingConfigType.LOGGER_PORT,
+                        _sitePollingConfigType.LOGGER_USERNAME,
+                        _sitePollingConfigType.DELIMITER,
+                        _sitePollingConfigType.DATE_COL,
+                        _sitePollingConfigType.DATE_FORMAT,
+                        _sitePollingConfigType.TIME_COL,
+                        _sitePollingConfigType.TIME_FORMAT,
+                        _sitePollingConfigType.LOCAL_TIMEZONE,
+                        _sitePollingConfigType.TIME_POLL_TYPE,
+                        _sitePollingConfigType.ACT_IND,
+                        _sitePollingConfigType.ORG_ID,
+                        _sitePollingConfigType.SITE_ID);
+                }
+            }
+
+            return pollingConfig;
+        }
+        public static DataTable GetPollingConfigDetail(string UserIDX)
+        {
+            DataTable pollingConfigDetail = new DataTable("Polling_Config_Detail");
+            pollingConfigDetail.Columns.AddRange(new DataColumn[14] {
+                new DataColumn("POLL_CONFIG_DTL_IDX"),
+                new DataColumn("POLL_CONFIG_IDX"),
+                new DataColumn("MONITOR_IDX"),
+                new DataColumn("PAR_CODE"),
+                new DataColumn("COL"),
+                new DataColumn("COLLECT_UNIT_CODE"),
+                new DataColumn("ALERT_MIN_VALUE"),
+                new DataColumn("ALERT_MAX_VALUE"),
+                new DataColumn("ALERT_MIN_TYPE"),
+                new DataColumn("ALERT_MAX_TYPE"),
+                new DataColumn("SUM_TYPE"),
+                new DataColumn("ROUNDING"),
+                new DataColumn("ORG_ID"),
+                new DataColumn("SITE_ID")
+                });
+
+            List<SitePollingConfigDetailTypeExtended> _sitePollingConfigDetailTypes = db_Air.GetT_QREST_SITES_POLLING_CONFIG_DetailList(UserIDX);
+            if (_sitePollingConfigDetailTypes != null)
+            {
+                foreach (var _sitePollingConfigDetailType in _sitePollingConfigDetailTypes)
+                {
+                    pollingConfigDetail.Rows.Add(
+                        _sitePollingConfigDetailType.POLL_CONFIG_DTL_IDX,
+                        _sitePollingConfigDetailType.POLL_CONFIG_IDX,
+                        _sitePollingConfigDetailType.MONITOR_IDX,
+                        _sitePollingConfigDetailType.PAR_CODE,
+                        _sitePollingConfigDetailType.COL,
+                        _sitePollingConfigDetailType.COLLECT_UNIT_CODE,
+                        _sitePollingConfigDetailType.ALERT_MIN_VALUE,
+                        _sitePollingConfigDetailType.ALERT_MAX_VALUE,
+                        _sitePollingConfigDetailType.ALERT_MIN_TYPE,
+                        _sitePollingConfigDetailType.ALERT_MAX_TYPE,
+                        _sitePollingConfigDetailType.SUM_TYPE,
+                        _sitePollingConfigDetailType.ROUNDING,
+                        _sitePollingConfigDetailType.ORG_ID,
+                        _sitePollingConfigDetailType.SITE_ID);
+                }
+            }
+
+            return pollingConfigDetail;
         }
     }
 }

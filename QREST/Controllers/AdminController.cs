@@ -391,25 +391,6 @@ namespace QREST.Controllers
         }
 
         [HttpPost]
-        public ContentResult ImagePosted(HttpPostedFileBase imageFile)
-        {
-            var jsonString = "";
-            if (Request.Files.Count > 0)
-            {
-                imageFile = Request.Files[0];
-                int fileSize = imageFile.ContentLength;
-                string fileName = imageFile.FileName;
-                string mimeType = imageFile.ContentType;
-                System.IO.Stream fileContent = imageFile.InputStream;
-                //To save file, use SaveAs method
-                string filePath = Server.MapPath("~/tinymceimg/") + fileName;
-                imageFile.SaveAs(filePath);
-                jsonString = String.Format("{{\"location\":\"{0}\"}}", "/tinymceimg/" + fileName);
-            }
-            return Content(jsonString);
-
-        }
-        [HttpPost]
         public async Task<JsonResult> UserDelete(string id)
         {
             var user = await UserManager.FindByIdAsync(id);

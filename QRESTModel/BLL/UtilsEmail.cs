@@ -133,11 +133,6 @@ namespace QRESTModel.BLL
 
             //*************SEND EMAIL*********************  
             System.Net.Mail.SmtpClient smtp = new System.Net.Mail.SmtpClient(mailServer);
-            smtp.EnableSsl = true;
-            smtp.Port = 587;
-            smtp.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network;
-            smtp.UseDefaultCredentials = false;
-            smtp.Credentials = new NetworkCredential("kshitij.mehta@open-environment.org", "naZAPCO&a");
             smtp.Send(message);
 
             return true;

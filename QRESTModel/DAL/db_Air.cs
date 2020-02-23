@@ -41,6 +41,7 @@ namespace QRESTModel.DAL
         public bool? AIRNOW_IND { get; set; }
         public string ConnectivityStatus { get; set; }
     }
+
     public class SitePollingConfigTypeExtended : SitePollingConfigType
     {
         public SitePollingConfigTypeExtended()
@@ -51,6 +52,7 @@ namespace QRESTModel.DAL
         public string LOGGER_USERNAME { get; set; }
         public bool ACT_IND { get; set; }
     }
+
     public class SitePollingConfigDetailType
     {
         public SitePollingConfigDetailType()
@@ -122,7 +124,6 @@ namespace QRESTModel.DAL
         public string SUM_TYPE { get; set; }
         public int? ROUNDING { get; set; }
         public double? ADJUST_FACTOR { get; set; }
-
         public string PAR_CODE { get; set; }
         public string PAR_NAME { get; set; }
         public int POC { get; set; }

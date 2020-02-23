@@ -637,6 +637,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="EmailConfirmed" Type="bit" Nullable="false" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="Name" Type="varchar" MaxLength="1" />
+          <Property Name="TribalAdmin" Type="varchar" MaxLength="1" />
+          <Property Name="QaReviewer" Type="varchar" MaxLength="1" />
+          <Property Name="Operator" Type="varchar" MaxLength="1" />
         </EntityType>
         <Association Name="FK__T_QREST_O__AQS_A__48FABB07">
           <End Role="T_QREST_REF_AQS_AGENCY" Type="Self.T_QREST_REF_AQS_AGENCY" Multiplicity="0..1" />
@@ -1190,7 +1193,10 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
     [USERLIST_DISPLAY_VIEW].[LockoutEndDateUtc] AS [LockoutEndDateUtc], 
     [USERLIST_DISPLAY_VIEW].[EmailConfirmed] AS [EmailConfirmed], 
     [USERLIST_DISPLAY_VIEW].[CREATE_DT] AS [CREATE_DT], 
-    [USERLIST_DISPLAY_VIEW].[Name] AS [Name]
+    [USERLIST_DISPLAY_VIEW].[Name] AS [Name], 
+    [USERLIST_DISPLAY_VIEW].[TribalAdmin] AS [TribalAdmin], 
+    [USERLIST_DISPLAY_VIEW].[QaReviewer] AS [QaReviewer], 
+    [USERLIST_DISPLAY_VIEW].[Operator] AS [Operator]
     FROM [dbo].[USERLIST_DISPLAY_VIEW] AS [USERLIST_DISPLAY_VIEW]</DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK__T_QREST_O__AQS_A__48FABB07" Association="Self.FK__T_QREST_O__AQS_A__48FABB07">
@@ -2767,6 +2773,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="EmailConfirmed" Type="Boolean" Nullable="false" />
           <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
           <Property Name="Name" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="TribalAdmin" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="QaReviewer" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="Operator" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -3567,6 +3576,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="USERLIST_DISPLAY_VIEW">
             <EntityTypeMapping TypeName="QRESTModel.USERLIST_DISPLAY_VIEW">
               <MappingFragment StoreEntitySet="USERLIST_DISPLAY_VIEW">
+                <ScalarProperty Name="Operator" ColumnName="Operator" />
+                <ScalarProperty Name="QaReviewer" ColumnName="QaReviewer" />
+                <ScalarProperty Name="TribalAdmin" ColumnName="TribalAdmin" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
                 <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />

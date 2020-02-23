@@ -22,7 +22,10 @@
                         <th>Created</th>
                         <th>Last Login</th>
                         <th>Status</th>
-                        <th>Is Global Admin</th>
+                        <th>Global Admin</th>
+                        <th>Tribal Admin</th>
+                        <th>Tribal QA</th>
+                        <th>Tribal Operator</th>
                     </tr>
                 </thead>
             </table>
@@ -108,18 +111,36 @@
                     },
                     {
                         "data": "ISGLOBALADMIN",
-                        "name": "IS GLOBAL ADMIN",
+                        "name": "ISGLOBALADMIN",
                         "autoWidth": true,
                         "render": function (d) {
-                            var xxx = '<span class="label label-success"> Yes</span>';
-                            if (d != true) {
-                                xxx = '<span class="label label-warning"> No</span>';
-                            }
-                            return xxx;
+                            return d == true ? '<span class="label label-success"> Yes</span>' : '<span class="label label-warning"> No</span>';
+                        }
+                    },
+                    {
+                        "data": "IS_TRIBAL_ADMIN",
+                        "name": "IS_TRIBAL_ADMIN",
+                        "autoWidth": true,
+                        "render": function (d) {
+                            return d == true ? '<span class="label label-success"> Yes</span>' : '<span class="label label-warning"> No</span>';
+                        }
+                    },
+                    {
+                        "data": "IS_TRIBAL_QA",
+                        "name": "IS_TRIBAL_QA",
+                        "autoWidth": true,
+                        "render": function (d) {
+                            return d == true ? '<span class="label label-success"> Yes</span>' : '<span class="label label-warning"> No</span>';
+                        }
+                    },
+                    {
+                        "data": "IS_TRIBAL_OPERATOR",
+                        "name": "IS_TRIBAL_OPERATOR",
+                        "autoWidth": true,
+                        "render": function (d) {
+                            return d == true ? '<span class="label label-success"> Yes</span>' : '<span class="label label-warning"> No</span>';
                         }
                     }
-//                    { "data": "EmailConfirmed", "name": "EmailConfirmed", "autoWidth": true },
-
                 ],
                 "createdRow": function (row, data, dataIndex) {
                     $('td:eq(0)', row).css('width', '90px');
@@ -128,8 +149,6 @@
                     $('td:eq(0)', row).css('white-space', 'nowrap');
                 }
             });
-
         });
-
     </script>
 }

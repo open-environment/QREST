@@ -23,5 +23,8 @@ namespace QRESTModel.DAL
         public bool EmailConfirmed { get; set; }
         public Nullable<System.DateTime> CREATE_DT { get; set; }
         public string Name { get; set; }
+        public string TribalAdmin { get; set; }
+        public string QaReviewer { get; set; }
+        public string Operator { get; set; }
     }
 }

@@ -29,12 +29,49 @@ namespace QRESTModel.DAL
         public DateTime? CREATE_DT { get; set; }
         public DateTime? LAST_LOGIN_DT { get; set; }
         public DateTime? LOCKOUTEND { get; set; }
-        public Boolean EMAILCONFIRMED { get; set; }
-        public Boolean ISGLOBALADMIN { get; set; }
+        public bool EMAILCONFIRMED { get; set; }
+        public bool ISGLOBALADMIN { get; set; }
+        public bool IS_TRIBAL_ADMIN { get; set; }
+        public bool IS_TRIBAL_QA { get; set; }
+        public bool IS_TRIBAL_OPERATOR { get; set; }
     }
+
+
     public class db_Account
     {
         //***************** T_QREST_USERS ***************************************        
+        public static List<UserListDisplayType> GetT_QREST_USERS()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
+                            select new UserListDisplayType
+                            {
+                                USER_IDX = u.USER_IDX,
+                                EMAIL = u.Email,
+                                FNAME = u.FNAME,
+                                LNAME = u.LNAME,
+                                LAST_LOGIN_DT = u.LAST_LOGIN_DT,
+                                LOCKOUTEND = u.LockoutEndDateUtc,
+                                EMAILCONFIRMED = u.EmailConfirmed,
+                                CREATE_DT = u.CREATE_DT,
+                                ISGLOBALADMIN = u.Name == "1" ? true : false,
+                                IS_TRIBAL_ADMIN = u.TribalAdmin == "1" ? true : false,
+                                IS_TRIBAL_QA = u.QaReviewer == "1" ? true : false,
+                                IS_TRIBAL_OPERATOR = u.Operator == "1" ? true : false
+                            }).ToList();
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static List<T_QREST_USERS> GetT_QREST_USERS(bool ConfirmedOnly)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -63,35 +100,6 @@ namespace QRESTModel.DAL
                     return (from u in ctx.T_QREST_USERS.AsNoTracking()
                             where u.USER_IDX == userIDX
                             select u).FirstOrDefault();
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return null;
-                }
-            }
-        }
-
-        public static List<UserListDisplayType> GetT_QREST_USERS()
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
-                            select new UserListDisplayType
-                            {
-                                USER_IDX = u.USER_IDX,
-                                EMAIL = u.Email,
-                                FNAME = u.FNAME,
-                                LNAME = u.LNAME,
-                                LAST_LOGIN_DT = u.LAST_LOGIN_DT,
-                                LOCKOUTEND = u.LockoutEndDateUtc,
-                                EMAILCONFIRMED = u.EmailConfirmed,
-                                CREATE_DT = u.CREATE_DT,
-                                ISGLOBALADMIN = u.Name == "1" ? true : false
-                            }).ToList();
-
                 }
                 catch (Exception ex)
                 {

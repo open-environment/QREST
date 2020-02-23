@@ -77,13 +77,13 @@ namespace QREST.Controllers
             //Polling Config
             DataTable dtPollingConfig = new DataTable("Polling_Config");
             DataTable dtPollingConfigDetail = new DataTable("Polling_Config_Detail");
-            if (exportdata.Contains("ProfileConfig"))
+            if (exportdata.Contains("PollingConfig"))
             {
                 dtPollingConfig = DataTableGen.GetPollingConfig(UserIDX);
                 dtPollingConfigDetail = DataTableGen.GetPollingConfigDetail(UserIDX);
             }
 
-            DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dtSites, dtMonitors, dtData, dtPollingConfig, dtPollingConfigDetail });
+            DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dtSites, dtMonitors, dtPollingConfig, dtPollingConfigDetail, dtData });
             if (dsExport.Tables.Count > 0)
             {
                 MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);

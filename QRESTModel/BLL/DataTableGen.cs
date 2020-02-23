@@ -295,6 +295,8 @@ namespace QRESTModel.DataTableGen
         {
             DataTable pollingConfig = new DataTable("Polling_Config");
             pollingConfig.Columns.AddRange(new DataColumn[18] {
+                new DataColumn("Org ID"),
+                new DataColumn("Site ID"),
                 new DataColumn("POLL_CONFIG_IDX"),
                 new DataColumn("SITE_IDX"),
                 new DataColumn("CONFIG_NAME"),
@@ -310,9 +312,7 @@ namespace QRESTModel.DataTableGen
                 new DataColumn("TIME_FORMAT"),
                 new DataColumn("LOCAL_TIMEZONE"),
                 new DataColumn("TIME_POLL_TYPE"),
-                new DataColumn("ACT_IND"),
-                new DataColumn("ORG_ID"),
-                new DataColumn("SITE_ID")
+                new DataColumn("ACT_IND")
                 });
 
             List<SitePollingConfigTypeExtended> _sitePollingConfigTypes = db_Air.GetT_QREST_SITES_POLLING_CONFIG_List(UserIDX);
@@ -320,7 +320,10 @@ namespace QRESTModel.DataTableGen
             {
                 foreach (var _sitePollingConfigType in _sitePollingConfigTypes)
                 {
-                    pollingConfig.Rows.Add(_sitePollingConfigType.POLL_CONFIG_IDX,
+                    pollingConfig.Rows.Add(
+                        _sitePollingConfigType.ORG_ID,
+                        _sitePollingConfigType.SITE_ID,
+                        _sitePollingConfigType.POLL_CONFIG_IDX,
                         _sitePollingConfigType.SITE_IDX,
                         _sitePollingConfigType.CONFIG_NAME,
                         _sitePollingConfigType.RAW_DURATION_CODE,
@@ -335,9 +338,7 @@ namespace QRESTModel.DataTableGen
                         _sitePollingConfigType.TIME_FORMAT,
                         _sitePollingConfigType.LOCAL_TIMEZONE,
                         _sitePollingConfigType.TIME_POLL_TYPE,
-                        _sitePollingConfigType.ACT_IND,
-                        _sitePollingConfigType.ORG_ID,
-                        _sitePollingConfigType.SITE_ID);
+                        _sitePollingConfigType.ACT_IND);
                 }
             }
 
@@ -346,17 +347,13 @@ namespace QRESTModel.DataTableGen
         public static DataTable GetPollingConfigDetail(string UserIDX)
         {
             DataTable pollingConfigDetail = new DataTable("Polling_Config_Detail");
-            pollingConfigDetail.Columns.AddRange(new DataColumn[14] {
+            pollingConfigDetail.Columns.AddRange(new DataColumn[10] {
                 new DataColumn("POLL_CONFIG_DTL_IDX"),
                 new DataColumn("POLL_CONFIG_IDX"),
                 new DataColumn("MONITOR_IDX"),
                 new DataColumn("PAR_CODE"),
                 new DataColumn("COL"),
                 new DataColumn("COLLECT_UNIT_CODE"),
-                new DataColumn("ALERT_MIN_VALUE"),
-                new DataColumn("ALERT_MAX_VALUE"),
-                new DataColumn("ALERT_MIN_TYPE"),
-                new DataColumn("ALERT_MAX_TYPE"),
                 new DataColumn("SUM_TYPE"),
                 new DataColumn("ROUNDING"),
                 new DataColumn("ORG_ID"),
@@ -375,10 +372,6 @@ namespace QRESTModel.DataTableGen
                         _sitePollingConfigDetailType.PAR_CODE,
                         _sitePollingConfigDetailType.COL,
                         _sitePollingConfigDetailType.COLLECT_UNIT_CODE,
-                        _sitePollingConfigDetailType.ALERT_MIN_VALUE,
-                        _sitePollingConfigDetailType.ALERT_MAX_VALUE,
-                        _sitePollingConfigDetailType.ALERT_MIN_TYPE,
-                        _sitePollingConfigDetailType.ALERT_MAX_TYPE,
                         _sitePollingConfigDetailType.SUM_TYPE,
                         _sitePollingConfigDetailType.ROUNDING,
                         _sitePollingConfigDetailType.ORG_ID,

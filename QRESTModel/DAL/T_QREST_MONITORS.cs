@@ -45,12 +45,12 @@ namespace QRESTModel.DAL
         public virtual T_QREST_REF_COLLECT_FREQ T_QREST_REF_COLLECT_FREQ { get; set; }
         public virtual T_QREST_REF_DURATION T_QREST_REF_DURATION { get; set; }
         public virtual T_QREST_REF_PAR_METHODS T_QREST_REF_PAR_METHODS { get; set; }
-        public virtual T_QREST_SITES T_QREST_SITES { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_QC_ASSESSMENT> T_QREST_QC_ASSESSMENT { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_SITE_POLL_CONFIG_DTL> T_QREST_SITE_POLL_CONFIG_DTL { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_ASSESS_DOCS> T_QREST_ASSESS_DOCS { get; set; }
+        public virtual T_QREST_SITES T_QREST_SITES { get; set; }
     }
 }

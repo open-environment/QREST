@@ -17,12 +17,12 @@ namespace QRESTModel.DAL
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public T_QREST_SITES()
         {
-            this.T_QREST_MONITORS = new HashSet<T_QREST_MONITORS>();
-            this.T_QREST_SITE_POLL_CONFIG = new HashSet<T_QREST_SITE_POLL_CONFIG>();
-            this.T_QREST_SITE_NOTIFY = new HashSet<T_QREST_SITE_NOTIFY>();
-            this.T_QREST_ASSESS_DOCS = new HashSet<T_QREST_ASSESS_DOCS>();
             this.T_QREST_AQS = new HashSet<T_QREST_AQS>();
+            this.T_QREST_ASSESS_DOCS = new HashSet<T_QREST_ASSESS_DOCS>();
             this.T_QREST_DATA_IMPORTS = new HashSet<T_QREST_DATA_IMPORTS>();
+            this.T_QREST_MONITORS = new HashSet<T_QREST_MONITORS>();
+            this.T_QREST_SITE_NOTIFY = new HashSet<T_QREST_SITE_NOTIFY>();
+            this.T_QREST_SITE_POLL_CONFIG = new HashSet<T_QREST_SITE_POLL_CONFIG>();
         }
     
         public System.Guid SITE_IDX { get; set; }
@@ -57,19 +57,19 @@ namespace QRESTModel.DAL
         public string AIRNOW_ORG { get; set; }
         public string AIRNOW_SITE { get; set; }
     
-        public virtual T_QREST_ORGANIZATIONS T_QREST_ORGANIZATIONS { get; set; }
-        public virtual T_QREST_REF_COUNTY T_QREST_REF_COUNTY { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<T_QREST_SITE_POLL_CONFIG> T_QREST_SITE_POLL_CONFIG { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<T_QREST_SITE_NOTIFY> T_QREST_SITE_NOTIFY { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<T_QREST_ASSESS_DOCS> T_QREST_ASSESS_DOCS { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_AQS> T_QREST_AQS { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_ASSESS_DOCS> T_QREST_ASSESS_DOCS { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_DATA_IMPORTS> T_QREST_DATA_IMPORTS { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_MONITORS> T_QREST_MONITORS { get; set; }
+        public virtual T_QREST_ORGANIZATIONS T_QREST_ORGANIZATIONS { get; set; }
+        public virtual T_QREST_REF_COUNTY T_QREST_REF_COUNTY { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_SITE_NOTIFY> T_QREST_SITE_NOTIFY { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_SITE_POLL_CONFIG> T_QREST_SITE_POLL_CONFIG { get; set; }
     }
 }

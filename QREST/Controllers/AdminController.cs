@@ -385,7 +385,7 @@ namespace QREST.Controllers
         public ActionResult UserListData()
         {
             var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
-            var data = db_Account.GetT_QREST_USERS_byOrgID(null);
+            var data = db_Account.GetT_QREST_USERS();
             var recordsTotal = data.Count();
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });

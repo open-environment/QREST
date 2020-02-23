@@ -48,7 +48,6 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_REF_UNITS> T_QREST_REF_UNITS { get; set; }
         public virtual DbSet<T_QREST_ROLES> T_QREST_ROLES { get; set; }
         public virtual DbSet<T_QREST_SITE_POLL_CONFIG_DTL> T_QREST_SITE_POLL_CONFIG_DTL { get; set; }
-        public virtual DbSet<T_QREST_SITES> T_QREST_SITES { get; set; }
         public virtual DbSet<T_QREST_SYS_LOG> T_QREST_SYS_LOG { get; set; }
         public virtual DbSet<T_QREST_SYS_LOG_ACTIVITY> T_QREST_SYS_LOG_ACTIVITY { get; set; }
         public virtual DbSet<T_QREST_SYS_LOG_EMAIL> T_QREST_SYS_LOG_EMAIL { get; set; }
@@ -72,6 +71,7 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_AQS> T_QREST_AQS { get; set; }
         public virtual DbSet<T_QREST_DATA_IMPORTS> T_QREST_DATA_IMPORTS { get; set; }
         public virtual DbSet<AIRNOW_LAST_HOUR> AIRNOW_LAST_HOUR { get; set; }
+        public virtual DbSet<T_QREST_SITES> T_QREST_SITES { get; set; }
         public virtual DbSet<USERLIST_DISPLAY_VIEW> USERLIST_DISPLAY_VIEW { get; set; }
     
         public virtual ObjectResult<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)

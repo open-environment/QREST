@@ -72,74 +72,26 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<UserListDisplayType> GetT_QREST_USERS_byOrgID(string OrgID)
+        public static List<UserListDisplayType> GetT_QREST_USERS()
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
+                    return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
+                            select new UserListDisplayType
+                            {
+                                USER_IDX = u.USER_IDX,
+                                EMAIL = u.Email,
+                                FNAME = u.FNAME,
+                                LNAME = u.LNAME,
+                                LAST_LOGIN_DT = u.LAST_LOGIN_DT,
+                                LOCKOUTEND = u.LockoutEndDateUtc,
+                                EMAILCONFIRMED = u.EmailConfirmed,
+                                CREATE_DT = u.CREATE_DT,
+                                ISGLOBALADMIN = u.Name == "1" ? true : false
+                            }).ToList();
 
-                    //var a = from t0 in T_QREST_USERS
-                    //join t1 in ctx.T_QREST_USER_ROLES on t0.USER_IDX equals t1.USER_IDX into t1_join
-                    //from t1 in t1_join.DefaultIfEmpty()
-                    //join t2 in ctx.T_QREST_ROLES on t1.ROLE_IDX equals t2.ROLE_IDX into t2_join
-                    //from t2 in t2_join.DefaultIfEmpty()
-                    //select new UserListDisplayType
-                    //{
-                    //    USER_IDX = t0.USER_IDX,
-                    //    EMAIL = t0.Email,
-                    //    FNAME = t0.FNAME,
-                    //    LNAME = t0.LNAME,
-                    //    LAST_LOGIN_DT = t0.LAST_LOGIN_DT,
-                    //    LOCKOUTEND = t0.LockoutEndDateUtc,
-                    //    EMAILCONFIRMED = t0.EmailConfirmed,
-                    //    CREATE_DT = t0.CREATE_DT,
-                    //    ISGLOBALADMIN = t2.Name
-                    //}
-                    if (OrgID == null)
-                        return (from t0 in ctx.USERLIST_DISPLAY_VIEW
-                                select new UserListDisplayType
-                                {
-                                    USER_IDX = t0.USER_IDX,
-                                    EMAIL = t0.Email,
-                                    FNAME = t0.FNAME,
-                                    LNAME = t0.LNAME,
-                                    LAST_LOGIN_DT = t0.LAST_LOGIN_DT,
-                                    LOCKOUTEND = t0.LockoutEndDateUtc,
-                                    EMAILCONFIRMED = t0.EmailConfirmed,
-                                    CREATE_DT = t0.CREATE_DT,
-                                    ISGLOBALADMIN = t0.Name == "ADMIN" ? true : false
-                                }).ToList();
-                    else
-                        return (from t0 in ctx.USERLIST_DISPLAY_VIEW
-                                where t0.ORG_ID == OrgID
-                                select new UserListDisplayType
-                                {
-                                    USER_IDX = t0.USER_IDX,
-                                    EMAIL = t0.Email,
-                                    FNAME = t0.FNAME,
-                                    LNAME = t0.LNAME,
-                                    LAST_LOGIN_DT = t0.LAST_LOGIN_DT,
-                                    LOCKOUTEND = t0.LockoutEndDateUtc,
-                                    EMAILCONFIRMED = t0.EmailConfirmed,
-                                    CREATE_DT = t0.CREATE_DT,
-                                    ISGLOBALADMIN = t0.Name == "ADMIN" ? true : false
-                                }).ToList();
-                    //from u in ctx.T_QREST_USERS.AsNoTracking()
-                    //join uo in ctx.T_QREST_ORG_USERS.AsNoTracking() on u.USER_IDX equals uo.USER_IDX
-                    //where uo.ORG_ID == OrgID
-                    //select new UserListDisplayType
-                    //{
-                    //    USER_IDX = u.USER_IDX,
-                    //    EMAIL = u.Email,
-                    //    FNAME = u.FNAME,
-                    //    LNAME = u.LNAME,
-                    //    LAST_LOGIN_DT = u.LAST_LOGIN_DT,
-                    //    LOCKOUTEND = u.LockoutEndDateUtc,
-                    //    EMAILCONFIRMED = u.EmailConfirmed,
-                    //    CREATE_DT = u.CREATE_DT,
-                    //    ISGLOBALADMIN = false
-                    //}
                 }
                 catch (Exception ex)
                 {
@@ -148,6 +100,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
         //****************** T_QREST_USER_ROLES*************************************
         public static List<T_QREST_ROLES> GetT_QREST_ROLESNotInUserIDX(string userIDX)

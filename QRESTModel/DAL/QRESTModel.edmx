@@ -105,17 +105,17 @@
           <Property Name="DATA_DTTM_LOCAL" Type="datetime2" Precision="0" />
           <Property Name="DATA_VALUE" Type="varchar" MaxLength="20" />
           <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
-          <Property Name="AQS_NULL_CODE" Type="varchar" MaxLength="2" />
           <Property Name="VAL_IND" Type="bit" />
           <Property Name="VAL_CD" Type="varchar" MaxLength="5" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="VAL0_NOTIFY_IND" Type="bit" Nullable="false" />
+          <Property Name="AQS_NULL_CODE" Type="varchar" MaxLength="2" />
           <Property Name="LVL1_VAL_IND" Type="bit" />
           <Property Name="LVL1_VAL_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="LVL1_VAL_DT" Type="datetime2" Precision="0" />
           <Property Name="LVL2_VAL_IND" Type="bit" />
           <Property Name="LVL2_VAL_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="LVL2_VAL_DT" Type="datetime2" Precision="0" />
-          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="NOTES" Type="varchar" MaxLength="100" />
           <Property Name="IMPORT_IDX" Type="uniqueidentifier" />
         </EntityType>
@@ -167,14 +167,14 @@
           <Property Name="ALERT_MAX_VALUE" Type="float" />
           <Property Name="ALERT_AMT_CHANGE" Type="float" />
           <Property Name="ALERT_STUCK_REC_COUNT" Type="int" />
-          <Property Name="ALERT_MIN_TYPE" Type="varchar" MaxLength="1" />
-          <Property Name="ALERT_MAX_TYPE" Type="varchar" MaxLength="1" />
-          <Property Name="ALERT_AMT_CHANGE_TYPE" Type="varchar" MaxLength="1" />
-          <Property Name="ALERT_STUCK_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="ALERT_MIN_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="ALERT_MAX_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="ALERT_AMT_CHANGE_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="ALERT_STUCK_TYPE" Type="varchar" MaxLength="1" />
         </EntityType>
         <EntityType Name="T_QREST_ORG_EMAIL_RULE">
           <Key>
@@ -211,12 +211,12 @@
           <Property Name="EPA_REGION" Type="int" />
           <Property Name="AQS_NAAS_UID" Type="varchar" MaxLength="100" />
           <Property Name="AQS_NAAS_PWD" Type="varchar" MaxLength="250" />
-          <Property Name="SELF_REG_IND" Type="bit" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="SELF_REG_IND" Type="bit" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -305,13 +305,13 @@
           <Property Name="FED_MDL" Type="float" />
           <Property Name="MIN_VALUE" Type="float" />
           <Property Name="MAX_VALUE" Type="float" />
-          <Property Name="CUST_MIN_VALUE" Type="float" />
-          <Property Name="CUST_MAX_VALUE" Type="float" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="CUST_MIN_VALUE" Type="float" />
+          <Property Name="CUST_MAX_VALUE" Type="float" />
         </EntityType>
         <EntityType Name="T_QREST_REF_PAR_UNITS">
           <Key>
@@ -333,12 +333,12 @@
           <Property Name="CAS_NUM" Type="varchar" MaxLength="100" />
           <Property Name="STD_UNIT_CODE" Type="varchar" MaxLength="3" />
           <Property Name="SHORTLIST_IND" Type="bit" Nullable="false" />
-          <Property Name="AQS_IND" Type="bit" Nullable="false" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="AQS_IND" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="T_QREST_REF_QUALIFIER">
           <Key>
@@ -417,7 +417,6 @@
           </Key>
           <Property Name="POLL_CONFIG_IDX" Type="uniqueidentifier" Nullable="false" />
           <Property Name="SITE_IDX" Type="uniqueidentifier" Nullable="false" />
-          <Property Name="CONFIG_NAME" Type="varchar" MaxLength="20" />
           <Property Name="RAW_DURATION_CODE" Type="varchar" MaxLength="1" />
           <Property Name="LOGGER_TYPE" Type="varchar" MaxLength="20" />
           <Property Name="LOGGER_SOURCE" Type="varchar" MaxLength="150" />
@@ -429,13 +428,14 @@
           <Property Name="DATE_FORMAT" Type="varchar" MaxLength="10" />
           <Property Name="TIME_COL" Type="int" />
           <Property Name="TIME_FORMAT" Type="varchar" MaxLength="10" />
-          <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
-          <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="ACT_IND" Type="bit" Nullable="false" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
+          <Property Name="CONFIG_NAME" Type="varchar" MaxLength="20" />
+          <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
         </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
@@ -474,8 +474,6 @@
           <Property Name="POLLING_LAST_RUN_DT" Type="datetime2" Precision="7" />
           <Property Name="POLLING_NEXT_RUN_DT" Type="datetime2" Precision="7" />
           <Property Name="AIRNOW_IND" Type="bit" />
-          <Property Name="AIRNOW_USR" Type="varchar" MaxLength="50" />
-          <Property Name="AIRNOW_PWD" Type="varchar" MaxLength="50" />
           <Property Name="AQS_IND" Type="bit" />
           <Property Name="SITE_COMMENTS" Type="varchar(max)" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
@@ -638,10 +636,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="LockoutEndDateUtc" Type="datetime" />
           <Property Name="EmailConfirmed" Type="bit" Nullable="false" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
-          <Property Name="Name" Type="nvarchar" MaxLength="256" />
-          <Property Name="ORG_ID" Type="varchar" MaxLength="30" />
+          <Property Name="Name" Type="varchar" MaxLength="1" />
         </EntityType>
-        <Association Name="FK__T_QREST_O__AQS_A__6D0D32F4">
+        <Association Name="FK__T_QREST_O__AQS_A__48FABB07">
           <End Role="T_QREST_REF_AQS_AGENCY" Type="Self.T_QREST_REF_AQS_AGENCY" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -653,7 +650,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__EPA_R__6C190EBB">
+        <Association Name="FK__T_QREST_O__EPA_R__480696CE">
           <End Role="T_QREST_REF_REGION" Type="Self.T_QREST_REF_REGION" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -665,7 +662,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__ORG_I__6FE99F9F">
+        <Association Name="FK__T_QREST_O__ORG_I__4BD727B2">
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
@@ -679,7 +676,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__T_QREST_O__STATE__6B24EA82">
+        <Association Name="FK__T_QREST_O__STATE__47127295">
           <End Role="T_QREST_REF_STATE" Type="Self.T_QREST_REF_STATE" Multiplicity="0..1" />
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="*" />
           <ReferentialConstraint>
@@ -1193,23 +1190,22 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
     [USERLIST_DISPLAY_VIEW].[LockoutEndDateUtc] AS [LockoutEndDateUtc], 
     [USERLIST_DISPLAY_VIEW].[EmailConfirmed] AS [EmailConfirmed], 
     [USERLIST_DISPLAY_VIEW].[CREATE_DT] AS [CREATE_DT], 
-    [USERLIST_DISPLAY_VIEW].[Name] AS [Name], 
-    [USERLIST_DISPLAY_VIEW].[ORG_ID] AS [ORG_ID]
+    [USERLIST_DISPLAY_VIEW].[Name] AS [Name]
     FROM [dbo].[USERLIST_DISPLAY_VIEW] AS [USERLIST_DISPLAY_VIEW]</DefiningQuery>
           </EntitySet>
-          <AssociationSet Name="FK__T_QREST_O__AQS_A__6D0D32F4" Association="Self.FK__T_QREST_O__AQS_A__6D0D32F4">
+          <AssociationSet Name="FK__T_QREST_O__AQS_A__48FABB07" Association="Self.FK__T_QREST_O__AQS_A__48FABB07">
             <End Role="T_QREST_REF_AQS_AGENCY" EntitySet="T_QREST_REF_AQS_AGENCY" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__EPA_R__6C190EBB" Association="Self.FK__T_QREST_O__EPA_R__6C190EBB">
+          <AssociationSet Name="FK__T_QREST_O__EPA_R__480696CE" Association="Self.FK__T_QREST_O__EPA_R__480696CE">
             <End Role="T_QREST_REF_REGION" EntitySet="T_QREST_REF_REGION" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__ORG_I__6FE99F9F" Association="Self.FK__T_QREST_O__ORG_I__6FE99F9F">
+          <AssociationSet Name="FK__T_QREST_O__ORG_I__4BD727B2" Association="Self.FK__T_QREST_O__ORG_I__4BD727B2">
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
             <End Role="T_QREST_ORG_EMAIL_RULE" EntitySet="T_QREST_ORG_EMAIL_RULE" />
           </AssociationSet>
-          <AssociationSet Name="FK__T_QREST_O__STATE__6B24EA82" Association="Self.FK__T_QREST_O__STATE__6B24EA82">
+          <AssociationSet Name="FK__T_QREST_O__STATE__47127295" Association="Self.FK__T_QREST_O__STATE__47127295">
             <End Role="T_QREST_REF_STATE" EntitySet="T_QREST_REF_STATE" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
@@ -1359,7 +1355,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="T_QREST_REF_UNITS" EntityType="QRESTModel.T_QREST_REF_UNITS" />
           <EntitySet Name="T_QREST_ROLES" EntityType="QRESTModel.T_QREST_ROLES" />
           <EntitySet Name="T_QREST_SITE_POLL_CONFIG_DTL" EntityType="QRESTModel.T_QREST_SITE_POLL_CONFIG_DTL" />
-          <EntitySet Name="T_QREST_SITES" EntityType="QRESTModel.T_QREST_SITES" />
           <EntitySet Name="T_QREST_SYS_LOG" EntityType="QRESTModel.T_QREST_SYS_LOG" />
           <EntitySet Name="T_QREST_SYS_LOG_ACTIVITY" EntityType="QRESTModel.T_QREST_SYS_LOG_ACTIVITY" />
           <EntitySet Name="T_QREST_SYS_LOG_EMAIL" EntityType="QRESTModel.T_QREST_SYS_LOG_EMAIL" />
@@ -1391,10 +1386,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_REF_STATE" EntitySet="T_QREST_REF_STATE" />
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
           </AssociationSet>
-          <AssociationSet Name="FK_T_QREST_SITES_O" Association="QRESTModel.FK_T_QREST_SITES_O">
-            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
-          </AssociationSet>
           <AssociationSet Name="FK_T_QREST_QC_ASSESSMENT_U" Association="QRESTModel.FK_T_QREST_QC_ASSESSMENT_U">
             <End Role="T_QREST_REF_UNITS" EntitySet="T_QREST_REF_UNITS" />
             <End Role="T_QREST_QC_ASSESSMENT" EntitySet="T_QREST_QC_ASSESSMENT" />
@@ -1402,10 +1393,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <AssociationSet Name="FK_T_QREST_REF_COUNTY_S" Association="QRESTModel.FK_T_QREST_REF_COUNTY_S">
             <End Role="T_QREST_REF_STATE" EntitySet="T_QREST_REF_STATE" />
             <End Role="T_QREST_REF_COUNTY" EntitySet="T_QREST_REF_COUNTY" />
-          </AssociationSet>
-          <AssociationSet Name="FK_T_QREST_SITES_C" Association="QRESTModel.FK_T_QREST_SITES_C">
-            <End Role="T_QREST_REF_COUNTY" EntitySet="T_QREST_REF_COUNTY" />
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
           </AssociationSet>
           <AssociationSet Name="FK_T_QREST_REF_PAR_METHODS_P" Association="QRESTModel.FK_T_QREST_REF_PAR_METHODS_P">
             <End Role="T_QREST_REF_PARAMETERS" EntitySet="T_QREST_REF_PARAMETERS" />
@@ -1443,10 +1430,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           </AssociationSet>
           <AssociationSet Name="FK_T_QREST_MONITORS_P" Association="QRESTModel.FK_T_QREST_MONITORS_P">
             <End Role="T_QREST_REF_PAR_METHODS" EntitySet="T_QREST_REF_PAR_METHODS" />
-            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
-          </AssociationSet>
-          <AssociationSet Name="FK_T_QREST_MONITORS_S" Association="QRESTModel.FK_T_QREST_MONITORS_S">
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
             <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
           </AssociationSet>
           <AssociationSet Name="FK_T_QREST_QC_ASSESSMENT_M" Association="QRESTModel.FK_T_QREST_QC_ASSESSMENT_M">
@@ -1503,15 +1486,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
             <End Role="T_QREST_SITE_POLL_CONFIG_DTL" EntitySet="T_QREST_SITE_POLL_CONFIG_DTL" />
           </AssociationSet>
-          <AssociationSet Name="FK_T_SITE_POLL_CONFIG_S" Association="QRESTModel.FK_T_SITE_POLL_CONFIG_S">
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
-            <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
-          </AssociationSet>
           <EntitySet Name="T_QREST_SITE_NOTIFY" EntityType="QRESTModel.T_QREST_SITE_NOTIFY" />
-          <AssociationSet Name="FK_T_QREST_SITE_NOTIFY_S" Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_S">
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
-            <End Role="T_QREST_SITE_NOTIFY" EntitySet="T_QREST_SITE_NOTIFY" />
-          </AssociationSet>
           <AssociationSet Name="FK_T_QREST_SITE_NOTIFY_U" Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_U">
             <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
             <End Role="T_QREST_SITE_NOTIFY" EntitySet="T_QREST_SITE_NOTIFY" />
@@ -1519,10 +1494,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="T_QREST_ASSESS_DOCS" EntityType="QRESTModel.T_QREST_ASSESS_DOCS" />
           <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_M" Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_M">
             <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
-            <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
-          </AssociationSet>
-          <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_S" Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_S">
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
             <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
           </AssociationSet>
           <FunctionImport Name="SP_AQS_REVIEW_STATUS" ReturnType="Collection(QRESTModel.SP_AQS_REVIEW_STATUS_Result)">
@@ -1535,20 +1506,45 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
             <End Role="T_QREST_AQS" EntitySet="T_QREST_AQS" />
           </AssociationSet>
-          <AssociationSet Name="FK_T_QREST_AQS_S" Association="QRESTModel.FK_T_QREST_AQS_S">
-            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
-            <End Role="T_QREST_AQS" EntitySet="T_QREST_AQS" />
-          </AssociationSet>
           <EntitySet Name="T_QREST_DATA_IMPORTS" EntityType="QRESTModel.T_QREST_DATA_IMPORTS" />
           <AssociationSet Name="FK_T_QREST_DATA_IMPORTS_O" Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_O">
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
             <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
           </AssociationSet>
+          <EntitySet Name="AIRNOW_LAST_HOUR" EntityType="QRESTModel.AIRNOW_LAST_HOUR" />
+          <EntitySet Name="T_QREST_SITES" EntityType="QRESTModel.T_QREST_SITES" />
+          <AssociationSet Name="FK_T_QREST_AQS_S" Association="QRESTModel.FK_T_QREST_AQS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_AQS" EntitySet="T_QREST_AQS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_S" Association="QRESTModel.FK_T_QREST_ASSESS_DOCS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
+          </AssociationSet>
           <AssociationSet Name="FK_T_QREST_DATA_IMPORTS_S" Association="QRESTModel.FK_T_QREST_DATA_IMPORTS_S">
             <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
             <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
           </AssociationSet>
-          <EntitySet Name="AIRNOW_LAST_HOUR" EntityType="QRESTModel.AIRNOW_LAST_HOUR" />
+          <AssociationSet Name="FK_T_QREST_MONITORS_S" Association="QRESTModel.FK_T_QREST_MONITORS_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_SITES_O" Association="QRESTModel.FK_T_QREST_SITES_O">
+            <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_SITES_C" Association="QRESTModel.FK_T_QREST_SITES_C">
+            <End Role="T_QREST_REF_COUNTY" EntitySet="T_QREST_REF_COUNTY" />
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_SITE_NOTIFY_S" Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_SITE_NOTIFY" EntitySet="T_QREST_SITE_NOTIFY" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_SITE_POLL_CONFIG_S" Association="QRESTModel.FK_T_SITE_POLL_CONFIG_S">
+            <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
+            <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
+          </AssociationSet>
           <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
@@ -1656,10 +1652,10 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_REF_AQS_AGENCY" Relationship="QRESTModel.FK__T_QREST_O__AQS_A__48FABB07" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_REF_AQS_AGENCY" />
           <NavigationProperty Name="T_QREST_REF_REGION" Relationship="QRESTModel.FK__T_QREST_O__EPA_R__480696CE" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_REF_REGION" />
           <NavigationProperty Name="T_QREST_REF_STATE" Relationship="QRESTModel.FK__T_QREST_O__STATE__47127295" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_REF_STATE" />
-          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_SITES" />
           <Property Name="SELF_REG_IND" Type="Boolean" />
           <NavigationProperty Name="T_QREST_AQS" Relationship="QRESTModel.FK_T_QREST_AQS_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_AQS" />
           <NavigationProperty Name="T_QREST_DATA_IMPORTS" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_DATA_IMPORTS" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_SITES" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -1821,50 +1817,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="ROUNDING" Type="Int32" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG_DTL" ToRole="T_QREST_SITE_POLL_CONFIG" />
           <Property Name="ADJUST_FACTOR" Type="Double" />
-        </EntityType>
-        <EntityType Name="T_QREST_SITES">
-          <Key>
-            <PropertyRef Name="SITE_IDX" />
-          </Key>
-          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
-          <Property Name="ORG_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="SITE_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="SITE_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="AQS_SITE_ID" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
-          <Property Name="STATE_CD" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="COUNTY_CD" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="LATITUDE" Type="Decimal" Precision="18" Scale="5" />
-          <Property Name="LONGITUDE" Type="Decimal" Precision="18" Scale="5" />
-          <Property Name="ELEVATION" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CITY" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ZIP_CODE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="START_DT" Type="DateTime" Precision="0" />
-          <Property Name="END_DT" Type="DateTime" Precision="0" />
-          <Property Name="POLLING_ONLINE_IND" Type="Boolean" />
-          <Property Name="POLLING_FREQ_TYPE" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
-          <Property Name="POLLING_FREQ_NUM" Type="Int32" />
-          <Property Name="POLLING_LAST_RUN_DT" Type="DateTime" Precision="7" />
-          <Property Name="POLLING_NEXT_RUN_DT" Type="DateTime" Precision="7" />
-          <Property Name="AIRNOW_IND" Type="Boolean" />
-          <Property Name="AQS_IND" Type="Boolean" />
-          <Property Name="SITE_COMMENTS" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
-          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
-          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_SITES" ToRole="T_QREST_ORGANIZATIONS" />
-          <NavigationProperty Name="T_QREST_REF_COUNTY" Relationship="QRESTModel.FK_T_QREST_SITES_C" FromRole="T_QREST_SITES" ToRole="T_QREST_REF_COUNTY" />
-          <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_MONITORS" />
-          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_POLL_CONFIG" />
-          <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_NOTIFY" />
-          <NavigationProperty Name="T_QREST_ASSESS_DOCS" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_ASSESS_DOCS" />
-          <NavigationProperty Name="T_QREST_AQS" Relationship="QRESTModel.FK_T_QREST_AQS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_AQS" />
-          <NavigationProperty Name="T_QREST_DATA_IMPORTS" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_DATA_IMPORTS" />
-          <Property Name="AIRNOW_USR" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="AIRNOW_PWD" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="AIRNOW_ORG" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="AIRNOW_SITE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG">
           <Key>
@@ -2049,18 +2001,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_T_QREST_SITES_O">
-          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1" />
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_ORGANIZATIONS">
-              <PropertyRef Name="ORG_ID" />
-            </Principal>
-            <Dependent Role="T_QREST_SITES">
-              <PropertyRef Name="ORG_ID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_T_QREST_QC_ASSESSMENT_U">
           <End Type="QRESTModel.T_QREST_REF_UNITS" Role="T_QREST_REF_UNITS" Multiplicity="0..1" />
           <End Type="QRESTModel.T_QREST_QC_ASSESSMENT" Role="T_QREST_QC_ASSESSMENT" Multiplicity="*" />
@@ -2082,20 +2022,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Principal>
             <Dependent Role="T_QREST_REF_COUNTY">
               <PropertyRef Name="STATE_CD" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_T_QREST_SITES_C">
-          <End Type="QRESTModel.T_QREST_REF_COUNTY" Role="T_QREST_REF_COUNTY" Multiplicity="0..1" />
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_REF_COUNTY">
-              <PropertyRef Name="STATE_CD" />
-              <PropertyRef Name="COUNTY_CD" />
-            </Principal>
-            <Dependent Role="T_QREST_SITES">
-              <PropertyRef Name="STATE_CD" />
-              <PropertyRef Name="COUNTY_CD" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2189,7 +2115,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_REF_COLLECT_FREQ" Relationship="QRESTModel.FK_T_QREST_MONITORS_C" FromRole="T_QREST_MONITORS" ToRole="T_QREST_REF_COLLECT_FREQ" />
           <NavigationProperty Name="T_QREST_REF_DURATION" Relationship="QRESTModel.FK_T_QREST_MONITORS_D" FromRole="T_QREST_MONITORS" ToRole="T_QREST_REF_DURATION" />
           <NavigationProperty Name="T_QREST_REF_PAR_METHODS" Relationship="QRESTModel.FK_T_QREST_MONITORS_P" FromRole="T_QREST_MONITORS" ToRole="T_QREST_REF_PAR_METHODS" />
-          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_MONITORS" ToRole="T_QREST_SITES" />
           <NavigationProperty Name="T_QREST_QC_ASSESSMENT" Relationship="QRESTModel.FK_T_QREST_QC_ASSESSMENT_M" FromRole="T_QREST_MONITORS" ToRole="T_QREST_QC_ASSESSMENT" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG_DTL" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_M" FromRole="T_QREST_MONITORS" ToRole="T_QREST_SITE_POLL_CONFIG_DTL" />
           <Property Name="ALERT_MIN_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
@@ -2197,6 +2122,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="ALERT_AMT_CHANGE_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <Property Name="ALERT_STUCK_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="T_QREST_ASSESS_DOCS" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_M" FromRole="T_QREST_MONITORS" ToRole="T_QREST_ASSESS_DOCS" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_MONITORS" ToRole="T_QREST_SITES" />
         </EntityType>
         <EntityType Name="T_QREST_REF_COLLECT_FREQ">
           <Key>
@@ -2244,18 +2170,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Principal>
             <Dependent Role="T_QREST_MONITORS">
               <PropertyRef Name="PAR_METHOD_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_T_QREST_MONITORS_S">
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1" />
-          <End Type="QRESTModel.T_QREST_MONITORS" Role="T_QREST_MONITORS" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITES">
-              <PropertyRef Name="SITE_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_MONITORS">
-              <PropertyRef Name="SITE_IDX" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2496,9 +2410,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="LOCAL_TIMEZONE" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="T_QREST_REF_DURATION" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_D" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_REF_DURATION" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG_DTL" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITE_POLL_CONFIG_DTL" />
-          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
           <Property Name="CONFIG_NAME" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="TIME_POLL_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
         </EntityType>
         <Association Name="FK_T_SITE_POLL_CONFIG_D">
           <End Type="QRESTModel.T_QREST_REF_DURATION" Role="T_QREST_REF_DURATION" Multiplicity="0..1" />
@@ -2526,20 +2440,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_T_SITE_POLL_CONFIG_S">
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG" Role="T_QREST_SITE_POLL_CONFIG" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITES">
-              <PropertyRef Name="SITE_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_SITE_POLL_CONFIG">
-              <PropertyRef Name="SITE_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="T_QREST_SITE_NOTIFY">
           <Key>
             <PropertyRef Name="SITE_NOTIFY_IDX" />
@@ -2549,23 +2449,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="NOTIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
-          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITE_NOTIFY" ToRole="T_QREST_SITES" />
           <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_U" FromRole="T_QREST_SITE_NOTIFY" ToRole="T_QREST_USERS" />
+          <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITE_NOTIFY" ToRole="T_QREST_SITES" />
         </EntityType>
-        <Association Name="FK_T_QREST_SITE_NOTIFY_S">
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="QRESTModel.T_QREST_SITE_NOTIFY" Role="T_QREST_SITE_NOTIFY" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITES">
-              <PropertyRef Name="SITE_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_SITE_NOTIFY">
-              <PropertyRef Name="SITE_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_T_QREST_SITE_NOTIFY_U">
           <End Type="QRESTModel.T_QREST_USERS" Role="T_QREST_USERS" Multiplicity="0..1" />
           <End Type="QRESTModel.T_QREST_SITE_NOTIFY" Role="T_QREST_SITE_NOTIFY" Multiplicity="*" />
@@ -2612,20 +2498,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Principal>
             <Dependent Role="T_QREST_ASSESS_DOCS">
               <PropertyRef Name="MONITOR_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_T_QREST_ASSESS_DOCS_S">
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="QRESTModel.T_QREST_ASSESS_DOCS" Role="T_QREST_ASSESS_DOCS" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITES">
-              <PropertyRef Name="SITE_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_ASSESS_DOCS">
-              <PropertyRef Name="SITE_IDX" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2684,20 +2556,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_T_QREST_AQS_S">
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="QRESTModel.T_QREST_AQS" Role="T_QREST_AQS" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITES">
-              <PropertyRef Name="SITE_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_AQS">
-              <PropertyRef Name="SITE_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="T_QREST_DATA_IMPORTS">
           <Key>
             <PropertyRef Name="IMPORT_IDX" />
@@ -2726,20 +2584,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_T_QREST_DATA_IMPORTS_S">
-          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="QRESTModel.T_QREST_DATA_IMPORTS" Role="T_QREST_DATA_IMPORTS" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="T_QREST_SITES">
-              <PropertyRef Name="SITE_IDX" />
-            </Principal>
-            <Dependent Role="T_QREST_DATA_IMPORTS">
-              <PropertyRef Name="SITE_IDX" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="AIRNOW_LAST_HOUR">
           <Key>
             <PropertyRef Name="DATA_STATUS" />
@@ -2755,6 +2599,158 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="POC" Type="Int32" Nullable="false" />
         </EntityType>
+        <EntityType Name="T_QREST_SITES">
+          <Key>
+            <PropertyRef Name="SITE_IDX" />
+          </Key>
+          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="ORG_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="SITE_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SITE_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_SITE_ID" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="STATE_CD" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="COUNTY_CD" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="LATITUDE" Type="Decimal" Precision="18" Scale="5" />
+          <Property Name="LONGITUDE" Type="Decimal" Precision="18" Scale="5" />
+          <Property Name="ELEVATION" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CITY" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ZIP_CODE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="START_DT" Type="DateTime" Precision="0" />
+          <Property Name="END_DT" Type="DateTime" Precision="0" />
+          <Property Name="POLLING_ONLINE_IND" Type="Boolean" />
+          <Property Name="POLLING_FREQ_TYPE" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="POLLING_FREQ_NUM" Type="Int32" />
+          <Property Name="POLLING_LAST_RUN_DT" Type="DateTime" Precision="7" />
+          <Property Name="POLLING_NEXT_RUN_DT" Type="DateTime" Precision="7" />
+          <Property Name="AIRNOW_IND" Type="Boolean" />
+          <Property Name="AQS_IND" Type="Boolean" />
+          <Property Name="SITE_COMMENTS" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <Property Name="AIRNOW_USR" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AIRNOW_PWD" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AIRNOW_ORG" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="AIRNOW_SITE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_AQS" Relationship="QRESTModel.FK_T_QREST_AQS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_AQS" />
+          <NavigationProperty Name="T_QREST_ASSESS_DOCS" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_ASSESS_DOCS" />
+          <NavigationProperty Name="T_QREST_DATA_IMPORTS" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_DATA_IMPORTS" />
+          <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_MONITORS_S" FromRole="T_QREST_SITES" ToRole="T_QREST_MONITORS" />
+          <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_SITES" ToRole="T_QREST_ORGANIZATIONS" />
+          <NavigationProperty Name="T_QREST_REF_COUNTY" Relationship="QRESTModel.FK_T_QREST_SITES_C" FromRole="T_QREST_SITES" ToRole="T_QREST_REF_COUNTY" />
+          <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_NOTIFY" />
+          <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_POLL_CONFIG" />
+        </EntityType>
+        <Association Name="FK_T_QREST_AQS_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_AQS" Role="T_QREST_AQS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_AQS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_ASSESS_DOCS_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_ASSESS_DOCS" Role="T_QREST_ASSESS_DOCS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_ASSESS_DOCS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_DATA_IMPORTS_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_DATA_IMPORTS" Role="T_QREST_DATA_IMPORTS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_IMPORTS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_MONITORS_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1" />
+          <End Type="QRESTModel.T_QREST_MONITORS" Role="T_QREST_MONITORS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_MONITORS">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_SITES_O">
+          <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1" />
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_ORGANIZATIONS">
+              <PropertyRef Name="ORG_ID" />
+            </Principal>
+            <Dependent Role="T_QREST_SITES">
+              <PropertyRef Name="ORG_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_SITES_C">
+          <End Type="QRESTModel.T_QREST_REF_COUNTY" Role="T_QREST_REF_COUNTY" Multiplicity="0..1" />
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_REF_COUNTY">
+              <PropertyRef Name="STATE_CD" />
+              <PropertyRef Name="COUNTY_CD" />
+            </Principal>
+            <Dependent Role="T_QREST_SITES">
+              <PropertyRef Name="STATE_CD" />
+              <PropertyRef Name="COUNTY_CD" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_QREST_SITE_NOTIFY_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_SITE_NOTIFY" Role="T_QREST_SITE_NOTIFY" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_SITE_NOTIFY">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_T_SITE_POLL_CONFIG_S">
+          <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_SITE_POLL_CONFIG" Role="T_QREST_SITE_POLL_CONFIG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_SITES">
+              <PropertyRef Name="SITE_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_SITE_POLL_CONFIG">
+              <PropertyRef Name="SITE_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityType Name="USERLIST_DISPLAY_VIEW">
           <Key>
             <PropertyRef Name="USER_IDX" />
@@ -2770,8 +2766,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="LockoutEndDateUtc" Type="DateTime" Precision="3" />
           <Property Name="EmailConfirmed" Type="Boolean" Nullable="false" />
           <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
-          <Property Name="Name" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="ORG_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Name" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -3033,43 +3028,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
                 <ScalarProperty Name="POLL_CONFIG_IDX" ColumnName="POLL_CONFIG_IDX" />
                 <ScalarProperty Name="POLL_CONFIG_DTL_IDX" ColumnName="POLL_CONFIG_DTL_IDX" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="T_QREST_SITES">
-            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITES">
-              <MappingFragment StoreEntitySet="T_QREST_SITES">
-                <ScalarProperty Name="AIRNOW_SITE" ColumnName="AIRNOW_SITE" />
-                <ScalarProperty Name="AIRNOW_ORG" ColumnName="AIRNOW_ORG" />
-                <ScalarProperty Name="AIRNOW_PWD" ColumnName="AIRNOW_PWD" />
-                <ScalarProperty Name="AIRNOW_USR" ColumnName="AIRNOW_USR" />
-                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
-                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
-                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
-                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
-                <ScalarProperty Name="SITE_COMMENTS" ColumnName="SITE_COMMENTS" />
-                <ScalarProperty Name="AQS_IND" ColumnName="AQS_IND" />
-                <ScalarProperty Name="AIRNOW_IND" ColumnName="AIRNOW_IND" />
-                <ScalarProperty Name="POLLING_NEXT_RUN_DT" ColumnName="POLLING_NEXT_RUN_DT" />
-                <ScalarProperty Name="POLLING_LAST_RUN_DT" ColumnName="POLLING_LAST_RUN_DT" />
-                <ScalarProperty Name="POLLING_FREQ_NUM" ColumnName="POLLING_FREQ_NUM" />
-                <ScalarProperty Name="POLLING_FREQ_TYPE" ColumnName="POLLING_FREQ_TYPE" />
-                <ScalarProperty Name="POLLING_ONLINE_IND" ColumnName="POLLING_ONLINE_IND" />
-                <ScalarProperty Name="END_DT" ColumnName="END_DT" />
-                <ScalarProperty Name="START_DT" ColumnName="START_DT" />
-                <ScalarProperty Name="ZIP_CODE" ColumnName="ZIP_CODE" />
-                <ScalarProperty Name="CITY" ColumnName="CITY" />
-                <ScalarProperty Name="ADDRESS" ColumnName="ADDRESS" />
-                <ScalarProperty Name="ELEVATION" ColumnName="ELEVATION" />
-                <ScalarProperty Name="LONGITUDE" ColumnName="LONGITUDE" />
-                <ScalarProperty Name="LATITUDE" ColumnName="LATITUDE" />
-                <ScalarProperty Name="COUNTY_CD" ColumnName="COUNTY_CD" />
-                <ScalarProperty Name="STATE_CD" ColumnName="STATE_CD" />
-                <ScalarProperty Name="AQS_SITE_ID" ColumnName="AQS_SITE_ID" />
-                <ScalarProperty Name="SITE_NAME" ColumnName="SITE_NAME" />
-                <ScalarProperty Name="SITE_ID" ColumnName="SITE_ID" />
-                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
-                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3555,22 +3513,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="USERLIST_DISPLAY_VIEW">
-            <EntityTypeMapping TypeName="IsTypeOf(QRESTModel.USERLIST_DISPLAY_VIEW)">
-              <MappingFragment StoreEntitySet="USERLIST_DISPLAY_VIEW">
-                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
-                <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />
-                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
-                <ScalarProperty Name="LAST_LOGIN_DT" ColumnName="LAST_LOGIN_DT" />
-                <ScalarProperty Name="LNAME" ColumnName="LNAME" />
-                <ScalarProperty Name="FNAME" ColumnName="FNAME" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="AIRNOW_LAST_HOUR">
             <EntityTypeMapping TypeName="QRESTModel.AIRNOW_LAST_HOUR">
               <MappingFragment StoreEntitySet="AIRNOW_LAST_HOUR">
@@ -3582,6 +3524,58 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="DATA_STATUS" ColumnName="DATA_STATUS" />
                 <ScalarProperty Name="AIRNOW_SITE" ColumnName="AIRNOW_SITE" />
                 <ScalarProperty Name="AIRNOW_ORG" ColumnName="AIRNOW_ORG" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_SITES">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITES">
+              <MappingFragment StoreEntitySet="T_QREST_SITES">
+                <ScalarProperty Name="AIRNOW_SITE" ColumnName="AIRNOW_SITE" />
+                <ScalarProperty Name="AIRNOW_ORG" ColumnName="AIRNOW_ORG" />
+                <ScalarProperty Name="AIRNOW_PWD" ColumnName="AIRNOW_PWD" />
+                <ScalarProperty Name="AIRNOW_USR" ColumnName="AIRNOW_USR" />
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="SITE_COMMENTS" ColumnName="SITE_COMMENTS" />
+                <ScalarProperty Name="AQS_IND" ColumnName="AQS_IND" />
+                <ScalarProperty Name="AIRNOW_IND" ColumnName="AIRNOW_IND" />
+                <ScalarProperty Name="POLLING_NEXT_RUN_DT" ColumnName="POLLING_NEXT_RUN_DT" />
+                <ScalarProperty Name="POLLING_LAST_RUN_DT" ColumnName="POLLING_LAST_RUN_DT" />
+                <ScalarProperty Name="POLLING_FREQ_NUM" ColumnName="POLLING_FREQ_NUM" />
+                <ScalarProperty Name="POLLING_FREQ_TYPE" ColumnName="POLLING_FREQ_TYPE" />
+                <ScalarProperty Name="POLLING_ONLINE_IND" ColumnName="POLLING_ONLINE_IND" />
+                <ScalarProperty Name="END_DT" ColumnName="END_DT" />
+                <ScalarProperty Name="START_DT" ColumnName="START_DT" />
+                <ScalarProperty Name="ZIP_CODE" ColumnName="ZIP_CODE" />
+                <ScalarProperty Name="CITY" ColumnName="CITY" />
+                <ScalarProperty Name="ADDRESS" ColumnName="ADDRESS" />
+                <ScalarProperty Name="ELEVATION" ColumnName="ELEVATION" />
+                <ScalarProperty Name="LONGITUDE" ColumnName="LONGITUDE" />
+                <ScalarProperty Name="LATITUDE" ColumnName="LATITUDE" />
+                <ScalarProperty Name="COUNTY_CD" ColumnName="COUNTY_CD" />
+                <ScalarProperty Name="STATE_CD" ColumnName="STATE_CD" />
+                <ScalarProperty Name="AQS_SITE_ID" ColumnName="AQS_SITE_ID" />
+                <ScalarProperty Name="SITE_NAME" ColumnName="SITE_NAME" />
+                <ScalarProperty Name="SITE_ID" ColumnName="SITE_ID" />
+                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
+                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="USERLIST_DISPLAY_VIEW">
+            <EntityTypeMapping TypeName="QRESTModel.USERLIST_DISPLAY_VIEW">
+              <MappingFragment StoreEntitySet="USERLIST_DISPLAY_VIEW">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />
+                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
+                <ScalarProperty Name="LAST_LOGIN_DT" ColumnName="LAST_LOGIN_DT" />
+                <ScalarProperty Name="LNAME" ColumnName="LNAME" />
+                <ScalarProperty Name="FNAME" ColumnName="FNAME" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

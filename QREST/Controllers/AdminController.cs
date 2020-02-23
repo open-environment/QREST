@@ -219,6 +219,28 @@ namespace QREST.Controllers
             return RedirectToAction("HelpConfig", new { id = model.EditHelp.HELP_IDX });
         }
 
+        [HttpPost]
+        public ContentResult ImagePosted(HttpPostedFileBase imageFile)
+        {
+            var jsonString = "";
+            if (Request.Files.Count > 0)
+            {
+                imageFile = Request.Files[0];
+                int fileSize = imageFile.ContentLength;
+                string fileName = imageFile.FileName;
+                string mimeType = imageFile.ContentType;
+                System.IO.Stream fileContent = imageFile.InputStream;
+                if (!Directory.Exists(Server.MapPath("~/TinyMCEImg/")))
+                    Directory.CreateDirectory(Server.MapPath("~/TinyMCEImg/"));
+                string filePath = Server.MapPath("~/TinyMCEImg/") + fileName;
+                imageFile.SaveAs(filePath);
+                jsonString = String.Format("{{\"location\":\"{0}\"}}", "/TinyMCEImg/" + fileName);
+            }
+            return Content(jsonString);
+        }
+
+
+
 
         //************************************* ORGANIZATIONS ************************************************************
 
@@ -367,25 +389,6 @@ namespace QREST.Controllers
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
-
-        [HttpPost]
-        public ContentResult ImagePosted(HttpPostedFileBase imageFile)
-        {
-            var jsonString = "";
-            if (Request.Files.Count > 0)
-            {
-                imageFile = Request.Files[0];
-                int fileSize = imageFile.ContentLength;
-                string fileName = imageFile.FileName;
-                string mimeType = imageFile.ContentType;
-                System.IO.Stream fileContent = imageFile.InputStream;
-                if (!Directory.Exists(Server.MapPath("~/TinyMCEImg/")))
-                    Directory.CreateDirectory(Server.MapPath("~/TinyMCEImg/"));
-                string filePath = Server.MapPath("~/TinyMCEImg/") + fileName;
-                imageFile.SaveAs(filePath);
-                jsonString = String.Format("{{\"location\":\"{0}\"}}", "/TinyMCEImg/" + fileName);
-            }
-            return Content(jsonString);
 
         [HttpPost]
         public async Task<JsonResult> UserDelete(string id)

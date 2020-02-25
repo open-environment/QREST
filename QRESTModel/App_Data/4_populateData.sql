@@ -14,6 +14,9 @@ INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('SMS_PHONE_NUM','change.me','Text messages sent from QREST will originate from this number. This must be a number purchased through Twilio.','',GetDate(),0);
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('NUM_POLL_RECS','12','Default number of records to poll from data loggers when performing automated polling.','',GetDate(),0);
 
+INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('AIRNOW_FTP_USER','change.me','Global username used for FTPing files to EPA AirNow.','',GetDate(),1);
+INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('AIRNOW_FTP_PWD','change.me','Global password used for FTPing files to EPA AirNow.','',GetDate(),1);
+
 
 
 INSERT INTO T_QREST_APP_SETTINGS_CUSTOM ([TERMS_AND_CONDITIONS],[ANNOUNCEMENTS]) values ('<p>The access and use of the QREST requires the creation of a user ID and password that you must maintain and keep confidential.</p>	
@@ -29,6 +32,8 @@ INSERT INTO [dbo].[T_QREST_APP_TASKS]([TASK_NAME],[TASK_DESC],[FREQ_TYPE],[FREQ_
      VALUES ('LoggerPolling','Polls data loggers to retrieve data','M',5,GetDate(),GetDate(),'Stopped',null,GetDate());
 INSERT INTO [dbo].[T_QREST_APP_TASKS]([TASK_NAME],[TASK_DESC],[FREQ_TYPE],[FREQ_NUM],[LAST_RUN_DT],[NEXT_RUN_DT],[STATUS],[MODIFY_USER_IDX],[MODIFY_DT])
      VALUES ('HourlyValidation','Performs Level 0 validation on hourly data','M',60,GetDate(),GetDate(),'Stopped',null,GetDate());
+INSERT INTO [dbo].[T_QREST_APP_TASKS]([TASK_NAME],[TASK_DESC],[FREQ_TYPE],[FREQ_NUM],[LAST_RUN_DT],[NEXT_RUN_DT],[STATUS],[MODIFY_USER_IDX],[MODIFY_DT])
+     VALUES ('AirNow','Sends data to AirNow ftp folder','M',60,GetDate(),GetDate(),'Stopped',null,GetDate());
 
 
 

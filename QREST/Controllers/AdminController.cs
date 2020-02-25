@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using QRESTModel.DAL;
 using QRESTModel.DataTableGen;
 using QREST.App_Logic;
+using System.Net;
 
 namespace QREST.Controllers
 {
@@ -527,7 +528,7 @@ namespace QREST.Controllers
                 string UserIDX = User.Identity.GetUserId();
 
                 bool SuccInd = db_Ref.UpdateT_QREST_TASKS(model.EditTask.TASK_IDX, model.EditTask.FREQ_TYPE, model.EditTask.FREQ_NUM,
-                    model.EditTask.LAST_RUN_DT, model.EditTask.NEXT_RUN_DT, model.EditTask.STATUS, UserIDX);
+                    null, model.EditTask.NEXT_RUN_DT, model.EditTask.STATUS, UserIDX);
 
                 if (SuccInd)
                     TempData["Success"] = "Data Saved.";
@@ -1173,6 +1174,17 @@ namespace QREST.Controllers
                 db_Air.UpdateT_QREST_DATA_HOURLY_Notified(xx.DATA_HOURLY_IDX);
             }
 
+
+            return View("Testing");
+        }
+
+        public ActionResult AirNow()
+        {
+            using (var client = new WebClient())
+            {
+                client.Credentials = new NetworkCredential("SHCoperator", "Navi7r");
+                client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/202002250100_840.TRX", WebRequestMethods.Ftp.UploadFile, @"C:\temp\202002250100_840.TRX");
+            }
 
             return View("Testing");
         }

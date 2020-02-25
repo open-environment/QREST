@@ -11,25 +11,28 @@ AS
 BEGIN
 	SET NOCOUNT ON;
     SET ANSI_WARNINGS OFF;
-
 	/**** CHANGE LOG ***/
-	--11/20/2019 DOUG TIMMS fix ADEV precision and add TOT calculation type
+	--11/20/2019 DOUG TIMMS fix ADEV precision
+	--1/20/2020 DOUG TIMMS prevent update if HOURLY RECORD IS LVL1 or LVL2 VAL
+	--                     prevent upate if modify date = 8/8/1888 (used to flag no hourly calc)
+	--2/23/2020 DOUG TIMMS add calculation of TOT
 
 	DECLARE @SumType varchar(4);
 	DECLARE @SumTemp float;
 	DECLARE @mon uniqueidentifier;
-	DECLARE @dttm datetime;
+	DECLARE @dttm datetime; --UTC
 	DECLARE @sumVal varchar(20);
 	DECLARE @unit varchar(3);
 	DECLARE @iCount int;
 	DECLARE @tz varchar(2);
 	DECLARE @precision int;
+	DECLARE @calcIndYr int;
 
 	DECLARE ins_cursor CURSOR FOR 
-	SELECT distinct MONITOR_IDX, dateadd(hour, datediff(hour, 0, DATA_DTTM), 0) FROM INSERTED
+	SELECT distinct MONITOR_IDX, dateadd(hour, datediff(hour, 0, DATA_DTTM), 0), year(MODIFY_DT) FROM INSERTED
 
 	OPEN ins_cursor  
-	FETCH NEXT FROM ins_cursor INTO @mon, @dttm
+	FETCH NEXT FROM ins_cursor INTO @mon, @dttm, @calcIndYr
 
 	WHILE @@FETCH_STATUS=0
 	BEGIN
@@ -42,102 +45,112 @@ BEGIN
 		and C.ACT_IND=1
 		and D.MONITOR_IDX = @mon;
 
-		--set precision
-		if (@precision is null)
-			set @precision=0;
+		if (@SumType IS NOT NULL and @tz IS NOT NULL)
+		BEGIN
 
-		if (@SumType='AVG')
-		BEGIN
-			select @sumVal = cast(round(avg(cast(F.DATA_VALUE as float)),@precision) as varchar), 
-				   @unit=max(UNIT_CODE), 
-				   @iCount=count(*)
-			from T_QREST_DATA_FIVE_MIN F
-			where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
-			and F.MONITOR_IDX=@mon
-			and ISNUMERIC(DATA_VALUE) = 1;
-		END
-		else if (@SumType='MAX')
-		BEGIN
-			select @sumVal = cast(round(max(cast(F.DATA_VALUE as float)),@precision) as varchar),
-				   @unit=max(UNIT_CODE), 
-				   @iCount=count(*)
-			from T_QREST_DATA_FIVE_MIN F
-			where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
-			and F.MONITOR_IDX=@mon
-			and ISNUMERIC(DATA_VALUE) = 1;
-		END
-		else if (@SumType='MIN')
-		BEGIN
-			select @sumVal = cast(round(min(cast(F.DATA_VALUE as float)),@precision) as varchar),
-				   @unit=max(UNIT_CODE), 
-				   @iCount=count(*)
-			from T_QREST_DATA_FIVE_MIN F
-			where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
-			and F.MONITOR_IDX=@mon
-			and ISNUMERIC(DATA_VALUE) = 1;
-		END
-		else if (@SumType='TOT')
-		BEGIN
-			select @sumVal = cast(round(sum(cast(F.DATA_VALUE as float)),@precision) as varchar),
-				   @unit=max(UNIT_CODE), 
-				   @iCount=count(*)
-			from T_QREST_DATA_FIVE_MIN F
-			where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
-			and F.MONITOR_IDX=@mon
-			and ISNUMERIC(DATA_VALUE) = 1;
-		END
-		else if (@SumType='AAVG')
-		BEGIN
-			select @sumTemp = case when x>=0 and y>=0 then 0 + atan(x/y)
-								  when x>=0 and y<0 then Pi() - atan(x/-y)
-								  when x<0 and y<0 then Pi() + atan(-x/-y)
-								  when x<0 and y>=0 then 2*PI() - atan(-x/y) end,
-				   @unit=U, 
-				   @iCount=CNT							   
-			from
-			(select avg(sin(F.DATA_VALUE * PI()/180.)) X, avg(cos(F.DATA_VALUE * PI()/180.)) Y , max(UNIT_CODE) U, count(*) CNT
+			--set precision
+			if (@precision is null)
+				set @precision=0;
+
+			if (@calcIndYr is null)
+				set @calcIndYr=2020;
+
+			if (@SumType='AVG')
+			BEGIN
+				select @sumVal = cast(round(avg(cast(F.DATA_VALUE as float)),@precision) as varchar), 
+					   @unit=max(UNIT_CODE), 
+					   @iCount=count(*)
 				from T_QREST_DATA_FIVE_MIN F
 				where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
 				and F.MONITOR_IDX=@mon
-				and ISNUMERIC(DATA_VALUE) = 1) Z;
-
-			set @sumVal = cast(round(@sumTemp * 180./PI(),0) as varchar);
-		END
-		else if (@SumType='ADEV')
-		BEGIN
-			select @sumVal = cast(round((asin(epsilon)*(1+0.1547*(power(epsilon,3))))*180./PI(), @precision) as varchar),
-				   @unit=U, 
-				   @iCount=CNT							   
-			from
-			(select sqrt(1-(square(avg(sin(F.DATA_VALUE * PI()/180.)))+square(avg(cos(F.DATA_VALUE * PI()/180.))))) epsilon , max(UNIT_CODE) U, count(*) CNT
+				and ISNUMERIC(DATA_VALUE) = 1;
+			END
+			else if (@SumType='MAX')
+			BEGIN
+				select @sumVal = cast(round(max(cast(F.DATA_VALUE as float)),@precision) as varchar),
+					   @unit=max(UNIT_CODE), 
+					   @iCount=count(*)
 				from T_QREST_DATA_FIVE_MIN F
 				where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
 				and F.MONITOR_IDX=@mon
-				and ISNUMERIC(DATA_VALUE) = 1) Z;
+				and ISNUMERIC(DATA_VALUE) = 1;
+			END
+			else if (@SumType='MIN')
+			BEGIN
+				select @sumVal = cast(round(min(cast(F.DATA_VALUE as float)),@precision) as varchar),
+					   @unit=max(UNIT_CODE), 
+					   @iCount=count(*)
+				from T_QREST_DATA_FIVE_MIN F
+				where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
+				and F.MONITOR_IDX=@mon
+				and ISNUMERIC(DATA_VALUE) = 1;
+			END
+			else if (@SumType='TOT')
+			BEGIN
+				select @sumVal = cast(round(sum(cast(F.DATA_VALUE as float)),@precision) as varchar),
+					   @unit=max(UNIT_CODE), 
+					   @iCount=count(*)
+				from T_QREST_DATA_FIVE_MIN F
+				where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
+				and F.MONITOR_IDX=@mon
+				and ISNUMERIC(DATA_VALUE) = 1;
+			END
+			else if (@SumType='AAVG')
+			BEGIN
+				select @sumTemp = case when x>=0 and y>=0 then 0 + atan(x/y)
+									  when x>=0 and y<0 then Pi() - atan(x/-y)
+									  when x<0 and y<0 then Pi() + atan(-x/-y)
+									  when x<0 and y>=0 then 2*PI() - atan(-x/y) end,
+					   @unit=U, 
+					   @iCount=CNT							   
+				from
+				(select avg(sin(F.DATA_VALUE * PI()/180.)) X, avg(cos(F.DATA_VALUE * PI()/180.)) Y , max(UNIT_CODE) U, count(*) CNT
+					from T_QREST_DATA_FIVE_MIN F
+					where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
+					and F.MONITOR_IDX=@mon
+					and ISNUMERIC(DATA_VALUE) = 1) Z;
+
+				set @sumVal = cast(round(@sumTemp * 180./PI(),0) as varchar);
+			END
+			else if (@SumType='ADEV')
+			BEGIN
+				select @sumVal = cast(round((asin(epsilon)*(1+0.1547*(power(epsilon,3))))*180./PI(), @precision) as varchar),
+					   @unit=U, 
+					   @iCount=CNT							   
+				from
+				(select sqrt(1-(square(avg(sin(F.DATA_VALUE * PI()/180.)))+square(avg(cos(F.DATA_VALUE * PI()/180.))))) epsilon , max(UNIT_CODE) U, count(*) CNT
+					from T_QREST_DATA_FIVE_MIN F
+					where dateadd(hour, datediff(hour, 0, F.DATA_DTTM), 0)=@dttm
+					and F.MONITOR_IDX=@mon
+					and ISNUMERIC(DATA_VALUE) = 1) Z;
+			END
+
+			--set to few if not enough records
+			if (@iCount<9)
+				set @sumVal = 'FEW';
+		
+			--UPSERT RECORD
+			SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+		
+			MERGE T_QREST_DATA_HOURLY AS myTarget
+			USING (SELECT @mon MONITOR_IDX, @dttm DATA_DTTM_UTC, @sumVal DATA_VALUE) AS mySource
+			ON mySource.MONITOR_IDX = myTarget.MONITOR_IDX and mySource.DATA_DTTM_UTC = myTarget.DATA_DTTM_UTC 
+			WHEN MATCHED and ISNULL(myTarget.LVL1_VAL_IND,0) = 0 and ISNULL(myTarget.LVL2_VAL_IND,0) = 0 and @calcIndYr<>1888 
+			THEN 
+				UPDATE SET DATA_VALUE = mySource.DATA_VALUE, VAL_IND=0  
+			WHEN NOT MATCHED and @calcIndYr<>1888 
+			THEN 
+				INSERT (DATA_HOURLY_IDX, MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND) VALUES (newid(), @mon, @dttm, DATEADD(HOUR,cast(@tz as int),@dttm), @sumVal, @unit, 0);
+
 		END
 
-		if (@iCount<9)
-			set @sumVal = 'FEW';
-		
-		--UPSERT RECORD
-		SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-		
-		MERGE T_QREST_DATA_HOURLY AS myTarget
-		USING (SELECT @mon MONITOR_IDX, @dttm DATA_DTTM_UTC, @sumVal DATA_VALUE) AS mySource
-		ON mySource.MONITOR_IDX = myTarget.MONITOR_IDX and mySource.DATA_DTTM_UTC = myTarget.DATA_DTTM_UTC
-		WHEN MATCHED THEN 
-			UPDATE SET DATA_VALUE = mySource.DATA_VALUE, VAL_IND=0
-		WHEN NOT MATCHED THEN 
-			INSERT (DATA_HOURLY_IDX, MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND) VALUES (newid(), @mon, @dttm, DATEADD(HOUR,cast(@tz as int),@dttm), @sumVal, @unit, 0);
-
-		FETCH NEXT FROM ins_cursor INTO @mon, @dttm
+		FETCH NEXT FROM ins_cursor INTO @mon, @dttm, @calcIndYr
 	END
 
 	CLOSE ins_cursor	
 	DEALLOCATE ins_cursor
 
 END
-
 
 GO
 

@@ -167,15 +167,15 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>AirNowTech Tribal Code</label>
-                                    @Html.TextBoxFor(model => model.AIRNOW_USR, new { @class = "form-control", @maxlength = "3" })
-                                    @Html.ValidationMessageFor(model => model.AIRNOW_USR)
+                                    @Html.TextBoxFor(model => model.AIRNOW_ORG, new { @class = "form-control", @maxlength = "3" })
+                                    @Html.ValidationMessageFor(model => model.AIRNOW_ORG)
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>AirNowTech Site ID</label>
-                                    @Html.PasswordFor(model => model.AIRNOW_PWD, new { @class = "form-control", @maxlength = "9" })
-                                    @Html.ValidationMessageFor(model => model.AIRNOW_PWD)
+                                    <label>9-Digit AirNowTech Site ID</label>
+                                    @Html.TextBoxFor(model => model.AIRNOW_SITE, new { @class = "form-control", @maxlength = "9" })
+                                    @Html.ValidationMessageFor(model => model.AIRNOW_SITE)
                                 </div>
                             </div>
                         </div>

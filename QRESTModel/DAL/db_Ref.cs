@@ -249,7 +249,7 @@ namespace QRESTModel.DAL
                             if (fREQ_TYP != null) e.FREQ_TYPE = fREQ_TYP;
                             if (fREQ_NUM != null) e.FREQ_NUM = fREQ_NUM ?? 1;
                             //if (lAST_RUN_DT != null && lAST_RUN_DT > System.DateTime.Now.AddYears(10)) e.LAST_RUN_DT = lAST_RUN_DT.GetValueOrDefault();
-                            if (nEXT_RUN_DT != null && nEXT_RUN_DT > System.DateTime.Now.AddYears(10)) e.NEXT_RUN_DT = nEXT_RUN_DT.GetValueOrDefault();
+                            if (nEXT_RUN_DT != null && nEXT_RUN_DT > System.DateTime.Now.AddYears(-10)) e.NEXT_RUN_DT = nEXT_RUN_DT.GetValueOrDefault();
                             if (sTATUS != null) e.STATUS = sTATUS;
                             e.MODIFY_DT = System.DateTime.Now;
                             e.MODIFY_USER_IDX = UserIDX;
@@ -366,13 +366,27 @@ namespace QRESTModel.DAL
                     x.STATUS = "Completed";
 
                     //set next run
+                    DateTime _nextRun = x.NEXT_RUN_DT;
                     if (x.FREQ_TYPE == "D")
-                        x.NEXT_RUN_DT = x.NEXT_RUN_DT.AddDays(x.FREQ_NUM);
+                    {
+                        _nextRun = x.NEXT_RUN_DT.AddDays(x.FREQ_NUM);
+                        if (_nextRun < System.DateTime.Now)
+                            _nextRun = System.DateTime.Now.AddDays(x.FREQ_NUM);
+                    }
                     else if (x.FREQ_TYPE == "H")
-                        x.NEXT_RUN_DT = x.NEXT_RUN_DT.AddHours(x.FREQ_NUM);
+                    {
+                        _nextRun = x.NEXT_RUN_DT.AddHours(x.FREQ_NUM);
+                        if (_nextRun < System.DateTime.Now)
+                            _nextRun = System.DateTime.Now.AddHours(x.FREQ_NUM);
+                    }
                     else if (x.FREQ_TYPE == "M")
-                        x.NEXT_RUN_DT = x.NEXT_RUN_DT.AddMinutes(x.FREQ_NUM);
+                    {
+                        _nextRun = x.NEXT_RUN_DT.AddMinutes(x.FREQ_NUM);
+                        if (_nextRun < System.DateTime.Now)
+                            _nextRun = System.DateTime.Now.AddMinutes(x.FREQ_NUM);
+                    }
 
+                    x.NEXT_RUN_DT = _nextRun;
                     ctx.SaveChanges();
                     return true;
                 }

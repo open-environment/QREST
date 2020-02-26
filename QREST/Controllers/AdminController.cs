@@ -1182,8 +1182,11 @@ namespace QREST.Controllers
         {
             using (var client = new WebClient())
             {
-                client.Credentials = new NetworkCredential("SHCoperator", "Navi7r");
-                client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/202002250100_840.TRX", WebRequestMethods.Ftp.UploadFile, @"C:\temp\202002250100_840.TRX");
+                string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
+                string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
+
+                client.Credentials = new System.Net.NetworkCredential(ftpUser, ftpPwd);
+                client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/202002261403_840.TRX", WebRequestMethods.Ftp.UploadFile, @"C:\temp\202002261403_840.TRX");
             }
 
             return View("Testing");

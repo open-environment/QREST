@@ -51,7 +51,8 @@ namespace QRESTServiceCatalog
                 Directory.CreateDirectory(path);
 
             //write data to text file
-            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\AirNow\\" + System.DateTime.Now.ToString("yyyyMMddHHmm") + "_840.TRX";
+            string file = System.DateTime.Now.ToString("yyyyMMddHHmm") + "_840.TRX";
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\AirNow\\" + file;
             if (!File.Exists(filepath))
             {
                 //create file
@@ -69,8 +70,18 @@ namespace QRESTServiceCatalog
                     }
                 }
 
+                using (var client = new System.Net.WebClient())
+                {
+                    string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
+                    string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
 
+                    client.Credentials = new System.Net.NetworkCredential(ftpUser, ftpPwd);
+                    client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/" + file, System.Net.WebRequestMethods.Ftp.UploadFile, filepath);
+                }
+
+                General.WriteToFile("AirNow: File sent - " + file);
             }
+
 
             bExecutingGenLedSvcStatus = false;
         }

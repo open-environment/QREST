@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using QRESTModel.DAL;
 using QRESTModel.BLL;
+using System.IO;
 
 namespace QRESTServiceCatalog
 {
@@ -43,17 +44,43 @@ namespace QRESTServiceCatalog
             bExecutingGenLedSvcStatus = true;
 
             //this is where logic for the task goes
-            List<T_QREST_SITES> _sites = db_Air.GetT_QREST_SITES_ReadyToAirNow();
-            if (_sites != null)
+
+            //create AirNow directory if not there
+            string path = AppDomain.CurrentDomain.BaseDirectory + "\\AirNow";
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            //write data to text file
+            string file = System.DateTime.Now.ToString("yyyyMMddHHmm") + "_840.TRX";
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\AirNow\\" + file;
+            if (!File.Exists(filepath))
             {
-                foreach (T_QREST_SITES _site in _sites)
+                //create file
+                using (StreamWriter sw = File.CreateText(filepath))
                 {
-                    General.WriteToFile("Sending AirNow for : " + _site.SITE_ID);
-
-
+                    List<AIRNOW_LAST_HOUR> _rows = db_Air.GetAIRNOW_LAST_HOUR();
+                    if (_rows != null)
+                    {
+                        foreach (AIRNOW_LAST_HOUR _row in _rows)
+                        {
+                            string _line = _row.AIRNOW_SITE + "," + _row.DATA_STATUS + ",2," + _row.DT + "," + _row.PAR_CODE + ",60,," + _row.DATA_VALUE + "," + _row.UNIT_CODE + ",0," + _row.POC + ",,,,,,,,,";
+                            if (_line.Length>50)
+                                sw.WriteLine(_line);
+                        }
+                    }
                 }
-            }
 
+                using (var client = new System.Net.WebClient())
+                {
+                    string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
+                    string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
+
+                    client.Credentials = new System.Net.NetworkCredential(ftpUser, ftpPwd);
+                    client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/" + file, System.Net.WebRequestMethods.Ftp.UploadFile, filepath);
+                }
+
+                General.WriteToFile("AirNow: File sent - " + file);
+            }
 
 
             bExecutingGenLedSvcStatus = false;

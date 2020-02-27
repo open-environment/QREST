@@ -43,5 +43,27 @@ namespace QREST_Service
             }
         }
 
+
+        public static void WriteToAirNowFile(string Message)
+        {
+            //create AirNow directory if not there
+            string path = AppDomain.CurrentDomain.BaseDirectory + "\\AirNow";
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\AirNow\\" + System.DateTime.Now.ToString("yyyyMMddHHmm") + "_840.TRX";
+            if (!File.Exists(filepath))
+            {
+
+
+                using (StreamWriter sw = File.CreateText(filepath))
+                {
+                    sw.WriteLine(Message);
+                }
+            }
+
+        }
+
     }
 }

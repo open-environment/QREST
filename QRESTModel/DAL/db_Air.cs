@@ -2411,7 +2411,6 @@ namespace QRESTModel.DAL
             }
         }
 
-
         public static List<AIRNOW_LAST_HOUR> GetAIRNOW_LAST_HOUR()
         {
             using (QRESTEntities ctx = new QRESTEntities())

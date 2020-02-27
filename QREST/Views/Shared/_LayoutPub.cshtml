@@ -16,7 +16,7 @@
         <div class="container">
             <div class="navbar-header">
                 <a href='@Url.Action("Index", "Home")' class="navbar-brand"><img src="~/Content/Images/itep_logo_120.png" class="m-r-sm">QREST</a>
-                <div class="visible-lg-inline-block" style="color: #9e9e9e">Quality Review and Exchange System for Tribes</div>
+                <div class="visible-lg-inline-block navbar-brand" style="color: #9e9e9e; font-size: 15px">Quality Review and Exchange System for Tribes</div>
                 <button class="btn btn-link visible-xs" type="button" data-toggle="collapse" data-target=".navbar-collapse">
                     <i class="fa fa-bars"></i>
                 </button>
@@ -26,7 +26,7 @@
                     <li>
                         @Html.ActionLink("Air Quality Map", "Index", "Home")
                     </li>
-                    <li class="dropdown-submenu">
+                    <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> <span class="nav-label">Reports</span><span class="caret" style="margin-left:5px;"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="@Url.Action("ReportDaily", "Home")">Daily</a></li>

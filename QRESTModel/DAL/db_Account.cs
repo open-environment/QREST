@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using QRESTModel.BLL;
+using System.Linq.Dynamic;
 
 namespace QRESTModel.DAL
 {
@@ -40,29 +41,68 @@ namespace QRESTModel.DAL
     public class db_Account
     {
         //***************** T_QREST_USERS ***************************************        
-        public static List<UserListDisplayType> GetT_QREST_USERS()
+        public static List<UserListDisplayType> GetT_QREST_USERS(int? userType, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
-                            select new UserListDisplayType
-                            {
-                                USER_IDX = u.USER_IDX,
-                                EMAIL = u.Email,
-                                FNAME = u.FNAME,
-                                LNAME = u.LNAME,
-                                LAST_LOGIN_DT = u.LAST_LOGIN_DT,
-                                LOCKOUTEND = u.LockoutEndDateUtc,
-                                EMAILCONFIRMED = u.EmailConfirmed,
-                                CREATE_DT = u.CREATE_DT,
-                                ISGLOBALADMIN = u.Name == "1" ? true : false,
-                                IS_TRIBAL_ADMIN = u.TribalAdmin == "1" ? true : false,
-                                IS_TRIBAL_QA = u.QaReviewer == "1" ? true : false,
-                                IS_TRIBAL_OPERATOR = u.Operator == "1" ? true : false
-                            }).ToList();
+                    if (userType != null && userType > 0)
+                    {
+                        var query = (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
+                                     select u);
+                        if (userType == 1)
+                        {
+                            query = query.Where(u => u.Name == "1");
+                        }
+                        else if (userType == 2)
+                        {
+                            query = query.Where(u => u.TribalAdmin == "1");
+                        }
+                        else if (userType == 3)
+                        {
+                            query = query.Where(u => u.QaReviewer == "1");
+                        }
+                        else if (userType == 4)
+                        {
+                            query = query.Where(u => u.Operator == "1");
+                        }
 
+                        return query.Select(u => new UserListDisplayType
+                        {
+                            USER_IDX = u.USER_IDX,
+                            EMAIL = u.Email,
+                            FNAME = u.FNAME,
+                            LNAME = u.LNAME,
+                            LAST_LOGIN_DT = u.LAST_LOGIN_DT,
+                            LOCKOUTEND = u.LockoutEndDateUtc,
+                            EMAILCONFIRMED = u.EmailConfirmed,
+                            CREATE_DT = u.CREATE_DT,
+                            ISGLOBALADMIN = u.Name == "1" ? true : false,
+                            IS_TRIBAL_ADMIN = u.TribalAdmin == "1" ? true : false,
+                            IS_TRIBAL_QA = u.QaReviewer == "1" ? true : false,
+                            IS_TRIBAL_OPERATOR = u.Operator == "1" ? true : false
+                        }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                    }
+                    else
+                    {
+                        return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
+                                select new UserListDisplayType
+                                {
+                                    USER_IDX = u.USER_IDX,
+                                    EMAIL = u.Email,
+                                    FNAME = u.FNAME,
+                                    LNAME = u.LNAME,
+                                    LAST_LOGIN_DT = u.LAST_LOGIN_DT,
+                                    LOCKOUTEND = u.LockoutEndDateUtc,
+                                    EMAILCONFIRMED = u.EmailConfirmed,
+                                    CREATE_DT = u.CREATE_DT,
+                                    ISGLOBALADMIN = u.Name == "1" ? true : false,
+                                    IS_TRIBAL_ADMIN = u.TribalAdmin == "1" ? true : false,
+                                    IS_TRIBAL_QA = u.QaReviewer == "1" ? true : false,
+                                    IS_TRIBAL_OPERATOR = u.Operator == "1" ? true : false
+                                }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -71,7 +111,64 @@ namespace QRESTModel.DAL
                 }
             }
         }
+        public static int GetT_QREST_USERScount(int? userType)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    if (userType != null && userType > 0)
+                    {
+                        var query = (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
+                                     select u).ToList();
+                        if (userType == 1)
+                        {
+                            query.Where(u => u.Name == "1");
+                        }
+                        else if (userType == 2)
+                        {
+                            query.Where(u => u.TribalAdmin == "1");
+                        }
+                        else if (userType == 3)
+                        {
+                            query.Where(u => u.QaReviewer == "1");
+                        }
+                        else if (userType == 4)
+                        {
+                            query.Where(u => u.Operator == "1");
+                        }
 
+                        int result = query.Select(u => u).Count();
+                        return result;
+                    }
+                    else
+                    {
+                        return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
+                                select u).Count();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+        public static bool SendMailToUsers(List<UserListDisplayType> mailData, string emailSubject, string emailBody, string UserIDX)
+        {
+            try
+            {
+                T_QREST_USERS user = db_Account.GetT_QREST_USERS_ByID(UserIDX);
+                string to = user.Email;
+                List<string> cc = mailData.Where(u => u.USER_IDX != user.USER_IDX).Select(u => u.EMAIL).ToList<string>();
+                return UtilsEmail.SendEmail(null, to, cc, null, null, null, emailSubject, emailBody);
+            }
+            catch (Exception ex)
+            {
+                logEF.LogEFException(ex);
+                return false;
+            }
+        }
         public static List<T_QREST_USERS> GetT_QREST_USERS(bool ConfirmedOnly)
         {
             using (QRESTEntities ctx = new QRESTEntities())

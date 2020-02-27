@@ -384,14 +384,48 @@ namespace QREST.Controllers
         [HttpPost]
         public ActionResult UserListData()
         {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
-            var data = db_Account.GetT_QREST_USERS();
-            var recordsTotal = data.Count();
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+            //Filter based on user type
+            int? usertype = Request.Form.GetValues("usertype")?.FirstOrDefault().ConvertOrDefault<int>();
+
+            
+            string mailSendMode = Request.Form.GetValues("mailsendmode").FirstOrDefault();
+            bool mailSendStatus = true;
+
+            var data = db_Account.GetT_QREST_USERS(usertype, pageSize, start, orderColName, orderDir);
+            var recordsTotal = db_Account.GetT_QREST_USERScount(usertype);
+            
+            //Send mail to filtered users
+            if (mailSendMode.Equals("1"))
+            {
+                string subject = System.Uri.UnescapeDataString(Request.Form.GetValues("mailsubject").FirstOrDefault());
+                string body = System.Uri.UnescapeDataString(Request.Form.GetValues("mailbody").FirstOrDefault());
+
+                //We want all the filtered records, not restricted by pageSize
+                pageSize = recordsTotal;
+                start = 0;
+
+                //"mailData" is a seperated call from "data" above, since "mailData"
+                //contains all the filtered records, whereas "data" is filtered by pageSize as well
+                //Refactor: If we are in mail send mode, we can get "mailData" and then filter by pageSize
+                //using linq to reduce duplicate db call
+                var mailData = db_Account.GetT_QREST_USERS(usertype, pageSize, start, orderColName, orderDir);
+                if(mailData != null && mailData.Count > 0)
+                {
+                    string UserIDX = User.Identity.GetUserId();
+                    mailSendStatus = db_Account.SendMailToUsers(mailData, subject, body, UserIDX);
+                }
+            }
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data, mailSendMode = mailSendMode, mailSendStatus = mailSendStatus });
         }
 
-
+        
 
         [HttpPost]
         public async Task<JsonResult> UserDelete(string id)

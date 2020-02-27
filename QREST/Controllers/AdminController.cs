@@ -241,7 +241,20 @@ namespace QREST.Controllers
 
         }
 
-
+        [HttpPost]
+        public JsonResult HelpConfigDelete(int id)
+        {
+            if (id <= 0)
+                return Json("No record selected to delete");
+            else
+            {
+                int SuccID = db_Account.DeleteT_HELP_DOCS(id);
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete section.");
+            }
+        }
 
 
         //************************************* ORGANIZATIONS ************************************************************

@@ -907,5 +907,26 @@ namespace QRESTModel.DAL
             }
         }
 
+        //***************** T_QREST_HELP_DOCS ***************************************        
+
+        public static int DeleteT_HELP_DOCS(int id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_HELP_DOCS rec = ctx.T_QREST_HELP_DOCS.Find(id);
+                    ctx.T_QREST_HELP_DOCS.Remove(rec);
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
     }
 }

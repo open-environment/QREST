@@ -399,3 +399,8 @@ table.dataTable.no-footer {
     font-size: 75%;
     padding: 2px 4px !important;
 }
+
+/*****USER LIST ******/
+.cls-top-margin {
+    margin-top:10px;
+}

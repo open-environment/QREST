@@ -555,8 +555,17 @@ namespace QRESTModel.DAL
 
                     if (hELP_TITLE != null) e.HELP_TITLE = hELP_TITLE;
                     if (hELP_HTML != null) e.HELP_HTML = hELP_HTML;
-                    if (sORT_SEQ != null) e.SORT_SEQ = sORT_SEQ ?? 1;
-
+                    
+                    //insert case
+                    if (insInd)
+                    {
+                        e.SORT_SEQ = ctx.T_QREST_HELP_DOCS.Count() + 1;
+                        e.HELP_HTML = "";
+                    }
+                    else
+                    {
+                        if (sORT_SEQ != null) e.SORT_SEQ = sORT_SEQ ?? 1;
+                    }
                     if (insInd)
                         ctx.T_QREST_HELP_DOCS.Add(e);
 

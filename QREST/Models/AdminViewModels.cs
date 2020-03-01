@@ -143,6 +143,16 @@ namespace QREST.Models
     public class vmAdminUserList
     {
         public List<UserListDisplayType> T_QREST_USERS { get; set; }
+
+        public bool IsMailSendMode { get; set; }
+
+        [Required]
+        public string EmailSubject { get; set; }
+
+       
+        [UIHint("wsywigeditor"), AllowHtml]
+        [StringLength(6000)]
+        public string emailBodyHtml { get; set; }
     }
 
 

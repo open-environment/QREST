@@ -10,6 +10,27 @@
         <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
     </header>
     <div class="panel-body">
+        <form class="form-inline m-b-sm" onsubmit="return false">
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <div class="col-sm-3">
+                        <label class="control-label cls-top-margin">
+                            User Type:
+                        </label>
+                    </div>
+                    <div class="col-sm-6 align-left">
+                        <select name="usertype" id="usertype" class="form-control m-b" style="width:100%">
+                            <option value="0">--Select All--</option>
+                            <option value="1">Global Admin</option>
+                            <option value="2">Tribal Amin</option>
+                            <option value="3">Tribal QA</option>
+                            <option value="4">Tribal Operator</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3"><button id="btnGo" class="form-control btn btn-sm btn-primary">Go</button></div>
+                </div>
+            </div>
+        </form>
         <div class="table-responsive">
             <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                 <thead>
@@ -30,31 +51,108 @@
                 </thead>
             </table>
         </div>
+        <div class="col-xs-3" style="margin-top:3px !important">
+            <button id="btnSendMail" class="form-control btn btn-sm btn-primary">Email Users Above</button>
+        </div>
     </div>
 </section>
+<section id="emailModal" class="panel panel-qrest modal fade"
+         style="border-radius: 0px 4px 4px 0px;"
+         data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <header class="panel-heading font-bold">Email</header>
+            </div>
+            <div class="modal-body">
+                <div class="panel-body">
+                    @using (Html.BeginForm("UserListData", "Admin", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.IsMailSendMode)
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="form-group">
+                                    Email Subject:
+                                    @Html.TextBoxFor(model => model.EmailSubject, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.EmailSubject)
+                                </div>
+                            </div>
 
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    Email Body
+                                    @Html.EditorFor(model => model.emailBodyHtml, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.emailBodyHtml)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button id="btnSave" type="button" onclick="SendMail(); return false;" class="btn btn-primary">Send Mail</button>
+                                <button type="button" id="btnHideModal" class="btn btn-primary button button4">Hide</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+
+
+            </div>
+        </div>
+    </div>
+</section>
 
 @section Scripts {
     @Scripts.Render("~/bundles/datatables")
     @Scripts.Render("~/bundles/confirm-delete")
 
     <script type="text/javascript">
+        var table;
         $(document).ready(function () {
-            
+
             moment.updateLocale(moment.locale(), { invalidDate: "" });
 
             // datatable initialization
-            $("#gridData").DataTable({
+            table = $("#gridData").DataTable({
                 "responsive": true,
-                "processing": false,
+                "serverSide": true,
+                "processing": true,
                 "orderMulti": false,
-                "paging": false,
+                "paging": true,
+                "pageLength": 25,
+                "pagingType": "full_numbers",
                 "info": false,
                 "searching": false,
                 "ajax": {
                     "url": "@Url.Action("UserListData", "Admin")",
                     "type": "POST",
-                    "datatype": "json"
+                    "datatype": "json",
+                    "dataFilter": function (data) {
+                        var json = jQuery.parseJSON(data);
+                        json.recordsTotal = json.recordsFiltered;
+                        json.recordsFiltered = json.recordsTotal;
+                        json.data = json.data;
+                        if (json.mailSendMode == "1") {
+                            if (json.mailSendStatus == true) {
+                                toastr.success("Email successfully sent to selected users.");
+                            } else {
+                                toastr.error("Sorry, there was some error sending Email.");
+                            }
+                        };
+                        return JSON.stringify(json); // return JSON string
+                    },
+                    "data": function (d) {
+                        return $.extend({}, d, {
+                            "usertype": $('#usertype').val(),
+                            "mailsendmode": $("#IsMailSendMode").val(),
+                            "mailsubject": encodeURIComponent($("#EmailSubject").val()),
+                            "mailbody": encodeURIComponent(tinyMCE.activeEditor.getContent())
+                        });
+                    }
                 },
                 "columnDefs":
                     [{
@@ -147,8 +245,36 @@
                     $('td:eq(0)', row).css('min-width', '90px');
                     $('td:eq(0)', row).css('padding-right', '0px');
                     $('td:eq(0)', row).css('white-space', 'nowrap');
+                },
+                fnDrawCallback: function (oSettings) {
+                    var totalPages = this.api().page.info().pages;
+                    if (totalPages == 1) {
+                        jQuery('.dataTables_paginate').hide();
+                    }
+                    else {
+                        jQuery('.dataTables_paginate').show();
+                    }
+                    $("#IsMailSendMode").val("0");
                 }
             });
+
+            //user type filter click
+            $('#btnGo').on('click', function () {
+                table.draw();
+            })
+            $("#btnSendMail").click(function () {
+                $("#emailModal").modal('show');
+            });
+
+            $("#btnHideModal").click(function () {
+                $("#emailModal").modal('hide');
+            });
         });
+
+        function SendMail() {
+            $("#emailModal").modal('hide');
+            $("#IsMailSendMode").val("1");
+            table.draw();
+        }
     </script>
 }

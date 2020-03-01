@@ -47,6 +47,10 @@ namespace QREST.Controllers
         public ActionResult ManualImport(vmDataImport model) {
 
             string UserIDX = User.Identity.GetUserId();
+            Guid importID = Guid.NewGuid();
+            model.IMPORT_IDX = null;
+            model.ImportSuccCount = 0;
+
             model.error_data = new List<ImportResponse>();
 
             //*********************** ADDITIONAL CUSTOM MODEL ERRORS **************************************8
@@ -65,46 +69,51 @@ namespace QREST.Controllers
                     T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
                     if (_pollConfig != null)
                     {
+                        char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
+
                         if (_pollConfig.DATE_COL != null && _pollConfig.TIME_COL != null)
                         {
                             int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
                             int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
+                            string[] allowedFormats = new[] { "MM/dd/yyyy HH:mm", "M/dd/yyyy HH:mm", "MM/d/yyyy HH:mm", "M/d/yyyy HH:mm", "MM/dd/yyyy H:mm", "M/dd/yyyy H:mm", "MM/d/yyyy H:mm", "M/d/yyyy H:mm" };
 
                             //get polling config dtl
                             List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX);
 
                             //import
-                            bool impAny = false;
                             foreach (string row in model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
                             {
                                 //split row's columns into string array
-                                string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
+                                string[] cols = row.Split(delimiter, StringSplitOptions.None);
                                 if (cols.Length > 2) //skip blank rows
                                 {
-                                    impAny = true;
-                                    DateTime dt = DateTime.ParseExact(cols[dateCol] + " " + cols[timeCol], "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+                                    DateTime dt;
 
-                                    foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
+                                    if (DateTime.TryParseExact(cols[dateCol] + " " + cols[timeCol], allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
                                     {
-                                        if (_item.COLLECT_UNIT_CODE != null && _item.COL != null && string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()) == false)
+                                        foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                                         {
-                                            string val = cols[(_item.COL ?? 1) - 1].ToString();
+                                            if (_item.COLLECT_UNIT_CODE != null && _item.COL != null && string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()) == false)
+                                            {
+                                                string val = cols[(_item.COL ?? 1) - 1].ToString();
 
-                                            ImportResponse xxx = db_Air.ImportT_QREST_DATA_FIVE_MIN(_item.MONITOR_IDX, dt, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, model.selCalc == "N" ? true : false, "", model.selCalc == "N" ? new DateTime(1888,8,8) : System.DateTime.Now);
-                                            if (xxx.SuccInd)
-                                                model.ImportSuccCount += 1;
+                                                ImportResponse xxx = db_Air.ImportT_QREST_DATA_FIVE_MIN(_item.MONITOR_IDX, dt, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, model.selCalc == "N" ? true : false, "", model.selCalc == "N" ? new DateTime(1888, 8, 8) : System.DateTime.Now, importIDX);
+                                                if (xxx.SuccInd)
+                                                    model.ImportSuccCount += 1;
+                                                else
+                                                    model.error_data.Add(xxx);
+                                            }
                                             else
-                                                model.error_data.Add(xxx);
+                                                ModelState.AddModelError("selMonitor", "No collection unit defined for " + _item.PAR_CODE + ". Record not imported.");
                                         }
-                                        else
-                                            ModelState.AddModelError("selMonitor", "No collection unit defined for " + _item.PAR_CODE + ". Record not imported.");
                                     }
                                 }
 
-                                if (!impAny)
+                                if (model.ImportSuccCount == 0)
                                     ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found.");
+                                else
+                                    model.IMPORT_IDX = importID;
                             }
-
                         }
                         else
                             ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
@@ -123,46 +132,53 @@ namespace QREST.Controllers
                     if (_pollConfig != null)
                     {
                         int tzOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
+                        char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
 
                         if (_pollConfig.DATE_COL != null && _pollConfig.TIME_COL != null)
                         {
                             int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
                             int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
+                            string dateFormat = _pollConfig.DATE_FORMAT + " " + _pollConfig.TIME_FORMAT.Replace("MM","mm");
+                            string[] allowedFormats = new[] { "MM/dd/yyyy HH:mm", "M/dd/yyyy HH:mm", "MM/d/yyyy HH:mm", "M/d/yyyy HH:mm", "MM/dd/yyyy H:mm", "M/dd/yyyy H:mm", "MM/d/yyyy H:mm", "M/d/yyyy H:mm" };
 
                             //get polling config dtl
                             List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX);
 
                             //import
-                            bool impAny = false;
                             foreach (string row in model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
                             {
                                 //split row's columns into string array
-                                string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
+                                string[] cols = row.Split(delimiter, StringSplitOptions.None);
                                 if (cols.Length > 2) //skip blank rows
                                 {
-                                    impAny = true;
-                                    DateTime dt = DateTime.ParseExact(cols[dateCol] + " " + cols[timeCol], "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+                                    DateTime dt;
 
-                                    foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
+                                    if (DateTime.TryParseExact(cols[dateCol] + " " + cols[timeCol], allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
                                     {
-                                        if (_item.COLLECT_UNIT_CODE != null && _item.COL != null && string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()) == false)
+                                        foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                                         {
-                                            string val = cols[(_item.COL ?? 1) - 1].ToString();
-                                            ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_item.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, true, double.TryParse(val, out _) ? null : val);
-                                            if (xxx.SuccInd)
-                                                model.ImportSuccCount += 1;
+                                            if (_item.COLLECT_UNIT_CODE != null && _item.COL != null && string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()) == false)
+                                            {
+                                                string val = cols[(_item.COL ?? 1) - 1].ToString();
+                                                ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_item.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, true, double.TryParse(val, out _) ? null : val, importID);
+                                                if (xxx.SuccInd)
+                                                    model.ImportSuccCount += 1;
+                                                else
+                                                    model.error_data.Add(xxx);
+                                            }
                                             else
-                                                model.error_data.Add(xxx);
+                                                ModelState.AddModelError("selMonitor", "No collection unit defined for " + _item.PAR_CODE + ". Record not imported.");
                                         }
-                                        else
-                                            ModelState.AddModelError("selMonitor", "No collection unit defined for " + _item.PAR_CODE + ". Record not imported.");
                                     }
+                                    else
+                                        ModelState.AddModelError("IMPORT_BLOCK", "Date and/or time format cannot be read.");
                                 }
 
-                                if (!impAny)
+                                if (model.ImportSuccCount == 0)
                                     ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found.");
+                                else
+                                    model.IMPORT_IDX = importID;
                             }
-
                         }
                         else
                             ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
@@ -199,7 +215,7 @@ namespace QREST.Controllers
 
                                         for (int i = 0; i <= 23; i++)
                                         {
-                                            ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_monitor.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(cols[i + 1], out _) ? cols[i + 1] : null, _monitor.COLLECT_UNIT_CODE, true, double.TryParse(cols[i + 1], out _) ? null : cols[i + 1]);
+                                            ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_monitor.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(cols[i + 1], out _) ? cols[i + 1] : null, _monitor.COLLECT_UNIT_CODE, true, double.TryParse(cols[i + 1], out _) ? null : cols[i + 1], importID);
                                             if (xxx.SuccInd)
                                                 model.ImportSuccCount += 1;
                                             else

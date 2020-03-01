@@ -1667,7 +1667,7 @@ namespace QRESTModel.DAL
 
 
         //*****************FIVE MIN**********************************
-        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT, double? aDJUST_FACTOR)
+        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT, double? aDJUST_FACTOR, Guid? iMPORT_IDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1678,6 +1678,7 @@ namespace QRESTModel.DAL
                                                && c.DATA_DTTM == dATA_DTTM
                                                select c).FirstOrDefault();
 
+                    //insert case
                     if (e == null)
                     {
                         e = new T_QREST_DATA_FIVE_MIN();
@@ -1692,6 +1693,7 @@ namespace QRESTModel.DAL
                         e.UNIT_CODE = uNIT_CODE;
                         e.VAL_IND = vAL_IND ?? false;
                         e.VAL_CD = vAL_CD;
+                        if (iMPORT_IDX != null) e.IMPORT_IDX = iMPORT_IDX;
                         e.MODIFY_DT = mODIFY_DT ?? System.DateTime.Now;
                         ctx.T_QREST_DATA_FIVE_MIN.Add(e);
                         ctx.SaveChanges();
@@ -1705,6 +1707,7 @@ namespace QRESTModel.DAL
 
                         if (vAL_IND != null) e.VAL_IND = vAL_IND;
                         if (vAL_CD != null) e.VAL_CD = vAL_CD;
+                        if (iMPORT_IDX != null) e.IMPORT_IDX = iMPORT_IDX;
                         e.MODIFY_DT = mODIFY_DT ?? System.DateTime.Now;
                         ctx.SaveChanges();
                     }
@@ -1719,9 +1722,9 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static ImportResponse ImportT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT)
+        public static ImportResponse ImportT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT, Guid? iMPORT_IDX)
         {
-            Guid? SuccID = db_Air.InsertT_QREST_DATA_FIVE_MIN(mONITOR_IDX, dATA_DTTM, dATA_VALUE, uNIT_CODE, vAL_IND, vAL_CD, mODIFY_DT, 1);
+            Guid? SuccID = db_Air.InsertT_QREST_DATA_FIVE_MIN(mONITOR_IDX, dATA_DTTM, dATA_VALUE, uNIT_CODE, vAL_IND, vAL_CD, mODIFY_DT, 1, iMPORT_IDX);
 
             return new ImportResponse
             {
@@ -1765,7 +1768,7 @@ namespace QRESTModel.DAL
                             if (val != null && _map.ALERT_MIN_TYPE == "N" && val > _map.ALERT_MIN_VALUE)
                                 valCd = "MIN";
 
-                            db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd, null, _map.ADJUST_FACTOR);
+                            db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd, null, _map.ADJUST_FACTOR, null);
                         }
                     }
                 }
@@ -2072,7 +2075,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static ImportResponse InsertUpdateT_QREST_DATA_HOURLY(Guid mONITOR_IDX, DateTime? dATA_DTTM_LOCAL, DateTime? dATA_DTTM_UTC, int timezoneOffset, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD)
+        public static ImportResponse InsertUpdateT_QREST_DATA_HOURLY(Guid mONITOR_IDX, DateTime? dATA_DTTM_LOCAL, DateTime? dATA_DTTM_UTC, int timezoneOffset, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, Guid? iMPORT_ID = null)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -2085,7 +2088,7 @@ namespace QRESTModel.DAL
                     else if (dATA_DTTM_LOCAL == null && dATA_DTTM_UTC != null)
                         dATA_DTTM_LOCAL = dATA_DTTM_UTC.GetValueOrDefault().AddHours(timezoneOffset);
 
-                    T_QREST_DATA_HOURLY e = (from c in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
+                    T_QREST_DATA_HOURLY e = (from c in ctx.T_QREST_DATA_HOURLY
                                              where c.MONITOR_IDX == mONITOR_IDX
                                              && c.DATA_DTTM_LOCAL == dATA_DTTM_LOCAL
                                              select c).FirstOrDefault();
@@ -2104,12 +2107,13 @@ namespace QRESTModel.DAL
                     if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
                     if (vAL_IND != null) e.VAL_IND = vAL_IND;
                     if (vAL_CD != null) e.VAL_CD = vAL_CD.SubStringPlus(0, 5);
+                    if (iMPORT_ID != null) e.IMPORT_IDX = iMPORT_ID;
                     e.MODIFY_DT = System.DateTime.Now;
 
 
                     if (insInd)
                         ctx.T_QREST_DATA_HOURLY.Add(e);
-
+                    //ctx.Configuration.AutoDetectChangesEnabled = false;
                     ctx.SaveChanges();
 
                     return new ImportResponse

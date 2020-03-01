@@ -42,7 +42,7 @@
 @if (Model.UpdateDetails != null && Model.UpdateDetails.Count > 0)
 {
     <div class="alert alert-warning">
-        @Model.UpdateDetails.Count existing AQS records were modified and these updates have been imported to QREST.
+        @Model.UpdateDetails.Count existing air records were modified and these updates have been imported to QREST.
     </div>
     <ul>
         @foreach (var item in Model.UpdateDetails)
@@ -58,6 +58,8 @@
         @Model.InsertCount new records were imported into QREST.
     </div>
 }
+
+
 
 @if (Model.InsertCount == 0 && Model.ExistCount == 0 && Model.ErrorCount == 0)
 {

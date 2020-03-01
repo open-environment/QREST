@@ -7,7 +7,15 @@
 @if (Model.ImportSuccCount > 0)
 {
     <div class="alert alert-success">
-        @Model.ImportSuccCount records imported successfully.
+        <p>
+            @Model.ImportSuccCount records imported successfully.
+        </p>
+        @if (Model.IMPORT_IDX != null)
+        {
+        <p>
+            Import ID: @Model.IMPORT_IDX
+        </p>
+        }
     </div>
 }
 

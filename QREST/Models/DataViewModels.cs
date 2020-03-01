@@ -80,6 +80,7 @@ namespace QREST.Models
         public string IMPORT_BLOCK { get; set; }  //raw text imported
         public List<ImportResponse> error_data { get; set; }   //in-memory storage of array of data to import
         public int ImportSuccCount { get; set; }
+        public Guid? IMPORT_IDX { get; set; }
 
     }
 

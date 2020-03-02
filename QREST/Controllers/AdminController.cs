@@ -674,9 +674,10 @@ namespace QREST.Controllers
             //date filters
             DateTime? minDate = Request.Form.GetValues("mini")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
             DateTime? maxDate = Request.Form.GetValues("maxi")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
+            String actType = Request.Form.GetValues("acttype")?.FirstOrDefault().ConvertOrDefault<String>();
 
-            var data = db_Ref.GetT_QREST_SYS_LOG_ACTIVITY(minDate, maxDate, pageSize, start, orderColName, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_ACTIVITYcount(minDate, maxDate);
+            var data = db_Ref.GetT_QREST_SYS_LOG_ACTIVITY(actType, minDate, maxDate, pageSize, start, orderColName, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_ACTIVITYcount(actType, minDate, maxDate);
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }

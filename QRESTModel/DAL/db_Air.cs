@@ -889,6 +889,10 @@ namespace QRESTModel.DAL
                         ctx.T_QREST_SITE_POLL_CONFIG.Add(e);
 
                     ctx.SaveChanges();
+
+                    if(insInd)
+                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", cREATE_USER, null, "Added new polling config for " + sITE_NAME, null);
+                    
                     return e.POLL_CONFIG_IDX;
                 }
                 catch (Exception ex)

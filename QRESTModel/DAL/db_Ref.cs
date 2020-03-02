@@ -2017,18 +2017,20 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<LogDisplayType> GetT_QREST_SYS_LOG_ACTIVITY(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        public static List<LogDisplayType> GetT_QREST_SYS_LOG_ACTIVITY(string actType, DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
+                    if (String.IsNullOrEmpty(actType)) actType = "";
                     DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
                     DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
                     return (from a in ctx.T_QREST_SYS_LOG_ACTIVITY
                             join d in ctx.T_QREST_USERS on a.ACTIVITY_USER equals d.USER_IDX into lj from d in lj.DefaultIfEmpty() //left join on user
-                            where a.ACTIVITY_DT >= DateFromDt
+                            where actType == "" ? true : a.ACTIVITY_TYPE == actType
+                            && a.ACTIVITY_DT >= DateFromDt
                             && a.ACTIVITY_DT <= DateToDt
                             //orderby a.LOG_ACTIVITY_IDX descending
                             select new LogDisplayType {
@@ -2049,17 +2051,19 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static int GetT_QREST_SYS_LOG_ACTIVITYcount(DateTime? DateFrom, DateTime? DateTo)
+        public static int GetT_QREST_SYS_LOG_ACTIVITYcount(string actType, DateTime? DateFrom, DateTime? DateTo)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
+                    if (String.IsNullOrEmpty(actType)) actType = "";
                     DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
                     DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
                     var xxx = (from a in ctx.T_QREST_SYS_LOG_ACTIVITY
-                               where a.ACTIVITY_DT >= DateFromDt
+                               where actType == "" ? true : a.ACTIVITY_TYPE == actType
+                               && a.ACTIVITY_DT >= DateFromDt
                                && a.ACTIVITY_DT <= DateToDt
                                select a).Count();
 

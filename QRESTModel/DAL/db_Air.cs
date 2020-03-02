@@ -861,7 +861,7 @@ namespace QRESTModel.DAL
                         e.MODIFY_USER_IDX = cREATE_USER;
                         e.MODIFY_DT = System.DateTime.Now;
 
-                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", cREATE_USER, null, "Changed polling config for " + sITE_NAME, null);
+                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", cREATE_USER, null, "Changed polling config for " + sITE_NAME, null, e.POLL_CONFIG_IDX.ToString());
                     }
 
                     if (sITE_IDX != null) e.SITE_IDX = sITE_IDX.ConvertOrDefault<Guid>();

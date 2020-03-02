@@ -277,6 +277,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\1_createDatabase.sql" />
+    <Content Include="App_Data\20200302_changes.sql" />
     <Content Include="App_Data\2_createTables.sql" />
     <Content Include="App_Data\3_createFunctions.sql" />
     <Content Include="App_Data\4_populateData.sql" />

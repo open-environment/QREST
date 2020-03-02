@@ -1963,7 +1963,7 @@ namespace QRESTModel.DAL
 
 
         //*****************SYS_LOG_ACTIVITY **********************************
-        public static int CreateT_QREST_SYS_LOG_ACTIVITY(string aCTIVITY_TYPE, string aCTIVITY_USER, DateTime? lOG_DT, string aCTIVITY_DESC, string iP_ADDRESS)
+        public static int CreateT_QREST_SYS_LOG_ACTIVITY(string aCTIVITY_TYPE, string aCTIVITY_USER, DateTime? lOG_DT, string aCTIVITY_DESC, string iP_ADDRESS, string sUPPORTING_ID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1979,7 +1979,8 @@ namespace QRESTModel.DAL
                         ACTIVITY_USER = aCTIVITY_USER.ToUpper(),
                         ACTIVITY_DT = lOG_DT ?? System.DateTime.Now,
                         ACTIVITY_DESC = aCTIVITY_DESC,
-                        IP_ADDRESS = iP_ADDRESS
+                        IP_ADDRESS = iP_ADDRESS,
+                        SUPPORTING_ID = sUPPORTING_ID
                     };
 
                     ctx.T_QREST_SYS_LOG_ACTIVITY.Add(a);

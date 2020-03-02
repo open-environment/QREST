@@ -505,6 +505,7 @@
           <Property Name="ACTIVITY_USER" Type="varchar" MaxLength="256" />
           <Property Name="ACTIVITY_DESC" Type="varchar" MaxLength="125" />
           <Property Name="IP_ADDRESS" Type="varchar" MaxLength="100" />
+          <Property Name="SUPPORTING_ID" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG_EMAIL">
           <Key>
@@ -1844,6 +1845,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="ACTIVITY_USER" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
           <Property Name="ACTIVITY_DESC" Type="String" MaxLength="125" FixedLength="false" Unicode="false" />
           <Property Name="IP_ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPORTING_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG_EMAIL">
           <Key>
@@ -3054,6 +3056,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_SYS_LOG_ACTIVITY">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SYS_LOG_ACTIVITY">
               <MappingFragment StoreEntitySet="T_QREST_SYS_LOG_ACTIVITY">
+                <ScalarProperty Name="SUPPORTING_ID" ColumnName="SUPPORTING_ID" />
                 <ScalarProperty Name="IP_ADDRESS" ColumnName="IP_ADDRESS" />
                 <ScalarProperty Name="ACTIVITY_DESC" ColumnName="ACTIVITY_DESC" />
                 <ScalarProperty Name="ACTIVITY_USER" ColumnName="ACTIVITY_USER" />

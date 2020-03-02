@@ -98,7 +98,7 @@ namespace QREST.Controllers
                     }
                     else
                     {
-                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("LOGIN", user.Id, System.DateTime.Now, "User logged in", GetIP.GetLocalIPAddress(System.Web.HttpContext.Current));
+                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("LOGIN", user.Id, System.DateTime.Now, "User logged in", GetIP.GetLocalIPAddress(System.Web.HttpContext.Current), null);
 
                         return RedirectToLocal(returnUrl);
                     }

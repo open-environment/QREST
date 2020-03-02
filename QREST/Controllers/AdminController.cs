@@ -196,14 +196,12 @@ namespace QREST.Controllers
                 HelpTopics = db_Ref.GetT_QREST_HELP_DOCS()
             };
 
-            model.EditHelp = db_Ref.GetT_QREST_HELP_DOCS_ByID(id ?? -1);
-            if (model.EditHelp == null)
-                model.EditHelp = db_Ref.GetT_QREST_HELP_DOCS_ByID(model.HelpTopics[0].HELP_IDX);
-
+            model.EditHelp = db_Ref.GetT_QREST_HELP_DOCS_ByID(id ?? model.HelpTopics[0].HELP_IDX);
             model.editHelpHtml = model.EditHelp.HELP_HTML;
 
             return View(model);
         }
+
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult HelpConfig(vmAdminHelpConfig model)
@@ -227,10 +225,7 @@ namespace QREST.Controllers
             if (Request.Files.Count > 0)
             {
                 imageFile = Request.Files[0];
-                int fileSize = imageFile.ContentLength;
                 string fileName = imageFile.FileName;
-                string mimeType = imageFile.ContentType;
-                System.IO.Stream fileContent = imageFile.InputStream;
                 if (!Directory.Exists(Server.MapPath("~/TinyMCEImg/")))
                     Directory.CreateDirectory(Server.MapPath("~/TinyMCEImg/"));
                 string filePath = Server.MapPath("~/TinyMCEImg/") + fileName;
@@ -238,7 +233,6 @@ namespace QREST.Controllers
                 jsonString = String.Format("{{\"location\":\"{0}\"}}", "/TinyMCEImg/" + fileName);
             }
             return Content(jsonString);
-
         }
 
         [HttpPost]
@@ -248,7 +242,7 @@ namespace QREST.Controllers
                 return Json("No record selected to delete");
             else
             {
-                int SuccID = db_Account.DeleteT_HELP_DOCS(id);
+                int SuccID = db_Ref.DeleteT_HELP_DOCS(id);
                 if (SuccID == 1)
                     return Json("Success");
                 else
@@ -408,38 +402,30 @@ namespace QREST.Controllers
             //Filter based on user type
             int? usertype = Request.Form.GetValues("usertype")?.FirstOrDefault().ConvertOrDefault<int>();
 
-            
-            string mailSendMode = Request.Form.GetValues("mailsendmode").FirstOrDefault();
-            bool mailSendStatus = true;
-
             var data = db_Account.GetT_QREST_USERS(usertype, pageSize, start, orderColName, orderDir);
             var recordsTotal = db_Account.GetT_QREST_USERScount(usertype);
             
-            //Send mail to filtered users
-            if (mailSendMode.Equals("1"))
-            {
-                string subject = System.Uri.UnescapeDataString(Request.Form.GetValues("mailsubject").FirstOrDefault());
-                string body = System.Uri.UnescapeDataString(Request.Form.GetValues("mailbody").FirstOrDefault());
-
-                //We want all the filtered records, not restricted by pageSize
-                pageSize = recordsTotal;
-                start = 0;
-
-                //"mailData" is a seperated call from "data" above, since "mailData"
-                //contains all the filtered records, whereas "data" is filtered by pageSize as well
-                //Refactor: If we are in mail send mode, we can get "mailData" and then filter by pageSize
-                //using linq to reduce duplicate db call
-                var mailData = db_Account.GetT_QREST_USERS(usertype, pageSize, start, orderColName, orderDir);
-                if(mailData != null && mailData.Count > 0)
-                {
-                    string UserIDX = User.Identity.GetUserId();
-                    mailSendStatus = db_Account.SendMailToUsers(mailData, subject, body, UserIDX);
-                }
-            }
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data, mailSendMode = mailSendMode, mailSendStatus = mailSendStatus });
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
 
-        
+
+        [HttpPost]
+        public JsonResult UserListEmail(vmAdminUserList model)
+        {
+            if (model.usertype == null)
+                return Json("No user type to email");
+            else
+            {
+                string UserIDX = User.Identity.GetUserId();
+                var mailUsers = db_Account.GetT_QREST_USERS_ByRoleType(model.usertype);
+                bool mailSendStatus = db_Account.SendMailToUsers(mailUsers, model.EmailSubject, System.Uri.UnescapeDataString(model.emailBodyHtml), UserIDX);
+                if (mailSendStatus)
+                    return Json("True");
+                else
+                    return Json("Sorry, there was some error sending Email.");
+            }
+        }
+
 
         [HttpPost]
         public async Task<JsonResult> UserDelete(string id)

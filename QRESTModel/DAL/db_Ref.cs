@@ -551,26 +551,42 @@ namespace QRESTModel.DAL
                     {
                         insInd = true;
                         e = new T_QREST_HELP_DOCS();
-                    }
-
-                    if (hELP_TITLE != null) e.HELP_TITLE = hELP_TITLE;
-                    if (hELP_HTML != null) e.HELP_HTML = hELP_HTML;
-                    
-                    //insert case
-                    if (insInd)
-                    {
                         e.SORT_SEQ = ctx.T_QREST_HELP_DOCS.Count() + 1;
                         e.HELP_HTML = "";
                     }
                     else
                     {
                         if (sORT_SEQ != null) e.SORT_SEQ = sORT_SEQ ?? 1;
+                        if (hELP_HTML != null) e.HELP_HTML = hELP_HTML;
                     }
+
+                    if (hELP_TITLE != null) e.HELP_TITLE = hELP_TITLE;
+                    
                     if (insInd)
                         ctx.T_QREST_HELP_DOCS.Add(e);
 
                     ctx.SaveChanges();
                     return e.HELP_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static int DeleteT_HELP_DOCS(int id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_HELP_DOCS rec = ctx.T_QREST_HELP_DOCS.Find(id);
+                    ctx.T_QREST_HELP_DOCS.Remove(rec);
+                    ctx.SaveChanges();
+
+                    return 1;
                 }
                 catch (Exception ex)
                 {

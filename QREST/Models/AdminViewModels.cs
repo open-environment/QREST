@@ -50,7 +50,6 @@ namespace QREST.Models
         [UIHint("wsywigeditor"), AllowHtml]
         [StringLength(6000)]
         public string editHelpHtml { get; set; }
-
     }
 
 
@@ -153,6 +152,8 @@ namespace QREST.Models
         [UIHint("wsywigeditor"), AllowHtml]
         [StringLength(6000)]
         public string emailBodyHtml { get; set; }
+        public int? usertype { get; set; }
+
     }
 
 

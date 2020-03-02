@@ -20,5 +20,6 @@ namespace QRESTModel.DAL
         public string ACTIVITY_USER { get; set; }
         public string ACTIVITY_DESC { get; set; }
         public string IP_ADDRESS { get; set; }
+        public string SUPPORTING_ID { get; set; }
     }
 }

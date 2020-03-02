@@ -1056,7 +1056,7 @@ namespace QREST.Controllers
                 }
                 else
                 {
-                    db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("MON EDIT", UserIDX, null, "Changed monitor for " + model.PAR_NAME, GetIP.GetLocalIPAddress(System.Web.HttpContext.Current));
+                    db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("MON EDIT", UserIDX, null, "Changed monitor for " + model.PAR_NAME, GetIP.GetLocalIPAddress(System.Web.HttpContext.Current), model.MONITOR_IDX.ToString());
                 }
 
                 Guid? SuccInd = db_Air.InsertUpdatetT_QREST_MONITORS(model.MONITOR_IDX, model.SITE_IDX, model.PAR_METHOD_IDX, model.POC, model.DURATION_CODE, model.COLLECT_FREQ_CODE, 

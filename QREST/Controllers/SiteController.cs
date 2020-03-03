@@ -857,7 +857,11 @@ namespace QREST.Controllers
 
             //initialize model
             var model = new vmAdminLogActivity();
+
+            //Back to Site Screen
             model.SITE_IDX = _config.SITE_IDX.ToString();
+
+            model.POLL_CONFIG_IDX = _config.POLL_CONFIG_IDX.ToString();
             return View(model);
         }
 

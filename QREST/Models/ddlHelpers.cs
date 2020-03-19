@@ -9,6 +9,14 @@ namespace QREST.Models
 {
     public static class ddlHelpers
     {
+        public static IEnumerable<SelectListItem> get_ddl_aqs_format()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "F", Text = "Flat File" });
+            _list.Add(new SelectListItem() { Value = "X", Text = "XML" });
+            return _list;
+        }
+
         /// <summary>
         /// Returns all organizations, optionally filtered for active only
         /// </summary>

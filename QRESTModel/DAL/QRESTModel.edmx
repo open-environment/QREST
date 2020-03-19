@@ -59,6 +59,7 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="AQS_CONTENT_XML" Type="varchar(max)" />
         </EntityType>
         <EntityType Name="T_QREST_ASSESS_DOCS">
           <Key>
@@ -2549,6 +2550,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_AQS_O" FromRole="T_QREST_AQS" ToRole="T_QREST_ORGANIZATIONS" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_AQS_S" FromRole="T_QREST_AQS" ToRole="T_QREST_SITES" />
+          <Property Name="AQS_CONTENT_XML" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_T_QREST_AQS_O">
           <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
@@ -3495,6 +3497,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_AQS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_AQS">
               <MappingFragment StoreEntitySet="T_QREST_AQS">
+                <ScalarProperty Name="AQS_CONTENT_XML" ColumnName="AQS_CONTENT_XML" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USERIDX" ColumnName="MODIFY_USERIDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />

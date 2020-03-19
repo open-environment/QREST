@@ -189,11 +189,37 @@ namespace QREST.Models
     }
 
 
-    public class vmDataAQS {
+    public class vmDataAQSList {
         public string selOrgID { get; set; }
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
 
         public List<T_QREST_AQS> T_QREST_AQS { get; set; }
+    }
+
+
+    public class vmDataAQSGen
+    {
+        public string selOrgID { get; set; }
+        public Guid? selSite { get; set; }
+        public Guid? selMon { get; set; }
+        public string selAQSFormat { get; set; }
+        public DateTime selDtStart { get; set; }
+        public DateTime selDtEnd { get; set; }
+
+
+        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+        public IEnumerable<SelectListItem> ddl_Sites { get; set; }
+        public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
+        public IEnumerable<SelectListItem> ddl_AQSFormat { get; set; }
+
+        public List<T_QREST_AQS> T_QREST_AQS { get; set; }
+
+
+        //initialize
+        public vmDataAQSGen()
+        {
+            ddl_AQSFormat = ddlHelpers.get_ddl_aqs_format();
+        }
     }
 
 }

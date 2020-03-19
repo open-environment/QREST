@@ -1,0 +1,119 @@
+﻿@model QREST.Models.vmDataAQSGen
+@{
+    ViewBag.Title = "AQS";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">Select Data to Submit</header>
+    @if (Model.ddl_Sites?.Count() > 0)
+    {
+        <div class="panel-body">
+            @using (Html.BeginForm("AQSGen", "Data", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.HiddenFor(model => model.selDtStart)
+                @Html.HiddenFor(model => model.selDtEnd)
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Site</label>
+                    <div class="col-sm-10">
+                        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Sites, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Submit One Parameter Only (optional)</label>
+                    <div class="col-sm-10">
+                        @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.selMon)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Date Range</label>
+                    <div class="col-sm-10">
+                        <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Data Format</label>
+                    <div class="col-sm-10">
+                        @Html.DropDownListFor(model => model.selAQSFormat, Model.ddl_AQSFormat, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-sm-10 col-sm-offset-2">
+                    <a class=" btn btn-default m-l-n-sm" href="@Url.Action("AQSList")">Back</a>
+                    <button id="btnGo" type="submit" class="btn btn-primary ">Generate</button>
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="panel-body">You can submit data after you have been associated with a tribal organization.</div>
+    }
+</section>
+
+@section Scripts {
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //daterange selector initialization
+            $('input[name="selDate"]').daterangepicker({
+                timePicker: true,
+                timePickerIncrement: 60,
+                timePicker24Hour: true,
+                autoUpdateInput: true,
+                startDate: moment().subtract(1, 'month').startOf('month'),
+                endDate: moment().subtract(1, 'month').endOf('month'),
+                ranges: {
+                    'Today': [moment().startOf('day'), moment().endOf('day')],
+                    'Yesterday': [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')],
+                    'Last 7 Days': [moment().subtract(6, 'days').startOf('day'), moment().endOf('day')],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                locale: {
+                    format: 'M/DD/YYYY HH:00'
+                }
+            }
+                , function (start, end, label) {
+                    $('#selDtStart').val(start.format('YYYY-MM-DD HH:mm'));
+                    $('#selDtEnd').val(end.format('YYYY-MM-DD HH:mm'));
+                }
+            );
+
+            @*//initialize monitor dropdown on page load
+            fetchMonitors('@Model.selMon');
+
+            //update monitor dropdown
+            $('#selOrgID').change(function () {
+                fetchMonitors(null);
+            });*@
+
+            //initialize values of date range
+            $('#selDtStart').val(moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD HH:mm'));
+            $('#selDtEnd').val(moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD HH:mm'));
+
+        });
+
+        @*function fetchMonitors(mon) {
+            $('#selMon').empty();
+            $('#selMonSupp').empty();
+
+            $.getJSON('@Url.Action("FetchMonitorsWithData")', { ID: $("#selOrgID").val() }, function (data) {
+                if (!data) {
+                    return;
+                }
+                $('#selMon').append($('<option></option>').val('').text('Please select'));
+                $.each(data, function (index, item) {
+                    $('#selMon').append($('<option></option>').val(item.Value).text(item.Text));
+                    $('#selMonSupp').append($('<option></option>').val(item.Value).text(item.Text));
+                });
+                $('#selMon').val(mon);
+            });
+        };*@
+
+    </script>
+
+}

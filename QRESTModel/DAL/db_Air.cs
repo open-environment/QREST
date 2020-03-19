@@ -523,6 +523,7 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************SITE NOTIFY**********************************
         public static List<SiteNotifyDisplay> GetT_QREST_SITE_NOTIFY_BySiteID(Guid? SiteIDX)
         {
@@ -988,6 +989,7 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************SITE POLL CONFIG_DTL**********************************
         public static List<SitePollingConfigDetailType> GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(Guid PollConfigIDX)
         {
@@ -1179,7 +1181,6 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
 
 
 
@@ -1468,7 +1469,6 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
 
         public static Guid? InsertUpdatetT_QREST_MONITORS(Guid? mONITOR_IDX, Guid? sITE_IDX, Guid? pAR_METHOD_IDX, int? pOC, string dURATION_CODE, string cOLLECT_FREQ_CODE,
             string cOLLECT_UNIT_CODE, double? aLERT_MIN_VALUE, double? aLERT_MAX_VALUE, double? aLERT_AMT_CHANGE, int? aLERT_STUCK_REC_COUNT,
@@ -2391,6 +2391,47 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
+
+        //*****************AQS**********************************
+        public static List<T_QREST_AQS> GetT_QREST_AQS_byORG_ID(string oRG_ID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_AQS.AsNoTracking()
+                            where a.ORG_ID == oRG_ID
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static T_QREST_AQS GetT_QREST_AQS_by_ID(Guid aQS_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_AQS.AsNoTracking()
+                            where a.AQS_IDX == aQS_IDX
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
 
 

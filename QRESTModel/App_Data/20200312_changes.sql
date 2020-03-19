@@ -1,0 +1,1 @@
+﻿ALTER TABLE T_QREST_AQS ADD AQS_CONTENT_XML varchar(max);

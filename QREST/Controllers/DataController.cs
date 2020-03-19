@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
@@ -750,15 +751,55 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult AQS(string selOrgID)
+        public ActionResult AQSList(string selOrgID)
         {
             string UserIDX = User.Identity.GetUserId();
-            var model = new vmDataAQS {
-                selOrgID = selOrgID,
+            var model = new vmDataAQSList {
                 ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
             };
+
+            //autopopulate if only rights to 1 org
+            if (model.ddl_Organization != null && model.ddl_Organization.ToList().Count == 1)
+                model.selOrgID = model.ddl_Organization.First().Value;
+
+            if (selOrgID != null)
+                model.selOrgID = selOrgID;
+
+            model.T_QREST_AQS = db_Air.GetT_QREST_AQS_byORG_ID(model.selOrgID);
+
             return View(model);
         }
+
+        public FileResult AQSFileDownload(Guid? id)
+        {
+            try
+            {
+                T_QREST_AQS _doc = db_Air.GetT_QREST_AQS_by_ID(id.GetValueOrDefault());
+                if (_doc != null)
+                {
+                    byte[] _file = Encoding.UTF8.GetBytes(_doc.AQS_CONTENT_XML);
+                    return File(_file, System.Net.Mime.MediaTypeNames.Application.Octet, "AQSFile.xml");
+                }
+            }
+            catch
+            { }
+
+            return null;
+        }
+
+
+        public ActionResult AQSGen()
+        {
+            string UserIDX = User.Identity.GetUserId();
+            var model = new vmDataAQSGen
+            {
+                ddl_Sites = ddlHelpers.get_ddl_my_sites(null, UserIDX)
+            };
+
+            model.ddl_Monitor = ddlHelpers.get_ddl_my_sites(null, UserIDX);
+            return View(model);
+        }
+
 
         #endregion
 

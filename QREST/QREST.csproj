@@ -632,6 +632,7 @@
     <Content Include="Scripts\tinymce\langs\readme.md" />
     <Content Include="Views\Data\AQS.cshtml" />
     <Content Include="Views\Shared\_PleaseWait.cshtml" />
+    <Content Include="Views\Site\ViewChangeLog.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

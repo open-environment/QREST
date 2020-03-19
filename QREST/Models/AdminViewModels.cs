@@ -200,7 +200,10 @@ namespace QREST.Models
     {}
 
     public class vmAdminLogActivity
-    {}
+    {
+        public string SITE_IDX { get; set; }
+        public string POLL_CONFIG_IDX { get; set; }
+    }
 
 
     // ******************************** IMPORT************************************

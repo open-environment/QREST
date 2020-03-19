@@ -889,6 +889,7 @@ namespace QRESTModel.DAL
                         ctx.T_QREST_SITE_POLL_CONFIG.Add(e);
 
                     ctx.SaveChanges();
+                    
                     return e.POLL_CONFIG_IDX;
                 }
                 catch (Exception ex)

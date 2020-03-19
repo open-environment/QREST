@@ -835,6 +835,35 @@ namespace QREST.Controllers
 
             return View(model);
         }
+        public ActionResult ViewChangeLog(Guid? id)
+        {
+            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
+            if (_config == null)
+            {
+                TempData["Error"] = "Monitor polling configuration not found";
+                return RedirectToAction("SiteList", "Site");
+            }
+            //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
+            else if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
+            {
+                TempData["Error"] = "Polling configuration is incomplete: logger source, port, and password must be supplied";
+                return RedirectToAction("SiteList", "Site");
+            }
+
+            //reject if user doesn't have access to org
+            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(id ?? Guid.Empty);
+            RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
+            if (r != null) return r;
+
+            //initialize model
+            var model = new vmAdminLogActivity();
+
+            //Back to Site Screen
+            model.SITE_IDX = _config.SITE_IDX.ToString();
+
+            model.POLL_CONFIG_IDX = _config.POLL_CONFIG_IDX.ToString();
+            return View(model);
+        }
 
 
         [HttpPost]

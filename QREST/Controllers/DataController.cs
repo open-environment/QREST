@@ -565,7 +565,8 @@ namespace QREST.Controllers
 
             //get raw data
             if (dur == "H")
-                model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, monid, sdt, edt, 25000, 0, 3, "asc");
+                //By setting OrderBy param to 5, we get AlphaNum sorted data
+                model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, monid, sdt, edt, 25000, 0, 5, "asc");
             else if (dur == "1")
                 model.RawData = db_Air.GetT_QREST_DATA_HOURLY_ManVal(monid.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
 
@@ -573,7 +574,8 @@ namespace QREST.Controllers
             if (supp1 != null)
             {
                 if (dur == "H")
-                    model.SuppData1 = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, supp1, sdt, edt, 25000, 0, 3, "asc");
+                    //By setting OrderBy param to 5, we get AlphaNum sorted data
+                    model.SuppData1 = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, supp1, sdt, edt, 25000, 0, 5, "asc");
                 else if (dur == "1")
                     model.SuppData1 = db_Air.GetT_QREST_DATA_HOURLY_ManVal(supp1.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
 

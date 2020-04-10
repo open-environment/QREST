@@ -66,51 +66,51 @@
                         @for (int i = 0; i < Model.RawData.Count; i++)
                         {
 
-                        <tr data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
-                            <td>
-                                @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX)
-                                @Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].SITE_ID)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].PAR_CODE)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].PAR_NAME)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].POC)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].DATA_VALUE)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].UNIT_DESC)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].VAL_CD)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
-                            </td>
-                            <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
-                                @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
-                                @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
-                            </td>
-                            <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
-                                @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
-                                @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].NOTES)
-                            </td>
+                            <tr data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
+                                <td>
+                                    @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX)
+                                    @Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].SITE_ID)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].PAR_CODE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].PAR_NAME)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].POC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
+                                </td>
+                                <td data-order=@Model.RawData[i].DATA_VALUE_ORDER>
+                                    @Html.DisplayFor(model => model.RawData[i].DATA_VALUE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].UNIT_DESC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].VAL_CD)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
+                                </td>
+                                <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
+                                    @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
+                                    @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
+                                </td>
+                                <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
+                                    @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
+                                    @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].NOTES)
+                                </td>
 
-                        </tr>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -239,7 +239,7 @@
     @Scripts.Render("~/bundles/canvasjs")
     @Scripts.Render("~/bundles/jqueryval")
 
-<script type="text/javascript">
+    <script type="text/javascript">
     $(document).ready(function () {
 
         moment.updateLocale(moment.locale(), { invalidDate: "" });
@@ -250,7 +250,7 @@
             "paging": false,
             "searching": false,
         });
-
+        
         var dataPointsA = [], dataPointsSupp1 = [], dataPointsSupp2 = [];
         var parName, parNameSupp1, parNameSupp2;
         var chart, chart1;
@@ -268,7 +268,7 @@
         }
 
         @if (Model.SuppData1 != null && Model.SuppData1.Count > 0) {
-            
+
             <text>parNameSupp1 = '@Model.SuppData1[0].PAR_NAME (' + '@Model.SuppData1[0].UNIT_DESC' + ')'</text>
 
             foreach (var item in Model.SuppData1)
@@ -394,7 +394,7 @@
             $('#divBulk').show();
     });
 
-</script>
+    </script>
 }
 
 

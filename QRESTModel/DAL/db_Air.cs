@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using QRESTModel.BLL;
 
 namespace QRESTModel.DAL
@@ -158,7 +159,10 @@ namespace QRESTModel.DAL
         public string LVL2_VAL_USER { get; set; }
         public DateTime? LVL2_VAL_DT { get; set; }
         public string NOTES { get; set; }
-
+        
+        public string SORTORDER { get; set; }
+        public Guid? SITE_IDX { get; set; }
+        public Int64 DATA_VALUE_ORDER { get; set; }
     }
 
     public class AssessDocDisplay
@@ -1792,41 +1796,95 @@ namespace QRESTModel.DAL
                     DateTime DateFromDt = DateFrom.GetValueOrDefault(System.DateTime.UtcNow.AddDays(-1));
                     DateTime DateToDt = DateTo.GetValueOrDefault(System.DateTime.UtcNow.AddHours(1));
 
-                    string orderCol = "DATA_DTTM";
-                    if (orderBy == 5) orderCol = "DATA_VALUE";
-                    else if (orderBy == 6) orderCol = "VAL_CD";
+                    if (orderBy == 5)
+                    {
+                        string sql = "select dt.ORG_ID,dt.SITE_ID,dt.MONITOR_IDX,dt.DATA_FIVE_IDX,dt.COLLECT_UNIT_CODE";
+                        sql += " , dt.UNIT_DESC,dt.DATA_DTTM,dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC";
+                        sql += " ,dt.VAL_IND,dt.VAL_CD,dt.SORTORDER,dt.SITE_IDX from(select s.ORG_ID, s.SITE_ID, m.MONITOR_IDX, a.DATA_FIVE_IDX, m.COLLECT_UNIT_CODE";
+                        sql += " , u3.UNIT_DESC, a.DATA_DTTM, a.DATA_VALUE, p.PAR_CODE, p.PAR_NAME, m.POC";
+                        sql += " , a.VAL_IND, a.VAL_CD,'0' as SORTORDER,s.SITE_IDX from T_QREST_DATA_FIVE_MIN a";
+                        sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
+                        sql += " inner join T_QREST_SITES s on s.SITE_IDX = m.SITE_IDX";
+                        sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
+                        sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
+                        sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 0";
+                        sql += " union";
+                        sql += " select s.ORG_ID,s.SITE_ID,m.MONITOR_IDX,a.DATA_FIVE_IDX,m.COLLECT_UNIT_CODE";
+                        sql += " ,u3.UNIT_DESC,a.DATA_DTTM,a.DATA_VALUE,p.PAR_CODE,p.PAR_NAME,m.POC";
+                        sql += " ,a.VAL_IND,a.VAL_CD,'1' as SORTORDER, s.SITE_IDX from T_QREST_DATA_FIVE_MIN a";
+                        sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
+                        sql += " inner join T_QREST_SITES s on s.SITE_IDX = m.SITE_IDX";
+                        sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
+                        sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
+                        sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 1) as dt";
+                        sql += string.Format(" where dt.DATA_DTTM >= '{0}' and dt.DATA_DTTM <= '{1}'", DateFromDt, DateToDt);
+                        if (org != null)
+                        {
+                            sql += string.Format(" and dt.ORG_ID = '{0}'", org);
+                        }
+                        if (site != null)
+                        {
+                            sql += string.Format(" and dt.SITE_IDX = '{0}'", site);
+                        }
+                        if (mon != null)
+                        {
+                            sql += string.Format(" and dt.MONITOR_IDX = '{0}'", mon);
+                        }
+                        sql += " order by";
+                        sql += " dt.SORTORDER,";
+                        sql += " case when dt.SORTORDER = '0' then dt.DATA_VALUE end,";
+                        sql += " case when dt.SORTORDER = '1' then CONVERT(float, dt.DATA_VALUE) end";
+                        sql += string.Format(" {0}", orderDir);
+                        var resultData = ctx.Database.SqlQuery<RawDataDisplay>(sql);
+                        List<RawDataDisplay> rawDataDisplays = resultData.ToList();
+                        return rawDataDisplays.Skip(skip ?? 0).Take(pageSize).ToList();
 
-                    return (from a in ctx.T_QREST_DATA_FIVE_MIN.AsNoTracking()
-                            join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
-                            join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
-                            join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
-                            join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
-                            join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
-                            into lj3
-                            from u3 in lj3.DefaultIfEmpty() //left join on minute unit
-                            where a.DATA_DTTM >= DateFromDt
-                            && a.DATA_DTTM <= DateToDt
-                            && (org != null ? s.ORG_ID == org : true)
-                            && (site != null ? s.SITE_IDX == site : true)
-                            && (mon != null ? a.MONITOR_IDX == mon : true)
-                            orderby a.DATA_DTTM descending
-                            select new RawDataDisplay
-                            {
-                                ORG_ID = s.ORG_ID,
-                                SITE_ID = s.SITE_ID,
-                                MONITOR_IDX = m.MONITOR_IDX,
-                                DATA_RAW_IDX = a.DATA_FIVE_IDX,
-                                UNIT_CODE = m.COLLECT_UNIT_CODE,
-                                UNIT_DESC = u3.UNIT_DESC,
-                                DATA_DTTM = a.DATA_DTTM,
-                                DATA_VALUE = a.DATA_VALUE,
-                                PAR_CODE = p.PAR_CODE,
-                                PAR_NAME = p.PAR_NAME,
-                                POC = m.POC,
-                                VAL_IND = a.VAL_IND,
-                                VAL_CD = a.VAL_CD,
-                                NOTES = null
-                            }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                        //TODO: kept for reference, need to be removed later
+                        //return rawDataDisplays.Where(x => x.DATA_DTTM >= DateFromDt
+                        //&& x.DATA_DTTM <= DateToDt
+                        //&& (org != null ? x.ORG_ID == org : true)
+                        //&& (site != null ? x.SITE_IDX == site : true)
+                        //&& (mon != null ? x.MONITOR_IDX == mon : true)).ToList()
+                        //.Skip(skip ?? 0).Take(pageSize).ToList();
+                    }
+
+                    string orderCol = "DATA_DTTM";
+                    //if (orderBy == 5) orderCol = "DATA_VALUE";
+                    //else if (orderBy == 6) orderCol = "VAL_CD";
+                    if (orderBy == 6) orderCol = "VAL_CD";
+
+                    var data = (from a in ctx.T_QREST_DATA_FIVE_MIN.AsNoTracking()
+                                join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
+                                join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
+                                join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                                join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
+                                join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
+                                into lj3
+                                from u3 in lj3.DefaultIfEmpty() //left join on minute unit
+                                where a.DATA_DTTM >= DateFromDt
+                                && a.DATA_DTTM <= DateToDt
+                                && (org != null ? s.ORG_ID == org : true)
+                                && (site != null ? s.SITE_IDX == site : true)
+                                && (mon != null ? a.MONITOR_IDX == mon : true)
+                                orderby a.DATA_DTTM descending
+                                select new RawDataDisplay
+                                {
+                                    ORG_ID = s.ORG_ID,
+                                    SITE_ID = s.SITE_ID,
+                                    MONITOR_IDX = m.MONITOR_IDX,
+                                    DATA_RAW_IDX = a.DATA_FIVE_IDX,
+                                    UNIT_CODE = m.COLLECT_UNIT_CODE,
+                                    UNIT_DESC = u3.UNIT_DESC,
+                                    DATA_DTTM = a.DATA_DTTM,
+                                    DATA_VALUE = a.DATA_VALUE,
+                                    PAR_CODE = p.PAR_CODE,
+                                    PAR_NAME = p.PAR_NAME,
+                                    POC = m.POC,
+                                    VAL_IND = a.VAL_IND,
+                                    VAL_CD = a.VAL_CD,
+                                    NOTES = null
+                                }).OrderBy(orderCol, orderDir).ToList();
+                    return data.Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1848,6 +1906,11 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_DATA_FIVE_MIN.AsNoTracking()
                             join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
                             join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
+                            join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                            join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
+                            join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
+                            into lj3
+                            from u3 in lj3.DefaultIfEmpty() //left join on minute unit
                             where a.DATA_DTTM >= DateFromDt
                             && a.DATA_DTTM <= DateToDt
                             && (org != null ? s.ORG_ID == org : true)
@@ -1873,12 +1936,63 @@ namespace QRESTModel.DAL
                 {
                     DateTime DateFromDt = DateFrom.GetValueOrDefault(System.DateTime.UtcNow.AddDays(-1));
                     DateTime DateToDt = DateTo.GetValueOrDefault(System.DateTime.UtcNow.AddHours(1));
+
+                    if (orderBy == 5)
+                    {
+                        string sql = "select dt.ORG_ID,dt.SITE_ID,dt.MONITOR_IDX,dt.DATA_HOURLY_IDX,dt.COLLECT_UNIT_CODE";
+                        sql += " , dt.UNIT_DESC,dt.DATA_DTTM_UTC,dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC";
+                        sql += " ,dt.VAL_IND,dt.VAL_CD,dt.SORTORDER,dt.SITE_IDX from(select s.ORG_ID, s.SITE_ID, m.MONITOR_IDX, a.DATA_HOURLY_IDX, m.COLLECT_UNIT_CODE";
+                        sql += " , u3.UNIT_DESC, a.DATA_DTTM_UTC, a.DATA_VALUE, p.PAR_CODE, p.PAR_NAME, m.POC";
+                        sql += " , a.VAL_IND, a.VAL_CD,'0' as SORTORDER,s.SITE_IDX from T_QREST_DATA_HOURLY a";
+                        sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
+                        sql += " inner join T_QREST_SITES s on s.SITE_IDX = m.SITE_IDX";
+                        sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
+                        sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
+                        sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 0";
+                        sql += " union";
+                        sql += " select s.ORG_ID,s.SITE_ID,m.MONITOR_IDX,a.DATA_HOURLY_IDX,m.COLLECT_UNIT_CODE";
+                        sql += " ,u3.UNIT_DESC,a.DATA_DTTM_UTC,a.DATA_VALUE,p.PAR_CODE,p.PAR_NAME,m.POC";
+                        sql += " ,a.VAL_IND,a.VAL_CD,'1' as SORTORDER, s.SITE_IDX from T_QREST_DATA_HOURLY a";
+                        sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
+                        sql += " inner join T_QREST_SITES s on s.SITE_IDX = m.SITE_IDX";
+                        sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
+                        sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
+                        sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 1) as dt";
+                        sql += string.Format(" where dt.DATA_DTTM_UTC >= '{0}' and dt.DATA_DTTM_UTC <= '{1}'", DateFromDt, DateToDt);
+                        if (org != null)
+                        {
+                            sql += string.Format(" and dt.ORG_ID = '{0}'", org);
+                        }
+                        
+                        if (mon != null)
+                        {
+                            sql += string.Format(" and dt.MONITOR_IDX = '{0}'", mon);
+                        }
+                        sql += " order by";
+                        sql += " dt.SORTORDER,";
+                        sql += " case when dt.SORTORDER = '0' then dt.DATA_VALUE end,";
+                        sql += " case when dt.SORTORDER = '1' then CONVERT(float, dt.DATA_VALUE) end";
+                        sql += string.Format(" {0}", orderDir);
+                        var resultData = ctx.Database.SqlQuery<RawDataDisplay>(sql);
+                        List<RawDataDisplay> rawDataDisplays = resultData.ToList();
+                        return rawDataDisplays.Skip(skip ?? 0).Take(pageSize).ToList();
+
+                        //TODO: kept for reference, need to be removed later
+                        //return rawDataDisplays.Where(x => x.DATA_DTTM >= DateFromDt
+                        //&& x.DATA_DTTM <= DateToDt
+                        //&& (org != null ? x.ORG_ID == org : true)
+                        //&& (site != null ? x.SITE_IDX == site : true)
+                        //&& (mon != null ? x.MONITOR_IDX == mon : true)).ToList()
+                        //.Skip(skip ?? 0).Take(pageSize).ToList();
+                    }
+
                     if (string.IsNullOrEmpty(org))
                         org = null;
 
                     string orderCol = "DATA_DTTM";
-                    if (orderBy == 5) orderCol = "DATA_VALUE";
-                    else if (orderBy == 6) orderCol = "VAL_CD";
+                    //if (orderBy == 5) orderCol = "DATA_VALUE";
+                    //else if (orderBy == 6) orderCol = "VAL_CD";
+                    if (orderBy == 6) orderCol = "VAL_CD";
 
                     return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
                             join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
@@ -1926,6 +2040,8 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
                             join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
                             join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
+                            join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                            join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
                             where a.DATA_DTTM_UTC >= DateFromDt
                             && a.DATA_DTTM_UTC <= DateToDt
                             && s.ORG_ID == org
@@ -1946,50 +2062,143 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
-                            join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
-                            join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
-                            join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
-                            join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
-                            join u1 in ctx.T_QREST_USERS.AsNoTracking() on a.LVL1_VAL_USERIDX equals u1.USER_IDX
-                                into lj1
-                            from u1 in lj1.DefaultIfEmpty() //left join on lvl1 user
-                            join u2 in ctx.T_QREST_USERS.AsNoTracking() on a.LVL2_VAL_USERIDX equals u2.USER_IDX
-                                into lj2
-                            from u2 in lj2.DefaultIfEmpty() //left join on lvl2 user
-                            join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
-                                into lj3
-                            from u3 in lj3.DefaultIfEmpty() //left join on hourly unit
-                            where a.DATA_DTTM_UTC >= DateFrom
-                            && a.DATA_DTTM_UTC <= DateTo
-                            && a.MONITOR_IDX == mon
-                            orderby a.DATA_DTTM_UTC ascending
-                            select new RawDataDisplay
-                            {
-                                ORG_ID = s.ORG_ID,
-                                SITE_ID = s.SITE_ID,
-                                MONITOR_IDX = m.MONITOR_IDX,
-                                DATA_RAW_IDX = a.DATA_HOURLY_IDX,
-                                DATA_DTTM = a.DATA_DTTM_UTC,
-                                DATA_VALUE = a.DATA_VALUE,
-                                PAR_CODE = p.PAR_CODE,
-                                PAR_NAME = p.PAR_NAME,
-                                UNIT_CODE = u3.UNIT_CODE,
-                                UNIT_DESC = u3.UNIT_DESC,
-                                POC = m.POC,
-                                VAL_IND = a.VAL_IND,
-                                VAL_CD = a.VAL_CD,
-                                AQS_NULL_CODE = a.AQS_NULL_CODE,
-                                LVL1_VAL_IND = a.LVL1_VAL_IND,
-                                LVL1_VAL_USERIDX = a.LVL1_VAL_USERIDX,
-                                LVL1_VAL_USER = u1.FNAME + " " + u1.LNAME,
-                                LVL1_VAL_DT = a.LVL1_VAL_DT,
-                                LVL2_VAL_IND = a.LVL2_VAL_IND,
-                                LVL2_VAL_USERIDX = a.LVL2_VAL_USERIDX,
-                                LVL2_VAL_USER = u2.FNAME + " " + u2.LNAME,
-                                LVL2_VAL_DT = a.LVL2_VAL_DT,
-                                NOTES = a.NOTES
-                            }).ToList();
+
+                    StringBuilder sqlStr = new StringBuilder();
+                    sqlStr.Append("SELECT \n");
+                    sqlStr.Append("  dt.ORG_ID,dt.SITE_ID,dt.MONITOR_IDX,dt.DATA_HOURLY_IDX as DATA_RAW_IDX,dt.COLLECT_UNIT_CODE,dt.UNIT_DESC,dt.DATA_DTTM_UTC as DATA_DTTM, \n");
+                    sqlStr.Append("  dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC,dt.VAL_IND,dt.VAL_CD,dt.SORTORDER,dt.SITE_IDX, \n");
+                    sqlStr.Append("  dt.UNIT_CODE,dt.AQS_NULL_CODE,dt.LVL1_VAL_IND,dt.LVL1_VAL_USER, \n");
+                    sqlStr.Append("  dt.LVL1_VAL_DT,dt.LVL2_VAL_IND,dt.LVL2_VAL_USERIDX,dt.LVL2_VAL_USER, \n");
+                    sqlStr.Append("  dt.LVL2_VAL_DT, DATA_VALUE_ORDER = ROW_NUMBER() OVER (ORDER BY dt.SORTORDER, CASE \n");
+                    sqlStr.Append("  WHEN dt.SORTORDER = '0' THEN dt.DATA_VALUE \n");
+                    sqlStr.Append("END, CASE \n");
+                    sqlStr.Append("  WHEN dt.SORTORDER = '1' THEN CONVERT(float, dt.DATA_VALUE) \n");
+                    sqlStr.Append("END) \n");
+                    sqlStr.Append("FROM (SELECT \n");
+                    sqlStr.Append("  s.ORG_ID,s.SITE_ID,m.MONITOR_IDX,a.DATA_HOURLY_IDX,m.COLLECT_UNIT_CODE,u3.UNIT_DESC,a.DATA_DTTM_UTC, \n");
+                    sqlStr.Append("  a.DATA_VALUE,p.PAR_CODE,p.PAR_NAME,m.POC,a.VAL_IND,a.VAL_CD,'0' AS SORTORDER,s.SITE_IDX, \n");
+                    sqlStr.Append("  u3.UNIT_CODE,a.AQS_NULL_CODE,a.LVL1_VAL_IND,a.LVL1_VAL_USERIDX,(u1.FNAME + u1.LNAME) as LVL1_VAL_USER, \n");
+                    sqlStr.Append("  a.LVL1_VAL_DT,a.LVL2_VAL_IND,a.LVL2_VAL_USERIDX,(u2.FNAME + u2.LNAME) as LVL2_VAL_USER, \n");
+                    sqlStr.Append("  a.LVL2_VAL_DT \n");
+                    sqlStr.Append("FROM T_QREST_DATA_HOURLY a \n");
+                    sqlStr.Append("INNER JOIN T_QREST_MONITORS m ON m.MONITOR_IDX = a.MONITOR_IDX \n");
+                    sqlStr.Append("INNER JOIN T_QREST_SITES s ON s.SITE_IDX = m.SITE_IDX \n");
+                    sqlStr.Append("INNER JOIN T_QREST_REF_PAR_METHODS pm ON pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX \n");
+                    sqlStr.Append("INNER JOIN T_QREST_REF_PARAMETERS p ON pm.PAR_CODE = p.PAR_CODE \n");
+                    sqlStr.Append("LEFT OUTER JOIN T_QREST_USERS u1 ON u1.USER_IDX = a.LVL1_VAL_USERIDX \n");
+                    sqlStr.Append("LEFT OUTER JOIN T_QREST_USERS u2 ON u2.USER_IDX = a.LVL2_VAL_USERIDX \n");
+                    sqlStr.Append("LEFT OUTER JOIN T_QREST_REF_UNITS u3 ON u3.UNIT_CODE = a.UNIT_CODE \n");
+                    sqlStr.Append("WHERE ISNUMERIC(a.DATA_VALUE) = 0 \n");
+                    sqlStr.Append("UNION \n");
+                    sqlStr.Append("SELECT \n");
+                    sqlStr.Append("  s.ORG_ID,s.SITE_ID,m.MONITOR_IDX,a.DATA_HOURLY_IDX,m.COLLECT_UNIT_CODE,u3.UNIT_DESC,a.DATA_DTTM_UTC, \n");
+                    sqlStr.Append("  a.DATA_VALUE,p.PAR_CODE,p.PAR_NAME,m.POC,a.VAL_IND,a.VAL_CD,'1' AS SORTORDER,s.SITE_IDX, \n");
+                    sqlStr.Append("  u3.UNIT_CODE,a.AQS_NULL_CODE,a.LVL1_VAL_IND,a.LVL1_VAL_USERIDX,(u1.FNAME + u1.LNAME) as LVL1_VAL_USER, \n");
+                    sqlStr.Append("  a.LVL1_VAL_DT,a.LVL2_VAL_IND,a.LVL2_VAL_USERIDX,(u2.FNAME + u2.LNAME) as LVL2_VAL_USER, \n");
+                    sqlStr.Append("  a.LVL2_VAL_DT \n");
+                    sqlStr.Append("FROM T_QREST_DATA_HOURLY a \n");
+                    sqlStr.Append("INNER JOIN T_QREST_MONITORS m ON m.MONITOR_IDX = a.MONITOR_IDX \n");
+                    sqlStr.Append("INNER JOIN T_QREST_SITES s ON s.SITE_IDX = m.SITE_IDX \n");
+                    sqlStr.Append("INNER JOIN T_QREST_REF_PAR_METHODS pm ON pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX \n");
+                    sqlStr.Append("INNER JOIN T_QREST_REF_PARAMETERS p ON pm.PAR_CODE = p.PAR_CODE \n");
+                    sqlStr.Append("LEFT OUTER JOIN T_QREST_USERS u1 ON u1.USER_IDX = a.LVL1_VAL_USERIDX \n");
+                    sqlStr.Append("LEFT OUTER JOIN T_QREST_USERS u2 ON u2.USER_IDX = a.LVL2_VAL_USERIDX \n");
+                    sqlStr.Append("LEFT OUTER JOIN T_QREST_REF_UNITS u3 ON u3.UNIT_CODE = a.UNIT_CODE \n");
+                    sqlStr.Append("WHERE ISNUMERIC(a.DATA_VALUE) = 1) AS dt \n");
+                    sqlStr.Append("WHERE \n");
+                    sqlStr.Append(string.Format("dt.DATA_DTTM_UTC >= convert(datetime2,'{0}',105) \n",DateFrom));
+                    sqlStr.Append(string.Format("AND dt.DATA_DTTM_UTC <= convert(datetime2,'{0}',105) \n",DateTo));
+                    sqlStr.Append(string.Format("AND dt.MONITOR_IDX = '{0}' \n", mon));
+                    sqlStr.Append("ORDER BY dt.SORTORDER, CASE \n");
+                    sqlStr.Append("  WHEN dt.SORTORDER = '0' THEN dt.DATA_VALUE \n");
+                    sqlStr.Append("END, CASE \n");
+                    sqlStr.Append("  WHEN dt.SORTORDER = '1' THEN CONVERT(float, dt.DATA_VALUE) \n");
+                    sqlStr.Append("END;");
+                    
+                    var resultData = ctx.Database.SqlQuery<RawDataDisplay>(sqlStr.ToString());
+                    var data = resultData.ToList();
+                    return data;
+
+                    //************************************************
+                    //KEEPING CODE FOR REFERENCE, TO BE REMOVED LATER
+                    //***************************************************
+
+                    //string sql = "select dt.ORG_ID,dt.SITE_ID,dt.MONITOR_IDX,dt.DATA_HOURLY_IDX,dt.COLLECT_UNIT_CODE";
+                    //sql += " , dt.UNIT_DESC,dt.DATA_DTTM_UTC,dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC";
+                    //sql += " ,dt.VAL_IND,dt.VAL_CD,dt.SORTORDER,dt.SITE_IDX from(select s.ORG_ID, s.SITE_ID, m.MONITOR_IDX, a.DATA_HOURLY_IDX, m.COLLECT_UNIT_CODE";
+                    //sql += " , u3.UNIT_DESC, a.DATA_DTTM_UTC, a.DATA_VALUE, p.PAR_CODE, p.PAR_NAME, m.POC";
+                    //sql += " , a.VAL_IND, a.VAL_CD,'0' as SORTORDER,s.SITE_IDX from T_QREST_DATA_HOURLY a";
+                    //sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
+                    //sql += " inner join T_QREST_SITES s on s.SITE_IDX = m.SITE_IDX";
+                    //sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
+                    //sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
+                    //sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 0";
+                    //sql += " union";
+                    //sql += " select s.ORG_ID,s.SITE_ID,m.MONITOR_IDX,a.DATA_HOURLY_IDX,m.COLLECT_UNIT_CODE";
+                    //sql += " ,u3.UNIT_DESC,a.DATA_DTTM_UTC,a.DATA_VALUE,p.PAR_CODE,p.PAR_NAME,m.POC";
+                    //sql += " ,a.VAL_IND,a.VAL_CD,'1' as SORTORDER, s.SITE_IDX from T_QREST_DATA_HOURLY a";
+                    //sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
+                    //sql += " inner join T_QREST_SITES s on s.SITE_IDX = m.SITE_IDX";
+                    //sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
+                    //sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
+                    //sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 1) as dt";
+                    //sql += string.Format(" where dt.DATA_DTTM_UTC >= '{0}' and dt.DATA_DTTM_UTC <= '{1}'", DateFrom, DateTo);
+                    //if (mon != null)
+                    //{
+                    //    sql += string.Format(" and dt.MONITOR_IDX = '{0}'", mon);
+                    //}
+                    //sql += " order by";
+                    //sql += " dt.SORTORDER,";
+                    //sql += " case when dt.SORTORDER = '0' then dt.DATA_VALUE end,";
+                    //sql += " case when dt.SORTORDER = '1' then CONVERT(float, dt.DATA_VALUE) end";
+                    //var resultData = ctx.Database.SqlQuery<RawDataDisplay>(sql);
+                    //return resultData.ToList();
+
+
+                    //return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
+                    //        join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
+                    //        join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
+                    //        join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                    //        join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
+                    //        join u1 in ctx.T_QREST_USERS.AsNoTracking() on a.LVL1_VAL_USERIDX equals u1.USER_IDX
+                    //            into lj1
+                    //        from u1 in lj1.DefaultIfEmpty() //left join on lvl1 user
+                    //        join u2 in ctx.T_QREST_USERS.AsNoTracking() on a.LVL2_VAL_USERIDX equals u2.USER_IDX
+                    //            into lj2
+                    //        from u2 in lj2.DefaultIfEmpty() //left join on lvl2 user
+                    //        join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
+                    //            into lj3
+                    //        from u3 in lj3.DefaultIfEmpty() //left join on hourly unit
+                    //        where a.DATA_DTTM_UTC >= DateFrom
+                    //        && a.DATA_DTTM_UTC <= DateTo
+                    //        && a.MONITOR_IDX == mon
+                    //        orderby a.DATA_DTTM_UTC ascending
+                    //        select new RawDataDisplay
+                    //        {
+                    //            ORG_ID = s.ORG_ID,
+                    //            SITE_ID = s.SITE_ID,
+                    //            MONITOR_IDX = m.MONITOR_IDX,
+                    //            DATA_RAW_IDX = a.DATA_HOURLY_IDX,
+                    //            DATA_DTTM = a.DATA_DTTM_UTC,
+                    //            DATA_VALUE = a.DATA_VALUE,
+                    //            PAR_CODE = p.PAR_CODE,
+                    //            PAR_NAME = p.PAR_NAME,
+                    //            UNIT_CODE = u3.UNIT_CODE,
+                    //            UNIT_DESC = u3.UNIT_DESC,
+                    //            POC = m.POC,
+                    //            VAL_IND = a.VAL_IND,
+                    //            VAL_CD = a.VAL_CD,
+                    //            AQS_NULL_CODE = a.AQS_NULL_CODE,
+                    //            LVL1_VAL_IND = a.LVL1_VAL_IND,
+                    //            LVL1_VAL_USERIDX = a.LVL1_VAL_USERIDX,
+                    //            LVL1_VAL_USER = u1.FNAME + " " + u1.LNAME,
+                    //            LVL1_VAL_DT = a.LVL1_VAL_DT,
+                    //            LVL2_VAL_IND = a.LVL2_VAL_IND,
+                    //            LVL2_VAL_USERIDX = a.LVL2_VAL_USERIDX,
+                    //            LVL2_VAL_USER = u2.FNAME + " " + u2.LNAME,
+                    //            LVL2_VAL_DT = a.LVL2_VAL_DT,
+                    //            NOTES = a.NOTES
+                    //        }).ToList();
                 }
                 catch (Exception ex)
                 {

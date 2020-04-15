@@ -160,7 +160,7 @@ namespace QRESTModel.DAL
         public DateTime? LVL2_VAL_DT { get; set; }
         public string NOTES { get; set; }
         
-        public string SORTORDER { get; set; }
+        public int SORTORDER { get; set; }
         public Guid? SITE_IDX { get; set; }
         public Int64 DATA_VALUE_ORDER { get; set; }
     }
@@ -1798,44 +1798,60 @@ namespace QRESTModel.DAL
 
                     if (orderBy == 5)
                     {
-                        string sql = "select dt.ORG_ID,dt.SITE_ID,dt.MONITOR_IDX,dt.DATA_FIVE_IDX,dt.COLLECT_UNIT_CODE";
-                        sql += " , dt.UNIT_DESC,dt.DATA_DTTM,dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC";
-                        sql += " ,dt.VAL_IND,dt.VAL_CD,dt.SORTORDER,dt.SITE_IDX from(select s.ORG_ID, s.SITE_ID, m.MONITOR_IDX, a.DATA_FIVE_IDX, m.COLLECT_UNIT_CODE";
-                        sql += " , u3.UNIT_DESC, a.DATA_DTTM, a.DATA_VALUE, p.PAR_CODE, p.PAR_NAME, m.POC";
-                        sql += " , a.VAL_IND, a.VAL_CD,'0' as SORTORDER,s.SITE_IDX from T_QREST_DATA_FIVE_MIN a";
-                        sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
-                        sql += " inner join T_QREST_SITES s on s.SITE_IDX = m.SITE_IDX";
-                        sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
-                        sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
-                        sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 0";
-                        sql += " union";
-                        sql += " select s.ORG_ID,s.SITE_ID,m.MONITOR_IDX,a.DATA_FIVE_IDX,m.COLLECT_UNIT_CODE";
-                        sql += " ,u3.UNIT_DESC,a.DATA_DTTM,a.DATA_VALUE,p.PAR_CODE,p.PAR_NAME,m.POC";
-                        sql += " ,a.VAL_IND,a.VAL_CD,'1' as SORTORDER, s.SITE_IDX from T_QREST_DATA_FIVE_MIN a";
-                        sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
-                        sql += " inner join T_QREST_SITES s on s.SITE_IDX = m.SITE_IDX";
-                        sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
-                        sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
-                        sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 1) as dt";
-                        sql += string.Format(" where dt.DATA_DTTM >= '{0}' and dt.DATA_DTTM <= '{1}'", DateFromDt, DateToDt);
-                        if (org != null)
+                        StringBuilder sqlQuery = new StringBuilder();
+                        sqlQuery.Append("SELECT \n");
+                        sqlQuery.Append("  s.ORG_ID, \n");
+                        sqlQuery.Append("  s.SITE_ID, \n");
+                        sqlQuery.Append("  m.MONITOR_IDX, \n");
+                        sqlQuery.Append("  a.DATA_FIVE_IDX, \n");
+                        sqlQuery.Append("  m.COLLECT_UNIT_CODE, \n");
+                        sqlQuery.Append("  u3.UNIT_DESC, \n");
+                        sqlQuery.Append("  a.DATA_DTTM, \n");
+                        sqlQuery.Append("  a.DATA_VALUE, \n");
+                        sqlQuery.Append("  p.PAR_CODE, \n");
+                        sqlQuery.Append("  p.PAR_NAME, \n");
+                        sqlQuery.Append("  m.POC, \n");
+                        sqlQuery.Append("  a.VAL_IND, \n");
+                        sqlQuery.Append("  a.VAL_CD, \n");
+                        sqlQuery.Append("  (CASE \n");
+                        sqlQuery.Append("    WHEN ISNUMERIC(a.DATA_VALUE) = 0 THEN 0 \n");
+                        sqlQuery.Append("    WHEN ISNUMERIC(a.DATA_VALUE) = 1 THEN 1 \n");
+                        sqlQuery.Append("  END) AS SORTORDER, \n");
+                        sqlQuery.Append("  s.SITE_IDX \n");
+                        sqlQuery.Append("FROM T_QREST_DATA_FIVE_MIN a \n");
+                        sqlQuery.Append("INNER JOIN T_QREST_MONITORS m \n");
+                        sqlQuery.Append("  ON m.MONITOR_IDX = a.MONITOR_IDX \n");
+                        sqlQuery.Append("INNER JOIN T_QREST_SITES s \n");
+                        sqlQuery.Append("  ON s.SITE_IDX = m.SITE_IDX \n");
+                        sqlQuery.Append("INNER JOIN T_QREST_REF_PAR_METHODS pm \n");
+                        sqlQuery.Append("  ON pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX \n");
+                        sqlQuery.Append("INNER JOIN T_QREST_REF_PARAMETERS p \n");
+                        sqlQuery.Append("  ON pm.PAR_CODE = p.PAR_CODE \n");
+                        sqlQuery.Append("LEFT JOIN T_QREST_REF_UNITS u3 \n");
+                        sqlQuery.Append("  ON a.UNIT_CODE = u3.UNIT_CODE \n");
+                        sqlQuery.Append("WHERE 0 = 0 \n");
+                        sqlQuery.Append(string.Format("AND DATA_DTTM >= convert(datetime2,'{0}',105) \n", DateFrom));
+                        sqlQuery.Append(string.Format("AND DATA_DTTM <= convert(datetime2,'{0}',105) \n", DateTo));
+                        if(org != null)
                         {
-                            sql += string.Format(" and dt.ORG_ID = '{0}'", org);
+                            sqlQuery.Append(string.Format("AND ORG_ID = '{0}' \n",org));
                         }
-                        if (site != null)
+                        if(site != null)
                         {
-                            sql += string.Format(" and dt.SITE_IDX = '{0}'", site);
+                            sqlQuery.Append(string.Format("AND SITE_IDX = '{0}' \n", site));
                         }
-                        if (mon != null)
+                        if(mon != null)
                         {
-                            sql += string.Format(" and dt.MONITOR_IDX = '{0}'", mon);
+                            sqlQuery.Append(string.Format("AND a.MONITOR_IDX = '{0}' \n", mon));
                         }
-                        sql += " order by";
-                        sql += " dt.SORTORDER,";
-                        sql += " case when dt.SORTORDER = '0' then dt.DATA_VALUE end,";
-                        sql += " case when dt.SORTORDER = '1' then CONVERT(float, dt.DATA_VALUE) end";
-                        sql += string.Format(" {0}", orderDir);
-                        var resultData = ctx.Database.SqlQuery<RawDataDisplay>(sql);
+                        sqlQuery.Append("ORDER BY SORTORDER, \n");
+                        sqlQuery.Append("CASE \n");
+                        sqlQuery.Append("  WHEN ISNUMERIC(a.DATA_VALUE) = 0 THEN DATA_VALUE \n");
+                        sqlQuery.Append("END, \n");
+                        sqlQuery.Append("CASE \n");
+                        sqlQuery.Append("  WHEN ISNUMERIC(a.DATA_VALUE) = 1 THEN CONVERT(float, DATA_VALUE) \n");
+                        sqlQuery.Append(string.Format("END {0}",orderDir));
+                        var resultData = ctx.Database.SqlQuery<RawDataDisplay>(sqlQuery.ToString());
                         List<RawDataDisplay> rawDataDisplays = resultData.ToList();
                         return rawDataDisplays.Skip(skip ?? 0).Take(pageSize).ToList();
 
@@ -1940,8 +1956,8 @@ namespace QRESTModel.DAL
                     if (orderBy == 5)
                     {
                         string sql = "select dt.ORG_ID,dt.SITE_ID,dt.MONITOR_IDX,dt.DATA_HOURLY_IDX,dt.COLLECT_UNIT_CODE";
-                        sql += " , dt.UNIT_DESC,dt.DATA_DTTM_UTC,dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC";
-                        sql += " ,dt.VAL_IND,dt.VAL_CD,dt.SORTORDER,dt.SITE_IDX from(select s.ORG_ID, s.SITE_ID, m.MONITOR_IDX, a.DATA_HOURLY_IDX, m.COLLECT_UNIT_CODE";
+                        sql += " , dt.UNIT_DESC,dt.DATA_DTTM_UTC as DATA_DTTM,dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC";
+                        sql += " ,dt.VAL_IND,dt.VAL_CD,cast(dt.SORTORDER as int),dt.SITE_IDX from(select s.ORG_ID, s.SITE_ID, m.MONITOR_IDX, a.DATA_HOURLY_IDX, m.COLLECT_UNIT_CODE";
                         sql += " , u3.UNIT_DESC, a.DATA_DTTM_UTC, a.DATA_VALUE, p.PAR_CODE, p.PAR_NAME, m.POC";
                         sql += " , a.VAL_IND, a.VAL_CD,'0' as SORTORDER,s.SITE_IDX from T_QREST_DATA_HOURLY a";
                         sql += " inner join T_QREST_MONITORS m on m.MONITOR_IDX = a.MONITOR_IDX";
@@ -1958,7 +1974,7 @@ namespace QRESTModel.DAL
                         sql += " inner join T_QREST_REF_PAR_METHODS pm on pm.PAR_METHOD_IDX = m.PAR_METHOD_IDX";
                         sql += " inner join T_QREST_REF_PARAMETERS p on pm.PAR_CODE = p.PAR_CODE";
                         sql += " left outer join T_QREST_REF_UNITS u3 on u3.UNIT_CODE = a.UNIT_CODE where ISNUMERIC(a.DATA_VALUE) = 1) as dt";
-                        sql += string.Format(" where dt.DATA_DTTM_UTC >= '{0}' and dt.DATA_DTTM_UTC <= '{1}'", DateFromDt, DateToDt);
+                        sql += string.Format(" where dt.DATA_DTTM_UTC >= convert(datetime2,'{0}',105) and dt.DATA_DTTM_UTC <= convert(datetime2,'{1}',105)", DateFromDt, DateToDt);
                         if (org != null)
                         {
                             sql += string.Format(" and dt.ORG_ID = '{0}'", org);
@@ -2066,7 +2082,7 @@ namespace QRESTModel.DAL
                     StringBuilder sqlStr = new StringBuilder();
                     sqlStr.Append("SELECT \n");
                     sqlStr.Append("  dt.ORG_ID,dt.SITE_ID,dt.MONITOR_IDX,dt.DATA_HOURLY_IDX as DATA_RAW_IDX,dt.COLLECT_UNIT_CODE,dt.UNIT_DESC,dt.DATA_DTTM_UTC as DATA_DTTM, \n");
-                    sqlStr.Append("  dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC,dt.VAL_IND,dt.VAL_CD,dt.SORTORDER,dt.SITE_IDX, \n");
+                    sqlStr.Append("  dt.DATA_VALUE,dt.PAR_CODE,dt.PAR_NAME,dt.POC,dt.VAL_IND,dt.VAL_CD,cast(dt.SORTORDER as int),dt.SITE_IDX, \n");
                     sqlStr.Append("  dt.UNIT_CODE,dt.AQS_NULL_CODE,dt.LVL1_VAL_IND,dt.LVL1_VAL_USER, \n");
                     sqlStr.Append("  dt.LVL1_VAL_DT,dt.LVL2_VAL_IND,dt.LVL2_VAL_USERIDX,dt.LVL2_VAL_USER, \n");
                     sqlStr.Append("  dt.LVL2_VAL_DT, DATA_VALUE_ORDER = ROW_NUMBER() OVER (ORDER BY dt.SORTORDER, CASE \n");

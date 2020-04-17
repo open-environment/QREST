@@ -4,7 +4,7 @@ set PATH=%PATH%;%DOTNETFX2%
 
 echo Installing QREST Service...
 echo ---------------------------------------------------
-InstallUtil C:\QREST_ServiceRunFolder\QREST_Service.exe
+InstallUtil /servicename="QRESTProdService" C:\QREST_ServiceRunFolder\QREST_Service.exe
 echo ---------------------------------------------------
 PAUSE
 echo Done.

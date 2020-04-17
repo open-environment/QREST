@@ -66,12 +66,16 @@ namespace QREST.Models
         public string selTimeType { get; set; }
         public string selCalc { get; set; }
 
+        public string selTimeZone { get; set; }
+
+
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_Sites { get; set; }
         public IEnumerable<SelectListItem> ddl_Monitors { get; set; }
         public IEnumerable<SelectListItem> ddl_ImportType { get; set; }
         public IEnumerable<SelectListItem> ddl_PollConfig { get; set; }
         public IEnumerable<SelectListItem> ddl_Time { get; set; }
+        public IEnumerable<SelectListItem> ddl_TimeZone { get; set; }
         public IEnumerable<SelectListItem> ddl_Calc { get; set; }
 
 
@@ -155,11 +159,17 @@ namespace QREST.Models
         [Required]
         public string editNotes { get; set; }
         public string editUnitCode { get; set; }
+        public string editValue { get; set; }
+        public bool editValueBlank { get; set; }
+        public string editFlag { get; set; }
+        public bool editFlagBlank { get; set; }
 
         //initialize
         public vmDataReview2()
         {
             ddl_NullQual = ddlHelpers.get_ddl_ref_qualifier("NULL");
+            editValueBlank = false;
+            editFlagBlank = false;
         }
     }
 
@@ -168,11 +178,12 @@ namespace QREST.Models
     {
         public Guid? selSite { get; set; }
         public Guid? selMon { get; set; }
-        public int selMonth { get; set; }
-        public int selYear { get; set; }
+        public DateTime startDate { get; set; }
+        public DateTime endDate { get; set; }
         public string PAR_CODE { get; set; }
         public string PAR_NAME { get; set; }
         public string SITE_ID { get; set; }
+
 
 
         public string SiteMonInd { get; set; }
@@ -181,6 +192,14 @@ namespace QREST.Models
         [Required]
         public HttpPostedFileBase fileUpload { get; set; }
         public string fileDescription { get; set; }
+
+        [Required]
+        [DisplayFormat(DataFormatString = "{0:d}")]
+        public DateTime addStartDt { get; set; }
+
+        [Required]
+        [DisplayFormat(DataFormatString = "{0:d}")]
+        public DateTime addEndDt { get; set; }
 
 
 
@@ -193,7 +212,11 @@ namespace QREST.Models
         public string selOrgID { get; set; }
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
 
-        public List<T_QREST_AQS> T_QREST_AQS { get; set; }
+        public List<AQSDisplay> T_QREST_AQS { get; set; }
+
+        public Guid? editID { get; set; }
+        public string editSUBMISSION_NAME { get; set; }
+        public string editCOMMENT { get; set; }
     }
 
 
@@ -201,25 +224,46 @@ namespace QREST.Models
     {
         public string selOrgID { get; set; }
         public Guid? selSite { get; set; }
-        public Guid? selMon { get; set; }
+        public IList<Guid> selMons{ get; set; }
+
         public string selAQSFormat { get; set; }
-        public DateTime selDtStart { get; set; }
-        public DateTime selDtEnd { get; set; }
+        public DateTime? selDtStart { get; set; }
+        public DateTime? selDtEnd { get; set; }
+        public string selActionCode { get; set; }
+        public bool passValidation { get; set; }
 
 
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_Sites { get; set; }
         public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
         public IEnumerable<SelectListItem> ddl_AQSFormat { get; set; }
+        public IEnumerable<SelectListItem> ddl_ActionCode { get; set; }
 
-        public List<T_QREST_AQS> T_QREST_AQS { get; set; }
+
+        //RESULTS
+        public List<SP_AQS_REVIEW_STATUS_Result> Results { get; set; }
 
 
         //initialize
         public vmDataAQSGen()
         {
             ddl_AQSFormat = ddlHelpers.get_ddl_aqs_format();
+            ddl_ActionCode = ddlHelpers.get_ddl_action_code();
+            selMons = new List<Guid>();
+            ddl_Monitor = new List<SelectListItem>();
         }
     }
 
+
+    public class vmDataAQSAcct
+    {
+        public string selOrgID { get; set; }
+        public Guid? selSite { get; set; }
+        public bool UseGlobalCDXAccount { get; set; }
+        public string CDXUsername { get; set; }
+        public string CDXPwd { get; set; }
+        public string AQSScreeningGroup { get; set; }
+        public string AQSUser { get; set; }
+
+    }
 }

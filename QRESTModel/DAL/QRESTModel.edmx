@@ -60,6 +60,8 @@
           <Property Name="MODIFY_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="AQS_CONTENT_XML" Type="varchar(max)" />
+          <Property Name="CDX_TOKEN" Type="varchar" MaxLength="250" />
+          <Property Name="DOWNLOAD_FILE" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="T_QREST_ASSESS_DOCS">
           <Key>
@@ -68,8 +70,6 @@
           <Property Name="ASSESS_DOC_IDX" Type="uniqueidentifier" Nullable="false" />
           <Property Name="SITE_IDX" Type="uniqueidentifier" Nullable="false" />
           <Property Name="MONITOR_IDX" Type="uniqueidentifier" />
-          <Property Name="YR" Type="int" Nullable="false" />
-          <Property Name="MON" Type="int" Nullable="false" />
           <Property Name="DOC_CONTENT" Type="varbinary(max)" />
           <Property Name="DOC_NAME" Type="varchar" MaxLength="100" />
           <Property Name="DOC_TYPE" Type="varchar" MaxLength="50" />
@@ -81,6 +81,8 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="START_DT" Type="datetime2" Precision="0" />
+          <Property Name="END_DT" Type="datetime2" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_DATA_FIVE_MIN">
           <Key>
@@ -119,6 +121,16 @@
           <Property Name="LVL2_VAL_DT" Type="datetime2" Precision="0" />
           <Property Name="NOTES" Type="varchar" MaxLength="100" />
           <Property Name="IMPORT_IDX" Type="uniqueidentifier" />
+        </EntityType>
+        <EntityType Name="T_QREST_DATA_HOURLY_LOG">
+          <Key>
+            <PropertyRef Name="DATA_HOURLY_LOG_IDX" />
+          </Key>
+          <Property Name="DATA_HOURLY_LOG_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="DATA_HOURLY_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="NOTES" Type="varchar" MaxLength="100" />
+          <Property Name="MODIFY_USERIDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_DATA_IMPORTS">
           <Key>
@@ -218,6 +230,8 @@
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="SELF_REG_IND" Type="bit" />
+          <Property Name="AQS_AQS_UID" Type="varchar" MaxLength="100" />
+          <Property Name="AQS_AQS_SCREENING_GRP" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -504,7 +518,7 @@
           <Property Name="ACTIVITY_DT" Type="datetime2" Precision="0" />
           <Property Name="ACTIVITY_TYPE" Type="varchar" MaxLength="25" Nullable="false" />
           <Property Name="ACTIVITY_USER" Type="varchar" MaxLength="256" />
-          <Property Name="ACTIVITY_DESC" Type="varchar" MaxLength="125" />
+          <Property Name="ACTIVITY_DESC" Type="varchar" MaxLength="2000" />
           <Property Name="IP_ADDRESS" Type="varchar" MaxLength="100" />
           <Property Name="SUPPORTING_ID" Type="varchar" MaxLength="50" />
         </EntityType>
@@ -805,6 +819,20 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_T_QREST_DATA_HOURLY_LOG_O">
+          <End Role="T_QREST_DATA_HOURLY" Type="Self.T_QREST_DATA_HOURLY" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_DATA_HOURLY_LOG" Type="Self.T_QREST_DATA_HOURLY_LOG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_DATA_HOURLY">
+              <PropertyRef Name="DATA_HOURLY_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_HOURLY_LOG">
+              <PropertyRef Name="DATA_HOURLY_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_T_QREST_DATA_IMPORTS_O">
           <End Role="T_QREST_ORGANIZATIONS" Type="Self.T_QREST_ORGANIZATIONS" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -1090,6 +1118,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
         <Function Name="SP_AQS_REVIEW_STATUS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="adate" Type="datetime" Mode="In" />
+          <Parameter Name="edate" Type="datetime" Mode="In" />
         </Function>
         <Function Name="SP_RPT_ANNUAL" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
@@ -1129,6 +1158,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="T_QREST_ASSESS_DOCS" EntityType="Self.T_QREST_ASSESS_DOCS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_FIVE_MIN" EntityType="Self.T_QREST_DATA_FIVE_MIN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_HOURLY" EntityType="Self.T_QREST_DATA_HOURLY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_DATA_HOURLY_LOG" EntityType="Self.T_QREST_DATA_HOURLY_LOG" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_IMPORTS" EntityType="Self.T_QREST_DATA_IMPORTS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_EMAIL_TEMPLATE" EntityType="Self.T_QREST_EMAIL_TEMPLATE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_HELP_DOCS" EntityType="Self.T_QREST_HELP_DOCS" Schema="dbo" store:Type="Tables" />
@@ -1248,6 +1278,10 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <AssociationSet Name="FK_T_QREST_ASSESS_DOCS_S" Association="Self.FK_T_QREST_ASSESS_DOCS_S">
             <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
             <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_DATA_HOURLY_LOG_O" Association="Self.FK_T_QREST_DATA_HOURLY_LOG_O">
+            <End Role="T_QREST_DATA_HOURLY" EntitySet="T_QREST_DATA_HOURLY" />
+            <End Role="T_QREST_DATA_HOURLY_LOG" EntitySet="T_QREST_DATA_HOURLY_LOG" />
           </AssociationSet>
           <AssociationSet Name="FK_T_QREST_DATA_IMPORTS_O" Association="Self.FK_T_QREST_DATA_IMPORTS_O">
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
@@ -1504,10 +1538,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
             <End Role="T_QREST_ASSESS_DOCS" EntitySet="T_QREST_ASSESS_DOCS" />
           </AssociationSet>
-          <FunctionImport Name="SP_AQS_REVIEW_STATUS" ReturnType="Collection(QRESTModel.SP_AQS_REVIEW_STATUS_Result)">
-            <Parameter Name="siteid" Mode="In" Type="Guid" />
-            <Parameter Name="adate" Mode="In" Type="DateTime" />
-          </FunctionImport>
           <EntitySet Name="MONITOR_SNAPSHOT" EntityType="QRESTModel.MONITOR_SNAPSHOT" />
           <EntitySet Name="T_QREST_AQS" EntityType="QRESTModel.T_QREST_AQS" />
           <AssociationSet Name="FK_T_QREST_AQS_O" Association="QRESTModel.FK_T_QREST_AQS_O">
@@ -1554,6 +1584,16 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
           </AssociationSet>
           <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" />
+          <FunctionImport Name="SP_AQS_REVIEW_STATUS" ReturnType="Collection(QRESTModel.SP_AQS_REVIEW_STATUS_Result)">
+            <Parameter Name="siteid" Mode="In" Type="Guid" />
+            <Parameter Name="adate" Mode="In" Type="DateTime" />
+            <Parameter Name="edate" Mode="In" Type="DateTime" />
+          </FunctionImport>
+          <EntitySet Name="T_QREST_DATA_HOURLY_LOG" EntityType="QRESTModel.T_QREST_DATA_HOURLY_LOG" />
+          <AssociationSet Name="FK_T_QREST_DATA_HOURLY_LOG_O" Association="QRESTModel.FK_T_QREST_DATA_HOURLY_LOG_O">
+            <End Role="T_QREST_DATA_HOURLY" EntitySet="T_QREST_DATA_HOURLY" />
+            <End Role="T_QREST_DATA_HOURLY_LOG" EntitySet="T_QREST_DATA_HOURLY_LOG" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -1664,6 +1704,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_AQS" Relationship="QRESTModel.FK_T_QREST_AQS_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_AQS" />
           <NavigationProperty Name="T_QREST_DATA_IMPORTS" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_DATA_IMPORTS" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_SITES" />
+          <Property Name="AQS_AQS_UID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_AQS_SCREENING_GRP" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -1844,7 +1886,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="ACTIVITY_DT" Type="DateTime" Precision="0" />
           <Property Name="ACTIVITY_TYPE" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
           <Property Name="ACTIVITY_USER" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
-          <Property Name="ACTIVITY_DESC" Type="String" MaxLength="125" FixedLength="false" Unicode="false" />
+          <Property Name="ACTIVITY_DESC" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
           <Property Name="IP_ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="SUPPORTING_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
@@ -2260,6 +2302,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="LVL2_VAL_DT" Type="DateTime" Precision="0" />
           <Property Name="NOTES" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="IMPORT_IDX" Type="Guid" />
+          <NavigationProperty Name="T_QREST_DATA_HOURLY_LOG" Relationship="QRESTModel.FK_T_QREST_DATA_HOURLY_LOG_O" FromRole="T_QREST_DATA_HOURLY" ToRole="T_QREST_DATA_HOURLY_LOG" />
         </EntityType>
         <EntityType Name="T_QREST_REF_QUALIFIER">
           <Key>
@@ -2480,8 +2523,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="ASSESS_DOC_IDX" Type="Guid" Nullable="false" />
           <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
           <Property Name="MONITOR_IDX" Type="Guid" />
-          <Property Name="YR" Type="Int32" Nullable="false" />
-          <Property Name="MON" Type="Int32" Nullable="false" />
           <Property Name="DOC_CONTENT" Type="Binary" MaxLength="Max" FixedLength="false" />
           <Property Name="DOC_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="DOC_TYPE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
@@ -2495,6 +2536,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_M" FromRole="T_QREST_ASSESS_DOCS" ToRole="T_QREST_MONITORS" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_ASSESS_DOCS_S" FromRole="T_QREST_ASSESS_DOCS" ToRole="T_QREST_SITES" />
+          <Property Name="START_DT" Type="DateTime" Precision="0" />
+          <Property Name="END_DT" Type="DateTime" Precision="0" />
         </EntityType>
         <Association Name="FK_T_QREST_ASSESS_DOCS_M">
           <End Type="QRESTModel.T_QREST_MONITORS" Role="T_QREST_MONITORS" Multiplicity="0..1">
@@ -2510,17 +2553,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <ComplexType Name="SP_AQS_REVIEW_STATUS_Result">
-          <Property Type="String" Name="PAR_CODE" Nullable="false" MaxLength="6" />
-          <Property Type="String" Name="PAR_NAME" Nullable="false" MaxLength="100" />
-          <Property Type="Guid" Name="MONITOR_IDX" Nullable="false" />
-          <Property Type="Int32" Name="hrs" Nullable="true" />
-          <Property Type="Int32" Name="hrs_data" Nullable="true" />
-          <Property Type="Int32" Name="aqs_ready" Nullable="true" />
-          <Property Type="Int32" Name="lvl1_val_ind" Nullable="true" />
-          <Property Type="Int32" Name="lvl2_val_ind" Nullable="true" />
-          <Property Type="Int32" Name="doc_cnt" Nullable="true" />
-        </ComplexType>
         <EntityType Name="MONITOR_SNAPSHOT">
           <Key>
             <PropertyRef Name="MONITOR_IDX" />
@@ -2551,6 +2583,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_AQS_O" FromRole="T_QREST_AQS" ToRole="T_QREST_ORGANIZATIONS" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_AQS_S" FromRole="T_QREST_AQS" ToRole="T_QREST_SITES" />
           <Property Name="AQS_CONTENT_XML" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CDX_TOKEN" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DOWNLOAD_FILE" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
         <Association Name="FK_T_QREST_AQS_O">
           <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
@@ -2781,6 +2815,42 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="QaReviewer" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <Property Name="Operator" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
+        <ComplexType Name="SP_AQS_REVIEW_STATUS_Result">
+          <Property Type="String" Name="PAR_CODE" Nullable="false" MaxLength="6" />
+          <Property Type="String" Name="PAR_NAME" Nullable="false" MaxLength="100" />
+          <Property Type="Guid" Name="MONITOR_IDX" Nullable="false" />
+          <Property Type="Int32" Name="hrs" Nullable="true" />
+          <Property Type="Int32" Name="hrs_data" Nullable="true" />
+          <Property Type="Int32" Name="aqs_ready" Nullable="true" />
+          <Property Type="Int32" Name="lvl1_val_ind" Nullable="true" />
+          <Property Type="Int32" Name="lvl2_val_ind" Nullable="true" />
+          <Property Type="Int32" Name="doc_cnt" Nullable="true" />
+        </ComplexType>
+        <EntityType Name="T_QREST_DATA_HOURLY_LOG">
+          <Key>
+            <PropertyRef Name="DATA_HOURLY_LOG_IDX" />
+          </Key>
+          <Property Name="DATA_HOURLY_LOG_IDX" Type="Guid" Nullable="false" />
+          <Property Name="DATA_HOURLY_IDX" Type="Guid" Nullable="false" />
+          <Property Name="NOTES" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USERIDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_DATA_HOURLY" Relationship="QRESTModel.FK_T_QREST_DATA_HOURLY_LOG_O" FromRole="T_QREST_DATA_HOURLY_LOG" ToRole="T_QREST_DATA_HOURLY" />
+        </EntityType>
+        <Association Name="FK_T_QREST_DATA_HOURLY_LOG_O">
+          <End Type="QRESTModel.T_QREST_DATA_HOURLY" Role="T_QREST_DATA_HOURLY" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_DATA_HOURLY_LOG" Role="T_QREST_DATA_HOURLY_LOG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_DATA_HOURLY">
+              <PropertyRef Name="DATA_HOURLY_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_HOURLY_LOG">
+              <PropertyRef Name="DATA_HOURLY_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2877,6 +2947,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_ORGANIZATIONS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_ORGANIZATIONS">
               <MappingFragment StoreEntitySet="T_QREST_ORGANIZATIONS">
+                <ScalarProperty Name="AQS_AQS_SCREENING_GRP" ColumnName="AQS_AQS_SCREENING_GRP" />
+                <ScalarProperty Name="AQS_AQS_UID" ColumnName="AQS_AQS_UID" />
                 <ScalarProperty Name="SELF_REG_IND" ColumnName="SELF_REG_IND" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
@@ -3450,6 +3522,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_ASSESS_DOCS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_ASSESS_DOCS">
               <MappingFragment StoreEntitySet="T_QREST_ASSESS_DOCS">
+                <ScalarProperty Name="END_DT" ColumnName="END_DT" />
+                <ScalarProperty Name="START_DT" ColumnName="START_DT" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USERIDX" ColumnName="MODIFY_USERIDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
@@ -3461,29 +3535,12 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="DOC_TYPE" ColumnName="DOC_TYPE" />
                 <ScalarProperty Name="DOC_NAME" ColumnName="DOC_NAME" />
                 <ScalarProperty Name="DOC_CONTENT" ColumnName="DOC_CONTENT" />
-                <ScalarProperty Name="MON" ColumnName="MON" />
-                <ScalarProperty Name="YR" ColumnName="YR" />
                 <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
                 <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
                 <ScalarProperty Name="ASSESS_DOC_IDX" ColumnName="ASSESS_DOC_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="SP_AQS_REVIEW_STATUS" FunctionName="QRESTModel.Store.SP_AQS_REVIEW_STATUS">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="QRESTModel.SP_AQS_REVIEW_STATUS_Result">
-                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
-                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
-                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
-                <ScalarProperty Name="hrs" ColumnName="hrs" />
-                <ScalarProperty Name="hrs_data" ColumnName="hrs_data" />
-                <ScalarProperty Name="aqs_ready" ColumnName="aqs_ready" />
-                <ScalarProperty Name="lvl1_val_ind" ColumnName="lvl1_val_ind" />
-                <ScalarProperty Name="lvl2_val_ind" ColumnName="lvl2_val_ind" />
-                <ScalarProperty Name="doc_cnt" ColumnName="doc_cnt" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
           <EntitySetMapping Name="MONITOR_SNAPSHOT">
             <EntityTypeMapping TypeName="QRESTModel.MONITOR_SNAPSHOT">
               <MappingFragment StoreEntitySet="MONITOR_SNAPSHOT">
@@ -3497,6 +3554,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_AQS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_AQS">
               <MappingFragment StoreEntitySet="T_QREST_AQS">
+                <ScalarProperty Name="DOWNLOAD_FILE" ColumnName="DOWNLOAD_FILE" />
+                <ScalarProperty Name="CDX_TOKEN" ColumnName="CDX_TOKEN" />
                 <ScalarProperty Name="AQS_CONTENT_XML" ColumnName="AQS_CONTENT_XML" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USERIDX" ColumnName="MODIFY_USERIDX" />
@@ -3594,6 +3653,32 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="FNAME" ColumnName="FNAME" />
                 <ScalarProperty Name="Email" ColumnName="Email" />
                 <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_AQS_REVIEW_STATUS" FunctionName="QRESTModel.Store.SP_AQS_REVIEW_STATUS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_AQS_REVIEW_STATUS_Result">
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="hrs" ColumnName="hrs" />
+                <ScalarProperty Name="hrs_data" ColumnName="hrs_data" />
+                <ScalarProperty Name="aqs_ready" ColumnName="aqs_ready" />
+                <ScalarProperty Name="lvl1_val_ind" ColumnName="lvl1_val_ind" />
+                <ScalarProperty Name="lvl2_val_ind" ColumnName="lvl2_val_ind" />
+                <ScalarProperty Name="doc_cnt" ColumnName="doc_cnt" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="T_QREST_DATA_HOURLY_LOG">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_HOURLY_LOG">
+              <MappingFragment StoreEntitySet="T_QREST_DATA_HOURLY_LOG">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USERIDX" ColumnName="MODIFY_USERIDX" />
+                <ScalarProperty Name="NOTES" ColumnName="NOTES" />
+                <ScalarProperty Name="DATA_HOURLY_IDX" ColumnName="DATA_HOURLY_IDX" />
+                <ScalarProperty Name="DATA_HOURLY_LOG_IDX" ColumnName="DATA_HOURLY_LOG_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

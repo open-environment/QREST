@@ -97,7 +97,7 @@ namespace QREST.Controllers
                 if (ModelState.IsValid)
                 {
                     int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
-                        model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "");
+                        model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null);
 
                     if (SuccID == 1)
                         TempData["Success"] = "Record updated";
@@ -234,6 +234,7 @@ namespace QREST.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult SiteEdit(vmSiteSiteEdit model)
         {
@@ -282,6 +283,7 @@ namespace QREST.Controllers
 
             return RedirectToAction("SiteEdit", "Site", new { id = model.SITE_IDX });
         }
+
 
         [HttpPost]
         public JsonResult SiteNotifyDelete(string id)
@@ -502,6 +504,7 @@ namespace QREST.Controllers
         }
 
 
+
         //**********************SITE POLLING **************************************
         //**********************SITE POLLING **************************************
         //**********************SITE POLLING **************************************
@@ -538,7 +541,7 @@ namespace QREST.Controllers
                 if (n == 1) //new case
                 {
                     model.editPOLL_CONFIG_IDX = Guid.NewGuid();
-                    model.editACT_IND = true;
+                    model.editACT_IND = false;
                 }
                 else
                 {
@@ -570,10 +573,11 @@ namespace QREST.Controllers
                         model.editTIME_POLL_TYPE = e.TIME_POLL_TYPE;
                         model.editACT_IND = e.ACT_IND;
 
-                        if (e.RAW_DURATION_CODE == null || e.DELIMITER == null || e.LOCAL_TIMEZONE == null || e.DATE_COL == null || e.TIME_COL == null)
-                        {
+                        //display polling warning message
+                        if ((e.LOGGER_TYPE== "ZENO" || e.LOGGER_TYPE == "SUTRON") && (e.RAW_DURATION_CODE == null || e.DELIMITER == null || e.LOCAL_TIMEZONE == null || e.DATE_COL == null || e.TIME_COL == null))
                             ViewBag.PollError = true;
-                        }
+                        else if (e.LOGGER_TYPE == "WEATHER_PWS" && (e.RAW_DURATION_CODE == null || e.LOCAL_TIMEZONE == null))
+                            ViewBag.PollError = true;
                     }
 
                 }
@@ -595,9 +599,16 @@ namespace QREST.Controllers
             string UserIDX = User.Identity.GetUserId();
 
             //*************** VALIDATION BEGIN *********************************
-            //if (e.LOGGER_SOURCE == null)
-            //    ModelState.AddModelError("CurrentConfig.LOGGER_SOURCE", "Logger Source Required");
-
+            if (model.editLOGGER_TYPE == "WEATHER_PWS")
+            {
+                if (model.editLOGGER_SOURCE == null)
+                    ModelState.AddModelError("editLOGGER_SOURCE", "Station ID required");
+                if (model.editLOGGER_PORT == null)
+                    model.editLOGGER_PORT = 0;
+                model.editTIME_COL = 2;
+                model.editDATE_COL = 1;
+                model.editDELIMITER = "C";
+            }
             //*************** VALIDATION END  *********************************
 
             if (ModelState.IsValid)
@@ -617,6 +628,12 @@ namespace QREST.Controllers
                             db_Air.UpdatetT_QREST_SITE_POLL_CONFIG_SetInactive(_p.POLL_CONFIG_IDX);
                     }
 
+                    //prepopulate some default info for WEATHER STATION
+                    if (model.editLOGGER_TYPE == "WEATHER_PWS")
+                    {
+                        model.editRAW_DURATION_CODE = "1";
+                        model.editTIME_POLL_TYPE = "L";
+                    }
 
                     Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
                         model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
@@ -625,6 +642,7 @@ namespace QREST.Controllers
                     if (SuccID != null)
                     {
                         TempData["Success"] = "Record updated";
+                        model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), false);
                         return RedirectToAction("SitePollConfig", new { id = model.SITE_IDX, configid = SuccID });
                     }
                     else
@@ -835,34 +853,36 @@ namespace QREST.Controllers
 
             return View(model);
         }
-        public ActionResult ViewChangeLog(Guid? id)
+
+
+        public ActionResult SitePollOffline(Guid id)
         {
-            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
-            if (_config == null)
-            {
-                TempData["Error"] = "Monitor polling configuration not found";
-                return RedirectToAction("SiteList", "Site");
-            }
-            //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
-            else if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
-            {
-                TempData["Error"] = "Polling configuration is incomplete: logger source, port, and password must be supplied";
-                return RedirectToAction("SiteList", "Site");
-            }
+            string UserIDX = User.Identity.GetUserId();
 
             //reject if user doesn't have access to org
-            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(id ?? Guid.Empty);
-            RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
-            if (r != null) return r;
+            RedirectToRouteResult r = CanAccessThisOrg(UserIDX, db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(id), true);
+            if (r != null) return Json("Access Denied");
 
-            //initialize model
-            var model = new vmAdminLogActivity();
+            var _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id);
+            if (_config != null)
+            {
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(_config.SITE_IDX);
+                if (_site != null)
+                {
+                    //take offline
+                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(id, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, false, UserIDX, _site.SITE_NAME, null);
 
-            //Back to Site Screen
-            model.SITE_IDX = _config.SITE_IDX.ToString();
+                    if (SuccID != null)
+                    {
+                        TempData["Success"] = "Configuration Taken Offline";
+                        return RedirectToAction("SitePollConfig", new { configid = id });
+                    }
+                }
+            }
 
-            model.POLL_CONFIG_IDX = _config.POLL_CONFIG_IDX.ToString();
-            return View(model);
+            TempData["Error"] = "Error updating record.";
+            return RedirectToAction("SitePollConfig", new { configid = id });
         }
 
 
@@ -884,77 +904,79 @@ namespace QREST.Controllers
             if (siteID == null || siteID.Length != 4)
                 ModelState.AddModelError("pingType", "Site ID must be a 4 digit number that corresponds to ID configured on logger.");
 
-            if (_config?.LOGGER_TYPE == "SUTRON" && model.pingType == "Ping Only")
-                ModelState.AddModelError("pingType", "Ping Only not available for Sutron logger.");
+            if (_config?.LOGGER_TYPE != "ZENO" && _config?.LOGGER_TYPE != "SUTRON")
+                ModelState.AddModelError("pingType", "Ping currently only available for Zeno and Sutron dataloggers.");
+
+            if (_config?.LOGGER_TYPE != "ZENO" && model.pingType == "Ping Only")
+                ModelState.AddModelError("pingType", "Ping Only option is only available for Zeno logger.");
 
 
             if (ModelState.IsValid)
             {
-
-                //*********** PINGING ZENO ************************************************************************
-                //*********** PINGING ZENO ************************************************************************
-                //*********** PINGING ZENO ************************************************************************
-                if (_config.LOGGER_TYPE == "ZENO" || _config.LOGGER_TYPE == "SUTRON")
+                // ***************** PING ONLY: THIS ATTEMPTS TO ACCESS THE USER INTERFACE **********************
+                if (model.pingType == "Ping Only")
+                    model.pingResults2 = LoggerComm.ConnectTcpClientPing(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_PASSWORD);
+                // ***************** RETRIEVE DATA: THIS POLLS DATA FROM THE LOGGER USING SAIL **********************
+                else if (model.pingType == "Retrieve Data")
                 {
-                    // ***************** PING ONLY: THIS ATTEMPTS TO ACCESS THE USER INTERFACE **********************
-                    if (model.pingType == "Ping Only")
-                        model.pingResults2 = LoggerComm.ConnectTcpClientPing(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_PASSWORD);
-                    // ***************** RETRIEVE DATA: THIS POLLS DATA FROM THE LOGGER USING SAIL **********************
-                    else if (model.pingType == "Retrieve Data")
-                    {
-                        CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_PASSWORD, "#" + siteID + "0001DL" + model.recCount + ",");
-                        if (_log.CommMessageStatus)
-                            model.loggerData = LoggerComm.stripMessage(_log.CommResponse, "#0001" + siteID);
-                        else
-                            model.pingResults2 = new List<CommMessageLog> { _log };
-                    }
+                    CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), "DL" + model.recCount + ",", siteID);
+                    if (_log.CommMessageStatus)
+                        model.loggerData = LoggerComm.stripMessage(_log.CommResponse, "#0001" + siteID);
+                    else
+                        model.pingResults2 = new List<CommMessageLog> { _log };
                 }
-                else
-                    ModelState.AddModelError("pingType", "Ping currently only available for Zeno and Sutron dataloggers.");
-
             }
-
 
             return View(model);
         }
 
 
-        private static string SendReceiveMessage(NetworkStream stream, string message, int msWait)
+        public ActionResult ViewChangeLog(Guid? id)
         {
-            // ****************Send message to the connected TcpServer. ********************************
-            System.Threading.Thread.Sleep(700); //wait for terminal to be ready write data
-            Byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(message);
-            stream.Write(bytesToSend, 0, bytesToSend.Length);
-
-
-            // ****************Read response after the send command. ********************************
-            string resp = "init";
-            string respPrev = "init";
-            System.Threading.Thread.Sleep(msWait); //wait for terminal to begin writing response
-            var ms = new MemoryStream();
-            byte[] data = new byte[1024];
-            int numBytesRead;
-            do
+            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
+            if (_config == null)
             {
-                //System.Diagnostics.Debug.WriteLine(stream.DataAvailable);
-                
-                respPrev = resp;
-                numBytesRead = stream.Read(data, 0, data.Length);
-                ms.Write(data, 0, numBytesRead);
-                resp = Encoding.ASCII.GetString(ms.ToArray());
+                TempData["Error"] = "Monitor polling configuration not found";
+                return RedirectToAction("SiteList", "Site");
+            }
 
-                //System.Diagnostics.Debug.WriteLine(numBytesRead);
-                //System.Diagnostics.Debug.WriteLine(data.Length);
-                //System.Diagnostics.Debug.WriteLine(Encoding.ASCII.GetString(ms.ToArray()));
+            //reject if user doesn't have access to org
+            string OrgID = db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(id ?? Guid.Empty);
+            RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
+            if (r != null) return r;
 
-                System.Threading.Thread.Sleep(500);  //wait before reading again to let logger write out more if still writing
-            //} while (numBytesRead == data.Length);
-            } while (stream.DataAvailable && respPrev != resp);
+            //initialize model
+            var model = new vmAdminLogActivity { 
+                SITE_IDX = _config.SITE_IDX.ToString(),
+                POLL_CONFIG_IDX = _config.POLL_CONFIG_IDX.ToString()
+            };
 
-            return resp;
+            return View(model);
         }
 
 
+        public async Task<ActionResult> LoggerPollManual(Guid? id)
+        {
+            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
+            if (_config == null)
+            {
+                TempData["Error"] = "Monitor polling configuration not found";
+                return RedirectToAction("SiteList", "Site");
+            }
+
+            //reject if user doesn't have access to site
+            string UserIDX = User.Identity.GetUserId();
+            RedirectToRouteResult r = CanAccessThisSite(UserIDX, _config.SITE_IDX, false);
+            if (r != null) return r;
+
+
+            if (_config.LOGGER_TYPE == "WEATHER_PWS")
+            {
+                bool xxx = await LoggerComm.RetrieveWeatherCompanyPWS(_config);
+            }
+
+            return RedirectToAction("SitePollConfig", new { configid = id });
+        }
 
 
         //**********************MONITORS **************************************
@@ -1019,8 +1041,8 @@ namespace QREST.Controllers
                     model.ALERT_MAX_TYPE = _monitor.T_QREST_MONITORS.ALERT_MAX_TYPE;
                     model.ALERT_AMT_CHANGE_TYPE = _monitor.T_QREST_MONITORS.ALERT_AMT_CHANGE_TYPE;
                     model.ALERT_STUCK_TYPE = _monitor.T_QREST_MONITORS.ALERT_STUCK_TYPE;
-
                     model.ddl_Unit = ddlHelpers.get_ddl_ref_units(_monitor.PAR_CODE);
+
                 }
                 else
                 {
@@ -1034,6 +1056,13 @@ namespace QREST.Controllers
                 //fail if user supplied SiteIDX but doesn't exist
                 TempData["Error"] = "Monitor or site not found.";
                 return RedirectToAction("SiteList", "Site");
+            }
+
+            //populate site name
+            if (model.SITE_IDX != null)
+            {
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(model.SITE_IDX.GetValueOrDefault());
+                model.SITE_NAME = _site.SITE_NAME;
             }
 
             return View(model);
@@ -1302,6 +1331,10 @@ namespace QREST.Controllers
         }
 
 
+        //**********************SHARED **************************************
+        //**********************SHARED **************************************
+        //**********************SHARED **************************************
+
         [HttpGet]
         public JsonResult FetchUnits(string ID)
         {
@@ -1316,10 +1349,6 @@ namespace QREST.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-
-        //**********************SHARED **************************************
-        //**********************SHARED **************************************
-        //**********************SHARED **************************************
         public RedirectToRouteResult CanAccessThisOrg(string UserIDX, string OrgID, bool CanEditToo)
         {
             if (db_Account.CanAccessThisOrg(UserIDX, OrgID, CanEditToo) == false)

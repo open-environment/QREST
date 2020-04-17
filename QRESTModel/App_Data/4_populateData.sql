@@ -7,15 +7,20 @@ GO
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT]) VALUES ('EMAIL_FROM','donotreply@qrest.net','The email address in the FROM line when sending emails from this application.','',GetDate());
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT]) VALUES ('EMAIL_SERVER','smtp.sendgrid.net','The SMTP email server used to allow this application to send emails.','',GetDate());
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT]) VALUES ('EMAIL_PORT','25','The port used to access the SMTP email server.',0,GetDate());
-INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('EMAIL_SECURE_USER','smtp@change.me','If the SMTP server requires authentication, this is the SMTP server username.','',GetDate(),1);
+INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('EMAIL_SECURE_USER','smtp@change.me','If the SMTP server requires authentication, this is the SMTP server username.','',GetDate(),0);
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('EMAIL_SECURE_PWD','change.me','If the SMTP server requires authentication, this is the SMTP server password or API KEY.','',GetDate(),1);
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('SMS_SID','change.me','Unique identification for a Twilio account, needed for QREST to send text messages.','',GetDate(),1);
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('SMS_AUTH_TOKEN','change.me','Authentication token for a Twilio account, needed for QREST to send text messages.','',GetDate(),1);
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('SMS_PHONE_NUM','change.me','Text messages sent from QREST will originate from this number. This must be a number purchased through Twilio.','',GetDate(),0);
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('NUM_POLL_RECS','12','Default number of records to poll from data loggers when performing automated polling.','',GetDate(),0);
 
-INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('AIRNOW_FTP_USER','change.me','Global username used for FTPing files to EPA AirNow.','',GetDate(),1);
+INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('AIRNOW_ACTIVE_IND','1','Set to 1 to globally allow AirNow service','',GetDate(),0);
+INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('AIRNOW_FTP_USER','change.me','Global username used for FTPing files to EPA AirNow.','',GetDate(),0);
 INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('AIRNOW_FTP_PWD','change.me','Global password used for FTPing files to EPA AirNow.','',GetDate(),1);
+
+INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('CDX_URL','change.me','Website URL for the Exchange Network Node (CDX).','',GetDate(),0);
+INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('CDX_GLOBAL_USER','change.me','Exchange Network username, if none supplied by tribe.','',GetDate(),0);
+INSERT INTO T_QREST_APP_SETTINGS ([SETTING_NAME],[SETTING_VALUE],[SETTING_DESC],[MODIFY_USER_IDX],[MODIFY_DT],ENCRYPT_IND) VALUES ('CDX_GLOBAL_PWD','change.me','Exchange Network password, if none supplied by tribe.','',GetDate(),1);
 
 
 

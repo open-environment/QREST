@@ -1,11 +1,15 @@
-﻿using QRESTModel.DAL;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace QRESTModel.COMM
 {
@@ -17,6 +21,13 @@ namespace QRESTModel.COMM
 
     public static class LoggerComm
     {
+        /// <summary>
+        /// Connect to Zeno User Interface (Log in and log out only)
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="pwd"></param>
+        /// <returns></returns>
         public static List<CommMessageLog> ConnectTcpClientPing(string ip, ushort port, string pwd )
         {
             var log = new List<CommMessageLog>();
@@ -86,7 +97,15 @@ namespace QRESTModel.COMM
         }
 
 
-        public static CommMessageLog ConnectTcpClientSailer(string ip, ushort port, string pwd, string message)
+        /// <summary>
+        /// Creates a TCP Connection to a data logger, and then uses a SAILER command to connect to a Zeno or Sutron data logger and return the logger response, based on the input message.
+        /// </summary>
+        /// <param name="ip">Data logger IP address</param>
+        /// <param name="port">Data logger port</param>
+        /// <param name="message">CCSAILER command to issue to logger</param>
+        /// <param name="siteID">Four digit site ID that the logger uses to define the site</param>
+        /// <returns></returns>
+        public static CommMessageLog ConnectTcpClientSailer(string ip, ushort port, string message, string siteID)
         {
             var log = new CommMessageLog();
 
@@ -106,9 +125,13 @@ namespace QRESTModel.COMM
                         using (NetworkStream stream = client.GetStream())
                         {
                             //*************** send sailer message *****************************
-                            string xxx = SendReceiveMessage(stream, message, 700, 700, true);
+                            //siteID = "1018";
+                            string xxx = SendReceiveMessage(stream, "#" + siteID + "0001" + message, 700, 700, true);
                             if (xxx != null && xxx.Length > 10)
+                            {
+                                xxx = stripMessage(xxx, "#0001" + siteID); //strip unnecessary stuff from beginning of file (TO DO replace with validity check)
                                 log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = xxx };
+                            }
                             else
                                 log = new CommMessageLog { CommMessageStatus = false, CommMessageType = xxx, CommResponse = "" };
 
@@ -135,7 +158,7 @@ namespace QRESTModel.COMM
                     System.Threading.Thread.Sleep(250);
                     client.Close();
 
-                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping Socket Exception 3", CommResponse = ex.Message };
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping Socket Exception 2", CommResponse = ex.Message };
                 }
             }
 
@@ -217,6 +240,7 @@ namespace QRESTModel.COMM
             };
         }
 
+
         public static string stripMessage(string inputMsg, string match)
         {
             int resultIndex = inputMsg.IndexOf(match);
@@ -225,5 +249,104 @@ namespace QRESTModel.COMM
 
             return inputMsg;
         }
+
+
+        /// <summary>
+        /// Parses an entire polling file (either tab separated or comma separated) into the raw FIVE_MINUTE table, based on a provided polling configuration. 
+        /// Can optionally update the time polling should run.
+        /// </summary>
+        /// <param name="loggerData"></param>
+        /// <param name="config"></param>
+        /// <param name="updateNextRunTime"></param>
+        /// <returns>True only if ran successfully.</returns>
+        public static bool ParseFlatFile(string loggerData, SitePollingConfigType config, List<SitePollingConfigDetailType> _config_dtl, bool updateNextRunTime)
+        {
+            try
+            {
+                string line;
+                using (System.IO.StringReader sr = new System.IO.StringReader(loggerData))
+                {
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (line.Length > 0)
+                        {
+                            //FIVE MINUTE RAW DATA
+                            if (config.RAW_DURATION_CODE == "H")
+                                db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, _config_dtl);
+                            //ONE MINUTE RAW DATA
+                            //if (config.RAW_DURATION_CODE == "G")
+                            //    db_Air.InsertT_QREST_DATA_ONE_MIN_fromLine(line, config, config_dtl);
+                        }
+                    }
+                }
+
+                if (updateNextRunTime)
+                {
+                    //update next run for the site
+                    DateTime nextrun = System.DateTime.Now.AddMinutes(15);  //default to 15 minutes next run
+                    if (config.POLLING_FREQ_TYPE == "M")
+                        nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
+
+                    db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", ex.InnerException?.ToString());
+                return false;
+            }
+
+        }
+
+        public static async Task<bool> RetrieveWeatherCompanyPWS(T_QREST_SITE_POLL_CONFIG config) {
+
+            using (var client = new System.Net.Http.HttpClient())
+            {
+                var xxx = await client.GetStringAsync("https://api.weather.com/v2/pws/observations/current?stationId=" + config.LOGGER_SOURCE + "&format=json&units=e&apiKey=" + config.LOGGER_PASSWORD); //uri
+
+                JObject rss = JObject.Parse(xxx);
+
+                string site = (string)rss["observations"][0]["stationID"];
+
+                //take this as a successful reading and continue with parsing
+                if (site == config.LOGGER_SOURCE)
+                {
+                    string obsTimeLocal = (string)rss["observations"][0]["obsTimeLocal"];
+                    DateTime local = DateTime.Parse(obsTimeLocal, new CultureInfo("en-US"), DateTimeStyles.NoCurrentDateDefault);
+                    DateTime localrounded = new DateTime(local.Year, local.Month, local.Day, local.Hour, 0, 0);
+                    string obsTimeUtc = (string)rss["observations"][0]["obsTimeUtc"];
+                    DateTime utc  = DateTime.Parse(obsTimeUtc, new CultureInfo("en-US"), DateTimeStyles.NoCurrentDateDefault);
+                    DateTime utcrounded = new DateTime(utc.Year, utc.Month, utc.Day, utc.Hour, 0, 0);
+                    string solarRad = (string)rss["observations"][0]["solarRadiation"];
+                    string windDir = (string)rss["observations"][0]["winddir"];
+                    string temp1 = (string)rss["observations"][0]["imperial"]["temp"];
+                    string windSpeed = (string)rss["observations"][0]["imperial"]["windSpeed"];
+                    string pressure = (string)rss["observations"][0]["imperial"]["pressure"];
+
+                    List<PollConfigDtlDisplay> _dtls = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(config.POLL_CONFIG_IDX);
+                    foreach (PollConfigDtlDisplay _dtl in _dtls)
+                    {
+                        if (_dtl.PAR_CODE == "63301") 
+                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, solarRad, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                        if (_dtl.PAR_CODE == "61104")
+                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, windDir, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                        if (_dtl.PAR_CODE == "62101")
+                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, temp1, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                        if (_dtl.PAR_CODE == "61101")
+                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, windSpeed, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                        if (_dtl.PAR_CODE == "64101")
+                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, pressure, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                    }
+
+                }
+
+            }
+
+            return true;
+        }
+
     }
 }

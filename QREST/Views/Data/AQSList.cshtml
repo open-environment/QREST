@@ -20,87 +20,214 @@
 
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">AQS Submissions</header>
-    @if (Model.ddl_Organization.Count() > 0)
-    {
-        <div class="panel-body">
-            @if (Model.T_QREST_AQS != null)
-            {
-                <div class="table-responsive">
-                    <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th style="width: 120px;"></th>
-                                <th>Organization</th>
-                                <th>Site</th>
-                                <th>Submission Name</th>
-                                <th>Submission Date</th>
-                                <th>Data Range</th>
-                                <th>Comments</th>
-                                <th>Submitted By</th>
-                                <th>Download</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        @foreach (var item in Model.T_QREST_AQS)
-                        {
-                            <tr>
-                                <td>
-                                    <a href="@(Url.Action("SiteEdit", "Site", new { id = item.SITE_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
-                                    <div class="delete-section" style="display:inline-block">
-                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SITE_IDX" data-delete-p="/Site/SiteDelete"><b>Confirm Delete</b></div>
+    <div class="panel-body">
+        @if (Model.T_QREST_AQS != null)
+        {
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;"></th>
+                            <th>Organization</th>
+                            <th>Site</th>
+                            <th>Submission Name</th>
+                            <th>Submission Date (UTC)</th>
+                            <th>Data Date Range</th>
+                            <th>Submitted By</th>
+                            <th>Comments</th>
+                            <th>Download</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.T_QREST_AQS)
+                    {
+                        <tr>
+                            <td>
+                                <a href="#modal-form" data-toggle="modal" data-id="@item.T_QREST_AQS.AQS_IDX" data-comment="@item.T_QREST_AQS.COMMENT" data-name="@item.T_QREST_AQS.AQS_SUBMISSION_NAME" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                <div class="delete-section" style="display:inline-block">
+                                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_AQS.AQS_IDX" data-delete-p="/Data/AQSDelete">
+                                        <b>Confirm Delete</b>
                                     </div>
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.ORG_ID)
-                                </td>
-                                <td>
-                                    @*@Html.DisplayFor(modelItem => item.SITE_ID)
-                                        @Html.DisplayFor(modelItem => item.SITE_NAME)*@
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.AQS_SUBMISSION_NAME)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.CREATE_DT)
-                                </td>
-                                <td>                                
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.COMMENT)
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                    <a class="text-info" href="@Url.Action("AQSFileDownload", new { id = item.AQS_IDX })">@item.AQS_SUBMISSION_NAME</a>
-                                </td>
-                                <td>
-                                </td>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.ORG_ID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SITE_ID)
+                                @Html.DisplayFor(modelItem => item.SITE_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.AQS_SUBMISSION_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.CREATE_DT)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.START_DT) -
+                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.END_DT)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SUBMITTER)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.COMMENT)
+                            </td>
+                            <td>
+                                <a class="text-info" href="@Url.Action("AQSFileDownload", new { id = item.T_QREST_AQS.AQS_IDX })">@item.T_QREST_AQS.AQS_SUBMISSION_NAME</a>
+                                <a class="text-info" href="@Url.Action("AQSFileDownloadHeader", new { id = item.T_QREST_AQS.AQS_IDX })">Header File</a>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.SUBMISSION_STATUS)
+                                @if (item.T_QREST_AQS.SUBMISSION_STATUS == "File Created")
+                                {
+                                    <a id="btnResult" href="@(Url.Action("AQSSubmitToEPA", "Data", new { id = item.T_QREST_AQS.AQS_IDX }))" class="btn btn-rounded btn-sm btn-danger" style="display: inline-block;">Submit to EPA</a>
+                                }
+                                else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Submitted-Processing" || item.T_QREST_AQS.SUBMISSION_STATUS == "Processing" || item.T_QREST_AQS.SUBMISSION_STATUS == "Pending")
+                                {
+                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-warning getStatus" data-id="@item.T_QREST_AQS.AQS_IDX" style="display: inline-block;">Get Status</a>
+                                }
+                                else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Failed" && item.T_QREST_AQS.DOWNLOAD_FILE == null)
+                                {
+                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-dark download" data-id="@item.T_QREST_AQS.AQS_IDX" style="display: inline-block;">Download Errors</a>
+                                }
+                                else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Failed" && item.T_QREST_AQS.DOWNLOAD_FILE != null)
+                                {
+                                    <a id="btnResult" class="text-info " href="@Url.Action("AQSResponseDownload", new { id = item.T_QREST_AQS.AQS_IDX })">Validation Errors</a>
+                                }
+                                else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Completed")
+                                {
+                                }
 
-                            </tr>
-                        }
-                    </table>
-                </div>
-            }
-            <a href="@Url.Action("AQSGen")" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
+                            </td>
 
-        </div>
-    }
-    else
-    {
-        <div class="panel-body">You can make AQS submissions after you have been associated with a tribal organization.</div>
-    }
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+        <a href="@Url.Action("AQSGen")" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
+
+    </div>
 </section>
+
+
+<!-- START EDIT MODAL  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="width:600px">
+
+        @using (Html.BeginForm("AQSListEdit", "Data", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.editID)
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 style="float: left" class="modal-title">Edit Submission</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Submission Name</label>
+                                @Html.TextBoxFor(model => model.editSUBMISSION_NAME, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Comment</label>
+                                @Html.TextAreaFor(model => model.editCOMMENT, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- END EDIT MODAL -->
 
 
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
 
-    <script type="text/javascript">
-        $(document).ready(function () {
+    @*<script type="text/javascript">
+        //$(docuemtn.ready())
+        //{
+        //    $("#editorSeld1").val('test');
+        //    $("#editorSeld2").val('test2');
+        //};
+        
+    </script>*@
 
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        //**************load edit modal****************
+        $(document).on('click', '.modal-it', function () {
+            $("#editID").val($(this).attr('data-id'));
+            $("#editCOMMENT").val($(this).attr('data-comment'));
+            $("#editSUBMISSION_NAME").val($(this).attr('data-name'));
         });
 
-    </script>
+
+        //******************get status*******************
+        $(document).on('click', '.getStatus', function () {
+            var btn = $(this);
+            $.post('@Url.Action("AQSGetStatus","Data")',
+                AddAntiForgeryToken({
+                    id: $(this).attr('data-id')
+                }))
+                .done(function (response) {
+                    if (response != "ERROR") {
+
+                        if (response == "Failed") {
+                            btn.removeClass("getStatus").addClass("download").removeClass("btn-warning").addClass("btn-dark");
+                            btn.get(0).lastChild.nodeValue = "Download Errors";
+                        }
+                        else if (response == "Completed") {
+                            console.log('c');
+
+                        }
+                        toastr.success("Get Status updated.");
+                    }
+                    else
+                        toastr.warning("Error calling Get Status");
+                }).fail(function (data) {
+                    toastr.warning("Unable to Get Status");
+                });
+        });
+
+
+        //******************download*******************
+        $(document).on('click', '.download', function () {
+            $.post('@Url.Action("AQSDownload","Data")',
+                AddAntiForgeryToken({
+                    id: $(this).attr('data-id')
+                }))
+                .done(function (response) {
+                    if (response.msg == "Success") {
+                        //toastr.success("Updated");
+                    }
+                    else
+                        toastr.warning(response.msg);
+                }).fail(function (data) {
+                    toastr.warning("Unable to Get Status");
+                });
+        });
+
+
+    });
+
+</script>
 }
 

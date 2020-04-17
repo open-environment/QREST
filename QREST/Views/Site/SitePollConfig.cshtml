@@ -6,7 +6,7 @@
 
 <section class="hbox">
     <section class="aside-md panel panel-qrest" id="subNav" style="border-radius: 4px 0px 0px 4px; width:180px">
-        <header class="panel-heading font-bold" style="border-right: 2px solid #fff">Polling Templates</header>
+        <header class="panel-heading font-bold" style="border-right: 1px solid #fff">Polling Templates</header>
         <ul class="nav">
             @if (Model.ConfigList != null)
             {
@@ -21,12 +21,13 @@
                 }
             }
         </ul>
-        <a href="@(Url.Action("SitePollConfig", "Site", new { n = 1 }))" class="btn btn-primary btn-xs m-sm"><i class="fa fa-plus"></i> Add Polling Config</a>
+        <footer>
+            <a href="@(Url.Action("SitePollConfig", "Site", new { n = 1 }))" class="btn btn-primary btn-block " style="border-radius:0"><i class="fa fa-plus"></i> Add Polling Config</a>
+        </footer>
     </section>
 
     @if (Model.editPOLL_CONFIG_IDX != null)
     {
-
         <section class="panel panel-qrest" style="border-radius: 0px 4px 4px 0px;">
             <header class="panel-heading font-bold">
                 Details
@@ -34,25 +35,34 @@
                 {
                     <button type="button" class="btn btn-xs btn-info pull-right dropdown-toggle" data-toggle="dropdown">Options <i class="caret"></i></button>
                     <ul class="dropdown-menu pull-right btn-info">
-                        <li data-value="1">
-                            <a id="lnkPing" href="@Url.Action("SitePollPing", "Site", new { id=Model.editPOLL_CONFIG_IDX })">Ping Connection</a>
-                        </li>
+                        @if (Model.editLOGGER_TYPE == "WEATHER_PWS")
+                        {
+                            <li data-value="2">
+                                <a id="lnkDownload" href="@Url.Action("LoggerPollManual", new { id = Model.editPOLL_CONFIG_IDX })">Manual Poll and Store </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li data-value="1">
+                                <a id="lnkPing" href="@Url.Action("SitePollPing", "Site", new { id=Model.editPOLL_CONFIG_IDX })">Ping Connection</a>
+                            </li>
+                        }
                         <li data-value="2">
                             <a id="lnkDownload" href="@Url.Action("DownloadTemplate", new { id=Model.editPOLL_CONFIG_IDX })">Download File Template</a>
                         </li>
                         <li data-value="2">
-                            <a id="lnkDownload" href="#">Manual Import</a>
-                        </li>
-                        <li data-value="2">
                             <a id="lnkViewChangeLog" href="@Url.Action("ViewChangeLog", new { id=Model.editPOLL_CONFIG_IDX })">View Change Log</a>
                         </li>
-                        <li class="divider"></li>
-                        <li data-value="4">
-                            <a href="#" class="delete-link">Delete</a>
-                            <a href="#" class="delete-confirm" style="display:none" data-delete-id="@Model.editPOLL_CONFIG_IDX" data-delete-path="" data-delete-p="/Site/SitePollConfigDelete" data-success-url="/Site/SiteList">
-                                <b>Confirm Delete</b>
-                            </a>
-                        </li>
+                        @if (Model.editACT_IND == false)
+                        {
+                            <li class="divider"></li>
+                            <li data-value="4">
+                                <a href="#" class="delete-link">Delete</a>
+                                <a href="#" class="delete-confirm" style="display:none" data-delete-id="@Model.editPOLL_CONFIG_IDX" data-delete-path="" data-delete-p="/Site/SitePollConfigDelete" data-success-url="/Site/SiteList">
+                                    <b>Confirm Delete</b>
+                                </a>
+                            </li>
+                        }
                     </ul>
                 }
             </header>
@@ -65,7 +75,7 @@
                     </div>
                 }
 
-                @using (Html.BeginForm("SitePollConfig", "Site", FormMethod.Post))
+                @using (Html.BeginForm("SitePollConfig", "Site", FormMethod.Post, new { @id = "norepostform", role = "form" }))
                 {
                     @Html.AntiForgeryToken()
                     @Html.HiddenFor(model => model.editPOLL_CONFIG_IDX)
@@ -78,14 +88,16 @@
                                 </header>
                                 <div class="panel-body">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <div class="form-group">
                                                 @Html.LabelForRequired(m => m.editCONFIG_NAME, "Config Name", new { @class = "control-label" })
                                                 @Html.TextBoxFor(model => model.editCONFIG_NAME, new { @class = "form-control", @maxlength = "20" })
                                                 @Html.ValidationMessageFor(model => model.editCONFIG_NAME)
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
                                             <div class="form-group">
                                                 @Html.LabelForRequired(m => m.editLOGGER_TYPE, "Logger Type", new { @class = "control-label" })
                                                 @Html.DropDownListFor(model => model.editLOGGER_TYPE, Model.ddl_LoggerType, "", new { @class = "form-control" })
@@ -99,11 +111,11 @@
                                                 @Html.LabelForRequired(m => m.editLOGGER_SOURCE, "Logger Source", new { @class = "control-label" })
                                                 @Html.TextBoxFor(model => model.editLOGGER_SOURCE, new { @class = "form-control", @maxlength = "150" })
                                                 @Html.ValidationMessageFor(model => model.editLOGGER_SOURCE)
-                                                <span class="help-block">The TCP/IP address (X.X.X.X) of the instrument.</span>
+                                                <span id="hlpIP" class="help-block">The TCP/IP address (X.X.X.X) of the instrument.</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
+                                        <div class="col-md-6 hideWeather">
+                                            <div class="form-group ">
                                                 @Html.LabelForRequired(m => m.editLOGGER_PORT, "Port", new { @class = "control-label" })
                                                 @Html.TextBoxFor(model => model.editLOGGER_PORT, new { @class = "form-control", @maxlength = "5" })
                                                 @Html.ValidationMessageFor(model => model.editLOGGER_PORT)
@@ -112,22 +124,20 @@
                                         </div>
                                     </div>
                                     <div class="row loggerOnly">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
+                                        <div class="col-md-6 hideWeather">
+                                            <div class="form-group ">
                                                 Username
                                                 @Html.TextBoxFor(model => model.editLOGGER_USERNAME, new { @class = "form-control", @maxlength = "150" })
                                                 @Html.ValidationMessageFor(model => model.editLOGGER_USERNAME)
                                                 <span class="help-block">If your instrument only requires a password, then leave this blank.</span>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row loggerOnly">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 Password
-                                                @Html.PasswordFor(model => model.editLOGGER_PASSWORD, new { @class = "form-control", @maxlength = "150" })
+                                                @Html.PasswordFor(model => model.editLOGGER_PASSWORD, new { @class = "form-control", @maxlength = "150", @placeholder="***************" })
                                                 @Html.ValidationMessageFor(model => model.editLOGGER_PASSWORD)
-                                                <span class="help-block">Password (aka Level 1 password) for accessing the logger.</span>
+                                                <span id="hlpPWD" class="help-block">Password (aka Level 1 password) for accessing the logger.</span>
                                             </div>
                                         </div>
                                     </div>
@@ -163,7 +173,7 @@
                                             <div class="col-md-6">
                                                 <div class="row">
                                                     <div class="col-md-12">
-                                                        <div class="form-group">
+                                                        <div class="form-group ">
                                                             Sample Duration
                                                             @Html.DropDownListFor(model => model.editRAW_DURATION_CODE, Model.ddl_LoggerDuration, "", new { @class = "form-control" })
                                                             @Html.ValidationMessageFor(model => model.editRAW_DURATION_CODE)
@@ -172,7 +182,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-md-12">
+                                                    <div class="col-md-12 hideWeather">
                                                         <div class="form-group">
                                                             Delimiter
                                                             @Html.DropDownListFor(model => model.editDELIMITER, Model.ddl_LoggerDelimiter, "", new { @class = "form-control" })
@@ -200,7 +210,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-6 hideWeather">
                                                         <div class="form-group">
                                                             Date Column
                                                             @Html.TextBoxFor(model => model.editDATE_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
@@ -208,7 +218,7 @@
                                                             <span class="help-block">Column number in which date is stored.</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-6 hideWeather">
                                                         <div class="form-group">
                                                             Date Format
                                                             @Html.DropDownListFor(model => model.editDATE_FORMAT, Model.ddl_LoggerDate, "", new { @class = "form-control" })
@@ -216,7 +226,7 @@
                                                             <span class="help-block">Format of DATE field on data logger file.</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-6 hideWeather">
                                                         <div class="form-group">
                                                             Time Column
                                                             @Html.TextBoxFor(model => model.editTIME_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
@@ -224,7 +234,7 @@
                                                             <span class="help-block">Column number in which time is stored.</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-6 hideWeather">
                                                         <div class="form-group">
                                                             Time Format
                                                             @Html.DropDownListFor(model => model.editTIME_FORMAT, Model.ddl_LoggerTime, "", new { @class = "form-control" })
@@ -253,7 +263,10 @@
                                                         </table>
                                                     </div>
                                                 </div>
-                                                <a type="button" id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-sm btn-primary modal-it"><i class="fa fa-plus"></i> Add</a>
+                                                @if (Model.editACT_IND == false)
+                                                {
+                                                <a type="button" id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-sm btn-primary modal-it m-t-sm"><i class="fa fa-plus"></i> Add</a>
+                                                }
                                             </div>
                                         </div>
 
@@ -262,6 +275,8 @@
                             </div>
                         }
                     </div>
+                    if (Model.editACT_IND == false)
+                    {
                     <div class="row">
                         <div id="telemetrySource" class="col-md-12">
                             <div class="form-group ">
@@ -270,9 +285,17 @@
                             </div>
                         </div>
                     </div>
+                    }
                     <div class="row">
                         <div class="col-md-12">
-                            <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                            @if (Model.editACT_IND == false)
+                            {
+                            <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
+                            }
+                            else
+                            {
+                                <a id="lnkOffline" href="@Url.Action("SitePollOffline", "Site", new { id=Model.editPOLL_CONFIG_IDX })" class="btn btn-danger">Take Offline &amp; Allow Editing</a>
+                            }
                             <a class=" btn btn-default" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX })">Back to Site Screen</a>
                         </div>
                     </div>
@@ -294,48 +317,51 @@
                 </button>
             </div>
             @Html.HiddenFor(model => model.editPOLL_CONFIG_DTL_IDX)
-        <div class="modal-body">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label>Monitor</label>
-                        @Html.DropDownListFor(model => model.editMONITOR_IDX, Model.ddl_Monitors, "", new { @class = "form-control" })
-                        <span class="field-validation-valid" data-valmsg-for="editMONITOR_IDX" data-valmsg-replace="true"></span>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Monitor</label>
+                            @Html.DropDownListFor(model => model.editMONITOR_IDX, Model.ddl_Monitors, "", new { @class = "form-control" })
+                            <span class="field-validation-valid" data-valmsg-for="editMONITOR_IDX" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Column</label>
+                            @Html.TextBoxFor(model => model.editCOL, new { @class = "form-control", @maxlength = "2" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Summary Type</label>
+                            @Html.DropDownListFor(model => model.editSUM_TYPE, Model.ddl_SumType, "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Rounding Decimals</label>
+                            @Html.DropDownListFor(model => model.editROUNDING, Model.ddl_Rounding, "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-xs btn-warning btn-rounded m-l-xs" data-toggle="collapse" data-target="#advanced">Advanced Options</button>
+                <div id="advanced" class="row collapse">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Adjustment Factor</label>
+                            @Html.TextBoxFor(model => model.editADJUST_FACTOR, new { @class = "form-control", @maxlength = "10" })
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>Column</label>
-                        @Html.TextBoxFor(model => model.editCOL, new { @class = "form-control", @maxlength = "2" })
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Summary Type</label>
-                        @Html.DropDownListFor(model => model.editSUM_TYPE, Model.ddl_SumType, "", new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>Rounding Decimals</label>
-                        @Html.DropDownListFor(model => model.editROUNDING, Model.ddl_Rounding, "", new { @class = "form-control" })
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="btn btn-xs btn-warning btn-rounded m-l-xs" data-toggle="collapse" data-target="#advanced">Advanced Options</button>
-            <div id="advanced" class="row collapse">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>Adjustment Factor</label>
-                        @Html.TextBoxFor(model => model.editADJUST_FACTOR, new { @class = "form-control", @maxlength = "10" })
-                    </div>
-                </div>
-            </div>
-        </div>
             <div class="modal-footer">
-                <button id="btnSaveDtl" type="submit" class="btn btn-primary">Save</button>
+                @if (Model.editACT_IND == false)
+                {
+                    <button id="btnSaveDtl" type="submit" class="btn btn-primary">Save</button>
+                }
                 <button class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
@@ -348,8 +374,25 @@
 @section scripts {
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/datatables")
+    @Scripts.Render("~/bundles/areyousure")
 
     <script type="text/javascript">
+        // Enable dirtyforms
+        $('#norepostform').dirtyForms();
+        // Enable/disable the submit button when the state transitions between dirty and clean.
+        $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
+            if (ev.type === 'dirty') {
+                $("#btnSave").prop("disabled", false);
+                $(".delete-section").hide();     
+                $(".modal-it").hide();     
+                $("#gridData").css({"z-index":2,"opacity":.5});
+            } else {
+                $("#btnSave").prop("disabled", true);
+                $(".delete-section").show();     
+                $(".modal-it").show();     
+                $("#gridData").css({"z-index":2,"opacity":1});
+            }
+        });
 
         $(document).ready(function () {
 
@@ -382,9 +425,15 @@
                     { "data": "POLL_CONFIG_DTL_IDX", "name": "POLL_CONFIG_DTL_IDX", "autoWidth": true },
                     {
                         "render": function (data, type, row) {
-                            return '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum=' + row.SUM_TYPE + ' data-monid=' + row.MONITOR_IDX + ' data-rounding=' + row.ROUNDING + ' data-adjust=' + row.ADJUST_FACTOR + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
-                                                            + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
-                                                            + row.POLL_CONFIG_DTL_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Site/SitePollConfigDtlDelete"><b>Confirm Delete</b></div></div>';
+                            var txt = '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum=' + row.SUM_TYPE + ' data-monid=' + row.MONITOR_IDX + ' data-rounding=' + row.ROUNDING + ' data-adjust=' + row.ADJUST_FACTOR + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>';
+                            var txt2 = '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="' + row.POLL_CONFIG_DTL_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Site/SitePollConfigDtlDelete"><b>Confirm Delete</b></div></div>';
+                            var act = '@Model.editACT_IND';
+                            if (act == 'True')
+                                return txt;
+                            else
+                                return txt + txt2;
+                                //return '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum=' + row.SUM_TYPE + ' data-monid=' + row.MONITOR_IDX + ' data-rounding=' + row.ROUNDING + ' data-adjust=' + row.ADJUST_FACTOR + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
+                                //                            + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="' + row.POLL_CONFIG_DTL_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Site/SitePollConfigDtlDelete"><b>Confirm Delete</b></div></div>';
                         }
                     },
                     { "data": "COL", "name": "COL", "autoWidth": true },
@@ -405,25 +454,38 @@
             });
 
             //hide fields if no logger
-            if ($('#editLOGGER_TYPE').val()=="NONE") {
-                $('.loggerOnly').hide();
-            }
+            loggerSpecificShowHide();
 
             //logger type value change
             $('#editLOGGER_TYPE').change(function () {
-                if ($(this).val() == "NONE") {
-                    $('#editLOGGER_SOURCE').val("X.X.X.X");
-                    $('#editLOGGER_PORT').val("0");
-                    $('.loggerOnly').hide();
-                }
-                else {
-                    $('#editLOGGER_SOURCE').val(null);
-                    $('#editLOGGER_PORT').val(null);
-                    $('.loggerOnly').show();
-                }
+                loggerSpecificShowHide();
             });
 
-            //******************load modal*******************
+            function loggerSpecificShowHide() {
+                $("#hlpIP").text("The TCP/IP address (X.X.X.X) of the instrument.");
+                $("#hlpPWD").text("Password (aka Level 1 password) for accessing the logger.");
+                var xxx = $('#editLOGGER_TYPE').val();
+                if (xxx == "NONE") {
+                    $('.loggerOnly').hide();
+                }
+                else if (xxx == "WEATHER_PWS") {
+                    $('.loggerOnly').show();
+                    $('.hideWeather').hide();
+                    $("#hlpIP").text("Weather Company station ID.");
+                    $("#hlpPWD").text("API Key for Weather Company web service.");
+                }
+                else {
+                    $('.loggerOnly').show();
+                    $('.hideWeather').show();
+                }
+
+                if (!$('#editLOGGER_PORT').val()) {
+                    $('#editLOGGER_SOURCE').val("X.X.X.X");
+                    $('#editLOGGER_PORT').val("0");
+                }
+            }
+
+            //******************load column config modal*******************
             $(document).on('click', '.modal-it', function () {
                 $("#editPOLL_CONFIG_DTL_IDX").val($(this).attr('data-id'));
                 $("#editCOL").val($(this).attr('data-col'));
@@ -436,7 +498,7 @@
                     $("#editADJUST_FACTOR").val('');
             });
 
-            
+
 
             //******************submit modal*******************
             $("#modal-form").submit(function (e) {

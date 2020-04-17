@@ -13,14 +13,12 @@
             <thead>
                 <tr>
                     <th>Activity Date</th>
-                    <th>Type</th>
                     <th>User</th>
                     <th>Description</th>
-                    <th>IP Address</th>
                 </tr>
             </thead>
         </table>
-        <a class=" btn btn-default m-t-md" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX })">Back to Site Screen</a>
+        <a class=" btn btn-default m-t-md" href="@Url.Action("SitePollConfig", new { configid = Model.POLL_CONFIG_IDX })">Back to Polling Config</a>
     </div>
 </section>
 
@@ -61,18 +59,19 @@
                 },
                 "order": [[0, "desc"]],
                 "columns": [
-                    {
-                        "data": "LOG_DT",
-                        "name": "LOG_DT",
-                        "autoWidth": true,
+                    { "data": "LOG_DT", "name": "LOG_DT", "autoWidth": true,
                         render: function (d) {
                             return moment(d).format("MM/DD/YYYY hh:mm A ");
                         }
                     },
-                    { "data": "LOG_TYP", "name": "LOG_TYP", "autoWidth": true },
                     { "data": "LOG_USER_NAME", "name": "LOG_USER_NAME", "autoWidth": true },
-                    { "data": "LOG_MSG", "name": "LOG_MSG", "autoWidth": true },
-                    { "data": "LOG_IP_ADDRESS", "name": "LOG_IP_ADDRESS", "autoWidth": true },
+                    {
+                        "data": "LOG_MSG", "name": "LOG_MSG", "autoWidth": true,
+                        render: function (d) {
+                            //return d.replace('\n', '<br>');
+                            return d.split("\n").join("<br/>")
+                        }
+                    },
                 ],
                 fnDrawCallback: function (oSettings) {
                     var totalPages = this.api().page.info().pages;

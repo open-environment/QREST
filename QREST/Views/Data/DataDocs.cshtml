@@ -2,25 +2,24 @@
 @{
     ViewBag.Title = "Supporting Documentation";
 }
-<h5 class="bold text-danger">@Model.PAR_NAME</h5>
-<h5 class="bold text-danger">Month: @Model.selMonth / @Model.selYear</h5>
+<h5 class="bold text-danger">Applying to the Period: @Model.startDate.ToString("d") to @Model.endDate.ToString("d")</h5>
 <div class="row">
     <div class="col-md-6">
         <section class="panel panel-qrest">
-            <header class="panel-heading font-bold">Site-wide Documents</header>
+            <header class="panel-heading font-bold" style="font-size:18px;">Site-wide Documents</header>
             <div class="panel-body">
                 <div class="alert alert-info">
                     <i class="fa fa-info-sign"></i>
-                    Documents that apply generally for this site for this month.
+                    Documents that apply generally for this site (for this time period).
                 </div>
                 <div class="table-responsive">
                     <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                         <thead>
                             <tr>
-                                <th></th>
+                                <th class="fit"></th>
                                 <th>Doc Name</th>
                                 <th>Type</th>
-                                <th>File Type</th>
+                                <th>Applicable Dates</th>
                                 <th>Notes</th>
                             </tr>
                         </thead>
@@ -28,21 +27,28 @@
                         @foreach (var item in Model.SiteDocs)
                         {
                             <tr>
-                                <td>
-                                    <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                <td class="fit" style="white-space: nowrap; width: 1%;">
+                                    <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" data-start="@item.START_DT" data-end="@item.END_DT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
                                     <div class="delete-section" style="display:inline-block;">
                                         <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
                                         <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
                                     </div>
+                                    <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-download"></i></a>
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.DOC_NAME)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.DOC_TYPE)
+                                    @Html.DisplayFor(modelItem => item.DOC_FILE_TYPE)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.DOC_FILE_TYPE)
+                                    @if (item.START_DT != null)
+                                    {@item.START_DT.Value.ToString("d");
+                                }
+                                    -
+                                    @if (item.END_DT != null)
+                                    {@item.END_DT.Value.ToString("d");
+                                }
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.DOC_COMMENT)
@@ -57,20 +63,20 @@
     </div>
     <div class="col-md-6">
         <section class="panel panel-qrest">
-            <header class="panel-heading font-bold">Parameter-specific Documents</header>
+            <header class="panel-heading font-bold" style="font-size:18px;">Parameter-specific Documents</header>
             <div class="panel-body">
                 <div class="alert alert-info">
                     <i class="fa fa-info-sign"></i>
-                    Documents that apply to this parameter only.
+                    Documents that apply to <span class="font-bold text-danger">@Model.PAR_NAME</span> only (for this time period).
                 </div>
                 <div class="table-responsive">
                     <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                         <thead>
                             <tr>
-                                <th></th>
+                                <th class="fit"></th>
                                 <th>Doc Name</th>
                                 <th>Type</th>
-                                <th>File Type</th>
+                                <th>Applicable Dates</th>
                                 <th>Notes</th>
                             </tr>
                         </thead>
@@ -78,21 +84,28 @@
                         @foreach (var item in Model.MonDocs)
                         {
                             <tr>
-                                <td>
-                                    <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                <td class="fit" style="white-space: nowrap; width: 1%;">
+                                    <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" data-start="@item.START_DT" data-end="@item.END_DT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
                                     <div class="delete-section" style="display:inline-block;">
                                         <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
                                         <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
                                     </div>
+                                    <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-download"></i></a>
                                 </td>
                                 <td>
-                                    <a class="text-info" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })">@item.DOC_NAME</a>                                    
+                                    @Html.DisplayFor(modelItem => item.DOC_NAME)
                                 </td>
                                 <td>
-                                    <a class="text-info" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })">@item.DOC_TYPE</a>
+                                    @Html.DisplayFor(modelItem => item.DOC_FILE_TYPE)
                                 </td>
                                 <td>
-                                    <a class="text-info" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })">@item.DOC_FILE_TYPE</a>
+                                    @if (item.START_DT != null)
+                                    {@item.START_DT.Value.ToString("d");
+                                }
+                                    -
+                                    @if (item.END_DT != null)
+                                    {@item.END_DT.Value.ToString("d");
+                                }
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.DOC_COMMENT)
@@ -110,7 +123,7 @@
 </div>
 
 
-<a href="@(Url.Action("DataReviewSummary", "Data", new { id = Model.selSite, month=Model.selMonth, year=Model.selYear }))" class="btn btn-sm btn-default "><i class="fa fa-chevron-left"></i> Return to Review Summary</a>
+<a href="@(Url.Action("DataReviewSummary", "Data", new { id = Model.selSite, month=Model.startDate.Month, year=Model.startDate.Year }))" class="btn btn-sm btn-default "><i class="fa fa-chevron-left"></i> Return to Review Summary</a>
 
 
 <!-- START MODAL FORMS  -->
@@ -118,7 +131,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 id="modal-title" style="float: left" class="modal-title">Add File</h4>
+                <h4 id="modal-title" style="float: left" class="modal-title">Add Document</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
@@ -126,13 +139,13 @@
             @using (Html.BeginForm("DataDocsAdd", "Data", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
                 @Html.AntiForgeryToken()
-                
+
                 @Html.HiddenFor(model => model.editASSESS_DOC_IDX)
                 @Html.HiddenFor(model => model.selSite)
                 @Html.HiddenFor(model => model.selMon)
-                @Html.HiddenFor(model => model.selMonth)
-                @Html.HiddenFor(model => model.selYear)
                 @Html.HiddenFor(model => model.SiteMonInd)
+                @Html.HiddenFor(model => model.startDate)
+                @Html.HiddenFor(model => model.endDate)
 
                 <div class="modal-body">
 
@@ -144,6 +157,21 @@
                             @Html.ValidationMessageFor(model => model.fileUpload)
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                @Html.TextBoxFor(model => model.addStartDt, "{0:MM dd yyyy}", new { @class = "form-control datepicker", @autocomplete = "off" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                @Html.TextBoxFor(model => model.addEndDt, "{0:MM dd yyyy}", new { @class = "form-control datepicker", @autocomplete = "off" })
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label>Description</label>
                         @Html.TextAreaFor(model => model.fileDescription, new { @class = "form-control", @maxlength = "200", @rows = 4 })
@@ -163,8 +191,13 @@
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/moment")
 
-    <script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <script type="text/javascript">
+
         $('#add-it').click(function () {
             $("#editASSESS_DOC_IDX").val('');
             $("#SiteMonInd").val('S');
@@ -184,21 +217,43 @@
             $("#SiteMonInd").val('E');
             $("#fileDescription").val($(this).data("desc"));
             $("#modal-title").text("Edit File Description");
+
+            $("#addStartDt").val($(this).data("start").split(" ")[0]);
+            $('#addStartDt').data('daterangepicker').setStartDate($(this).data("start").split(" ")[0]);
+            $('#addStartDt').data('daterangepicker').setEndDate($(this).data("start").split(" ")[0]);
+
+
+            $("#addEndDt").val($(this).data("start").split(" ")[0]);
+            $('#addEndDt').data('daterangepicker').setStartDate($(this).data("end").split(" ")[0]);
+            $('#addEndDt').data('daterangepicker').setEndDate($(this).data("end").split(" ")[0]);
+
             $("#filer").hide();
         });
 
+        $('#fileUpload').on('change', function () {
+            const size =
+                (this.files[0].size / 1024 / 1024).toFixed(2);
 
-
-        $('#fileUpload').on('change', function() {  
-            const size =  
-               (this.files[0].size / 1024 / 1024).toFixed(2); 
-  
-            if (size > 25) { 
-                alert("File must be less than 25 MB"); 
+            if (size > 25) {
+                alert("File must be less than 25 MB");
                 $("#picLoc").prop('disabled', true);
-            } else { 
+            } else {
                 $("#picLoc").prop('disabled', false);
-            } 
-        }); 
+            }
+        });
+
+        $(document).ready(function () {
+
+            $('input[name="addStartDt"]').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+            }, function (start, end, label) { });
+
+            $('input[name="addEndDt"]').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+            }, function (start, end, label) { });
+
+        });
     </script>
 }

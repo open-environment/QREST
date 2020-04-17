@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using QREST.App_Logic.BusinessLogicLayer;
 using QREST.Models;
 using QRESTModel.DAL;
+using QRESTModel.AQSHelper;
 
 namespace QREST.Controllers
 {
@@ -36,6 +37,7 @@ namespace QREST.Controllers
                 ddl_PollConfig = new List<SelectListItem>(),
                 ddl_ImportType = ddlHelpers.get_ddl_import_type(),
                 ddl_Time = ddlHelpers.get_ddl_time_type(),
+                ddl_TimeZone = ddlHelpers.get_ddl_time_zone(),
                 ddl_Calc = ddlHelpers.get_ddl_yes_no(),
                 selTimeType = "L"
         };
@@ -57,6 +59,8 @@ namespace QREST.Controllers
             //*********************** ADDITIONAL CUSTOM MODEL ERRORS **************************************8
             if (model.selImportType == "F" && model.selTimeType == "L")
                 ModelState.AddModelError("selTimeType", "Local time import not supported for 5 minute data.");
+            if (model.selImportType == "H1" && string.IsNullOrEmpty(model.selTimeZone))
+                ModelState.AddModelError("selTimeZone", "Local Time Zone required for this import type.");
 
             if (ModelState.IsValid)            
             {
@@ -195,10 +199,13 @@ namespace QREST.Controllers
                 //**************************************************************************************
                 else if (model.selImportType == "H1")
                 {
-                    T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(model.selSite);
-                    if (_pollConfig != null && _pollConfig.LOCAL_TIMEZONE != null)
+                    //insert/upadte POLL_CONFIG
+                    Guid? h1SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(null, model.selSite, "H1", null, "H1", null, null, null, null, null, null, null, null, null, model.selTimeZone, false, UserIDX, null, model.selTimeType, false);
+                    if (h1SuccID != null)
                     {
-                        int tzOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
+                        //if update succeeded, continue
+                        int tzOffset = model.selTimeZone.ConvertOrDefault<int>();
+
                         T_QREST_MONITORS _monitor = db_Air.GetT_QREST_MONITORS_ByID_Simple(model.selMonitor ?? Guid.Empty);
                         if (_monitor != null && _monitor.COLLECT_UNIT_CODE != null)
                         {
@@ -225,7 +232,8 @@ namespace QREST.Controllers
                                             dt = dt.AddHours(1);
                                         }
                                     }
-                                    catch {
+                                    catch
+                                    {
                                         ModelState.AddModelError("IMPORT_BLOCK", "Date is not in the correct format (MM/DD/YYYY).");
                                     }
                                 }
@@ -236,10 +244,13 @@ namespace QREST.Controllers
 
                         }
                         else
-                            ModelState.AddModelError("selMonitor", "No collection unit defined for this monitor. No data imported.");                
-                    }                
-                    else
-                        ModelState.AddModelError("IMPORT_BLOCK", "Either no polling config defined, or the local timezone offset not defined for site's active polling config. No data imported.");
+                            ModelState.AddModelError("selMonitor", "No collection unit defined for this monitor. No data imported.");
+                    }
+
+
+
+           
+
                 }
 
 
@@ -250,6 +261,7 @@ namespace QREST.Controllers
             //reinitialize model
             model.ddl_ImportType = ddlHelpers.get_ddl_import_type();
             model.ddl_Time = ddlHelpers.get_ddl_time_type();
+            model.ddl_TimeZone = ddlHelpers.get_ddl_time_zone();
             model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
             model.ddl_Sites = model.selOrgID == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_my_sites(model.selOrgID, UserIDX);
             model.ddl_Monitors = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_monitors_by_site(model.selSite, true, false);
@@ -363,6 +375,7 @@ namespace QREST.Controllers
         #endregion
 
 
+
         public ActionResult Raw()
         {
             string UserIDX = User.Identity.GetUserId();
@@ -461,7 +474,7 @@ namespace QREST.Controllers
         }
 
 
-        #region MANUAL VALIDATION
+        #region DATA REVIEW
 
         public ActionResult DataReviewSummary(Guid? id, int? month, int? year)
         {
@@ -476,8 +489,8 @@ namespace QREST.Controllers
             if (id != null && month != null && year != null)
             {
                 model.selsDt = new DateTime(model.selYear, model.selMonth, 1);
-                model.seleDt = new DateTime(model.selYear, model.selMonth, DateTime.DaysInMonth(model.selYear, model.selMonth), 23,0,0);
-                model.Results = db_Air.SP_AQS_REVIEW_STATUS(id.GetValueOrDefault(), new DateTime(model.selYear, model.selMonth, 1));
+                model.seleDt = new DateTime(model.selYear, model.selMonth, 1).AddMonths(1).AddHours(-1);
+                model.Results = db_Air.SP_AQS_REVIEW_STATUS(id.GetValueOrDefault(), model.selsDt.GetValueOrDefault(), model.seleDt);
             }
             return View(model);
         }
@@ -503,8 +516,9 @@ namespace QREST.Controllers
                 selDtEnd = edt
             };
 
-            //get org from supplied mon
-            if (string.IsNullOrEmpty(model.selMon)==false) {
+            //get org and site from supplied mon
+            if (string.IsNullOrEmpty(model.selMon) == false)
+            {
                 SiteMonitorDisplayType _m = db_Air.GetT_QREST_MONITORS_ByID(new Guid(model.selMon));
                 if (_m != null)
                     model.selOrgID = _m.ORG_ID;
@@ -528,8 +542,7 @@ namespace QREST.Controllers
             }
         }
 
-
-
+        
         [HttpGet]
         public ActionResult DataReview2(Guid? monid, DateTime? sdt, DateTime? edt, string dur, Guid? supp1, Guid? supp2, Guid? supp3, DateTime? subsdt, DateTime? subedt)
         {
@@ -543,9 +556,7 @@ namespace QREST.Controllers
                 selDtStart = sdt.GetValueOrDefault(),
                 selDtEnd = edt.GetValueOrDefault(),
                 selDuration = dur,
-                selMon = db_Air.GetT_QREST_MONITORS_ByID(monid.GetValueOrDefault()),
-                //selDtStartSub = subsdt,
-                //selDtEndSub = subedt,                
+                selMon = db_Air.GetT_QREST_MONITORS_ByID(monid.GetValueOrDefault())
             };
 
             string orgid = model.selMon.ORG_ID;
@@ -609,9 +620,11 @@ namespace QREST.Controllers
                     {
                         editCount++;
 
-                        Guid? SuccID = db_Air.UpdateT_QREST_DATA_HOURLY(item.DATA_RAW_IDX, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes);
+                        Guid? SuccID = db_Air.UpdateT_QREST_DATA_HOURLY(item.DATA_RAW_IDX, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank==true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag));
                         if (SuccID == null)
                             TempData["Error"] = "Error updating record";
+                        else
+                            db_Air.InsertUpdatetT_QREST_DATA_HOURLY_LOG(null, SuccID, model.editNotes, UserIDX);
                     }
                 }
                 return RedirectToAction("DataReview2", new { monid = model.selMon.T_QREST_MONITORS.MONITOR_IDX, sdt = model.selDtStart, edt = model.selDtEnd, dur = model.selDuration });
@@ -656,15 +669,40 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult DataDocs(Guid? id, Guid? monid, int? month, int? year)
+        [HttpPost]
+        public ActionResult HourlyLogData()
         {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            //int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            //int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            //int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            //string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
+            //string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            //date filters
+            Guid? id = Request.Form.GetValues("id")?.FirstOrDefault().ConvertOrDefault<Guid?>();
+
+            var data = db_Air.GetT_QREST_DATA_HOURLY_LOG_ByHour(id.GetValueOrDefault());
+            var recordsTotal = data.Count();
+
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
+        public ActionResult DataDocs(Guid? id, Guid? monid, DateTime? sDt, DateTime? eDt)
+        {
+            if (id == null || sDt == null)
+                return RedirectToAction("DataReviewSummary");
+
             var model = new vmDataDocs {
                 selSite = id,
                 selMon = monid,
-                selMonth = month ?? System.DateTime.Today.Month,
-                selYear = year ?? System.DateTime.Today.Year,
-                SiteDocs = db_Air.GetT_QREST_ASSESS_DOCS_BySite(id.GetValueOrDefault(), year ?? System.DateTime.Today.Year, month ?? System.DateTime.Today.Month),
-                MonDocs = db_Air.GetT_QREST_ASSESS_DOCS_ByMonitor(monid.GetValueOrDefault(), year ?? System.DateTime.Today.Year, month ?? System.DateTime.Today.Month)
+                startDate = sDt.GetValueOrDefault(),
+                endDate = eDt.GetValueOrDefault(),
+                addStartDt = sDt.GetValueOrDefault(),
+                addEndDt = eDt.GetValueOrDefault(),
+                SiteDocs = db_Air.GetT_QREST_ASSESS_DOCS_BySite(id.GetValueOrDefault(), sDt, eDt),
+                MonDocs = db_Air.GetT_QREST_ASSESS_DOCS_ByMonitor(monid.GetValueOrDefault(), sDt, eDt)
             };
 
             SiteMonitorDisplayType _mon = db_Air.GetT_QREST_MONITORS_ByID(monid.GetValueOrDefault());
@@ -684,10 +722,9 @@ namespace QREST.Controllers
         {
             string UserIDX = User.Identity.GetUserId();
 
-
             if (model.SiteMonInd == "E")
             {
-                Guid? SuccID = db_Air.InsertUpdatetT_QREST_ASSESS_DOCS(model.editASSESS_DOC_IDX, null, null, null, null, null, null, null, null, null, model.fileDescription, null, UserIDX);
+                Guid? SuccID = db_Air.InsertUpdatetT_QREST_ASSESS_DOCS(model.editASSESS_DOC_IDX, null, null, model.addStartDt, model.addEndDt, null, null, null, null, null, model.fileDescription, null, UserIDX);
 
                 if (SuccID != null)
                     TempData["Success"] = "Update successful";
@@ -701,7 +738,7 @@ namespace QREST.Controllers
                     Stream stream = model.fileUpload.InputStream;
                     byte[] _file = UtilsText.ConvertStreamToByteArray(stream);
 
-                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_ASSESS_DOCS(null, model.selSite, (model.SiteMonInd == "S" ? null : model.selMon), model.selYear, model.selMonth, _file, model.fileUpload.FileName, "",
+                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_ASSESS_DOCS(null, model.selSite, (model.SiteMonInd == "S" ? null : model.selMon), model.addStartDt, model.addEndDt, _file, model.fileUpload.FileName, "",
                         model.fileUpload.ContentType, model.fileUpload.ContentLength, model.fileDescription, "", UserIDX);
 
                     if (SuccID != null)
@@ -714,7 +751,7 @@ namespace QREST.Controllers
 
             }
 
-            return RedirectToAction("DataDocs", new { id= model.selSite, monid = model.selMon, month = model.selMonth, year = model.selYear });    
+            return RedirectToAction("DataDocs", new { id= model.selSite, monid = model.selMon, sDt = model.startDate.ToString("MM/dd/yyyy"), eDt = model.endDate.ToString("MM/dd/yyyy") });    
         }
 
 
@@ -740,25 +777,41 @@ namespace QREST.Controllers
         {
             try
             {
+                string UserIDX = User.Identity.GetUserId();
+
                 T_QREST_ASSESS_DOCS _doc = db_Air.GetT_QREST_ASSESS_DOCS_ByID(id.GetValueOrDefault());
                 if (_doc != null)
+                {
+                    //reject if user doesn't have access to site
+                    RedirectToRouteResult r = CanAccessThisSite(UserIDX, _doc.SITE_IDX, true);
+                    if (r != null) return null;
+
+
                     return File(_doc.DOC_CONTENT, System.Net.Mime.MediaTypeNames.Application.Octet, _doc.DOC_NAME);
+                }
             }
-            catch 
-            {}
+            catch
+            { }
 
             return null;
         }
+
+
+        #endregion
+
+
+
+        #region AQS
 
 
         public ActionResult AQSList(string selOrgID)
         {
             string UserIDX = User.Identity.GetUserId();
             var model = new vmDataAQSList {
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations_aqs_submission(UserIDX),
             };
 
-            //autopopulate if only rights to 1 org
+            //autopopulate if only rights to 1 org that has made aqs submission
             if (model.ddl_Organization != null && model.ddl_Organization.ToList().Count == 1)
                 model.selOrgID = model.ddl_Organization.First().Value;
 
@@ -770,6 +823,21 @@ namespace QREST.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public ActionResult AQSListEdit(vmDataAQSList model)
+        {
+            Guid? succID = db_Air.InsertUpdateT_QREST_AQS(model.editID, null, null, model.editSUBMISSION_NAME, null, null, null, null, model.editCOMMENT, null, null, null, null, null);
+            if (succID != null)
+            {
+                TempData["Success"] = "Update successful.";
+                return RedirectToAction("AQSList");
+            }
+            else {
+                TempData["Error"] = "Error updating record.";
+                return RedirectToAction("AQSList");
+            }
+        }
+
         public FileResult AQSFileDownload(Guid? id)
         {
             try
@@ -778,8 +846,42 @@ namespace QREST.Controllers
                 if (_doc != null)
                 {
                     byte[] _file = Encoding.UTF8.GetBytes(_doc.AQS_CONTENT_XML);
-                    return File(_file, System.Net.Mime.MediaTypeNames.Application.Octet, "AQSFile.xml");
+                    return File(_file, System.Net.Mime.MediaTypeNames.Application.Octet, _doc.AQS_SUBMISSION_NAME);
                 }
+                else
+                    TempData["Error"] = "No file found";
+            }
+            catch
+            { }
+
+            return null;
+        }
+
+        public FileResult AQSFileDownloadHeader(Guid? id)
+        {
+            try
+            {
+                T_QREST_AQS _doc = db_Air.GetT_QREST_AQS_by_ID(id.GetValueOrDefault());
+                if (_doc != null)
+                    return File(_doc.AQS_CONTENT, System.Net.Mime.MediaTypeNames.Application.Octet, "HeaderFile.zip");
+                else
+                    TempData["Error"] = "No file found";
+            }
+            catch
+            { }
+
+            return null;
+        }
+
+        public FileResult AQSResponseDownload(Guid? id)
+        {
+            try
+            {
+                T_QREST_AQS _doc = db_Air.GetT_QREST_AQS_by_ID(id.GetValueOrDefault());
+                if (_doc != null)
+                    return File(_doc.DOWNLOAD_FILE, System.Net.Mime.MediaTypeNames.Application.Octet, "Response.zip");
+                else
+                    TempData["Error"] = "No file found";
             }
             catch
             { }
@@ -791,17 +893,210 @@ namespace QREST.Controllers
         public ActionResult AQSGen()
         {
             string UserIDX = User.Identity.GetUserId();
-            var model = new vmDataAQSGen
-            {
-                ddl_Sites = ddlHelpers.get_ddl_my_sites(null, UserIDX)
+            var model = new vmDataAQSGen {
+                ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(null, UserIDX),
+                selDtStart = new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddMonths(-1),
+                selDtEnd = new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddHours(-1),
+                passValidation = false
             };
-
-            model.ddl_Monitor = ddlHelpers.get_ddl_my_sites(null, UserIDX);
             return View(model);
         }
 
 
+        [HttpPost]
+        public ActionResult AQSGen(vmDataAQSGen model)
+        {
+            model.Results = db_Air.SP_AQS_REVIEW_STATUS(model.selSite ?? Guid.Empty, model.selDtStart.GetValueOrDefault(), model.selDtEnd);
+            model.Results = model.Results.Where(o => model.selMons.Contains(o.MONITOR_IDX)).ToList();
+
+            model.passValidation = true;
+            bool send = false;
+            foreach (SP_AQS_REVIEW_STATUS_Result _result in model.Results)
+            {
+                if (_result.hrs != _result.lvl2_val_ind)
+                    model.passValidation = false;
+            }
+
+            //repopulate model before returning
+            string UserIDX = User.Identity.GetUserId();
+            model.ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(null, UserIDX);
+
+            return View(model);
+        }
+
+        public ActionResult AQSAcct(string id)
+        {
+            var model = new vmDataAQSAcct
+            {
+                selOrgID = id,
+                CDXUsername = db_Ref.GetT_QREST_APP_SETTING("CDX_GLOBAL_USER"),
+                AQSUser = "",
+                AQSScreeningGroup = ""
+            };
+
+            var _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(id);
+            if (_org != null)
+            {
+                model.AQSUser = _org.AQS_AQS_UID;
+                model.AQSScreeningGroup = _org.AQS_AQS_SCREENING_GRP;
+                if (!string.IsNullOrEmpty(_org.AQS_NAAS_UID))
+                    model.CDXUsername = _org.AQS_NAAS_UID;
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult AQSAcct(vmDataAQSAcct model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.selOrgID, null, null, null, model.CDXUsername, model.CDXPwd, null, null, true, UserIDX, model.AQSUser, model.AQSScreeningGroup);
+
+            if (SuccID == 0)
+                TempData["Error"] = "Unable to update record";
+            else
+                TempData["Success"] = "Record updated";
+
+            return RedirectToAction("AQSAcct", new { model.selOrgID });
+        }
+
+
+        [HttpPost]
+        public ActionResult AQSSubmit(vmDataAQSGen model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(model.selSite.GetValueOrDefault());
+            if (_site != null)
+            {
+                Guid? SuccID = AQSHelper.AQSGeneration_Orchestrator(_site.ORG_ID, _site.SITE_IDX, model.selMons, model.selDtStart.GetValueOrDefault(), model.selDtEnd.GetValueOrDefault(), UserIDX, model.selActionCode, model.selAQSFormat);
+                if (SuccID != null)
+                {
+                    TempData["Success"] = "File generated and submission initiated.";
+                    return RedirectToAction("AQSList", new { selOrgID=_site.ORG_ID });
+                }
+            }
+
+            TempData["Error"] = "Unable to make submission";
+            return RedirectToAction("AQSGen");
+        }
+
+
+        public ActionResult AQSSubmitToEPA(Guid id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+
+            T_QREST_AQS _aqs = db_Air.GetT_QREST_AQS_by_ID(id);
+            if (_aqs != null)
+            {
+                //reject if user doesn't have access to org
+                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _aqs.ORG_ID, true);
+                if (r != null) return r;
+
+                bool SuccID = AQSHelper.AQSSubmission_Orchestrator(_aqs.ORG_ID, _aqs.AQS_CONTENT, _aqs.AQS_IDX);
+                if (SuccID)
+                {
+                    TempData["Success"] = "File submitted.";
+                    return RedirectToAction("AQSList", new { selOrgID = _aqs.ORG_ID });
+                }
+
+                TempData["Error"] = "Unable to make submission";
+                return RedirectToAction("AQSList", new { selOrgID = _aqs.ORG_ID });
+            }
+
+            TempData["Error"] = "Unable to make submission";
+            return RedirectToAction("AQSList");
+        }
+
+
+        [HttpPost]
+        public JsonResult AQSDelete(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int SuccID = db_Air.DeleteT_QREST_AQS(id.GetValueOrDefault());
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete AQS record.");
+            }
+        }
+
+
+        public ActionResult CDXTest(string orgid)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //reject if user doesn't have access to org
+            RedirectToRouteResult r = CanAccessThisOrg(UserIDX, orgid, true);
+            if (r != null) return r;
+
+            CDXCredentials _cred = AQSHelper.GetCDXSubmitCredentials2(orgid);
+            if (_cred.NodeURL != null && _cred.credential != null)
+            {
+                string _token = AQSHelper.AuthHelper(_cred.userID, _cred.credential, _cred.NodeURL);
+                if (_token!= null && _token.Substring(0,3)=="csm" &&  _token.Length>50)
+                    TempData["Success"] = "CDX Username / password combination are correct. Authentication to CDX successful.";
+                else
+                    TempData["Error"] = "Username/password authentication to CDX failed.";
+            }
+            else
+                TempData["Error"] = "Required fields not supplied.";
+
+            return RedirectToAction("AQSAcct", new { id = orgid });
+        }
+
+
+        public JsonResult AQSGetStatus(Guid id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            T_QREST_AQS _aqs = db_Air.GetT_QREST_AQS_by_ID(id);
+            if (_aqs != null && _aqs.CDX_TOKEN != null) {
+
+                //reject if user doesn't have access to org
+                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _aqs.ORG_ID, true);
+                if (r != null) return Json("Access Denied.");
+
+                string strStatus = AQSHelper.AQSGetStatus_Orchestrator(_aqs.ORG_ID, _aqs.AQS_IDX, _aqs.CDX_TOKEN);
+                if (strStatus != null)
+                    return Json(strStatus);
+                else
+                    return Json("ERROR");
+            }
+            
+            return Json("Failed");
+        }
+
+
+        public JsonResult AQSDownload(Guid id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            T_QREST_AQS _aqs = db_Air.GetT_QREST_AQS_by_ID(id);
+            if (_aqs != null && _aqs.CDX_TOKEN != null)
+            {
+                //reject if user doesn't have access to org
+                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _aqs.ORG_ID, true);
+                if (r != null) return Json("Access Denied.");
+
+                bool SuccID = AQSHelper.AQSDownload_Orchestrator(_aqs.ORG_ID, _aqs.AQS_IDX, _aqs.CDX_TOKEN);
+                if (SuccID)
+                    return Json("Success");
+            }
+
+            return Json("Failed");
+        }
+
         #endregion
+
+
+        #region SHARED
+
 
 
         [HttpGet]
@@ -839,6 +1134,12 @@ namespace QREST.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public JsonResult FetchMonitorsSampledBySite(Guid? ID)
+        {
+            var data = ddlHelpers.get_monitors_sampled_by_site(ID ?? Guid.Empty);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet]
         public JsonResult FetchMonitorsWithData(string ID)
@@ -856,7 +1157,80 @@ namespace QREST.Controllers
         }
 
 
+        /// <summary>
+        /// Retrieves the Hourly Import Template Configuration for the Site
+        /// </summary>
+        /// <param name="ID">Site ID</param>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult FetchImportTemplateH1(Guid? ID)
+        {
+            var data = db_Air.GetT_QREST_SITE_POLL_CONFIG_H1_BySite(ID ?? Guid.Empty);
 
+            if (data != null)
+                return Json(data, JsonRequestBehavior.AllowGet);
+            else
+                return Json("null", JsonRequestBehavior.AllowGet);
+
+        }
+
+
+        [HttpGet]
+        public JsonResult FetchAQSAccounts(Guid? ID)
+        {
+            string cdx_user = db_Ref.GetT_QREST_APP_SETTING("CDX_GLOBAL_USER");
+            string aqs_user = "";
+            string aqs_screening_grp = "";
+            string org_id = "";
+
+            var _site = db_Air.GetT_QREST_SITES_ByID(ID ?? Guid.Empty);
+            if (_site != null)
+            {
+                var _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(_site.ORG_ID);
+                if (_org != null)
+                {
+                    org_id = _org.ORG_ID;
+                    aqs_user = _org.AQS_AQS_UID;
+                    aqs_screening_grp = _org.AQS_AQS_SCREENING_GRP;
+                    if (!string.IsNullOrEmpty(_org.AQS_NAAS_UID))
+                        cdx_user = _org.AQS_NAAS_UID;
+                }              
+            }
+
+            var data = Tuple.Create(cdx_user, aqs_user, aqs_screening_grp, org_id);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+
+        #endregion
+
+
+
+        //**********************SHARED **************************************
+        //**********************SHARED **************************************
+        //**********************SHARED **************************************
+        public RedirectToRouteResult CanAccessThisOrg(string UserIDX, string OrgID, bool CanEditToo)
+        {
+            if (db_Account.CanAccessThisOrg(UserIDX, OrgID, CanEditToo) == false)
+            {
+                TempData["Error"] = "Access Denied.";
+                return RedirectToAction("SiteList", "Site");
+            }
+            else
+                return null;
+        }
+
+        public RedirectToRouteResult CanAccessThisSite(string UserIDX, Guid SiteIDX, bool CanEditToo)
+        {
+
+            if (db_Account.CanAccessThisSite(UserIDX, SiteIDX, CanEditToo) == false)
+            {
+                TempData["Error"] = "Access Denied.";
+                return RedirectToAction("SiteList", "Site");
+            }
+            else
+                return null;
+        }
 
     }
 }

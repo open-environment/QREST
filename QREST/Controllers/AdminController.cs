@@ -303,7 +303,7 @@ namespace QREST.Controllers
             if (ModelState.IsValid)
             {
                 int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
-                    model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "");
+                    null, null, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null);
 
                 if (SuccID == 1)
                     TempData["Success"] = "Record updated";

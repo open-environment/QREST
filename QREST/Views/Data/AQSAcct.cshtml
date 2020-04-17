@@ -1,0 +1,83 @@
+﻿@model QREST.Models.vmDataAQSAcct
+@{
+    ViewBag.Title = "AQS Accounts";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">AQS Submission Accounts for @Model.selOrgID</header>
+    <div class="panel-body">
+        @using (Html.BeginForm("AQSAcct", "Data", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary("", new { @class = "text-danger" })
+            @Html.HiddenFor(model => model.selOrgID)
+            if (Model != null)
+            {
+                <h3>@Model.selOrgID Submission Accounts</h3>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>AQS User ID</label>
+                            @Html.TextBoxFor(model => model.AQSUser, new { @class = "form-control", @maxlength = "50" })
+                            @Html.ValidationMessageFor(model => model.AQSUser)
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>AQS Screening Group Name (not ID)</label>
+                            @Html.TextBoxFor(model => model.AQSScreeningGroup, new { @class = "form-control", @maxlength = "50" })
+                            @Html.ValidationMessageFor(model => model.AQSScreeningGroup)
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>CDX User ID (leave blank to use global CDX account)</label>
+                            @Html.TextBoxFor(model => model.CDXUsername, new { @class = "form-control", @maxlength = "50" })
+                            @Html.ValidationMessageFor(model => model.CDXUsername)
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>CDX Password</label>
+                            <div class="input-group">
+                                @Html.PasswordFor(model => model.CDXPwd, new { @class = "form-control", @maxlength = "50", @placeholder="***********" })
+                                <span class="input-group-btn">
+                                    <a id="btnTest" class="btn btn-default btn-dark" href="@Url.Action("CDXTest","Data", new { orgid = Model.selOrgID })">Test</a>
+                                    <a id="btnTest2" class="btn btn-default btn-dark" href="#" style="display:none;">(save changes before testing</a>
+                                </span>
+                                @Html.ValidationMessageFor(model => model.CDXPwd)
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <p>
+                    <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
+                    <a class=" btn btn-default" href="@Url.Action("AQSGen")">Back</a>
+                </p>
+            }
+        }
+    </div>
+</section>
+@section scripts {
+    @Scripts.Render("~/bundles/areyousure")
+
+    <script type="text/javascript">
+        // Enable dirtyforms
+        $('#norepostform').dirtyForms();
+        // Enable/disable the submit button when the state transitions between dirty and clean.
+        $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
+            if (ev.type === 'dirty') {
+                $("#btnSave").prop("disabled", false);
+                $("#btnTest").hide();
+                $("#btnTest2").show();
+            } else {
+                $("#btnSave").prop("disabled", true);
+                $("#btnTest").show();
+                $("#btnTest2").hide();
+            }
+        });
+    </script>
+}

@@ -37,6 +37,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.2.0.246, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.2.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.IdentityModel.Logging, Version=1.1.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.IdentityModel.Logging.1.1.2\lib\net451\Microsoft.IdentityModel.Logging.dll</HintPath>
     </Reference>
@@ -52,6 +55,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.IdentityModel.Tokens.Jwt, Version=5.1.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.5.1.2\lib\net451\System.IdentityModel.Tokens.Jwt.dll</HintPath>
     </Reference>
@@ -79,6 +83,7 @@
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -92,7 +97,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\AQSHelper.cs" />
     <Compile Include="BLL\DataTableGen.cs" />
+    <Compile Include="BLL\UtilCrypto.cs" />
+    <Compile Include="BLL\UtilsZip.cs" />
     <Compile Include="COMM\LoggerComm.cs" />
     <Compile Include="BLL\UnitConvert.cs" />
     <Compile Include="BLL\UtilsNotify.cs" />
@@ -163,6 +171,9 @@
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_DATA_HOURLY.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_DATA_HOURLY_LOG.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_DATA_IMPORTS.cs">
@@ -274,11 +285,23 @@
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\net.epacdxnode.testngn\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\1_createDatabase.sql" />
     <Content Include="App_Data\20200302_changes.sql" />
     <Content Include="App_Data\20200312_changes.sql" />
+    <Content Include="App_Data\20200320_changes.sql" />
+    <Content Include="App_Data\20200326_changes.sql" />
     <Content Include="App_Data\2_createTables.sql" />
     <Content Include="App_Data\3_createFunctions.sql" />
     <Content Include="App_Data\4_populateData.sql" />
@@ -294,7 +317,9 @@
       <LastGenOutput>QRESTModel.cs</LastGenOutput>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="DAL\QRESTModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
@@ -314,9 +339,58 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\AuthenticateResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\ExecuteResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\GenericXmlType.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\NetworkNode2.wsdl" />
+    <None Include="Web References\net.epacdxnode.testngn\NodeDocumentType.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\NodePingResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\ResultSetType.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\StatusResponseType.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\net.epacdxnode.testngn\xmlmime.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="https://testngn.epacdxnode.net/ngn-enws20/services/NetworkNode2ServiceConditionalMTOM%3fwsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\net.epacdxnode.testngn\</RelPath>
+      <UpdateFromURL>https://testngn.epacdxnode.net/ngn-enws20/services/NetworkNode2ServiceConditionalMTOM%3fwsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>QRESTModel_net_epacdxnode_testngn_NetworkNode2</CachedSettingsPropName>
+    </WebReferenceUrl>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

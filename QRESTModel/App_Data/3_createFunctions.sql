@@ -359,7 +359,8 @@ GO
 
 CREATE PROCEDURE [dbo].[SP_AQS_REVIEW_STATUS] 
 	@siteid uniqueidentifier, 
-	@adate datetime
+	@adate datetime,
+	@edate datetime
 AS
 BEGIN
 	--PROCEDURE DESCRIPTION
@@ -369,6 +370,11 @@ BEGIN
 	--set @adate = '10/12/2019';
 	--set @siteid = '563C2DE0-5323-4601-ABC4-6EEA894AF6BC';
 
+	if (@edate is null)
+	BEGIN
+		set @edate = DATEADD(s, -1, DATEADD(MONTH, DATEDIFF(MONTH, 0, @adate) + 1, 0));
+	END
+
 	select P.PAR_CODE, PP.PAR_NAME, M.MONITOR_IDX, DAY(EOMONTH(@adate))*24 as hrs, sum(rec) as hrs_data, sum(aqs_ready) as aqs_ready, cast(sum(sign(z.lvl1_val_ind)) as int) as lvl1_val_ind, cast(sum(sign(lvl2_val_ind)) as int) as lvl2_val_ind
 	,(select count(*) from T_QREST_ASSESS_DOCS dd where (dd.MONITOR_IDX=M.MONITOR_IDX or (dd.SITE_IDX=@siteid and dd.MONITOR_IDX is null)) and year(@adate)=dd.YR and month(@adate)=dd.MON) as doc_cnt
 	from
@@ -376,7 +382,8 @@ BEGIN
 		isnull(H.lvl1_val_ind,0) as lvl1_val_ind, isnull(H.lvl2_val_ind,0) as lvl2_val_ind
 		from T_QREST_DATA_HOURLY H,T_QREST_MONITORS M
 		where H.MONITOR_IDX = M.MONITOR_IDX
-		and H.DATA_DTTM_UTC between DATEADD(MONTH, DATEDIFF(MONTH, 0, @adate), 0) and DATEADD(s, -1, DATEADD(MONTH, DATEDIFF(MONTH, 0, @adate) + 1, 0)) 
+		--and H.DATA_DTTM_UTC between DATEADD(MONTH, DATEDIFF(MONTH, 0, @adate), 0) and DATEADD(s, -1, DATEADD(MONTH, DATEDIFF(MONTH, 0, @adate) + 1, 0)) 
+		and H.DATA_DTTM_UTC between @adate and @edate 
 		and M.SITE_IDX = @siteid
 	) Z
 	, T_QREST_MONITORS M, T_QREST_REF_PAR_METHODS P, T_QREST_REF_PARAMETERS PP

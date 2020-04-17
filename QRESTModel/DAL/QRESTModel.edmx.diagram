@@ -83,6 +83,8 @@
         <AssociationConnector Association="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" />
         <AssociationConnector Association="QRESTModel.FK_T_SITE_POLL_CONFIG_S" />
         <EntityTypeShape EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" Width="1.5" PointX="21.375" PointY="7.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_HOURLY_LOG" Width="1.5" PointX="20.625" PointY="24.125" />
+        <AssociationConnector Association="QRESTModel.FK_T_QREST_DATA_HOURLY_LOG_O" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

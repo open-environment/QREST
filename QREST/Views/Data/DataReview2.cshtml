@@ -52,7 +52,7 @@
                             <th>Par Code</th>
                             <th>Parameter</th>
                             <th>POC</th>
-                            <th>Time UTC</th>
+                            <th>Local Std Time</th>
                             <th>Value</th>
                             <th>Unit</th>
                             <th>Flags</th>
@@ -66,51 +66,52 @@
                         @for (int i = 0; i < Model.RawData.Count; i++)
                         {
 
-                        <tr data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
-                            <td>
-                                @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX)
-                                @Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].SITE_ID)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].PAR_CODE)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].PAR_NAME)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].POC)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].DATA_VALUE)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].UNIT_DESC)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].VAL_CD)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
-                            </td>
-                            <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
-                                @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
-                                @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
-                            </td>
-                            <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
-                                @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
-                                @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => model.RawData[i].NOTES)
-                            </td>
+                            <tr data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
+                                <td>
+                                    @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX)
+                                    @Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].SITE_ID)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].PAR_CODE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].PAR_NAME)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].POC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].DATA_VALUE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].UNIT_DESC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].VAL_CD)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
+                                </td>
+                                <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
+                                    @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
+                                    @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
+                                </td>
+                                <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
+                                    @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
+                                    @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].NOTES)
+                                    <a href="#modal-hist" data-toggle="modal" data-id="@Model.RawData[i].DATA_RAW_IDX" class="modal-hist" style="display: inline-block;"> <i class="fa fa-comments-o text-muted"></i></a>
+                                </td>
 
-                        </tr>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -131,6 +132,9 @@
                             </button>
                         </div>
                         <div class="modal-body no-padder">
+                            <div class="alert alert-danger m-b-none" style="border-radius:0">
+                                <strong>Careful!</strong> This will update all rows you have selected.
+                            </div>
                             <section class="panel panel-default">
                                 <header class="panel-heading bg-light">
                                     <ul class="nav nav-tabs nav-justified">
@@ -189,7 +193,30 @@
                                             }
                                         </div>
                                         <div class="tab-pane" id="advanced">
-
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label>Value</label>
+                                                        <br />
+                                                        <div class="input-group m-b">
+                                                            @Html.TextBoxFor(model => model.editValue, new { @class = "form-control", @maxlength = "20" })
+                                                            <span id="spnValChk" class="input-group-addon"> Remove All Values @Html.CheckBoxFor(x => x.editValueBlank) </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label>Flag</label>
+                                                        <br />
+                                                        <div class="input-group m-b">
+                                                            @Html.TextBoxFor(model => model.editFlag, new { @class = "form-control", @maxlength = "5" })
+                                                            <span id="spnValChk" class="input-group-addon"> Remove All Flags @Html.CheckBoxFor(x => x.editFlagBlank) </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="form-group">
@@ -234,12 +261,52 @@
 </section>
 
 
+
+<!-- START HISTORY LOG MODAL  -->
+<div class="modal fade" id="modal-hist" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="width:600px">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 style="float: left" class="modal-title">Notes Log</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="hidden" id="hourz" name="hourz" value="">
+                        <table id="gridLog" class="table table-striped table-bordered" style="width:100%; ">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Note</th>
+                                    <th>By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END EDIT MODAL -->
+
 @section Scripts {
     @Scripts.Render("~/bundles/datatables")
     @Scripts.Render("~/bundles/canvasjs")
     @Scripts.Render("~/bundles/jqueryval")
 
-<script type="text/javascript">
+    <script type="text/javascript">
     $(document).ready(function () {
 
         moment.updateLocale(moment.locale(), { invalidDate: "" });
@@ -268,7 +335,7 @@
         }
 
         @if (Model.SuppData1 != null && Model.SuppData1.Count > 0) {
-            
+
             <text>parNameSupp1 = '@Model.SuppData1[0].PAR_NAME (' + '@Model.SuppData1[0].UNIT_DESC' + ')'</text>
 
             foreach (var item in Model.SuppData1)
@@ -305,6 +372,7 @@
         chart = new CanvasJS.Chart("chartContainer", {
             zoomEnabled: true,
             animationEnabled: true,
+            exportEnabled: true,
             title: {
                 text: parName
             },
@@ -350,6 +418,7 @@
             }
         });
 
+
         chart.render();
 
         //supp parameters
@@ -357,6 +426,7 @@
             chart1 = new CanvasJS.Chart("chartContainerSupp1", {
                 zoomEnabled: false,
                 animationEnabled: true,
+                exportEnabled: true,
                 title: {
                     text: parNameSupp1
                 },
@@ -376,25 +446,97 @@
     });
 
 
-    //select all
-    $('#selectAll').click(function (e) {
+
+        //select all
+        $('#selectAll').click(function (e) {
         $('#gridData').find('tr:visible').find('td input:checkbox').prop('checked', this.checked);
         if ($('input.check-box:checked').length == 0)
             $('#divBulk').hide();
         else
             $('#divBulk').show();
-    });
+        });
+        
 
-
-    //allow bulk edit
-    $('.check-box').click(function (e) {
+        //allow bulk edit
+        $('.check-box').click(function (e) {
         if ($('input.check-box:checked').length == 0)
             $('#divBulk').hide();
         else
             $('#divBulk').show();
     });
 
-</script>
+
+        //clear textbox when checkbox checked
+        $('#editValueBlank').on('change', function () {
+            if (this.checked) {
+                $('#editValue').val('');
+                $('#spnValChk').addClass('btn-danger');
+            }
+            else {
+                $('#spnValChk').removeClass('btn-danger');
+            }
+        });
+
+
+
+
+
+
+        //log history click
+        $('.modal-hist').on('click', function () {
+            $("#hourz").val($(this).data('id'));
+            if (table2)
+                table2.destroy();
+
+        // datatable initialization
+        var table2 = $("#gridLog").DataTable({
+            "responsive": true,
+            "serverSide": true,
+            "ordering": false,
+            "processing": true,
+            "orderMulti": false,
+            "lengthChange": false,
+            "paging": true,
+            "pageLength": 25,
+            "pagingType": "full_numbers",
+            "info": false,
+            "searching": false,
+            "ajax": {
+                "url": "@Url.Action("HourlyLogData", "Data")",
+                "type": "POST",
+                "datatype": "json",
+                "data": function (d) {
+                    return $.extend({}, d, {
+                       "id": $('#hourz').val()
+                    });
+                }
+            },
+            "order": [[0, "desc"]],
+            "columns": [
+                {
+                    "data": "MODIFY_DT",
+                    "name": "MODIFY_DT",
+                    "autoWidth": true,
+                    render: function (d) {
+                        return moment(d).format("MM/DD/YYYY hh:mm A ");
+                    }
+                },
+                { "data": "NOTES", "name": "NOTES", "autoWidth": true },
+                { "data": "USER_NAME", "name": "USER_NAME", "autoWidth": true },
+            ],
+            fnDrawCallback: function (oSettings) {
+                var totalPages = this.api().page.info().pages;
+                if (totalPages == 1) {
+                    jQuery('.dataTables_paginate').hide();
+                }
+                else {
+                    jQuery('.dataTables_paginate').show();
+                }
+            }
+        });
+        })
+
+    </script>
 }
 
 

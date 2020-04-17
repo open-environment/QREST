@@ -215,6 +215,11 @@
     <Compile Include="Models\SharedViewModels.cs" />
     <Compile Include="Models\SiteViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -225,7 +230,6 @@
     <Content Include="Content\css\bootstrap.css" />
     <Content Include="Content\css\bootstrap.min.css" />
     <Content Include="Content\css\select2.min.css" />
-    <Content Include="Content\css\datepicker.min.css" />
     <Content Include="Content\Docs\DeployGuide.txt" />
     <Content Include="Content\favicon-16x16.png" />
     <Content Include="Content\favicon-32x32.png" />
@@ -297,6 +301,10 @@
     <Content Include="Content\css\bootstrap-theme.css.map" />
     <None Include="Properties\PublishProfiles\qrest - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\qrest-test - Web Deploy.pubxml" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\bootstrap-filestyle.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -329,7 +337,6 @@
     <Content Include="Scripts\dataTables\datatables.min.css" />
     <Content Include="Scripts\dataTables\plugins\datetime.js" />
     <Content Include="Scripts\dataTables\plugins\moment.js" />
-    <Content Include="Scripts\datepicker.min.js" />
     <Content Include="Scripts\i18n\af.js" />
     <Content Include="Scripts\i18n\ar.js" />
     <Content Include="Scripts\i18n\az.js" />
@@ -634,8 +641,11 @@
     <Content Include="Views\Shared\_PleaseWait.cshtml" />
     <Content Include="Views\Data\AQSGen.cshtml" />
     <Content Include="Views\Site\ViewChangeLog.cshtml" />
+    <Content Include="Views\Data\AQSAcct.cshtml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.3.1.slim.min.map" />

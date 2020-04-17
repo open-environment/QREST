@@ -17,8 +17,6 @@ namespace QRESTModel.DAL
         public System.Guid ASSESS_DOC_IDX { get; set; }
         public System.Guid SITE_IDX { get; set; }
         public Nullable<System.Guid> MONITOR_IDX { get; set; }
-        public int YR { get; set; }
-        public int MON { get; set; }
         public byte[] DOC_CONTENT { get; set; }
         public string DOC_NAME { get; set; }
         public string DOC_TYPE { get; set; }
@@ -30,6 +28,8 @@ namespace QRESTModel.DAL
         public Nullable<System.DateTime> CREATE_DT { get; set; }
         public string MODIFY_USERIDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
+        public Nullable<System.DateTime> START_DT { get; set; }
+        public Nullable<System.DateTime> END_DT { get; set; }
     
         public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
         public virtual T_QREST_SITES T_QREST_SITES { get; set; }

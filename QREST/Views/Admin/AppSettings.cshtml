@@ -24,7 +24,7 @@
                         {
                             <tr>
                                 <td>
-                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-primary modal-it" data-toggle="modal" data-id="@item.SETTING_IDX" data-name="@item.SETTING_NAME" data-value="@(item.ENCRYPT_IND==true ? "" : item.SETTING_VALUE)"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-primary modal-it" data-toggle="modal" data-id="@item.SETTING_IDX" data-name="@item.SETTING_NAME" data-value="@(item.ENCRYPT_IND==true ? "" : item.SETTING_VALUE)"><i class="fa fa-pencil"></i> Edit</a>
                                     @Html.HiddenFor(modelItem => item.ENCRYPT_IND)
                                 </td>
                                 <td>

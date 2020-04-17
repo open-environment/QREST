@@ -73,6 +73,7 @@ namespace QRESTModel.DAL
         public virtual DbSet<AIRNOW_LAST_HOUR> AIRNOW_LAST_HOUR { get; set; }
         public virtual DbSet<T_QREST_SITES> T_QREST_SITES { get; set; }
         public virtual DbSet<USERLIST_DISPLAY_VIEW> USERLIST_DISPLAY_VIEW { get; set; }
+        public virtual DbSet<T_QREST_DATA_HOURLY_LOG> T_QREST_DATA_HOURLY_LOG { get; set; }
     
         public virtual ObjectResult<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)
         {
@@ -180,7 +181,7 @@ namespace QRESTModel.DAL
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_VALIDATE_HOURLY");
         }
     
-        public virtual ObjectResult<SP_AQS_REVIEW_STATUS_Result> SP_AQS_REVIEW_STATUS(Nullable<System.Guid> siteid, Nullable<System.DateTime> adate)
+        public virtual ObjectResult<SP_AQS_REVIEW_STATUS_Result> SP_AQS_REVIEW_STATUS(Nullable<System.Guid> siteid, Nullable<System.DateTime> adate, Nullable<System.DateTime> edate)
         {
             var siteidParameter = siteid.HasValue ?
                 new ObjectParameter("siteid", siteid) :
@@ -190,7 +191,11 @@ namespace QRESTModel.DAL
                 new ObjectParameter("adate", adate) :
                 new ObjectParameter("adate", typeof(System.DateTime));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_AQS_REVIEW_STATUS_Result>("SP_AQS_REVIEW_STATUS", siteidParameter, adateParameter);
+            var edateParameter = edate.HasValue ?
+                new ObjectParameter("edate", edate) :
+                new ObjectParameter("edate", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_AQS_REVIEW_STATUS_Result>("SP_AQS_REVIEW_STATUS", siteidParameter, adateParameter, edateParameter);
         }
     }
 }

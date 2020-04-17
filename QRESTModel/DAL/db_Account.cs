@@ -660,6 +660,36 @@ namespace QRESTModel.DAL
 
 
         /// <summary>
+        /// Lists all organizations that a user has access to, which have made an AQS submission 
+        /// </summary>
+        /// <param name="uSER_IDX"></param>
+        /// <returns></returns>
+        public static List<T_QREST_ORGANIZATIONS> GetT_QREST_ORG_USERS_AQS_byUSER_IDX(string uSER_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var x = (from uo in ctx.T_QREST_ORG_USERS.AsNoTracking()
+                             join o in ctx.T_QREST_ORGANIZATIONS.AsNoTracking() on uo.ORG_ID equals o.ORG_ID
+                             join a in ctx.T_QREST_AQS.AsNoTracking() on o.ORG_ID equals a.ORG_ID
+                             join s in ctx.T_QREST_REF_USER_STATUS.AsNoTracking() on uo.STATUS_IND equals s.STATUS_IND
+                             where uo.USER_IDX == uSER_IDX
+                             && uo.STATUS_IND == "A"
+                             select o).Distinct().ToList();
+
+                    return x;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        /// <summary>
         /// Lists all users who do not currently belong to org
         /// </summary>
         /// <param name="uSER_IDX"></param>

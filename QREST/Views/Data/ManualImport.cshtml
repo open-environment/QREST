@@ -50,6 +50,8 @@
                         @Html.DropDownListFor(model => model.selTimeType, Model.ddl_Time, new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.selTimeType)
 
+                        @Html.DropDownListFor(model => model.selTimeZone, Model.ddl_TimeZone, "--Site Local Time Zone--", new { @class = "form-control", @style = "display:none" })
+                        @Html.ValidationMessageFor(model => model.selTimeZone)
 
                         <a id="tempUrl" class="btn btn-sm btn-warning" data-root="@Url.Action("DownloadTemplate","Site")" style="display:none;" href="">Download import template</a>
                     </div>
@@ -132,6 +134,7 @@
             });
 
 
+            //displays approriate data filters based on the Import Type
             function dispSubPar() {
                 var xxx = $('#selImportType').val();
                 if (xxx != "") {
@@ -140,10 +143,12 @@
                     if (xxx == "H1") {
                         $("#selMonitor").show();
                         $("#selPollConfig").hide();
+                        $("#selTimeZone").show();
                     }
                     else {
                         $("#selMonitor").hide();
                         $("#selPollConfig").show();
+                        $("#selTimeZone").hide();
                     }
 
                     if (xxx == "F") 
@@ -180,7 +185,7 @@
 
 
 
-            //update monitor dropdown
+            //changing the site dropdown
             $('#selSite').change(function () {
                 $("#tempUrl").hide();
 
@@ -189,11 +194,10 @@
                 if (yyy == "H1") {
                     $("#selPollConfig").hide();
 
-                    //fetch parameters to import
-                    var url = '@Url.Action("FetchMonitorsBySite")';
+                    //fetch parameters related to the selected site
                     var mons = $('#selMonitor');
                     mons.empty();
-                    $.getJSON(url, { ID: $(this).val() }, function (data) {
+                    $.getJSON('@Url.Action("FetchMonitorsBySite")', { ID: $(this).val() }, function (data) {
                         if (!data) {
                             return;
                         }
@@ -202,6 +206,18 @@
                             mons.append($('<option></option>').val(item.Value).text(item.Text));
                         });
                     });
+
+                    //fetch the H1 import details if any exist to set 
+                    $.getJSON('@Url.Action("FetchImportTemplateH1")', { ID: $(this).val() }, function (data) {
+                        if (!data) {
+                            return;
+                        }
+                        if (data != "null") {
+                            $("#selTimeType").val(data.TIME_POLL_TYPE);
+                            $("#selTimeZone").val(data.LOCAL_TIMEZONE);
+                        }
+                    });
+
 
                 }
                 else {

@@ -57,9 +57,19 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    return (from a in ctx.T_QREST_APP_SETTINGS
-                            where a.SETTING_NAME == settingName
-                            select a).FirstOrDefault().SETTING_VALUE;
+                    var xxx = (from a in ctx.T_QREST_APP_SETTINGS
+                               where a.SETTING_NAME == settingName
+                               select a).FirstOrDefault();
+
+                    if (xxx != null)
+                    {
+                        if ((xxx.ENCRYPT_IND ?? false) == false)
+                            return xxx.SETTING_VALUE;
+                        else
+                            return new SimpleAES().Decrypt(xxx.SETTING_VALUE);
+                    }
+                    else
+                        return null;
                 }
                 catch (Exception ex)
                 {
@@ -107,7 +117,14 @@ namespace QRESTModel.DAL
                     }
 
                     if (sETTING_NAME != null) e.SETTING_NAME = sETTING_NAME;
-                    if (sETTING_VALUE != null) e.SETTING_VALUE = sETTING_VALUE;
+
+
+                    if (sETTING_VALUE != null) {
+                        if ((e.ENCRYPT_IND ?? false) == false)
+                            e.SETTING_VALUE = sETTING_VALUE; 
+                        else
+                            e.SETTING_VALUE = new SimpleAES().Encrypt(sETTING_VALUE);
+                    }
 
                     e.MODIFY_DT = System.DateTime.Now;
                     e.MODIFY_USER_IDX = cREATE_USER;
@@ -392,6 +409,7 @@ namespace QRESTModel.DAL
                     }
 
                     x.NEXT_RUN_DT = _nextRun;
+                    x.LAST_RUN_DT = System.DateTime.Now;
                     ctx.SaveChanges();
                     return true;
                 }
@@ -665,7 +683,7 @@ namespace QRESTModel.DAL
         }
 
         public static int InsertUpdatetT_QREST_ORGANIZATION(string oRG_ID, string oRG_NAME, string sTATE_CD, int? ePA_REGION, string aQS_NAAS_UID, string aQS_NAAS_PWD,
-            string aQS_AGENCY_CODE, bool? sELF_REG_IND, bool? aCT_IND, string cREATE_USER)
+            string aQS_AGENCY_CODE, bool? sELF_REG_IND, bool? aCT_IND, string cREATE_USER, string aQS_AQS_UID, string aQS_AQS_SCREENING_GRP)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -696,9 +714,14 @@ namespace QRESTModel.DAL
                     if (ePA_REGION != null) e.EPA_REGION = ePA_REGION;
                     if (aQS_AGENCY_CODE != null) e.AQS_AGENCY_CODE = aQS_AGENCY_CODE;
                     if (aQS_NAAS_UID != null) e.AQS_NAAS_UID = aQS_NAAS_UID;
-                    if (aQS_NAAS_PWD != null) e.AQS_NAAS_PWD = aQS_NAAS_PWD;
+                    if (aQS_NAAS_PWD != null) {
+                        var xxx = new SimpleAES().Encrypt(aQS_NAAS_PWD);
+                        e.AQS_NAAS_PWD = xxx; 
+                    }
                     if (sELF_REG_IND != null) e.SELF_REG_IND = sELF_REG_IND;
                     if (aCT_IND != null) e.ACT_IND = aCT_IND ?? true;
+                    if (aQS_AQS_UID != null) e.AQS_AQS_UID = aQS_AQS_UID;
+                    if (aQS_AQS_SCREENING_GRP != null) e.AQS_AQS_SCREENING_GRP = aQS_AQS_SCREENING_GRP;
 
 
                     if (insInd)
@@ -1975,15 +1998,15 @@ namespace QRESTModel.DAL
                 try
                 {
                     //first check if user has accessed claim today. If yes, then don't log
-                    if (GetT_QREST_SYS_LOG_ACTIVITY_today(aCTIVITY_TYPE, aCTIVITY_USER, aCTIVITY_DESC) > 0)
+                    if (aCTIVITY_TYPE != "POLLING CONFIG" && GetT_QREST_SYS_LOG_ACTIVITY_today(aCTIVITY_TYPE, aCTIVITY_USER, aCTIVITY_DESC) > 0)
                         return 0;
 
                     T_QREST_SYS_LOG_ACTIVITY a = new T_QREST_SYS_LOG_ACTIVITY
                     {
                         ACTIVITY_TYPE = aCTIVITY_TYPE,
-                        ACTIVITY_USER = aCTIVITY_USER.ToUpper(),
+                        ACTIVITY_USER = aCTIVITY_USER?.ToUpper(),
                         ACTIVITY_DT = lOG_DT ?? System.DateTime.Now,
-                        ACTIVITY_DESC = aCTIVITY_DESC,
+                        ACTIVITY_DESC = aCTIVITY_DESC.SubStringPlus(0, 2000),
                         IP_ADDRESS = iP_ADDRESS,
                         SUPPORTING_ID = sUPPORTING_ID
                     };

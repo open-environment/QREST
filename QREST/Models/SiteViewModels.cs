@@ -240,6 +240,7 @@ namespace QREST.Models
 
         [Required]
         public Guid? SITE_IDX { get; set; }
+        public string SITE_NAME { get; set; }
 
         [Required]
         [Display(Name = "Parameter Method")]

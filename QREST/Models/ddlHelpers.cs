@@ -9,6 +9,15 @@ namespace QREST.Models
 {
     public static class ddlHelpers
     {
+        public static IEnumerable<SelectListItem> get_ddl_action_code()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "I", Text = "Insert" });
+            _list.Add(new SelectListItem() { Value = "U", Text = "Update" });
+            _list.Add(new SelectListItem() { Value = "D", Text = "Delete" });
+            return _list;
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_aqs_format()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
@@ -100,6 +109,7 @@ namespace QREST.Models
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "ZENO", Text = "Zeno 3200 - TCP Connection" });
             _list.Add(new SelectListItem() { Value = "SUTRON", Text = "Sutron - TCP Connection" });
+            _list.Add(new SelectListItem() { Value = "WEATHER_PWS", Text = "Weather.com Personal Weather Station" });
             _list.Add(new SelectListItem() { Value = "OTHER", Text = "Others (in development)" });
             _list.Add(new SelectListItem() { Value = "NONE", Text = "None (manual import only)" });
             return _list;
@@ -132,6 +142,16 @@ namespace QREST.Models
             });
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_my_organizations_aqs_submission(string UserIDX)
+        {
+            return db_Account.GetT_QREST_ORG_USERS_AQS_byUSER_IDX(UserIDX).Select(x => new SelectListItem
+            {
+                Value = x.ORG_ID,
+                Text = x.ORG_NAME
+            });
+        }
+
+
         public static IEnumerable<SelectListItem> get_ddl_my_sites(string OrgID, string UserIDX)
         {
             return db_Air.GetT_QREST_SITES_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
@@ -140,6 +160,16 @@ namespace QREST.Models
                 Text = x.SITE_ID + " " + x.SITE_NAME
             });
         }
+
+        public static IEnumerable<SelectListItem> get_ddl_my_sites_sampled(string OrgID, string UserIDX)
+        {
+            return db_Air.GetT_QREST_SITES_Sampling_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
+            {
+                Value = x.SITE_IDX.ToString(),
+                Text = x.SITE_ID + " " + x.SITE_NAME
+            });
+        }
+
 
         /// <summary>
         /// Leave OrgID blank to list all monitors the user has access to
@@ -167,11 +197,14 @@ namespace QREST.Models
 
         public static IEnumerable<SelectListItem> get_monitors_sampled_by_site(Guid SiteIDX)
         {
-            return db_Air.GetT_QREST_MONITORS_Display_SampledBySiteIDX(SiteIDX).Select(x => new SelectListItem
+            var yyy = db_Air.GetT_QREST_MONITORS_Display_SampledBySiteIDX(SiteIDX);
+            var zzz = yyy.Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
                 Text = "Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | Method: " + x.METHOD_CODE + " | POC: " + x.T_QREST_MONITORS.POC
             });
+
+            return zzz;
         }
 
         public static IEnumerable<SelectListItem> get_monitors_sampled_by_org(string orgID)

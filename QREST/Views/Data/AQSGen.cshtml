@@ -1,62 +1,237 @@
 ﻿@model QREST.Models.vmDataAQSGen
 @{
-    ViewBag.Title = "AQS";
+    ViewBag.Title = "Prepare AQS Submission";
 }
-
-<section class="panel panel-qrest">
-    <header class="panel-heading font-bold">Select Data to Submit</header>
-    @if (Model.ddl_Sites?.Count() > 0)
-    {
+@if (Model.ddl_Sites?.Count() > 0)
+{
+    <section class="panel panel-qrest">
+        <header class="panel-heading font-bold">
+            Select Data to Submit
+        </header>
         <div class="panel-body">
-            @using (Html.BeginForm("AQSGen", "Data", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-            {
-                @Html.HiddenFor(model => model.selDtStart)
-                @Html.HiddenFor(model => model.selDtEnd)
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Site</label>
-                    <div class="col-sm-10">
-                        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Sites, new { @class = "form-control" })
+            <div class="row">
+                <div class="col-md-9">
+                    @using (Html.BeginForm("AQSGen", "Data", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                    {
+                        @Html.HiddenFor(model => model.selDtStart)
+                        @Html.HiddenFor(model => model.selDtEnd)
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Site</label>
+                            <div class="col-sm-6">
+                                @Html.DropDownListFor(model => model.selSite, Model.ddl_Sites, new { @class = "form-control", @style = "width:auto;" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Parameters </label>
+                            <div id="chkParent" class="col-sm-10">
+                                @Html.ValidationMessageFor(m => m.selMons)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Date Range</label>
+                            <div class="col-sm-10">
+                                <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Action Code</label>
+                            <div class="col-sm-4">
+                                @Html.DropDownListFor(model => model.selActionCode, Model.ddl_ActionCode, new { @class = "form-control", @style = "width:auto;" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Data Format</label>
+                            <div class="col-sm-10">
+                                @Html.DropDownListFor(model => model.selAQSFormat, Model.ddl_AQSFormat, new { @class = "form-control", @style = "width:auto;" })
+                            </div>
+                        </div>
+                        <div class="row m-l-n-xxs">
+                            <div class="col-sm-10 col-sm-offset-2">
+                                <a class=" btn btn-default m-l-n-sm" href="@Url.Action("AQSList")">Back</a>
+                                <button id="btnGo" type="submit" class="btn btn-primary ">Review Data</button>
+                            </div>
+
+                        </div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <div class="well">
+                        <h5 class="m-t-none font-bold">Submission Accounts</h5>
+                        <p class="m-xs">
+                            AQS User: <span id="aqsuser" class="font-bold"></span>
+                            <br> AQS Screening Group Name: <span id="aqsscreen" class="font-bold"></span>
+                            <br> CDX User: <span id="cdxuser" class="font-bold"></span>
+                        </p>
+                        <a id="lnkOrgEdit" class=" btn btn-warning btn-xs" href="@Url.Action("AQSAcct","Data", new { id= Model.selSite })">Change</a>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Submit One Parameter Only (optional)</label>
-                    <div class="col-sm-10">
-                        @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => m.selMon)
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Date Range</label>
-                    <div class="col-sm-10">
-                        <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Data Format</label>
-                    <div class="col-sm-10">
-                        @Html.DropDownListFor(model => model.selAQSFormat, Model.ddl_AQSFormat, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="col-sm-10 col-sm-offset-2">
-                    <a class=" btn btn-default m-l-n-sm" href="@Url.Action("AQSList")">Back</a>
-                    <button id="btnGo" type="submit" class="btn btn-primary ">Generate</button>
-                </div>
-            }
+            </div>
+
 
         </div>
-    }
-    else
+
+    </section>
+
+    if (Model.Results != null)
     {
-        <div class="panel-body">You can submit data after you have been associated with a tribal organization.</div>
+        <section id="resultsDiv" class="panel panel-qrest">
+            <header class="panel-heading font-bold">
+                Data Review Summary
+            </header>
+            <div class="panel-body">
+                @if (Model.passValidation == false)
+                {
+                    <div class="alert alert-danger alert-block">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <h4>
+                            <i class="fa fa-bell-alt"></i>Submission Not Ready
+                        </h4>
+                        <p>Some of the data for this period needs further review and/or validation before it is ready for EPA. Please review the data below before making your submission.</p>
+                    </div>
+                }
+                <div class="row">
+                    @foreach (var item in Model.Results)
+                    {
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <section class="panel" style="border-width:3px;">
+                                <header class="panel-heading bg-default lt no-border">
+                                    <div class="clearfix">
+                                        <div class="chart pull-left m-r" data-percent="@((item.hrs_data + item.aqs_ready + item.lvl1_val_ind + item.lvl2_val_ind) * 100 / (4 * item.hrs))" data-scale-color="#ffb400">
+                                            <span style="margin-top: 18px; display: block;">
+                                                @((item.hrs_data + item.aqs_ready + item.lvl1_val_ind + item.lvl2_val_ind) * 100 / (4 * item.hrs))%
+                                            </span>
+                                        </div>
+                                        <div class="clear">
+                                            <div class="h4 m-t-xs m-b-xs">
+                                                @item.PAR_NAME
+                                            </div>
+                                            <small class="text-muted">Par Code: @item.PAR_CODE</small>
+                                        </div>
+                                    </div>
+                                </header>
+                                <div class="text-center">
+                                    <div class="btn-group">
+                                        <a class="btn btn-rounded btn-xs btn-dark padder m-xs" style="background-color:#2c66af" href="@Url.Action("DataReview2", new { monid = item.MONITOR_IDX, sdt = Model.selDtStart, edt = Model.selDtEnd, dur = 1 })">Review</a>
+                                        <button class="btn btn-rounded btn-xs btn-dark dropdown-toggle padder m-xs" data-toggle="dropdown" style="background-color:#2c66af"><span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a href="@Url.Action("DataReview", new { monid = item.MONITOR_IDX })">Advanced Selection</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <footer class="panel-footer bg-default text-center">
+                                    <div class="row pull-out">
+                                        <div class="aaa col-xs-3 fa-border" data-num="@item.hrs_data" data-denom="@item.hrs">
+                                            <div class="padder-v">
+                                                <span class="m-b-xs h4 block text-white">@item.hrs_data / @item.hrs</span>
+                                                <small class="text-muted">Collected</small>
+                                            </div>
+                                        </div>
+                                        <div class="aaa col-xs-3 fa-border" data-num="@item.aqs_ready" data-denom="@item.hrs">
+                                            <div class="padder-v">
+                                                <span class="m-b-xs h4 block text-white">@item.aqs_ready / @item.hrs</span>
+                                                <small class="text-muted">AQS Ready</small>
+                                            </div>
+                                        </div>
+                                        <div class="aaa col-xs-3 fa-border" data-num="@item.lvl1_val_ind" data-denom="@item.hrs">
+                                            <div class="padder-v">
+                                                <span class="m-b-xs h4 block text-white">@item.lvl1_val_ind / @item.hrs</span>
+                                                <small class="text-muted">Lvl 1 Check</small>
+                                            </div>
+                                        </div>
+                                        <div class="aaa bbb col-xs-3 fa-border" data-num="@item.lvl2_val_ind" data-denom="@item.hrs">
+                                            <div class="padder-v">
+                                                <span class="m-b-xs h4 block text-white">@item.lvl2_val_ind / @item.hrs</span>
+                                                <small class="text-muted">Lvl 2 Check</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </footer>
+
+                            </section>
+                        </div>
+                    }
+                </div>
+
+                @using (Html.BeginForm("AQSSubmit", "Data", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.HiddenFor(model => model.selDtStart)
+                    @Html.HiddenFor(model => model.selDtEnd)
+                    @Html.HiddenFor(model => model.selSite)
+                    @Html.HiddenFor(model => model.selMons)
+                    @Html.HiddenFor(model => model.selActionCode)
+                    @Html.HiddenFor(model => model.selAQSFormat)
+
+                    if (Model.Results.Count > 0 && Model.passValidation)
+                    {
+                        <button id="btnGo" type="submit" class="btn btn-lg btn-primary ">Generate File</button>
+                    }
+                }
+            </div>
+        </section>
     }
-</section>
+
+}
+else
+{
+    <div class="panel-body">You can submit data after you have been associated with a tribal organization.</div>
+}
 
 @section Scripts {
+    @Scripts.Render("~/bundles/easypiechart")
+    @Scripts.Render("~/bundles/moment")
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
     <script type="text/javascript">
         $(document).ready(function () {
+
+            //******* shade values **************
+            $('.aaa').each(function () {
+                if ($(this).data("num") == 0) {
+                    $(this).addClass("bg-danger");
+                  //  $(this).parent().parent().parent().addClass("panel-danger");
+                }
+                else if ($(this).data("num") == $(this).data("denom")) {
+                    $(this).addClass("bg-success");
+                    //$(this).parent().parent().parent().addClass("panel-success");
+                }
+                else {
+                    $(this).addClass("bg-warning");
+                    $(this).parent().parent().parent().addClass("panel-warning");
+                }
+            });
+
+            $('.bbb').each(function () {
+                if ($(this).data("num") == 0) {
+                    $(this).parent().parent().parent().addClass("panel-danger");
+                }
+                else if ($(this).data("num") == $(this).data("denom")) {
+                    $(this).parent().parent().parent().addClass("panel-success");
+                }
+            });
+
+            $(function () {
+                $('.chart').easyPieChart({
+                    size: 55,
+                    lineWidth: 4,
+                    rotate: 0,
+                    barColor: function (percent) {
+                        if (percent < 25)
+                            return "#ff0000";
+                        else if (percent < 70)
+                            return "#ffc333";
+                        else
+                            return "#8ec165";
+                    }
+                });
+            });
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+            var sDateNew = moment(new Date("@Model.selDtStart"));
+            var sEndNew = moment(new Date("@Model.selDtEnd"));
 
             //daterange selector initialization
             $('input[name="selDate"]').daterangepicker({
@@ -64,12 +239,9 @@
                 timePickerIncrement: 60,
                 timePicker24Hour: true,
                 autoUpdateInput: true,
-                startDate: moment().subtract(1, 'month').startOf('month'),
-                endDate: moment().subtract(1, 'month').endOf('month'),
+                startDate: sDateNew,
+                endDate: sEndNew,
                 ranges: {
-                    'Today': [moment().startOf('day'), moment().endOf('day')],
-                    'Yesterday': [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')],
-                    'Last 7 Days': [moment().subtract(6, 'days').startOf('day'), moment().endOf('day')],
                     'This Month': [moment().startOf('month'), moment().endOf('month')],
                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                 },
@@ -78,42 +250,87 @@
                 }
             }
                 , function (start, end, label) {
+                    //callback, setting values to viewmodel
                     $('#selDtStart').val(start.format('YYYY-MM-DD HH:mm'));
                     $('#selDtEnd').val(end.format('YYYY-MM-DD HH:mm'));
                 }
             );
 
-            @*//initialize monitor dropdown on page load
-            fetchMonitors('@Model.selMon');
+            //initialize monitor dropdown on page load
+            var stringArray = @Html.Raw(Json.Encode(Model.selMons));
+            fetchMonitors(stringArray);
 
             //update monitor dropdown
-            $('#selOrgID').change(function () {
-                fetchMonitors(null);
-            });*@
-
-            //initialize values of date range
-            $('#selDtStart').val(moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD HH:mm'));
-            $('#selDtEnd').val(moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD HH:mm'));
-
+            $('#selSite').change(function () {
+                $('#resultsDiv').hide();
+                fetchMonitors();
+            });
         });
 
-        @*function fetchMonitors(mon) {
-            $('#selMon').empty();
-            $('#selMonSupp').empty();
-
-            $.getJSON('@Url.Action("FetchMonitorsWithData")', { ID: $("#selOrgID").val() }, function (data) {
-                if (!data) {
+        //populate parameters based on selected site
+        function fetchMonitors(a) {
+            $(".checkbox").remove();
+            $.getJSON('@Url.Action("FetchMonitorsSampledBySite")', { ID: $("#selSite").val() }, function (data) {
+                if (!data)
                     return;
-                }
-                $('#selMon').append($('<option></option>').val('').text('Please select'));
                 $.each(data, function (index, item) {
-                    $('#selMon').append($('<option></option>').val(item.Value).text(item.Text));
-                    $('#selMonSupp').append($('<option></option>').val(item.Value).text(item.Text));
+                    if (a) {
+                        var chk = (a.length == 0 || a.includes(item.Value));
+                        var chk2 = chk ? ' checked ' : '';
+                        $('#chkParent').append('<div class="checkbox"><label><input type="checkbox" name="selMons" value="' + item.Value + '" ' + chk2 + ' />' + item.Text + '</label></div>');
+                    }
+                    else {
+                        $('#chkParent').append('<div class="checkbox"><label><input type="checkbox" name="selMons" value="' + item.Value + '" checked />' + item.Text + '</label></div>');
+                    }
                 });
-                $('#selMon').val(mon);
+
+                $.get('@Url.Action("FetchAQSAccounts")', { ID: $("#selSite").val() }, function (data2) {
+                    if (!data2)
+                        return;
+                    $("#cdxuser").html(data2.Item1);
+                    $("#aqsuser").html(data2.Item2);
+                    $("#aqsscreen").html(data2.Item3);
+                    $("#lnkOrgEdit").attr('href', '/Data/AQSAcct/' + data2.Item4);
+
+                    //if none defined, don't let user continue
+                    if (data2.Item1 == null || data2.Item2 == null || data2.Item3 == null) {
+                        $("#btnGo").prop("disabled", true).text('Review Data (set accounts first)');
+                    }
+                    else {
+                        $("#btnGo").prop("disabled",false).text('Review Data');
+                    }
+                });
             });
-        };*@
+        };
 
     </script>
+    <style>
+        .chart {
+            position: relative;
+            display: inline-block;
+            width: 55px;
+            height: 55px;
+            margin-top: 1px;
+            margin-bottom: 1px;
+            text-align: center;
+        }
 
+            .chart canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+        .percent {
+            display: inline-block;
+            line-height: 55px;
+            z-index: 2;
+        }
+
+            .percent:after {
+                content: '%';
+                margin-left: 0.1em;
+                font-size: .8em;
+            }
+    </style>
 }

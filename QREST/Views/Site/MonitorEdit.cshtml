@@ -12,13 +12,21 @@
     @Html.HiddenFor(model => model.SITE_IDX)
     @Html.HiddenFor(model => model.PAR_METHOD_IDX)
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <section class="panel panel-qrest">
                 <header class="panel-heading font-bold">Monitor Details</header>
                 <div class="panel-body">
 
                     @if (Model != null)
                     {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Site Name</label>
+                                    @Html.TextBoxFor(model => model.SITE_NAME, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             @if (Model.MONITOR_IDX == null)
                             {
@@ -88,14 +96,14 @@
 
         @if (Model != null && Model.MONITOR_IDX != null)
         {
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <section class="panel panel-qrest">
                     <header class="panel-heading font-bold dirtyignore">
                         Alerts - Limits In Collection Units
                         <button type="button" class="btn btn-xs btn-info pull-right dropdown-toggle" data-toggle="dropdown">Options <i class="caret"></i></button>
                         <ul class="dropdown-menu pull-right btn-info">
                             <li data-value="1">
-                                <a id="lnkReapply" href="#"  >Reapply QREST Default Limits</a>
+                                <a id="lnkReapply" href="#">Reapply QREST Default Limits</a>
                             </li>
                         </ul>
                     </header>
@@ -105,7 +113,7 @@
                                 <div class="form-group">
                                     <label>Minimum</label>
                                     <div class="input-group">
-                                        @Html.DropDownListFor(model => model.ALERT_MIN_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "left", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
+                                        @Html.DropDownListFor(model => model.ALERT_MIN_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "right", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
                                         <span class="input-group-btn" style="width:100%">
                                             @Html.TextBoxFor(model => model.ALERT_MIN_VALUE, new { @class = "form-control", @maxlength = "6" })
                                         </span>
@@ -133,7 +141,7 @@
                                 <div class="form-group">
                                     <label>Amount Change (consecutive values)</label>
                                     <div class="input-group">
-                                        @Html.DropDownListFor(model => model.ALERT_AMT_CHANGE_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "left", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
+                                        @Html.DropDownListFor(model => model.ALERT_AMT_CHANGE_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "right", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
                                         <span class="input-group-btn" style="width:100%">
                                             @Html.TextBoxFor(model => model.ALERT_AMT_CHANGE, new { @class = "form-control", @maxlength = "5" })
                                         </span>
@@ -164,7 +172,7 @@
     <div class="row">
         <div class="col-md-12">
             <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
-            <a class=" btn btn-default" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX } )">Back to Site List</a>
+            <a class=" btn btn-default" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX } )">Back to Site</a>
         </div>
 
     </div>

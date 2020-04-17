@@ -58,23 +58,25 @@ namespace QRESTServiceCatalog
                         //****************** ZENO OR SUTRON DATA LOGGER *********************************************************
                         //****************** ZENO OR SUTRON DATA LOGGER *********************************************************
                         //****************** ZENO OR SUTRON DATA LOGGER *********************************************************
-                        if (_config.LOGGER_TYPE == "ZENO" || _config.LOGGER_TYPE=="SUTRON")
+                        if (_config.LOGGER_TYPE == "ZENO" || _config.LOGGER_TYPE == "SUTRON")
                         {
-                            CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, _config.LOGGER_PASSWORD, "#" + _config.SITE_ID + "0001DL" + recCount + ",");
+                            CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, "DL" + recCount + ",", _config.SITE_ID);
                             if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
                             {
-                                //remove extraneous stuff from beginning of response file from logger
-                                _log.CommResponse = LoggerComm.stripMessage(_log.CommResponse, "#0001" + _config.SITE_ID);
-
                                 //send the entire text response to the file parser routine
-                                ParseFile(_log.CommResponse, _config, _config_dtl);
+                                LoggerComm.ParseFlatFile(_log.CommResponse, _config, _config_dtl, true);
 
                                 //log the text to file (for future auditing of parse accuracy)
                                 General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
                             }
                             else
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" +  _log.CommResponse);
+                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
 
+                        }
+                        else if (_config.LOGGER_TYPE == "WEATHER_PWS")
+                        {
+                            T_QREST_SITE_POLL_CONFIG _c = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(_config.POLL_CONFIG_IDX);
+                            bool xxx = LoggerComm.RetrieveWeatherCompanyPWS(_c).Result;
                         }
 
                         General.WriteToFile("End poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);
@@ -83,47 +85,13 @@ namespace QRESTServiceCatalog
                         db_Ref.CreateT_QREST_SYS_LOG(_config.SITE_IDX.ToString(),"POLLING", "No column mappings found for polling configuration");
                 }
             }
-                        
+            else
+                General.WriteToFile("No sites to poll.");
+
+
             bExecutingGenLedSvcStatus = false;
         }
 
 
-        public static bool ParseFile(string loggerData, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl)
-        {
-            try
-            {
-                string line;
-                using (System.IO.StringReader sr = new System.IO.StringReader(loggerData))
-                {
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        if (line.Length > 0)
-                        {
-                            //FIVE MINUTE RAW DATA
-                            if (config.RAW_DURATION_CODE == "H")
-                                db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, config_dtl);
-                            //ONE MINUTE RAW DATA
-                            //if (config.RAW_DURATION_CODE == "G")
-                            //    db_Air.InsertT_QREST_DATA_ONE_MIN_fromLine(line, config, config_dtl);
-                        }
-                    }
-                }
-
-                //update next run for the site
-                DateTime nextrun = System.DateTime.Now.AddMinutes(15);  //default to 15 minutes next run
-                if (config.POLLING_FREQ_TYPE == "M")
-                    nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
-
-                db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                    System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", ex.InnerException?.ToString());
-                return false;
-            }
-        }
     }
 }

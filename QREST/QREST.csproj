@@ -633,6 +633,7 @@
     <Content Include="Views\Data\AQSList.cshtml" />
     <Content Include="Views\Shared\_PleaseWait.cshtml" />
     <Content Include="Views\Data\AQSGen.cshtml" />
+    <Content Include="Views\Site\ViewChangeLog.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

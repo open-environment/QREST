@@ -9,6 +9,10 @@ namespace QRESTModel.DAL
 {
     public class LogDisplayType
     {
+        public LogDisplayType()
+        {
+
+        }
         public int LOG_ID { get; set; }
         public DateTime? LOG_DT { get; set; }
         public string LOG_TYP { get; set; }
@@ -16,6 +20,7 @@ namespace QRESTModel.DAL
         public string LOG_MSG { get; set; }
         public string LOG_USER_NAME { get; set; }
         public string LOG_IP_ADDRESS { get; set; }
+        public string SUPPORTING_ID { get; set; }
     }
 
 
@@ -241,8 +246,8 @@ namespace QRESTModel.DAL
                     try
                     {
                         T_QREST_APP_TASKS e = (from r in ctx.T_QREST_APP_TASKS
-                                                 where r.TASK_IDX == tASK_IDX
-                                                 select r).FirstOrDefault();
+                                               where r.TASK_IDX == tASK_IDX
+                                               select r).FirstOrDefault();
 
                         if (e != null)
                         {
@@ -561,7 +566,7 @@ namespace QRESTModel.DAL
                     }
 
                     if (hELP_TITLE != null) e.HELP_TITLE = hELP_TITLE;
-                    
+
                     if (insInd)
                         ctx.T_QREST_HELP_DOCS.Add(e);
 
@@ -606,10 +611,10 @@ namespace QRESTModel.DAL
                 using (QRESTEntities ctx = new QRESTEntities())
                 {
                     return (from a in ctx.T_QREST_ORGANIZATIONS.AsNoTracking()
-                           where (actInd == true ? a.ACT_IND == true : true)
-                           && (selfRegOnly == true ? a.SELF_REG_IND == true : true)
-                           orderby a.ORG_NAME
-                           select a).ToList();
+                            where (actInd == true ? a.ACT_IND == true : true)
+                            && (selfRegOnly == true ? a.SELF_REG_IND == true : true)
+                            orderby a.ORG_NAME
+                            select a).ToList();
                 }
             }
             catch (Exception ex)
@@ -1007,7 +1012,7 @@ namespace QRESTModel.DAL
                     T_QREST_REF_COUNTY e = (from c in ctx.T_QREST_REF_COUNTY
                                             where c.STATE_CD == sTATE_CD
                                             && c.COUNTY_CD == cOUNTY_CD
-                                           select c).FirstOrDefault();
+                                            select c).FirstOrDefault();
 
                     if (e == null)
                     {
@@ -1193,8 +1198,8 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Tuple<string, string> InsertUpdateT_QREST_REF_PAR_METHODS(Guid? pAR_METHOD_IDX, string pAR_CODE, string mETHOD_CODE, string rECORDING_MODE, string cOLLECTION_DESC, 
-            string aNALYSIS_DESC, string rEFERENCE_METHOD_ID, string eQUIVALENT_METHOD, string sTD_UNIT_CODE, double? fED_MDL, double? mIN_VALUE, double? mAX_VALUE, double? 
+        public static Tuple<string, string> InsertUpdateT_QREST_REF_PAR_METHODS(Guid? pAR_METHOD_IDX, string pAR_CODE, string mETHOD_CODE, string rECORDING_MODE, string cOLLECTION_DESC,
+            string aNALYSIS_DESC, string rEFERENCE_METHOD_ID, string eQUIVALENT_METHOD, string sTD_UNIT_CODE, double? fED_MDL, double? mIN_VALUE, double? mAX_VALUE, double?
             cUST_MIN_VALUE, double? cUST_MAX_VALUE, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1294,7 +1299,7 @@ namespace QRESTModel.DAL
                             select new RefParMethodDisplay
                             {
                                 T_QREST_REF_PAR_METHODS = a,
-                                PAR_NAME = p.PAR_NAME,                                
+                                PAR_NAME = p.PAR_NAME,
                                 UNIT_DESC = u.UNIT_DESC
                             }).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
@@ -1365,7 +1370,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
-               
+
 
 
         //***************** REF_PARAMETERS ******************************
@@ -1403,7 +1408,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
-                
+
         public static T_QREST_REF_PARAMETERS GetT_QREST_REF_PARAMETERS_ByID(string id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1449,7 +1454,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool InsertUpdatetT_QREST_REF_PARAMETERS(string pAR_CODE, string pAR_NAME, string pAR_NAME_ALT, string cAS_NUM, string sTD_UNIT_CODE, bool? aQS_IND, 
+        public static bool InsertUpdatetT_QREST_REF_PARAMETERS(string pAR_CODE, string pAR_NAME, string pAR_NAME_ALT, string cAS_NUM, string sTD_UNIT_CODE, bool? aQS_IND,
             bool? aCT_IND, string cREATE_USER)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1573,7 +1578,7 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from a in ctx.T_QREST_REF_QUALIFIER.AsNoTracking()
-                               select a).Count();
+                            select a).Count();
                 }
                 catch (Exception ex)
                 {
@@ -1609,8 +1614,8 @@ namespace QRESTModel.DAL
                     Boolean insInd = false;
 
                     T_QREST_REF_QUALIFIER e = (from c in ctx.T_QREST_REF_QUALIFIER
-                                           where c.QUAL_CODE == qUAL_CODE
-                                           select c).FirstOrDefault();
+                                               where c.QUAL_CODE == qUAL_CODE
+                                               select c).FirstOrDefault();
 
                     if (e == null)
                     {
@@ -2018,29 +2023,37 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<LogDisplayType> GetT_QREST_SYS_LOG_ACTIVITY(DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        public static List<LogDisplayType> GetT_QREST_SYS_LOG_ACTIVITY(string supportingID, DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
+                    if (String.IsNullOrEmpty(supportingID)) supportingID = "";
                     DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
                     DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
-                    return (from a in ctx.T_QREST_SYS_LOG_ACTIVITY
-                            join d in ctx.T_QREST_USERS on a.ACTIVITY_USER equals d.USER_IDX into lj from d in lj.DefaultIfEmpty() //left join on user
-                            where a.ACTIVITY_DT >= DateFromDt
-                            && a.ACTIVITY_DT <= DateToDt
-                            //orderby a.LOG_ACTIVITY_IDX descending
-                            select new LogDisplayType {
-                                LOG_ID = a.LOG_ACTIVITY_IDX,
-                                LOG_DT = a.ACTIVITY_DT,
-                                LOG_TYP = a.ACTIVITY_TYPE,
-                                LOG_USERID = a.ACTIVITY_USER,
-                                LOG_MSG = a.ACTIVITY_DESC,
-                                LOG_USER_NAME = d.Email,
-                                LOG_IP_ADDRESS = a.IP_ADDRESS
-                            }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                    var query = from a in ctx.T_QREST_SYS_LOG_ACTIVITY
+                                 join d in ctx.T_QREST_USERS on a.ACTIVITY_USER equals d.USER_IDX into lj
+                                 from d in lj.DefaultIfEmpty() //left join on user
+                                 where a.ACTIVITY_DT >= DateFromDt
+                                 && a.ACTIVITY_DT <= DateToDt
+                                 select new LogDisplayType
+                                 {
+                                     LOG_ID = a.LOG_ACTIVITY_IDX,
+                                     LOG_DT = a.ACTIVITY_DT,
+                                     LOG_TYP = a.ACTIVITY_TYPE,
+                                     LOG_USERID = a.ACTIVITY_USER,
+                                     LOG_MSG = a.ACTIVITY_DESC,
+                                     LOG_USER_NAME = d.Email,
+                                     LOG_IP_ADDRESS = a.IP_ADDRESS,
+                                     SUPPORTING_ID = a.SUPPORTING_ID
+                                 };
+                    if(supportingID != "")
+                        query = query.Where(x => x.SUPPORTING_ID == supportingID);
+
+                    var result = query.Select(p => p).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                    return result;
                 }
                 catch (Exception ex)
                 {
@@ -2050,21 +2063,37 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static int GetT_QREST_SYS_LOG_ACTIVITYcount(DateTime? DateFrom, DateTime? DateTo)
+        public static int GetT_QREST_SYS_LOG_ACTIVITYcount(string supportingID, DateTime? DateFrom, DateTime? DateTo)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
+                    if (String.IsNullOrEmpty(supportingID)) supportingID = "";
                     DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
                     DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
-                    var xxx = (from a in ctx.T_QREST_SYS_LOG_ACTIVITY
-                               where a.ACTIVITY_DT >= DateFromDt
-                               && a.ACTIVITY_DT <= DateToDt
-                               select a).Count();
+                    var query = from a in ctx.T_QREST_SYS_LOG_ACTIVITY
+                                join d in ctx.T_QREST_USERS on a.ACTIVITY_USER equals d.USER_IDX into lj
+                                from d in lj.DefaultIfEmpty() //left join on user
+                                where a.ACTIVITY_DT >= DateFromDt
+                                && a.ACTIVITY_DT <= DateToDt
+                                select new LogDisplayType
+                                {
+                                    LOG_ID = a.LOG_ACTIVITY_IDX,
+                                    LOG_DT = a.ACTIVITY_DT,
+                                    LOG_TYP = a.ACTIVITY_TYPE,
+                                    LOG_USERID = a.ACTIVITY_USER,
+                                    LOG_MSG = a.ACTIVITY_DESC,
+                                    LOG_USER_NAME = d.Email,
+                                    LOG_IP_ADDRESS = a.IP_ADDRESS,
+                                    SUPPORTING_ID = a.SUPPORTING_ID
+                                };
+                    if (supportingID != "")
+                        query = query.Where(x => x.SUPPORTING_ID == supportingID);
 
-                    return xxx;
+                    return query.Select(p => p).Count();
+                   
                 }
                 catch (Exception ex)
                 {

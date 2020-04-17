@@ -1,0 +1,95 @@
+﻿@model QREST.Models.vmAdminLogActivity
+@{
+    ViewBag.Title = "Change Log";
+    ViewBag.SubTitle = "View Poll Config Change Log.";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Change Log History
+    </header>
+    <div class="panel-body">
+        <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Activity Date</th>
+                    <th>Type</th>
+                    <th>User</th>
+                    <th>Description</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+        </table>
+        <a class=" btn btn-default m-t-md" href="@Url.Action("SiteEdit", new { id = Model.SITE_IDX })">Back to Site Screen</a>
+    </div>
+</section>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/cleave")
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+            var supportid = @Html.Raw(Json.Encode(Model.POLL_CONFIG_IDX));
+            
+            // datatable initialization
+            var table = $("#gridData").DataTable({
+                "responsive": true,
+                "serverSide": true,
+                "processing": true,
+                "orderMulti": false,
+                "lengthChange": false,
+                "paging": true,
+                "pageLength": 25,
+                "pagingType": "full_numbers",
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("LogActivityData", "Admin")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "data": function (d) {
+                        return $.extend({}, d, {
+                            "mini": $('#mini').val(),
+                            "maxi": $('#maxi').val(),
+                            "supportid": supportid
+                        });
+                    }
+                },
+                "order": [[0, "desc"]],
+                "columns": [
+                    {
+                        "data": "LOG_DT",
+                        "name": "LOG_DT",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY hh:mm A ");
+                        }
+                    },
+                    { "data": "LOG_TYP", "name": "LOG_TYP", "autoWidth": true },
+                    { "data": "LOG_USER_NAME", "name": "LOG_USER_NAME", "autoWidth": true },
+                    { "data": "LOG_MSG", "name": "LOG_MSG", "autoWidth": true },
+                    { "data": "LOG_IP_ADDRESS", "name": "LOG_IP_ADDRESS", "autoWidth": true },
+                ],
+                fnDrawCallback: function (oSettings) {
+                    var totalPages = this.api().page.info().pages;
+                    if (totalPages == 1) {
+                        jQuery('.dataTables_paginate').hide();
+                    }
+                    else {
+                        jQuery('.dataTables_paginate').show();
+                    }
+                }
+            });
+
+            //date filter click
+            $('#btnGo').on('click', function () {
+                table.draw();
+            })
+        });
+
+    </script>
+}

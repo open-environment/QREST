@@ -13,9 +13,9 @@ QREST (Quality Review and Exchange System for Tribes) is open-source software th
 ## QREST Goals
 
 The overarching goals of QREST are to:
-(1) provide small tribal agencies with the ability to generate legally-defensible air quality data and build tribal capacity
-(2) Support tribes with air quality data analysis and reporting by pushing out industry and EPA changes to all participating tribes at once 
-(3) enable more valid data availability to EPA and partners
+1. Provide small tribal agencies with the ability to generate legally-defensible air quality data and build tribal capacity
+2. Support tribes with air quality data analysis and reporting by pushing out industry and EPA changes to all participating tribes at once 
+3. Enable more valid data availability to EPA and partners
 
 ## QREST Features
 

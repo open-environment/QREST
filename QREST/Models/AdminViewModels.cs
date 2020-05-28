@@ -48,7 +48,7 @@ namespace QREST.Models
         public T_QREST_HELP_DOCS EditHelp { get; set; }
 
         [UIHint("wsywigeditor"), AllowHtml]
-        [StringLength(6000)]
+        
         public string editHelpHtml { get; set; }
     }
 

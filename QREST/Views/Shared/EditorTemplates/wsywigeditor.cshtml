@@ -14,10 +14,10 @@
         convert_urls: false,
         plugins: ["link lists hr code wordcount table image imagetools paste"],
         //plugins: [
-        //    "autosave image anchor forumimageinsert",
+        //    "autosave anchor forumimageinsert",
         //    "visualblocks visualchars code fullscreen media nonbreaking"
         //],
-        toolbar1: "bold italic underline strikethrough bullist hr | link unlink code blockquote | formatselect | table image | paste",
+        toolbar1: "bold italic underline strikethrough bullist numlist hr | link unlink code blockquote | formatselect | table image | paste",
         remove_linebreaks: false,
         relative_urls: false,
         menubar: false,
@@ -48,10 +48,11 @@
             };
             formData = new FormData();
             var fileName;
-            if (typeof (blobInfo.blob().name) !== undefined)
+            if (typeof (blobInfo.blob().name) !== undefined && blobInfo.blob().name !== undefined && blobInfo.blob().name !== '')
                 fileName = blobInfo.blob().name;
             else
                 fileName = blobInfo.filename();
+
             formData.append('file', blobInfo.blob(), fileName);
             xhr.send(formData);
         }

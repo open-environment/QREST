@@ -208,7 +208,7 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                model.EditHelp.HELP_IDX = db_Ref.InsertUpdateT_QREST_HELP_DOCS(model.EditHelp.HELP_IDX, model.EditHelp.HELP_TITLE, model.editHelpHtml, model.EditHelp.SORT_SEQ);
+                model.EditHelp.HELP_IDX = db_Ref.InsertUpdateT_QREST_HELP_DOCS(model.EditHelp.HELP_IDX, model.EditHelp.HELP_TITLE, model.editHelpHtml ?? "", model.EditHelp.SORT_SEQ);
                 if (model.EditHelp.HELP_IDX > 0)
                     TempData["Success"] = "Data Saved.";
                 else
@@ -221,19 +221,56 @@ namespace QREST.Controllers
         [HttpPost]
         public ContentResult ImagePosted(HttpPostedFileBase imageFile)
         {
+            //TODO: keeping commented code for now
+            //-------------------------------------
+
             var jsonString = "";
             if (Request.Files.Count > 0)
             {
                 imageFile = Request.Files[0];
                 string fileName = imageFile.FileName;
 
-                if (fileName == "image.png")
-                    fileName = "image" + DateTime.Now.ToString("yyyy-dd-MM-HH-mm-ss") + ".png";
-                if (!Directory.Exists(Server.MapPath("~/TinyMCEImg/")))
-                    Directory.CreateDirectory(Server.MapPath("~/TinyMCEImg/"));
-                string filePath = Server.MapPath("~/TinyMCEImg/") + fileName;
-                imageFile.SaveAs(filePath);
-                jsonString = String.Format("{{\"location\":\"{0}\"}}", "/TinyMCEImg/" + fileName);
+                //if (fileName == "image.png")
+                //    fileName = "image" + DateTime.Now.ToString("yyyy-dd-MM-HH-mm-ss") + ".png";
+                //if (!Directory.Exists(Server.MapPath("~/TinyMCEImg/")))
+                //    Directory.CreateDirectory(Server.MapPath("~/TinyMCEImg/"));
+                //string filePath = Server.MapPath("~/TinyMCEImg/") + fileName;
+                //imageFile.SaveAs(filePath);
+
+                BinaryReader br = new BinaryReader(imageFile.InputStream);
+                Byte[] fileBytes = br.ReadBytes(imageFile.ContentLength);
+                string base64String = Convert.ToBase64String(fileBytes);
+                string srcString = string.Format("data:image/png;base64,{0}", base64String);
+                jsonString = String.Format("{{\"location\":\"{0}\"}}", srcString);
+
+
+                //using(var ms = new MemoryStream(fileBytes))
+                //{
+                //    string base64String = "";
+                //    //using (Image image = Image.FromFile(filePath))
+                //    using (Image image = Image.FromStream(ms))
+                //    {
+                //        using (MemoryStream m = new MemoryStream())
+                //        {
+                //            image.Save(m, image.RawFormat);
+                //            byte[] imageBytes = m.ToArray();
+
+                //            // Convert byte[] to Base64 String
+                //            base64String = Convert.ToBase64String(imageBytes);
+                //            //return base64String;
+                //        }
+                //    }
+                //}
+
+                //if (!string.IsNullOrEmpty(base64String))
+                //{
+                //    string srcString = string.Format("data:image/png;base64,{0}", base64String);
+                //    jsonString = String.Format("{{\"location\":\"{0}\"}}", srcString);
+                //}
+                //else
+                //{
+                //    jsonString = String.Format("{{\"location\":\"{0}\"}}", "/TinyMCEImg/" + fileName);
+                //}
             }
             return Content(jsonString);
         }

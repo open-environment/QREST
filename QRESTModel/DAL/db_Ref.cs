@@ -295,7 +295,6 @@ namespace QRESTModel.DAL
             }
         }
 
-
         public static bool UpdateT_QREST_TASKS_ResetAll()
         {
             try
@@ -766,6 +765,7 @@ namespace QRESTModel.DAL
         }
 
 
+
         //*****************REF_ACCESS_LEVEL**********************************
         public static List<T_QREST_REF_ACCESS_LEVEL> GetT_QREST_REF_ACCESS_LEVEL()
         {
@@ -784,6 +784,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
 
         //***************** REF_AQS_AGENCY ******************************
@@ -1556,6 +1557,32 @@ namespace QRESTModel.DAL
         }
 
 
+
+        //***************** REF_QC_AUDIT_LVL ******************************
+        public static T_QREST_REF_QC_AUDIT_LVL GetT_QREST_REF_QC_AUDIT_LVL_ByPar(string pAR_CODE, double amt)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QC_AUDIT_LVL
+                            where a.PAR_CODE == pAR_CODE
+                            && amt <= a.MAX_AMT
+                            && amt >= a.MIN_AMT
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+
+
+
         //***************** REF_QUALIFIER ******************************
         public static T_QREST_REF_QUALIFIER GetT_QREST_REF_QUALIFIER_ByID(string id)
         {
@@ -1670,6 +1697,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
 
         //***************** REF_REGION ******************************

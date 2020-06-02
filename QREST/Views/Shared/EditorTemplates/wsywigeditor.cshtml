@@ -12,12 +12,12 @@
         branding: false,
         relative_urls: false,
         convert_urls: false,
-        plugins: ["link lists hr code wordcount table image imagetools"],
+        plugins: ["link lists hr code wordcount table image imagetools paste"],
         //plugins: [
         //    "autosave image anchor forumimageinsert",
         //    "visualblocks visualchars code fullscreen media nonbreaking"
         //],
-        toolbar1: "bold italic underline strikethrough bullist hr | link unlink code blockquote | formatselect | table image",
+        toolbar1: "bold italic underline strikethrough bullist hr | link unlink code blockquote | formatselect | table image | paste",
         remove_linebreaks: false,
         relative_urls: false,
         menubar: false,
@@ -25,6 +25,7 @@
         // content_css: app_base + "content/tinymce.css",
         height: 300,
         nonbreaking_force_tab: true,
+        paste_data_images: true,
         images_upload_handler: function (blobInfo, success, failure) {
             var xhr, formData;
             xhr = new XMLHttpRequest();

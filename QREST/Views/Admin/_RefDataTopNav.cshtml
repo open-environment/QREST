@@ -1,4 +1,8 @@
-﻿@using (Html.BeginForm("SiteList", "Admin", FormMethod.Post, new { @class = "form-horizontal" }))
+﻿@{
+    ViewBag.HelpLink = "Reference-Data";
+}
+
+@using (Html.BeginForm("SiteList", "Admin", FormMethod.Post, new { @class = "form-horizontal" }))
 {
     <div class="form-group">
         <label class="col-sm-2 control-label">

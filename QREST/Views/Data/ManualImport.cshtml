@@ -30,34 +30,41 @@
                     Paste Data Below to Import
                 </div>
                 <div class="panel-body">
-                    <div class="form-inline m-b-sm" onsubmit="return false">
+                    <div class="form-inline m-b-sm">
                         @Html.DropDownListFor(model => model.selImportType, Model.ddl_ImportType, "--Select Import Type--", new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.selImportType)
                     </div>
-                    <div id="subPar" class="form-inline m-b-sm collapse" onsubmit="return false">
+                    <div id="subPar" class="form-inline m-b-sm">
                         @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "--Select Tribe--", new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.selOrgID)
 
                         @Html.DropDownListFor(model => model.selSite, Model.ddl_Sites, "--Select Site--", new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.selSite)
+                    </div>
+                    @Html.ValidationMessageFor(model => model.selPollConfig)
+                    @Html.ValidationMessageFor(model => model.selMonitor)
+                    <div id="subPar" class="form-inline m-b-sm">
 
-                        @Html.DropDownListFor(model => model.selMonitor, Model.ddl_Monitors, "--Select Parameter--", new { @class = "form-control", @style = "display:none" })
-                        @Html.ValidationMessageFor(model => model.selMonitor)
+                        <!-- H and N only -->
+                        @Html.DropDownListFor(model => model.selPollConfig, Model.ddl_PollConfig, "--Select Import Template--", new { @class = "form-control typeh", @style = "display:none" })
 
-                        @Html.DropDownListFor(model => model.selPollConfig, Model.ddl_PollConfig, "--Select Import Template--", new { @class = "form-control", @style = "display:none" })
-                        @Html.ValidationMessageFor(model => model.selPollConfig)
+                        <a id="tempUrl2" class="btn btn-info m-l-none m-r-none" data-root="@Url.Action("ImportConfig")" style="display:none;" data-toggle="tooltip" data-original-title="Edit this selected Import Template" href=""><i class="fa fa-pencil"></i></a>
+                        <a id="tempUrl" class="btn btn-dark m-l-none m-r-none" data-root="@Url.Action("DownloadTemplate")" style="display:none;" data-toggle="tooltip" data-original-title="Download this selected Import Template" href=""><i class="fa fa-download"></i></a>
+                        <a id="tempUrl3" class="btn btn-success m-l-none m-r-none" data-root="@Url.Action("ImportConfig")" style="display:none;" data-toggle="tooltip" data-original-title="Add a new Import Template for this site" href=""><i class="fa fa-plus"></i></a>
 
-                        @Html.DropDownListFor(model => model.selTimeType, Model.ddl_Time, new { @class = "form-control" })
+                        <!-- H1 only -->
+                        @Html.DropDownListFor(model => model.selMonitor, Model.ddl_Monitors, "--Select Parameter--", new { @class = "form-control typeh1", @style = "display:none" })
+
+                        @Html.DropDownListFor(model => model.selTimeType, Model.ddl_Time, new { @class = "form-control typeh1", @style = "display:none" })
                         @Html.ValidationMessageFor(model => model.selTimeType)
 
-                        @Html.DropDownListFor(model => model.selTimeZone, Model.ddl_TimeZone, "--Site Local Time Zone--", new { @class = "form-control", @style = "display:none" })
+                        @Html.DropDownListFor(model => model.selTimeZone, Model.ddl_TimeZone, "--Site Local Time Zone--", new { @class = "form-control typeh1", @style = "display:none" })
                         @Html.ValidationMessageFor(model => model.selTimeZone)
 
-                        <a id="tempUrl" class="btn btn-sm btn-warning" data-root="@Url.Action("DownloadTemplate","Site")" style="display:none;" href="">Download import template</a>
                     </div>
-                    <div id="recalcDiv" class="row col-md-6" style="display:none;">
+                    <div id="recalcDiv" class="row col-md-6 typen" style="display:none;">
                         <div class="form-group">
-                            <label class="text-danger">Calculate Hourly Data Upon Import <b>(WARNING: will override any existing hourly data!)</b></label>                            
+                            <label class="text-danger">Calculate Hourly Data Upon Import <b>(WARNING: will override any existing hourly data!)</b></label>
                             @Html.DropDownListFor(model => model.selCalc, Model.ddl_Calc, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.selCalc)
                         </div>
@@ -72,6 +79,7 @@
                         </div>
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-primary">Import Data</button>
+                            <a id="listUrl" data-root="@Url.Action("ImportList")" href="@Url.Action("ImportList")" class="btn btn-default pull-right">View Import History</a>
                         </div>
                     </div>
                     <div class="row">
@@ -121,78 +129,51 @@
     <script>
         $(document).ready(function () {
 
-            dispSubPar();
+            dispEverything();
+
+            //generic function controlling display of all parameters
+            function dispEverything() {
+                var impTyp = $("#selImportType").val();
+                var org = $("#selOrgID").val();
+                var site = $("#selSite").val();
+                var pollConfig = $("#selPollConfig").val();
+
+                $(".typeh").toggle(impTyp == "H");
+                $(".typeh1").toggle(impTyp == "H1");
+                $(".typen").toggle(impTyp == "F");
+                $("#tempUrl").toggle(site != "" && site != null && pollConfig != "" && pollConfig != null && impTyp != "H1");
+                $("#tempUrl2").toggle(site != "" && site != null && pollConfig != "" && pollConfig != null && impTyp != "H1");
+                $("#tempUrl3").toggle(site != "" && site != null && impTyp != "H1");
+                $("#selPollConfig").toggle(site != '' && (impTyp == "H" || impTyp == "F"));
+
+
+                $("#tempUrl").attr('href', $("#tempUrl").data('root') + '/' + pollConfig);
+                $("#tempUrl2").attr('href', $("#tempUrl2").data('root') + '/' + pollConfig);
+                $("#tempUrl3").attr('href', $("#tempUrl3").data('root') + '/?siteid=' + site);
+                $("#listUrl").attr('href', $("#listUrl").data('root') + '/?selOrgID=' + org);
+
+            };
 
             //import type dropdown change
             $('#selImportType').change(function () {
-                dispSubPar();
+                dispEverything();
             });
 
             // org dropdown change
             $('#selOrgID').change(function () {
-                dispSites();
+                fetchSites();
+                $('#selMonitor').empty().append($('<option></option>').val('').text('--Select Parameter--'));;   //clear out monitors too
+                $('#selPollConfig').empty().append($('<option></option>').val('').text('--Select Import Template--'));;   //clear out polling config
+                dispEverything();
             });
 
 
-            //displays approriate data filters based on the Import Type
-            function dispSubPar() {
-                var xxx = $('#selImportType').val();
-                if (xxx != "") {
-                    $("#subPar").addClass("show");
-
-                    if (xxx == "H1") {
-                        $("#selMonitor").show();
-                        $("#selPollConfig").hide();
-                        $("#selTimeZone").show();
-                    }
-                    else {
-                        $("#selMonitor").hide();
-                        $("#selPollConfig").show();
-                        $("#selTimeZone").hide();
-                    }
-
-                    if (xxx == "F") 
-                        $("#recalcDiv").show();
-                    else
-                        $("#recalcDiv").hide();
-                }
-                else
-                    $("#subPar").removeClass("show");
-            }
-
-
-
-
-
-            function dispSites() {
-                var url = '@Url.Action("FetchSites")';
-                var sites = $('#selSite');
-                sites.empty();
-
-                $('#selMonitor').empty();   //clear out monitors too
-
-                $.getJSON(url, { ID: $('#selOrgID').val() }, function (data) {
-                    if (!data) {
-                        return;
-                    }
-                    sites.append($('<option></option>').val('').text('--Select Site--'));
-                    $.each(data, function (index, item) {
-                        sites.append($('<option></option>').val(item.Value).text(item.Text));
-                    });
-                });
-            }
-
-
-
-
-            //changing the site dropdown
+            // site dropdown change
             $('#selSite').change(function () {
-                $("#tempUrl").hide();
 
-                var yyy = $("#selImportType").val();
+                var impTyp = $("#selImportType").val();
 
-                if (yyy == "H1") {
-                    $("#selPollConfig").hide();
+                if (impTyp == "H1") {
 
                     //fetch parameters related to the selected site
                     var mons = $('#selMonitor');
@@ -218,10 +199,8 @@
                         }
                     });
 
-
                 }
-                else {
-                    $("#selPollConfig").show();
+                else if (impTyp == "H" || impTyp == "F") {
 
                     //fetch polling import template
                     var url = '@Url.Action("FetchImportTemplates")';
@@ -236,18 +215,39 @@
                             polls.append($('<option></option>').val(item.Value).text(item.Text));
                         });
                     });
+
                 }
 
+                dispEverything();
+
             });
 
 
+            
             //update import template dropdown
             $('#selPollConfig').change(function () {
-                var xxx = $("#tempUrl").data('root');
-                $("#tempUrl").attr('href', xxx + '/' + $(this).val());
-
-                $("#tempUrl").show();
+                dispEverything();
             });
+
+
+            //retrieve sites based on selected org (should fire on page load and when org changes)
+            function fetchSites() {
+                var url = '@Url.Action("FetchSites")';
+                var sites = $('#selSite');
+                sites.empty();
+
+                $('#selMonitor').empty();   //clear out monitors too
+
+                $.getJSON(url, { ID: $('#selOrgID').val() }, function (data) {
+                    if (!data) {
+                        return;
+                    }
+                    sites.append($('<option></option>').val('').text('--Select Site--'));
+                    $.each(data, function (index, item) {
+                        sites.append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+                });
+            }
 
 
 

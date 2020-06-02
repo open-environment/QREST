@@ -1,0 +1,95 @@
+﻿@model QREST.Models.vmDataImportList
+@{
+    ViewBag.Title = "Import List";
+}
+
+@if (Model.ddl_Organization != null)
+{
+    using (Html.BeginForm("ImportList", "Data", FormMethod.Post, new { @class = "form-horizontal" }))
+    {
+        <div class="form-group">
+            <label class="col-sm-2 control-label">
+                Organization:
+            </label>
+            <div class="col-sm-6">
+                @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "", new { @class = "form-control", @onchange = "document.location.href = '/Data/ImportList?selOrgID=' + this.options[this.selectedIndex].value;" })
+            </div>
+        </div>
+    }
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">Data Imports</header>
+    <div class="panel-body">
+        @if (Model.T_QREST_DATA_IMPORTS != null)
+        {
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Organization</th>
+                            <th>Site</th>
+                            <th>Import Date</th>
+                            <th>Imported By</th>
+                            <th>Import Status</th>
+                            <th># Records</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.T_QREST_DATA_IMPORTS)
+                    {
+                        <tr>
+
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.ORG_ID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SITE_ID)
+                                @Html.DisplayFor(modelItem => item.SITE_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.IMPORT_DT)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SUBMITTER)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.COUNT)
+                                <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("ImportFileDownload", new { id = item.T_QREST_DATA_IMPORTS.IMPORT_IDX })"><i class="fa fa-download"></i></a>
+                            </td>
+                            <td>
+                                <div class="delete-section">
+                                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-exclamation-triangle"></i> Delete All Imported Records <i class="fa fa-exclamation-triangle"></i></a>
+                                    <div class="btn btn-rounded btn-xs btn-danger delete-confirm" style="display:none" data-delete-id="@item.T_QREST_DATA_IMPORTS.IMPORT_IDX" data-delete-p="/Data/ImportDelete">
+                                        <b><i class="fa fa-exclamation-triangle"></i> Confirm Delete All Records <i class="fa fa-exclamation-triangle"></i></b>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-12">
+                <a class=" btn btn-default" href="@Url.Action("ManualImport")">Back to Import Screen</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
+
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+    });
+
+    </script>
+}
+

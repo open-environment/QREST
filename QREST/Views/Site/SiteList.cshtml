@@ -1,12 +1,12 @@
 ﻿@model QREST.Models.vmSiteSiteList
 @{
     ViewBag.Title = "Sites";
+    ViewBag.HelpLink = "Site-List";
 }
 
 @if (Model.ddl_Organization != null && Model.ddl_Organization.Count() > 1)
 {
-    using (Html.BeginForm("SiteList", "Site", FormMethod.Post, new { @class = "form-horizontal" }))
-    {
+    <div class="form-horizontal">
         <div class="form-group">
             <label class="col-sm-2 control-label">
                 Organization:
@@ -15,7 +15,7 @@
                 @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "", new { @class = "form-control", @onchange = "document.location.href = '/Site/SiteList?selOrgID=' + this.options[this.selectedIndex].value;" })
             </div>
         </div>
-    }
+    </div>
 }
 
 <section class="panel panel-qrest">

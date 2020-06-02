@@ -1,5 +1,6 @@
 ﻿$(function () {
     $(document).on('click', 'a.delete-link', function () {
+        // OPEN ENVIRONMENT SOFTWARE
         //DESCRIPTION ****************************************
         // Used in conjunction with toastr.js, this javascript performs 3 actions: 
         //    (1) prompts user with deletion confirmation
@@ -7,8 +8,8 @@
         //    (3) displays deletion confirmation message via toastr popup
 
         //VERSION*********************************************
-        // 1.0.0 5/17/2018
-        // 1.1.0 5/15/2019 changed event so it will work on dynamically generated content
+        // 1.0 5/17/2018
+        // 1.1 5/15/2019 changed event so it will work on dynamically generated content
 
         //USAGE **********************************************
         // delete-link: class applied to hyperlink that is originally clicked for deletion

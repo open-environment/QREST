@@ -50,7 +50,7 @@ namespace QRESTServiceCatalog
             {
                 foreach (SitePollingConfigType _config in _configs)
                 {
-                    List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX);
+                    List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX, true);
                     if (_config_dtl != null && _config_dtl.Count > 0)
                     {
                         General.WriteToFile("Start poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);

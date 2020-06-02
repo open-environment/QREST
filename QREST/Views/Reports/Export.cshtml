@@ -35,6 +35,9 @@
                             <option value="F">5-Minute</option>
                         </select>
                         <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
+                        @Html.DropDownListFor(model => model.selTimeType, Model.ddl_TimeType, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.selTimeType)
+
                     </div>
                     <button type="submit" class="btn btn-primary">Export Data</button>
                 </div>

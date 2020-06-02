@@ -16,6 +16,12 @@
                         @Html.HiddenFor(model => model.selDtStart)
                         @Html.HiddenFor(model => model.selDtEnd)
 
+                        @*<div class="form-group">
+                            <label class="col-sm-2 control-label">Transaction Type</label>
+                            <div class="col-sm-6">
+                                @Html.DropDownListFor(model => model.selAQSTransType, Model.ddl_AQSTransType, new { @class = "form-control", @style = "width:auto;" })
+                            </div>
+                        </div>*@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Site</label>
                             <div class="col-sm-6">
@@ -63,7 +69,7 @@
                             <br> AQS Screening Group Name: <span id="aqsscreen" class="font-bold"></span>
                             <br> CDX User: <span id="cdxuser" class="font-bold"></span>
                         </p>
-                        <a id="lnkOrgEdit" class=" btn btn-warning btn-xs" href="@Url.Action("AQSAcct","Data", new { id= Model.selSite })">Change</a>
+                        <a id="lnkOrgEdit" class=" btn btn-warning btn-xs" href="@Url.Action("AQSAcct","Data", new { @id = Model.selSite })">Change</a>
                     </div>
                 </div>
             </div>
@@ -290,7 +296,7 @@ else
                     $("#cdxuser").html(data2.Item1);
                     $("#aqsuser").html(data2.Item2);
                     $("#aqsscreen").html(data2.Item3);
-                    $("#lnkOrgEdit").attr('href', '/Data/AQSAcct/' + data2.Item4);
+                    $("#lnkOrgEdit").attr('href', '/Data/AQSAcct/' + data2.Item4 + '?returnUrl=AQSGen');
 
                     //if none defined, don't let user continue
                     if (data2.Item1 == null || data2.Item2 == null || data2.Item3 == null) {

@@ -14,6 +14,12 @@ namespace QRESTModel.DAL
     
     public partial class T_QREST_QC_ASSESSMENT
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public T_QREST_QC_ASSESSMENT()
+        {
+            this.T_QREST_QC_ASSESSMENT_DTL = new HashSet<T_QREST_QC_ASSESSMENT_DTL>();
+        }
+    
         public System.Guid QC_ASSESS_IDX { get; set; }
         public System.Guid MONITOR_IDX { get; set; }
         public System.DateTime ASSESSMENT_DT { get; set; }
@@ -25,8 +31,12 @@ namespace QRESTModel.DAL
         public Nullable<System.DateTime> CREATE_DT { get; set; }
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
+        public string ASSESSMENT_TM { get; set; }
+        public Nullable<System.Guid> AQS_IDX { get; set; }
     
         public virtual T_QREST_REF_UNITS T_QREST_REF_UNITS { get; set; }
         public virtual T_QREST_MONITORS T_QREST_MONITORS { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_QC_ASSESSMENT_DTL> T_QREST_QC_ASSESSMENT_DTL { get; set; }
     }
 }

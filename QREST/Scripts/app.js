@@ -79,6 +79,8 @@
 
     //left menu: make group active based on child active
     $('li.leftmenuhead:has(li.active)').addClass('active');
+    $('li.leftmenuhead:has(li.active)').children('a').addClass('active');
+    $('li.leftmenuhead:has(li.active)').children('ul').css("display", "block");
 
 
     //prevent form to be posted multiple times

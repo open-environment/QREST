@@ -12,6 +12,10 @@ using QREST.App_Logic.BusinessLogicLayer;
 using QREST.Models;
 using QRESTModel.DAL;
 using QRESTModel.AQSHelper;
+using System.Data;
+using QRESTModel.DataTableGen;
+using QREST.App_Logic;
+using ClosedXML.Excel;
 
 namespace QREST.Controllers
 {
@@ -26,7 +30,7 @@ namespace QREST.Controllers
 
         #region MANUAL IMPORT
 
-        public ActionResult ManualImport()
+        public ActionResult ManualImport(Guid? configid)
         {
             string UserIDX = User.Identity.GetUserId();
 
@@ -40,7 +44,29 @@ namespace QREST.Controllers
                 ddl_TimeZone = ddlHelpers.get_ddl_time_zone(),
                 ddl_Calc = ddlHelpers.get_ddl_yes_no(),
                 selTimeType = "L"
-        };
+            };
+
+            //if passing in configuration ID, can prepopulate the org, site, and poll config list
+            if (configid != null)
+            {
+                model.selPollConfig = configid;
+
+                T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(configid.GetValueOrDefault());
+                if (_config != null)
+                {
+                    T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(_config.SITE_IDX);
+                    if (_site != null)
+                    {
+                        model.selOrgID = _site.ORG_ID;
+                        model.selSite = _config.SITE_IDX;
+                        model.selImportType = "H";
+                        model.ddl_Sites = ddlHelpers.get_ddl_my_sites(model.selOrgID, UserIDX);
+                        model.ddl_PollConfig = ddlHelpers.get_ddl_import_templates(_config.SITE_IDX);
+                    }
+                }
+
+            }
+
 
             return View(model);
         }
@@ -53,14 +79,50 @@ namespace QREST.Controllers
             Guid importID = Guid.NewGuid();
             model.IMPORT_IDX = null;
             model.ImportSuccCount = 0;
-
+            string[] allRows = model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] allowedFormats = new[] { "MM/dd/yyyy HH:mm", "M/dd/yyyy HH:mm", "MM/d/yyyy HH:mm", "M/d/yyyy HH:mm", "MM/dd/yyyy H:mm", "M/dd/yyyy H:mm", "MM/d/yyyy H:mm", "M/d/yyyy H:mm" };
+            T_QREST_SITE_POLL_CONFIG _pollConfig = null;
             model.error_data = new List<ImportResponse>();
 
-            //*********************** ADDITIONAL CUSTOM MODEL ERRORS **************************************8
-            if (model.selImportType == "F" && model.selTimeType == "L")
-                ModelState.AddModelError("selTimeType", "Local time import not supported for 5 minute data.");
+            //**********************************************************************************************
+            //*********************** MODEL VALIADTION PRIOR TO IMPORT**************************************
+            //**********************************************************************************************
+            if (model.selImportType == "H1" && model.selMonitor==null)
+                ModelState.AddModelError("selMonitor", "Parameter required for this import type.");
             if (model.selImportType == "H1" && string.IsNullOrEmpty(model.selTimeZone))
                 ModelState.AddModelError("selTimeZone", "Local Time Zone required for this import type.");
+            if (model.selImportType == "H" && model.selPollConfig == null)
+                ModelState.AddModelError("selPollConfig", "Import Template is required.");
+            if (model.selImportType == "F" && model.selPollConfig == null)
+                ModelState.AddModelError("selPollConfig", "Import Template is required.");
+            if (model.selImportType == "H" || model.selImportType == "F")
+            {
+                _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
+                if (_pollConfig != null)
+                {
+                    if (_pollConfig.DATE_COL == null && _pollConfig.TIME_COL == null) 
+                        ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
+                }
+                else
+                    ModelState.AddModelError("selPollConfig", "Polling configuration cannot be found.");
+
+                //first need to make sure all import config columns have units
+                List<SitePollingConfigDetailType> _temps = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(model.selPollConfig.GetValueOrDefault(), false);
+                foreach (SitePollingConfigDetailType _temp in _temps)
+                {
+                    if (_temp.COLLECT_UNIT_CODE == null || _temp.COL == null)
+                        ModelState.AddModelError("selPollConfig", "One or more parameters in your import configuration do not have a unit or column specified.");
+                }
+
+                //limit 2000 rows
+                if (allRows.Length > 2000)
+                    ModelState.AddModelError("IMPORT_BLOCK", "Please limit to a maximum of 2000 rows at a time.");
+
+            }
+            //**********************************************************************************************
+            //*********************** END MODEL VALIADTION *************************************************
+            //**********************************************************************************************
+
 
             if (ModelState.IsValid)            
             {
@@ -71,60 +133,40 @@ namespace QREST.Controllers
                 //**************************************************************************************
                 if (model.selImportType == "F")
                 {
-                    T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
-                    if (_pollConfig != null)
+                    char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
+                    int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
+                    int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
+
+                    //get polling config dtl
+                    List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, true);
+
+                    //import
+                    foreach (string row in allRows)
                     {
-                        char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
-
-                        if (_pollConfig.DATE_COL != null && _pollConfig.TIME_COL != null)
+                        //split row's columns into string array
+                        string[] cols = row.Split(delimiter, StringSplitOptions.None);
+                        if (cols.Length > 2) //skip blank rows
                         {
-                            int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
-                            int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
-                            string[] allowedFormats = new[] { "MM/dd/yyyy HH:mm", "M/dd/yyyy HH:mm", "MM/d/yyyy HH:mm", "M/d/yyyy HH:mm", "MM/dd/yyyy H:mm", "M/dd/yyyy H:mm", "MM/d/yyyy H:mm", "M/d/yyyy H:mm" };
+                            DateTime dt;
 
-                            //get polling config dtl
-                            List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX);
-
-                            //import
-                            foreach (string row in model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                            if (DateTime.TryParseExact(cols[dateCol] + " " + cols[timeCol], allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
                             {
-                                //split row's columns into string array
-                                string[] cols = row.Split(delimiter, StringSplitOptions.None);
-                                if (cols.Length > 2) //skip blank rows
+                                foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                                 {
-                                    DateTime dt;
+                                    string val = cols[(_item.COL ?? 1) - 1].ToString().Trim();
 
-                                    if (DateTime.TryParseExact(cols[dateCol] + " " + cols[timeCol], allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-                                    {
-                                        foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
-                                        {
-                                            if (_item.COLLECT_UNIT_CODE != null && _item.COL != null && string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()) == false)
-                                            {
-                                                string val = cols[(_item.COL ?? 1) - 1].ToString();
-
-                                                ImportResponse xxx = db_Air.ImportT_QREST_DATA_FIVE_MIN(_item.MONITOR_IDX, dt, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, model.selCalc == "N" ? true : false, "", model.selCalc == "N" ? new DateTime(1888, 8, 8) : System.DateTime.Now, importIDX);
-                                                if (xxx.SuccInd)
-                                                    model.ImportSuccCount += 1;
-                                                else
-                                                    model.error_data.Add(xxx);
-                                            }
-                                            else
-                                                ModelState.AddModelError("selMonitor", "No collection unit defined for " + _item.PAR_CODE + ". Record not imported.");
-                                        }
-                                    }
+                                    ImportResponse xxx = db_Air.ImportT_QREST_DATA_FIVE_MIN(_item.MONITOR_IDX, dt, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, model.selCalc == "N" ? true : false, "", model.selCalc == "N" ? new DateTime(1888, 8, 8) : System.DateTime.Now, importIDX, _pollConfig.TIME_POLL_TYPE, _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>());
+                                    if (xxx.SuccInd)
+                                        model.ImportSuccCount += 1;
+                                    else
+                                        model.error_data.Add(xxx);
                                 }
-
-                                if (model.ImportSuccCount == 0)
-                                    ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found.");
-                                else
-                                    model.IMPORT_IDX = importID;
                             }
+                            else
+                                ModelState.AddModelError("IMPORT_BLOCK", "Date and/or time format cannot be read.");
                         }
-                        else
-                            ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
                     }
-                    else
-                        ModelState.AddModelError("selPollConfig", "No polling configuration found.");
+
                 }
 
 
@@ -133,64 +175,40 @@ namespace QREST.Controllers
                 //**************************************************************************************
                 else if (model.selImportType == "H")
                 {
-                    T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
-                    if (_pollConfig != null)
+                    int tzOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
+                    char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
+
+                    int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
+                    int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
+
+                    //get polling config dtl
+                    List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, true);
+
+                    //import
+                    foreach (string row in allRows)
                     {
-                        int tzOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
-                        char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
-
-                        if (_pollConfig.DATE_COL != null && _pollConfig.TIME_COL != null)
+                        //split row's columns into string array
+                        string[] cols = row.Split(delimiter, StringSplitOptions.None);
+                        if (cols.Length > 2) //skip blank rows
                         {
-                            int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
-                            int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
-                            string dateFormat = _pollConfig.DATE_FORMAT + " " + _pollConfig.TIME_FORMAT.Replace("MM","mm");
-                            string[] allowedFormats = new[] { "MM/dd/yyyy HH:mm", "M/dd/yyyy HH:mm", "MM/d/yyyy HH:mm", "M/d/yyyy HH:mm", "MM/dd/yyyy H:mm", "M/dd/yyyy H:mm", "MM/d/yyyy H:mm", "M/d/yyyy H:mm" };
+                            DateTime dt;
 
-                            //get polling config dtl
-                            List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX);
-
-                            //import
-                            foreach (string row in model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                            if (DateTime.TryParseExact(cols[dateCol] + " " + cols[timeCol], allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
                             {
-                                //split row's columns into string array
-                                string[] cols = row.Split(delimiter, StringSplitOptions.None);
-                                if (cols.Length > 2) //skip blank rows
+                                foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                                 {
-                                    DateTime dt;
-
-                                    if (DateTime.TryParseExact(cols[dateCol] + " " + cols[timeCol], allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-                                    {
-                                        foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
-                                        {
-                                            if (_item.COLLECT_UNIT_CODE != null && _item.COL != null && string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()) == false)
-                                            {
-                                                string val = cols[(_item.COL ?? 1) - 1].ToString();
-                                                ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_item.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, true, double.TryParse(val, out _) ? null : val, importID);
-                                                if (xxx.SuccInd)
-                                                    model.ImportSuccCount += 1;
-                                                else
-                                                    model.error_data.Add(xxx);
-                                            }
-                                            else
-                                                ModelState.AddModelError("selMonitor", "No collection unit defined for " + _item.PAR_CODE + ". Record not imported.");
-                                        }
-                                    }
+                                    string val = cols[(_item.COL ?? 1) - 1].ToString().Trim();
+                                    ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_item.MONITOR_IDX, _pollConfig.TIME_POLL_TYPE == "L" ? dt : (DateTime?)null, _pollConfig.TIME_POLL_TYPE == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, true, double.TryParse(val, out _) ? null : val, importID);
+                                    if (xxx.SuccInd)
+                                        model.ImportSuccCount += 1;
                                     else
-                                        ModelState.AddModelError("IMPORT_BLOCK", "Date and/or time format cannot be read.");
+                                        model.error_data.Add(xxx);
                                 }
-
-                                if (model.ImportSuccCount == 0)
-                                    ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found.");
-                                else
-                                    model.IMPORT_IDX = importID;
                             }
+                            else
+                                ModelState.AddModelError("IMPORT_BLOCK", "Date and/or time format cannot be read.");
                         }
-                        else
-                            ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
                     }
-                    else
-                        ModelState.AddModelError("selPollConfig", "No polling configuration found.");
-
                 }
 
 
@@ -209,14 +227,12 @@ namespace QREST.Controllers
                         T_QREST_MONITORS _monitor = db_Air.GetT_QREST_MONITORS_ByID_Simple(model.selMonitor ?? Guid.Empty);
                         if (_monitor != null && _monitor.COLLECT_UNIT_CODE != null)
                         {
-                            bool impAny = false;
-                            foreach (string row in model.IMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                            foreach (string row in allRows)
                             {
                                 //split row's columns into string array
                                 string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
                                 if (cols.Length > 20 && cols[0] != "Date") //skip blank rows
                                 {
-                                    impAny = true;
                                     try
                                     {
                                         DateTime dt = DateTime.ParseExact(cols[0], "MM/dd/yyyy", CultureInfo.InvariantCulture);
@@ -237,25 +253,24 @@ namespace QREST.Controllers
                                         ModelState.AddModelError("IMPORT_BLOCK", "Date is not in the correct format (MM/DD/YYYY).");
                                     }
                                 }
-                            }
-
-                            if (!impAny)
-                                ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found. Data needs to be datetime followed by 24 hourly columns, comma separated.");
-
+                            }                           
                         }
                         else
                             ModelState.AddModelError("selMonitor", "No collection unit defined for this monitor. No data imported.");
                     }
-
-
-
-           
-
+          
                 }
+                
+            }
 
-
-
-            
+            //wrap up
+            if (model.ImportSuccCount == 0)
+                ModelState.AddModelError("IMPORT_BLOCK", "No data in expected format found." + (model.selImportType == "H1" ? " Data needs to be datetime followed by 24 hourly columns, comma separated." : ""));
+            else
+            {
+                //if import was successful, then insert importIDX
+                model.IMPORT_IDX = importID;
+                db_Air.InsertUpdateT_QREST_DATA_IMPORTS(importID, model.selOrgID, model.selSite, "", "SUCCESS", UserIDX, System.DateTime.Now);
             }
 
             //reinitialize model
@@ -265,28 +280,291 @@ namespace QREST.Controllers
             model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
             model.ddl_Sites = model.selOrgID == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_my_sites(model.selOrgID, UserIDX);
             model.ddl_Monitors = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_monitors_by_site(model.selSite, true, false);
-            model.ddl_PollConfig = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_polling_config(model.selSite);
+            model.ddl_PollConfig = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_import_templates(model.selSite);
             model.ddl_Calc = ddlHelpers.get_ddl_yes_no();
             model.IMPORT_BLOCK = "";
 
             return View(model);
         }
 
+
+
+        public ActionResult ImportConfig(Guid? id, Guid? siteid)
+        {
+            //********* VALIDATION *******************************
+            if (siteid == null && id == null)
+            {
+                TempData["Error"] = "No record found.";
+                return RedirectToAction("ManualImport");
+            }
+
+
+            var model = new vmDataImportConfig { 
+            };
+
+            //*********INSERT CASE *******************************
+            if (id == null && siteid != null)
+            {
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(siteid ?? Guid.Empty);
+                if (_site != null)
+                {
+                    model.editPOLL_CONFIG_IDX = Guid.NewGuid();
+                    model.SITE_IDX = _site.SITE_IDX;
+                }
+                else
+                {
+                    //reject if user supplied SiteIDX but doesn't exist
+                    TempData["Error"] = "Site not found.";
+                    return RedirectToAction("SiteList", "Site");
+                }
+
+            }
+            //***********EDIT CASE **********************************
+            else if (id != null && siteid == null)
+            {
+                T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id.ConvertOrDefault<Guid>());
+                if (_config != null)
+                {
+                    model.SITE_IDX = _config.SITE_IDX;
+                    model.editCONFIG_NAME = _config.CONFIG_NAME;
+                    model.editPOLL_CONFIG_IDX = _config.POLL_CONFIG_IDX;
+                    model.editDELIMITER = _config.DELIMITER;
+                    model.editDATE_COL = _config.DATE_COL;
+                    model.editDATE_FORMAT = _config.DATE_FORMAT;
+                    model.editTIME_COL = _config.TIME_COL;
+                    model.editTIME_FORMAT = _config.TIME_FORMAT;
+                    model.editLOCAL_TIMEZONE = _config.LOCAL_TIMEZONE;
+                    model.editTIME_POLL_TYPE = _config.TIME_POLL_TYPE;
+                }
+                else
+                {
+                    //reject if user supplied ConfigIDX but doesn't exist
+                    TempData["Error"] = "Configuration not found.";
+                    return RedirectToAction("SiteList", "Site");
+                }
+
+            }
+
+
+
+            //************* FINAL COMBINED STUFF ************************
+            //reject if user doesn't have access to org
+            RedirectToRouteResult r = CanAccessThisSite(User.Identity.GetUserId(), model.SITE_IDX.GetValueOrDefault(), false);
+            if (r != null) return r;
+
+            model.ddl_Monitors = ddlHelpers.get_monitors_by_site(model.SITE_IDX.GetValueOrDefault(), false, true);
+
+            return View(model);
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult ImportConfig(vmDataImportConfig model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //*************** VALIDATION BEGIN *********************************
+
+            //*************** VALIDATION END  *********************************
+
+            if (ModelState.IsValid)
+            {
+                //reject if user doesn't have access to org
+                RedirectToRouteResult r = CanAccessThisSite(UserIDX, model.SITE_IDX.GetValueOrDefault(), true);
+                if (r != null) return r;
+
+                Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, null, "NONE",
+                    null, null, null, null, model.editDELIMITER, model.editDATE_COL, model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, 
+                    model.editLOCAL_TIMEZONE, false, UserIDX, null, model.editTIME_POLL_TYPE, false);
+
+                if (SuccID != null)
+                {
+                    TempData["Success"] = "Record updated";
+                    return RedirectToAction("ImportConfig", new { id = SuccID });
+                }
+                else
+                    TempData["Error"] = "Error updating record.";
+            }
+
+            //reinitialize model
+            model.ddl_Monitors = ddlHelpers.get_monitors_by_site(model.SITE_IDX.ConvertOrDefault<Guid>(), false, true);
+            return View(model);
+        }
+
+
+        public ActionResult ImportList(string selOrgID)
+        {
+            string UserIDX = User.Identity.GetUserId();
+            var model = new vmDataImportList
+            {
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
+            };
+
+            //autopopulate if only rights to 1 org that has made aqs submission
+            if (model.ddl_Organization != null && model.ddl_Organization.ToList().Count == 1)
+                model.selOrgID = model.ddl_Organization.First().Value;
+
+            if (selOrgID != null)
+                model.selOrgID = selOrgID;
+
+            model.T_QREST_DATA_IMPORTS  = db_Air.GetT_QREST_DATA_IMPORTS_byORG_ID(model.selOrgID);
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public JsonResult ImportDelete(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int SuccID = db_Air.DeleteT_QREST_DATA_HOURLY_ByImportIDX(id.GetValueOrDefault());
+                if (SuccID == 1)
+                {
+                    db_Air.DeleteT_QREST_DATA_IMPORTS(id.GetValueOrDefault());
+                    if (SuccID == 1)
+                    {
+                        TempData["Success"] = "Deleted";
+                        return Json("Success");
+                    }
+                }
+                return Json("Unable to delete Import record.");
+            }
+        }
+
+
+        public FileResult ImportFileDownload(Guid? id)
+        {
+            try
+            {
+                DataTable _dt = DataTableGen.GetHourlyDataByImportIDX(id.GetValueOrDefault());
+                DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { _dt });
+                if (dsExport.Tables.Count > 0)
+                {
+                    MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);
+                    Response.Clear();
+                    Response.Buffer = true;
+                    Response.Charset = "";
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    Response.AddHeader("content-disposition", "attachment;filename=QRESTExport.xlsx");
+                    ms.WriteTo(Response.OutputStream);
+                    Response.Flush();
+                    Response.End();
+
+                    return null;
+                }
+                else
+                {
+                    TempData["Error"] = "No data found to export";
+                }
+
+            }
+            catch
+            { }
+
+            return null;
+        }
+
+
+        public ActionResult DownloadTemplate(Guid? id)
+        {
+            T_QREST_SITE_POLL_CONFIG _pol = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
+            if (id != null)
+            {
+                List<PollConfigDtlDisplay> _poldtls = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(id ?? Guid.Empty);
+                if (_poldtls != null && _poldtls.Count > 0)
+                {
+                    using (XLWorkbook wb = new XLWorkbook())
+                    {
+                        int maxCol = new[] { 1, _pol.DATE_COL ?? 1, _pol.TIME_COL ?? 1 }.Max();
+
+                        var ws = wb.Worksheets.Add("Inserting Data");
+                        wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                        ws.Cell(1, _pol.DATE_COL ?? 1).Value = "Date (" + _pol.DATE_FORMAT + ")";
+                        ws.Cell(1, _pol.TIME_COL ?? 1).Value = "Time (" + _pol.TIME_FORMAT + ")";
+
+                        foreach (PollConfigDtlDisplay _poldtl in _poldtls)
+                        {
+                            ws.Cell(1, _poldtl.COL ?? 1).Value = _poldtl.PAR_NAME;
+                            maxCol = (_poldtl.COL > maxCol ? _poldtl.COL ?? 1 : maxCol);
+                        }
+
+                        //apply formatting
+                        var range5 = ws.Range(1, 1, 1000, maxCol);
+                        range5.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                        range5.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                        ws.Columns().AdjustToContents();
+
+                        MemoryStream ms = new MemoryStream();
+                        wb.SaveAs(ms);
+                        ms.Position = 0;
+                        Response.Clear();
+                        Response.Buffer = true;
+                        Response.Charset = "";
+                        Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        Response.AddHeader("content-disposition", "attachment;filename=QRESTImportTemplate.xlsx");
+                        ms.WriteTo(Response.OutputStream);
+                        Response.Flush();
+                        Response.End();
+
+                        return null;
+                    }
+
+                }
+                else
+                {
+                    TempData["Error"] = "No parameters defined for configuration";
+                    return RedirectToAction("ManualImport");
+                }
+            }
+            else
+            {
+                TempData["Error"] = "Unable to find configuration";
+                return RedirectToAction("ManualImport");
+            }
+        }
+
+        [HttpPost]
+        public JsonResult SitePollConfigDtlDelete(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return Json("No record selected to delete");
+            else
+            {
+                Guid idg = new Guid(id);
+
+                //reject if user doesn't have access to org
+                RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_org_ByID(idg), true);
+                if (r != null)
+                    return Json("Access Denied");
+
+                int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg);
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to find column mapping to delete.");
+            }
+        }
+
         #endregion
+
 
 
         #region QC CHECK
 
-        public ActionResult QCList(Guid? id, string selOrgID, Guid? selSiteID)
+        public ActionResult QCList(string selOrgID)
         {
-            //id is monitorIDX
-
-            string UserIDX = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(selOrgID))
+                selOrgID = null;
 
             var model = new vmDataQCList
             {
                 selOrgID = selOrgID,
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true)
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(User.Identity.GetUserId(), true)
             };
 
             if (model.ddl_Organization.Count() == 1)
@@ -295,9 +573,12 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         public ActionResult QCListData()
         {
+            string UserIDX = User.Identity.GetUserId();
+
             var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
             int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
             int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
@@ -306,13 +587,28 @@ namespace QREST.Controllers
 
             //data filters
             string selOrgID = Request.Form.GetValues("p_org")?.FirstOrDefault();
-            Guid? selSiteID = Request.Form.GetValues("p_site")?.FirstOrDefault().ConvertOrDefault<Guid?>();
-            Guid? selMonID = Request.Form.GetValues("p_mon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
+            //Guid? selSiteID = Request.Form.GetValues("p_site")?.FirstOrDefault().ConvertOrDefault<Guid?>();
+            //Guid? selMonID = Request.Form.GetValues("p_mon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
 
-            var data = db_Air.GetT_QREST_QC_ASSESSMENT_Search(selOrgID ?? "X", selSiteID, selMonID, pageSize, start, orderCol, orderDir);
-            var recordsTotal = 5;// db_Ref.GetT_QREST_SYS_LOG_count(minDate, maxDate);
+            var data = db_Air.GetT_QREST_QC_ASSESSMENT_Search(UserIDX, selOrgID, null, null, pageSize, start, orderCol, orderDir);
+            var recordsTotal = db_Air.GetT_QREST_QC_ASSESSMENT_Search_Count(selOrgID);
 
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+        [HttpPost]
+        public JsonResult QCDelete(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int SuccID = db_Air.DeleteT_QREST_QC_ASSESSMENT(id.GetValueOrDefault());
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete QC record.");
+            }
         }
 
 
@@ -322,21 +618,39 @@ namespace QREST.Controllers
 
             var model = new vmDataQCEntry {
                 ddl_Assess_Type = ddlHelpers.get_ddl_ref_assess_type(),
-                ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX)
+                ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX, true),
+                ddl_AQS_Null = ddlHelpers.get_ddl_ref_qualifier("NULL")
             };
 
+            //assessment
             var x = db_Air.GetT_QREST_QC_ASSESSMENT_ByID(id);
             if (x != null)
             {
                 model.QC_ASSESS_IDX = x.QC_ASSESS_IDX;
                 model.MONITOR_IDX = x.MONITOR_IDX;
                 model.ASSESSMENT_DT = x.ASSESSMENT_DT;
-                model.ASSESSMENT_TM = x.ASSESSMENT_DT.ToString("hh:mm tt");
+                model.ASSESSMENT_TM = x.ASSESSMENT_TM;
                 model.ASSESSMENT_TYPE = x.ASSESSMENT_TYPE;
                 model.UNIT_CODE = x.UNIT_CODE;
                 model.ASSESSMENT_NUM = x.ASSESSMENT_NUM;
                 model.ASSESSED_BY = x.ASSESSED_BY;
+
+                //populate org id
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByMonitorID(model.MONITOR_IDX.GetValueOrDefault());
+                if (_site != null)
+                    model.ORG_ID = _site.ORG_ID;
+
+                //assessment dtl
+                model.AssessmentDetails = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(model.QC_ASSESS_IDX);
+
+                //if Annual PE, select distinct audit levels
+                if (model.ASSESSMENT_TYPE == "Annual PE")
+                {
+                    var uniqueAuditLevels = model.AssessmentDetails.Where(f => f.audit_level_int != null).Where(g => g.audit_level_int > 0).Select(p => p.audit_level_int).Distinct().Count();
+                    model.AuditLevelDistinctCount = uniqueAuditLevels;
+                }
             }
+
 
             return View(model);
         }
@@ -348,40 +662,104 @@ namespace QREST.Controllers
 
             if (ModelState.IsValid)
             {
-                DateTime? combined = model.ASSESSMENT_TM == null ? model.ASSESSMENT_DT : model.ASSESSMENT_DT.GetValueOrDefault().Date.Add(TimeSpan.Parse(model.ASSESSMENT_TM));
-
                 //save generic QC assessment 
-                Guid? AssessIDX = db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT(model.QC_ASSESS_IDX, model.MONITOR_IDX, combined, model.ASSESSMENT_TYPE, model.UNIT_CODE,
-                    model.ASSESSMENT_NUM, model.ASSESSED_BY, UserIDX);
+                Guid? AssessIDX = db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT(model.QC_ASSESS_IDX, model.MONITOR_IDX, model.ASSESSMENT_DT, model.ASSESSMENT_TYPE, model.UNIT_CODE,
+                    model.ASSESSMENT_NUM, model.ASSESSED_BY, UserIDX, model.ASSESSMENT_TM);
 
                 //save QC details
                 if (AssessIDX != null)
                 {
+                    model.QC_ASSESS_IDX = AssessIDX;
+
+                    //initialize first rows for the QC assessment based on type
+                    if (model.AssessmentDetails == null)
+                    {
+                        if (model.ASSESSMENT_TYPE == "1-Point QC")
+                        {
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                        }
+                        else if (model.ASSESSMENT_TYPE == "Annual PE")
+                        {
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                        }
+                        else if (model.ASSESSMENT_TYPE == "QA Zero Span")
+                        {
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, 0, null, "Zero Check", UserIDX);
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, "Span Check", UserIDX);
+                        }
+
+                    }
+                    else
+                    {
+                        //updating assessment details
+                        foreach (QC_ASSESSMENT_DTLDisplay _dtl in model.AssessmentDetails)
+                        {
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(_dtl.QC_ASSESS_DTL_IDX, null, _dtl.MON_CONCENTRATION, _dtl.ASSESS_KNOWN_CONCENTRATION, null, _dtl.COMMENTS, UserIDX);
+                        }
+
+                    }
+
 
                     if (AssessIDX != null)
                         TempData["Success"] = "Record updated";
                     else
                         TempData["Error"] = "Error updating record.";
                 }
+                return RedirectToAction("QCEntry", new { id = model.QC_ASSESS_IDX });
             }
-
-            model.ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX);
+            ////reinitialize
+            ////assessment dtl
+            model.AssessmentDetails = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(model.QC_ASSESS_IDX);
+            model.ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX, true);
             model.ddl_Assess_Type = ddlHelpers.get_ddl_ref_assess_type();
+            model.ddl_AQS_Null = ddlHelpers.get_ddl_ref_qualifier("NULL");
             return View(model);
 
         }
 
 
+
+        [HttpPost]
+        public JsonResult QCDtlDelete(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int SuccID = db_Air.DeleteT_QREST_QC_ASSESSMENT_DTL(id.GetValueOrDefault());
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete QC record.");
+            }
+        }
+
         #endregion
 
 
 
-        public ActionResult Raw()
+        #region RAW DATA
+
+
+        public ActionResult Raw(string org, string mon, string typ, string timtyp)
         {
             string UserIDX = User.Identity.GetUserId();
 
             var model = new vmDataRaw
             {
+                selOrgID = org,
+                selMon = mon,
+                selType = typ,
+                selTimeType = timtyp,
                 ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true),
                 ddl_Monitor = new List<SelectListItem>()
             };
@@ -389,42 +767,32 @@ namespace QREST.Controllers
             return View(model);
         }
 
-
         [HttpPost]
-        public ActionResult RawData()
+        public ActionResult Raw(vmDataRaw model)
         {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+            string UserIDX = User.Identity.GetUserId();
 
-            //filters
-            string selOrg = Request.Form.GetValues("selOrg")?.FirstOrDefault();
-            string selType = Request.Form.GetValues("selType")?.FirstOrDefault();
-            string selDate = Request.Form.GetValues("selDate")?.FirstOrDefault().Replace(" - ", "z");
-            Guid? selMon = Request.Form.GetValues("selMon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
-
-            string[] d = selDate.Split('z');
-            DateTime? d1 = d[0].ConvertOrDefault<DateTime?>();
-            DateTime? d2 = (d.Length > 1) ? d[1].ConvertOrDefault<DateTime?>() : null;
-
-            if (selType == "F")
+            string[] d = model.selDate.Replace(" - ", "z").Split('z');
+            if (d.Length == 2)
             {
-                var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, null, selMon, d1, d2, pageSize, start, orderCol, orderDir);
-                var recordsTotal = db_Air.GetT_QREST_DATA_FIVE_MINcount(selOrg, selMon, d1, d2);
+                DateTime? d1 = d[0].ConvertOrDefault<DateTime?>();
+                DateTime? d2 = (d.Length > 1) ? d[1].ConvertOrDefault<DateTime?>() : null;
 
-                return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-            }
-            else
-            {
-                var data = db_Air.GetT_QREST_DATA_HOURLY(selOrg, selMon, d1, d2, pageSize, start, orderCol, orderDir);
-                var recordsTotal = db_Air.GetT_QREST_DATA_HOURLYcount(selOrg, selMon, d1, d2);
-
-                return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+                if (model.selType == "H")
+                    model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(model.selOrgID, null, model.selMon.ConvertOrDefault<Guid?>(), d1, d2, 25000, 0, 3, "asc", model.selTimeType);
+                else if (model.selType == "1")
+                    model.RawData = db_Air.GetT_QREST_DATA_HOURLY(model.selOrgID, model.selMon.ConvertOrDefault<Guid?>(), d1, d2, 25000, 0, 3, "asc", model.selTimeType);
             }
 
+            //reinitialize
+            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
+            if (model.selOrgID != null)
+                model.ddl_Monitor = ddlHelpers.get_monitors_sampled_by_org(model.selOrgID);
+
+
+            return View(model);
         }
+
 
 
         [HttpPost]
@@ -434,6 +802,7 @@ namespace QREST.Controllers
             string selOrg = Request.Form.GetValues("selOrg")?.FirstOrDefault();
             string selType = Request.Form.GetValues("selType")?.FirstOrDefault();
             string selDate = Request.Form.GetValues("selDate")?.FirstOrDefault().Replace(" - ", "z");
+            string selTimeType = Request.Form.GetValues("selTimeType")?.FirstOrDefault();
             Guid? selMon = Request.Form.GetValues("selMon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
 
             if (selDate != null)
@@ -444,12 +813,12 @@ namespace QREST.Controllers
 
                 if (selType == "F")
                 {
-                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, null, selMon, d1, d2, 25000, 0, 3, "asc");
+                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, null, selMon, d1, d2, 25000, 0, 3, "asc", selTimeType);
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
-                    var data = db_Air.GetT_QREST_DATA_HOURLY(selOrg, selMon, d1, d2, 25000, 0, 3, "asc");
+                    var data = db_Air.GetT_QREST_DATA_HOURLY(selOrg, selMon, d1, d2, 25000, 0, 3, "asc", selTimeType);
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
             }
@@ -458,20 +827,8 @@ namespace QREST.Controllers
 
         }
 
+        #endregion
 
-        public JsonResult MonitorSnapshot()
-        {
-            //filters
-            Guid? selMon = Request.Form.GetValues("selMon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
-
-            if (selMon != null)
-            {
-                var data = db_Air.GetMONITOR_SNAPSHOT_ByMonitor(selMon);
-                return Json(data, JsonRequestBehavior.AllowGet);
-            }
-            else
-                return Json("Chart data error");
-        }
 
 
         #region DATA REVIEW
@@ -544,7 +901,7 @@ namespace QREST.Controllers
 
         
         [HttpGet]
-        public ActionResult DataReview2(Guid? monid, DateTime? sdt, DateTime? edt, string dur, Guid? supp1, Guid? supp2, Guid? supp3, DateTime? subsdt, DateTime? subedt)
+        public ActionResult DataReview2(Guid? monid, DateTime? sdt, DateTime? edt, string dur, Guid? supp1)
         {
             if (monid == null || sdt == null || edt == null || dur == null)
                 return RedirectToAction("DataReview");
@@ -559,10 +916,8 @@ namespace QREST.Controllers
                 selMon = db_Air.GetT_QREST_MONITORS_ByID(monid.GetValueOrDefault())
             };
 
-            string orgid = model.selMon.ORG_ID;
-
             //security check
-            if (db_Account.CanAccessThisOrg(UserIDX, orgid, true) == false)
+            if (db_Account.CanAccessThisOrg(UserIDX, model.selMon.ORG_ID, true) == false)
             {
                 TempData["Error"] = "Access Denied.";
                 return RedirectToAction("SiteList", "Site");
@@ -572,12 +927,12 @@ namespace QREST.Controllers
             model.ddl_ParUnits = ddlHelpers.get_ddl_ref_units(model.selMon.PAR_CODE);
 
             //get security access rights
-            model.secLvl1Ind = db_Account.IsOrgLvl1(UserIDX, orgid);
-            model.secLvl2Ind = db_Account.IsOrgLvl2(UserIDX, orgid);
+            model.secLvl1Ind = db_Account.IsOrgLvl1(UserIDX, model.selMon.ORG_ID);
+            model.secLvl2Ind = db_Account.IsOrgLvl2(UserIDX, model.selMon.ORG_ID);
 
             //get raw data
             if (dur == "H")
-                model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, monid, sdt, edt, 25000, 0, 3, "asc");
+                model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, monid, sdt, edt, 25000, 0, 3, "asc", "L");
             else if (dur == "1")
                 model.RawData = db_Air.GetT_QREST_DATA_HOURLY_ManVal(monid.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
 
@@ -585,7 +940,7 @@ namespace QREST.Controllers
             if (supp1 != null)
             {
                 if (dur == "H")
-                    model.SuppData1 = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, supp1, sdt, edt, 25000, 0, 3, "asc");
+                    model.SuppData1 = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, supp1, sdt, edt, 25000, 0, 3, "asc", "L");
                 else if (dur == "1")
                     model.SuppData1 = db_Air.GetT_QREST_DATA_HOURLY_ManVal(supp1.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
 
@@ -652,7 +1007,7 @@ namespace QREST.Controllers
             {
                 if (selType == "F")
                 {
-                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, selMon, selDateStart, selDateEnd, 25000, 0, 3, "asc");
+                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, selMon, selDateStart, selDateEnd, 25000, 0, 3, "asc", "L");
                     var data1 = JsonConvert.SerializeObject(data);
                     return Json(new { data = data });
                 }
@@ -688,6 +1043,33 @@ namespace QREST.Controllers
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
 
+
+        public FileResult HourlyLogFileDownload(Guid? id)
+        {
+            try
+            {
+                DataTable _dt = DataTableGen.GetHourlyLogByHourlyIDX(id.GetValueOrDefault());
+                DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { _dt });
+                if (dsExport.Tables.Count > 0)
+                {
+                    MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);
+                    Response.Clear();
+                    Response.Buffer = true;
+                    Response.Charset = "";
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    Response.AddHeader("content-disposition", "attachment;filename=HourlyLog.xlsx");
+                    ms.WriteTo(Response.OutputStream);
+                    Response.Flush();
+                    Response.End();
+                }
+                else
+                    TempData["Error"] = "No data found to export";
+            }
+            catch
+            { }
+
+            return null;
+        }
 
         public ActionResult DataDocs(Guid? id, Guid? monid, DateTime? sDt, DateTime? eDt)
         {
@@ -785,7 +1167,6 @@ namespace QREST.Controllers
                     //reject if user doesn't have access to site
                     RedirectToRouteResult r = CanAccessThisSite(UserIDX, _doc.SITE_IDX, true);
                     if (r != null) return null;
-
 
                     return File(_doc.DOC_CONTENT, System.Net.Mime.MediaTypeNames.Application.Octet, _doc.DOC_NAME);
                 }
@@ -890,11 +1271,13 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult AQSGen()
+        public ActionResult AQSGen(string typ)
         {
             string UserIDX = User.Identity.GetUserId();
+
             var model = new vmDataAQSGen {
                 ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(null, UserIDX),
+                selAQSTransType = typ ?? "RD",
                 selDtStart = new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddMonths(-1),
                 selDtEnd = new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddHours(-1),
                 passValidation = false
@@ -924,8 +1307,40 @@ namespace QREST.Controllers
             return View(model);
         }
 
-        public ActionResult AQSAcct(string id)
+
+        public ActionResult AQSGenQA(string typ, Guid? qid)
         {
+            string UserIDX = User.Identity.GetUserId();
+
+            T_QREST_QC_ASSESSMENT _q = db_Air.GetT_QREST_QC_ASSESSMENT_ByID(qid);
+            if (_q != null)
+            {
+                T_QREST_SITES _s = db_Air.GetT_QREST_SITES_ByMonitorID(_q.MONITOR_IDX);
+                if (_s != null)
+                {
+                    var model = new vmDataAQSGen
+                    {
+                        selAQSTransType = typ ?? "QA",
+                        selSite = _s.SITE_IDX,
+                        selQid = qid,
+                        selOrgID = _s.ORG_ID,
+                        passValidation = true
+                    };
+                    return View(model);
+                }
+            }
+
+            TempData["Error"] = "Select QC Record to send.";
+            return RedirectToAction("QCList");
+        }
+
+
+
+        public ActionResult AQSAcct(string id, string returnUrl, string returnid)
+        {
+            ViewBag.ReturnUrl = returnUrl ?? "AQSGen";
+            ViewBag.ReturnID = returnid;
+
             var model = new vmDataAQSAcct
             {
                 selOrgID = id,
@@ -980,6 +1395,27 @@ namespace QREST.Controllers
 
             TempData["Error"] = "Unable to make submission";
             return RedirectToAction("AQSGen");
+        }
+
+
+        [HttpPost]
+        public ActionResult AQSSubmitQA(vmDataAQSGen model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(model.selSite.GetValueOrDefault());
+            if (_site != null)
+            {
+                Guid? SuccID = AQSHelper.AQS_QA_Generation_Orchestrator(_site.ORG_ID, _site.SITE_IDX, model.selQid.GetValueOrDefault(), UserIDX, model.selActionCode, model.selAQSFormat);
+                if (SuccID != null)
+                {
+                    TempData["Success"] = "File generated and submission initiated.";
+                    return RedirectToAction("AQSList", new { selOrgID = _site.ORG_ID });
+                }
+            }
+
+            TempData["Error"] = "Unable to make submission";
+            return RedirectToAction("AQSGenQA", new { qid = model.selQid });
         }
 
 
@@ -1095,6 +1531,7 @@ namespace QREST.Controllers
         #endregion
 
 
+
         #region SHARED
 
 
@@ -1117,7 +1554,7 @@ namespace QREST.Controllers
         public JsonResult FetchMonitors(string ID)
         {
             string UserIDX = User.Identity.GetUserId();
-            var data = ddlHelpers.get_ddl_my_monitors(ID, UserIDX);
+            var data = ddlHelpers.get_ddl_my_monitors(ID, UserIDX, false);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -1152,7 +1589,7 @@ namespace QREST.Controllers
         [HttpGet]
         public JsonResult FetchImportTemplates(Guid? ID)
         {
-            var data = ddlHelpers.get_ddl_polling_config(ID ?? Guid.Empty);
+            var data = ddlHelpers.get_ddl_import_templates(ID ?? Guid.Empty);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -1202,13 +1639,21 @@ namespace QREST.Controllers
         }
 
 
-        #endregion
+        public JsonResult MonitorSnapshot()
+        {
+            //filters
+            Guid? selMon = Request.Form.GetValues("selMon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
+
+            if (selMon != null)
+            {
+                var data = db_Air.GetMONITOR_SNAPSHOT_ByMonitor(selMon);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            else
+                return Json("Chart data error");
+        }
 
 
-
-        //**********************SHARED **************************************
-        //**********************SHARED **************************************
-        //**********************SHARED **************************************
         public RedirectToRouteResult CanAccessThisOrg(string UserIDX, string OrgID, bool CanEditToo)
         {
             if (db_Account.CanAccessThisOrg(UserIDX, OrgID, CanEditToo) == false)
@@ -1219,6 +1664,7 @@ namespace QREST.Controllers
             else
                 return null;
         }
+
 
         public RedirectToRouteResult CanAccessThisSite(string UserIDX, Guid SiteIDX, bool CanEditToo)
         {
@@ -1231,6 +1677,10 @@ namespace QREST.Controllers
             else
                 return null;
         }
+
+
+        #endregion
+
 
     }
 }

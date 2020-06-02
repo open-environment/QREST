@@ -1,7 +1,8 @@
 ﻿@using QREST.App_Logic.BusinessLogicLayer
 @model QREST.Models.vmSiteMonitorEdit
-@{
+@{    
     ViewBag.Title = "Edit Monitor";
+    ViewBag.HelpLink = "Monitor-Edit";
 }
 
 @using (Html.BeginForm("MonitorEdit", "Site", FormMethod.Post, new { @id = "norepostform", role = "form" }))
@@ -58,7 +59,7 @@
                             }
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    @Html.LabelForRequired(m => m.PAR_METHOD_IDX, "Parameter / Method", new { @class = "control-label" })
+                                    @Html.LabelForRequired(m => m.PAR_METHOD_IDX, "Unit Code", new { @class = "control-label" })
                                     @Html.DropDownListFor(model => model.COLLECT_UNIT_CODE, Model.ddl_Unit, "", new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.COLLECT_UNIT_CODE)
                                 </div>

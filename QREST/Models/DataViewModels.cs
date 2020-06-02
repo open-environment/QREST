@@ -22,26 +22,57 @@ namespace QREST.Models
     {
         public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
         public IEnumerable<SelectListItem> ddl_Assess_Type { get; set; }
+        public IEnumerable<SelectListItem> ddl_AQS_Null { get; set; }
+
+        public string ORG_ID { get; set; }
 
         public Guid? QC_ASSESS_IDX { get; set; }
+        [Required]
         public Guid? MONITOR_IDX { get; set; }
+        [Required]
         public DateTime? ASSESSMENT_DT { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0: hh:mm tt}", ApplyFormatInEditMode = true)]
         public string ASSESSMENT_TM { get; set; }
+
+        [Required]
         public string ASSESSMENT_TYPE { get; set; }
         public string UNIT_CODE { get; set; }
         public int? ASSESSMENT_NUM { get; set; }
         public string ASSESSED_BY { get; set; }
 
+
+        public List<QC_ASSESSMENT_DTLDisplay> AssessmentDetails { get; set; }
+
+        public int? AuditLevelDistinctCount { get; set; }
+
     }
 
     public class vmDataRaw
     {
+        [Required]
         public string selOrgID { get; set; }
         public string selMon { get; set; }
+        [Required]
+        public string selType { get; set; }
+        [Required]
+        public string selTimeType { get; set; }
+        [Required]
+        public string selDate { get; set; }
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
+        public IEnumerable<SelectListItem> ddl_TimeType { get; set; }
+        public IEnumerable<SelectListItem> ddl_DurationType { get; set; }
+        public List<RawDataDisplay> RawData { get; set; }
+
+        public vmDataRaw()
+        {
+            ddl_DurationType = ddlHelpers.get_ddl_logger_duration();
+            ddl_TimeType = ddlHelpers.get_ddl_time_type();
+            selType = "1";
+            selTimeType = "L";
+        }
+
+
     }
 
     public class vmDataImport
@@ -87,6 +118,89 @@ namespace QREST.Models
         public Guid? IMPORT_IDX { get; set; }
 
     }
+
+    public class vmDataImportList {
+        public string selOrgID { get; set; }
+        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+
+        public List<ImportListDisplay> T_QREST_DATA_IMPORTS { get; set; }
+
+    }
+
+    public class vmDataImportConfig
+    {
+        public Guid? SITE_IDX { get; set; }
+
+        //EDITED CONFIG
+        public Guid? editPOLL_CONFIG_IDX { get; set; }
+
+        [Required]
+        [Display(Name = "Configuration Name")]
+        public string editCONFIG_NAME { get; set; }
+
+        [Required]
+        [Display(Name = "Delimiter")]
+        public string editDELIMITER { get; set; }
+
+        [Required]
+        [Display(Name = "Timezone")]
+        public string editLOCAL_TIMEZONE { get; set; }
+
+        [Required]
+        [Display(Name = "Time Output Type")]
+        public string editTIME_POLL_TYPE { get; set; }
+
+        [Required]
+        [Display(Name = "Date Column")]
+        public int? editDATE_COL { get; set; }
+
+        [Required]
+        [Display(Name = "Date Format")]
+        public string editDATE_FORMAT { get; set; }
+
+        [Required]
+        [Display(Name = "Time Column")]
+        public int? editTIME_COL { get; set; }
+
+        [Required]
+        [Display(Name = "Time Format")]
+        public string editTIME_FORMAT { get; set; }
+
+        //EDIT COLUMN MAPPING
+        public Guid? editPOLL_CONFIG_DTL_IDX { get; set; }
+        public int editCOL { get; set; }
+        public Guid? editMONITOR_IDX { get; set; }
+        public string editSUM_TYPE { get; set; }
+        public int? editROUNDING { get; set; }
+        public double? editADJUST_FACTOR { get; set; }
+
+        public IEnumerable<SelectListItem> ddl_LoggerDelimiter { get; set; }
+        public IEnumerable<SelectListItem> ddl_TimeZone { get; set; }
+        public IEnumerable<SelectListItem> ddl_LoggerTimeType { get; set; }
+        public IEnumerable<SelectListItem> ddl_LoggerDate { get; set; }
+        public IEnumerable<SelectListItem> ddl_LoggerTime { get; set; }
+
+
+        public IEnumerable<SelectListItem> ddl_Monitors { get; set; }
+
+        //only needed if importing n-min that requires calculation
+        public IEnumerable<SelectListItem> ddl_SumType { get; set; }
+        public IEnumerable<SelectListItem> ddl_Rounding { get; set; }
+
+
+        public vmDataImportConfig()
+        {
+            ddl_LoggerDate = ddlHelpers.get_ddl_logger_date();
+            ddl_LoggerTime = ddlHelpers.get_ddl_logger_time();
+            ddl_LoggerDelimiter = ddlHelpers.get_ddl_logger_delimiter();
+            ddl_SumType = ddlHelpers.get_ddl_sum_type();
+            ddl_TimeZone = ddlHelpers.get_ddl_time_zone();
+            ddl_LoggerTimeType = ddlHelpers.get_ddl_time_type();
+            ddl_Rounding = ddlHelpers.get_ddl_rounding_decimals();
+        }
+    }
+
+
 
     public class vmDataReviewSummary
     {
@@ -222,8 +336,10 @@ namespace QREST.Models
 
     public class vmDataAQSGen
     {
+        public string selAQSTransType { get; set; }
         public string selOrgID { get; set; }
         public Guid? selSite { get; set; }
+        public Guid? selQid { get; set; }
         public IList<Guid> selMons{ get; set; }
 
         public string selAQSFormat { get; set; }
@@ -233,6 +349,7 @@ namespace QREST.Models
         public bool passValidation { get; set; }
 
 
+        public IEnumerable<SelectListItem> ddl_AQSTransType { get; set; }
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_Sites { get; set; }
         public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
@@ -247,6 +364,7 @@ namespace QREST.Models
         //initialize
         public vmDataAQSGen()
         {
+            ddl_AQSTransType = ddlHelpers.get_ddl_aqs_trans_type();
             ddl_AQSFormat = ddlHelpers.get_ddl_aqs_format();
             ddl_ActionCode = ddlHelpers.get_ddl_action_code();
             selMons = new List<Guid>();

@@ -18,5 +18,6 @@ namespace QRESTModel.DAL
         public string HELP_TITLE { get; set; }
         public string HELP_HTML { get; set; }
         public int SORT_SEQ { get; set; }
+        public string HELP_CAT { get; set; }
     }
 }

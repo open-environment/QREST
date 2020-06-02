@@ -1,0 +1,99 @@
+﻿@model QREST.Models.vmDataAQSGen
+@{
+    ViewBag.Title = "Prepare AQS Submission";
+}
+
+    <section class="panel panel-qrest">
+        <header class="panel-heading font-bold">
+            Select Data to Submit
+        </header>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-9">
+                    @using (Html.BeginForm("AQSSubmitQA", "Data", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                    {
+                        @Html.HiddenFor(model => model.selQid)
+                        @Html.HiddenFor(model => model.selSite)
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Transaction Type</label>
+                            <div class="col-sm-6">
+                                @Html.DropDownListFor(model => model.selAQSTransType, Model.ddl_AQSTransType, new { @class = "form-control", @style = "width:auto;", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Organization</label>
+                            <div class="col-sm-6">
+                                @Html.TextBoxFor(model => model.selOrgID, new { @class = "form-control", @style = "width:auto;" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Action Code</label>
+                            <div class="col-sm-4">
+                                @Html.DropDownListFor(model => model.selActionCode, Model.ddl_ActionCode, new { @class = "form-control", @style = "width:auto;" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Data Format</label>
+                            <div class="col-sm-10">
+                                @Html.DropDownListFor(model => model.selAQSFormat, Model.ddl_AQSFormat, new { @class = "form-control", @style = "width:auto;" })
+                            </div>
+                        </div>
+                        <div class="row m-l-n-xxs">
+                            <div class="col-sm-10 col-sm-offset-2">
+                                <a class=" btn btn-default m-l-n-sm" href="@Url.Action("AQSList")">Back</a>
+                                <button id="btnGo" type="submit" class="btn btn-primary ">Generate File</button>
+                            </div>
+
+                        </div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <div class="well">
+                        <h5 class="m-t-none font-bold">Submission Accounts</h5>
+                        <p class="m-xs">
+                            AQS User: <span id="aqsuser" class="font-bold"></span>
+                            <br> AQS Screening Group Name: <span id="aqsscreen" class="font-bold"></span>
+                            <br> CDX User: <span id="cdxuser" class="font-bold"></span>
+                        </p>
+                        <a id="lnkOrgEdit" class=" btn btn-warning btn-xs" href="@Url.Action("AQSAcct","Data", new { id= Model.selSite, returnUrl = "AQSGenQA" })">Change</a>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //populate AQS stuff based on passed in SiteIDX
+            fetchMonitors();
+        });
+
+        var qid='@Model.selQid';
+        //populate parameters based on selected site
+        function fetchMonitors() {
+
+            $.get('@Url.Action("FetchAQSAccounts")', { ID: $("#selSite").val() }, function (data2) {
+                if (!data2)
+                    return;
+                $("#cdxuser").html(data2.Item1);
+                $("#aqsuser").html(data2.Item2);
+                $("#aqsscreen").html(data2.Item3);
+                $("#lnkOrgEdit").attr('href', '/Data/AQSAcct/' + data2.Item4 + '?returnUrl=AQSGenQA&returnid=' + qid);
+
+                //if none defined, don't let user continue
+                if (data2.Item1 == null || data2.Item2 == null || data2.Item3 == null) {
+                    $("#btnGo").prop("disabled", true).text('Generate File (set accounts first)');
+                }
+                else {
+                    $("#btnGo").prop("disabled", false).text('Generate File');
+                }
+            });
+        };
+    </script>
+}

@@ -74,6 +74,9 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_SITES> T_QREST_SITES { get; set; }
         public virtual DbSet<USERLIST_DISPLAY_VIEW> USERLIST_DISPLAY_VIEW { get; set; }
         public virtual DbSet<T_QREST_DATA_HOURLY_LOG> T_QREST_DATA_HOURLY_LOG { get; set; }
+        public virtual DbSet<T_QREST_QC_ASSESSMENT_DTL> T_QREST_QC_ASSESSMENT_DTL { get; set; }
+        public virtual DbSet<T_QREST_REF_QC> T_QREST_REF_QC { get; set; }
+        public virtual DbSet<T_QREST_REF_QC_AUDIT_LVL> T_QREST_REF_QC_AUDIT_LVL { get; set; }
     
         public virtual ObjectResult<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)
         {

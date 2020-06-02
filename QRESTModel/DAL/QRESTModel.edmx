@@ -62,6 +62,7 @@
           <Property Name="AQS_CONTENT_XML" Type="varchar(max)" />
           <Property Name="CDX_TOKEN" Type="varchar" MaxLength="250" />
           <Property Name="DOWNLOAD_FILE" Type="varbinary(max)" />
+          <Property Name="AQS_TRANS_TYPE" Type="varchar" MaxLength="2" />
         </EntityType>
         <EntityType Name="T_QREST_ASSESS_DOCS">
           <Key>
@@ -97,6 +98,7 @@
           <Property Name="VAL_CD" Type="varchar" MaxLength="5" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="IMPORT_IDX" Type="uniqueidentifier" />
+          <Property Name="DATA_DTTM_LOCAL" Type="datetime2" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_DATA_HOURLY">
           <Key>
@@ -164,6 +166,7 @@
           <Property Name="HELP_TITLE" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="HELP_HTML" Type="varchar(max)" Nullable="false" />
           <Property Name="SORT_SEQ" Type="int" Nullable="false" />
+          <Property Name="HELP_CAT" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="T_QREST_MONITORS">
           <Key>
@@ -244,6 +247,23 @@
           <Property Name="ASSESSMENT_NUM" Type="int" Nullable="false" />
           <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
           <Property Name="ASSESSED_BY" Type="varchar" MaxLength="128" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="ASSESSMENT_TM" Type="varchar" MaxLength="10" />
+          <Property Name="AQS_IDX" Type="uniqueidentifier" />
+        </EntityType>
+        <EntityType Name="T_QREST_QC_ASSESSMENT_DTL">
+          <Key>
+            <PropertyRef Name="QC_ASSESS_DTL_IDX" />
+          </Key>
+          <Property Name="QC_ASSESS_DTL_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="QC_ASSESS_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="MON_CONCENTRATION" Type="float" />
+          <Property Name="ASSESS_KNOWN_CONCENTRATION" Type="float" />
+          <Property Name="AQS_NULL_CODE" Type="varchar" MaxLength="2" />
+          <Property Name="COMMENTS" Type="varchar" MaxLength="100" />
           <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
@@ -354,6 +374,28 @@
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="AQS_IND" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_QC">
+          <Key>
+            <PropertyRef Name="PAR_CODE" />
+            <PropertyRef Name="ASSESSMENT_TYPE" />
+          </Key>
+          <Property Name="PAR_CODE" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="ASSESSMENT_TYPE" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="AMT_DIFF_LIM" Type="float" />
+          <Property Name="PCT_DIFF_LIM" Type="float" />
+          <Property Name="MIN_CONC" Type="float" />
+          <Property Name="MAX_CONC" Type="float" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_QC_AUDIT_LVL">
+          <Key>
+            <PropertyRef Name="PAR_CODE" />
+            <PropertyRef Name="AUDIT_LVL" />
+          </Key>
+          <Property Name="PAR_CODE" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="AUDIT_LVL" Type="int" Nullable="false" />
+          <Property Name="MIN_AMT" Type="float" />
+          <Property Name="MAX_AMT" Type="float" />
         </EntityType>
         <EntityType Name="T_QREST_REF_QUALIFIER">
           <Key>
@@ -937,6 +979,20 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_T_QREST_QC_ASSESSMENT_DTL_A">
+          <End Role="T_QREST_QC_ASSESSMENT" Type="Self.T_QREST_QC_ASSESSMENT" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_QC_ASSESSMENT_DTL" Type="Self.T_QREST_QC_ASSESSMENT_DTL" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_QC_ASSESSMENT">
+              <PropertyRef Name="QC_ASSESS_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_QC_ASSESSMENT_DTL">
+              <PropertyRef Name="QC_ASSESS_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_T_QREST_QC_ASSESSMENT_M">
           <End Role="T_QREST_MONITORS" Type="Self.T_QREST_MONITORS" Multiplicity="1" />
           <End Role="T_QREST_QC_ASSESSMENT" Type="Self.T_QREST_QC_ASSESSMENT" Multiplicity="*" />
@@ -1167,6 +1223,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="T_QREST_ORG_USERS" EntityType="Self.T_QREST_ORG_USERS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_ORGANIZATIONS" EntityType="Self.T_QREST_ORGANIZATIONS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_QC_ASSESSMENT" EntityType="Self.T_QREST_QC_ASSESSMENT" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_QC_ASSESSMENT_DTL" EntityType="Self.T_QREST_QC_ASSESSMENT_DTL" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_ACCESS_LEVEL" EntityType="Self.T_QREST_REF_ACCESS_LEVEL" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_AQS_AGENCY" EntityType="Self.T_QREST_REF_AQS_AGENCY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_ASSESS_TYPE" EntityType="Self.T_QREST_REF_ASSESS_TYPE" Schema="dbo" store:Type="Tables" />
@@ -1176,6 +1233,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="T_QREST_REF_PAR_METHODS" EntityType="Self.T_QREST_REF_PAR_METHODS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_PAR_UNITS" EntityType="Self.T_QREST_REF_PAR_UNITS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_PARAMETERS" EntityType="Self.T_QREST_REF_PARAMETERS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_QC" EntityType="Self.T_QREST_REF_QC" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_QC_AUDIT_LVL" EntityType="Self.T_QREST_REF_QC_AUDIT_LVL" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_QUALIFIER" EntityType="Self.T_QREST_REF_QUALIFIER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_REGION" EntityType="Self.T_QREST_REF_REGION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_STATE" EntityType="Self.T_QREST_REF_STATE" Schema="dbo" store:Type="Tables" />
@@ -1314,6 +1373,10 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <AssociationSet Name="FK_T_QREST_ORG_USERS_U" Association="Self.FK_T_QREST_ORG_USERS_U">
             <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
             <End Role="T_QREST_ORG_USERS" EntitySet="T_QREST_ORG_USERS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_T_QREST_QC_ASSESSMENT_DTL_A" Association="Self.FK_T_QREST_QC_ASSESSMENT_DTL_A">
+            <End Role="T_QREST_QC_ASSESSMENT" EntitySet="T_QREST_QC_ASSESSMENT" />
+            <End Role="T_QREST_QC_ASSESSMENT_DTL" EntitySet="T_QREST_QC_ASSESSMENT_DTL" />
           </AssociationSet>
           <AssociationSet Name="FK_T_QREST_QC_ASSESSMENT_M" Association="Self.FK_T_QREST_QC_ASSESSMENT_M">
             <End Role="T_QREST_MONITORS" EntitySet="T_QREST_MONITORS" />
@@ -1594,6 +1657,13 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_DATA_HOURLY" EntitySet="T_QREST_DATA_HOURLY" />
             <End Role="T_QREST_DATA_HOURLY_LOG" EntitySet="T_QREST_DATA_HOURLY_LOG" />
           </AssociationSet>
+          <EntitySet Name="T_QREST_QC_ASSESSMENT_DTL" EntityType="QRESTModel.T_QREST_QC_ASSESSMENT_DTL" />
+          <AssociationSet Name="FK_T_QREST_QC_ASSESSMENT_DTL_A" Association="QRESTModel.FK_T_QREST_QC_ASSESSMENT_DTL_A">
+            <End Role="T_QREST_QC_ASSESSMENT" EntitySet="T_QREST_QC_ASSESSMENT" />
+            <End Role="T_QREST_QC_ASSESSMENT_DTL" EntitySet="T_QREST_QC_ASSESSMENT_DTL" />
+          </AssociationSet>
+          <EntitySet Name="T_QREST_REF_QC" EntityType="QRESTModel.T_QREST_REF_QC" />
+          <EntitySet Name="T_QREST_REF_QC_AUDIT_LVL" EntityType="QRESTModel.T_QREST_REF_QC_AUDIT_LVL" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -1651,6 +1721,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="HELP_TITLE" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="HELP_HTML" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="SORT_SEQ" Type="Int32" Nullable="false" />
+          <Property Name="HELP_CAT" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_ORG_EMAIL_RULE">
           <Key>
@@ -1724,6 +1795,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_REF_UNITS" Relationship="QRESTModel.FK_T_QREST_QC_ASSESSMENT_U" FromRole="T_QREST_QC_ASSESSMENT" ToRole="T_QREST_REF_UNITS" />
           <NavigationProperty Name="T_QREST_MONITORS" Relationship="QRESTModel.FK_T_QREST_QC_ASSESSMENT_M" FromRole="T_QREST_QC_ASSESSMENT" ToRole="T_QREST_MONITORS" />
+          <NavigationProperty Name="T_QREST_QC_ASSESSMENT_DTL" Relationship="QRESTModel.FK_T_QREST_QC_ASSESSMENT_DTL_A" FromRole="T_QREST_QC_ASSESSMENT" ToRole="T_QREST_QC_ASSESSMENT_DTL" />
+          <Property Name="ASSESSMENT_TM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_IDX" Type="Guid" />
         </EntityType>
         <EntityType Name="T_QREST_REF_AQS_AGENCY">
           <Key>
@@ -2271,6 +2345,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="VAL_CD" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <Property Name="IMPORT_IDX" Type="Guid" />
+          <Property Name="DATA_DTTM_LOCAL" Type="DateTime" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_REF_TIMEZONE">
           <Key>
@@ -2585,6 +2660,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="AQS_CONTENT_XML" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="CDX_TOKEN" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="DOWNLOAD_FILE" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="AQS_TRANS_TYPE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_T_QREST_AQS_O">
           <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
@@ -2851,6 +2927,58 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="T_QREST_QC_ASSESSMENT_DTL">
+          <Key>
+            <PropertyRef Name="QC_ASSESS_DTL_IDX" />
+          </Key>
+          <Property Name="QC_ASSESS_DTL_IDX" Type="Guid" Nullable="false" />
+          <Property Name="QC_ASSESS_IDX" Type="Guid" Nullable="false" />
+          <Property Name="MON_CONCENTRATION" Type="Double" />
+          <Property Name="ASSESS_KNOWN_CONCENTRATION" Type="Double" />
+          <Property Name="AQS_NULL_CODE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="COMMENTS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="T_QREST_QC_ASSESSMENT" Relationship="QRESTModel.FK_T_QREST_QC_ASSESSMENT_DTL_A" FromRole="T_QREST_QC_ASSESSMENT_DTL" ToRole="T_QREST_QC_ASSESSMENT" />
+        </EntityType>
+        <Association Name="FK_T_QREST_QC_ASSESSMENT_DTL_A">
+          <End Type="QRESTModel.T_QREST_QC_ASSESSMENT" Role="T_QREST_QC_ASSESSMENT" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_QC_ASSESSMENT_DTL" Role="T_QREST_QC_ASSESSMENT_DTL" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_QC_ASSESSMENT">
+              <PropertyRef Name="QC_ASSESS_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_QC_ASSESSMENT_DTL">
+              <PropertyRef Name="QC_ASSESS_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="T_QREST_REF_QC">
+          <Key>
+            <PropertyRef Name="PAR_CODE" />
+            <PropertyRef Name="ASSESSMENT_TYPE" />
+          </Key>
+          <Property Name="PAR_CODE" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="ASSESSMENT_TYPE" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="AMT_DIFF_LIM" Type="Double" />
+          <Property Name="PCT_DIFF_LIM" Type="Double" />
+          <Property Name="MIN_CONC" Type="Double" />
+          <Property Name="MAX_CONC" Type="Double" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_QC_AUDIT_LVL">
+          <Key>
+            <PropertyRef Name="PAR_CODE" />
+            <PropertyRef Name="AUDIT_LVL" />
+          </Key>
+          <Property Name="PAR_CODE" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="AUDIT_LVL" Type="Int32" Nullable="false" />
+          <Property Name="MIN_AMT" Type="Double" />
+          <Property Name="MAX_AMT" Type="Double" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2912,6 +3040,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_HELP_DOCS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_HELP_DOCS">
               <MappingFragment StoreEntitySet="T_QREST_HELP_DOCS">
+                <ScalarProperty Name="HELP_CAT" ColumnName="HELP_CAT" />
                 <ScalarProperty Name="SORT_SEQ" ColumnName="SORT_SEQ" />
                 <ScalarProperty Name="HELP_HTML" ColumnName="HELP_HTML" />
                 <ScalarProperty Name="HELP_TITLE" ColumnName="HELP_TITLE" />
@@ -2968,6 +3097,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_QC_ASSESSMENT">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_QC_ASSESSMENT">
               <MappingFragment StoreEntitySet="T_QREST_QC_ASSESSMENT">
+                <ScalarProperty Name="AQS_IDX" ColumnName="AQS_IDX" />
+                <ScalarProperty Name="ASSESSMENT_TM" ColumnName="ASSESSMENT_TM" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
@@ -3279,6 +3410,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_DATA_FIVE_MIN">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_FIVE_MIN">
               <MappingFragment StoreEntitySet="T_QREST_DATA_FIVE_MIN">
+                <ScalarProperty Name="DATA_DTTM_LOCAL" ColumnName="DATA_DTTM_LOCAL" />
                 <ScalarProperty Name="IMPORT_IDX" ColumnName="IMPORT_IDX" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="VAL_CD" ColumnName="VAL_CD" />
@@ -3554,6 +3686,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_AQS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_AQS">
               <MappingFragment StoreEntitySet="T_QREST_AQS">
+                <ScalarProperty Name="AQS_TRANS_TYPE" ColumnName="AQS_TRANS_TYPE" />
                 <ScalarProperty Name="DOWNLOAD_FILE" ColumnName="DOWNLOAD_FILE" />
                 <ScalarProperty Name="CDX_TOKEN" ColumnName="CDX_TOKEN" />
                 <ScalarProperty Name="AQS_CONTENT_XML" ColumnName="AQS_CONTENT_XML" />
@@ -3679,6 +3812,44 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="NOTES" ColumnName="NOTES" />
                 <ScalarProperty Name="DATA_HOURLY_IDX" ColumnName="DATA_HOURLY_IDX" />
                 <ScalarProperty Name="DATA_HOURLY_LOG_IDX" ColumnName="DATA_HOURLY_LOG_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_QC_ASSESSMENT_DTL">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_QC_ASSESSMENT_DTL">
+              <MappingFragment StoreEntitySet="T_QREST_QC_ASSESSMENT_DTL">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="COMMENTS" ColumnName="COMMENTS" />
+                <ScalarProperty Name="AQS_NULL_CODE" ColumnName="AQS_NULL_CODE" />
+                <ScalarProperty Name="ASSESS_KNOWN_CONCENTRATION" ColumnName="ASSESS_KNOWN_CONCENTRATION" />
+                <ScalarProperty Name="MON_CONCENTRATION" ColumnName="MON_CONCENTRATION" />
+                <ScalarProperty Name="QC_ASSESS_IDX" ColumnName="QC_ASSESS_IDX" />
+                <ScalarProperty Name="QC_ASSESS_DTL_IDX" ColumnName="QC_ASSESS_DTL_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_QC">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_QC">
+              <MappingFragment StoreEntitySet="T_QREST_REF_QC">
+                <ScalarProperty Name="MAX_CONC" ColumnName="MAX_CONC" />
+                <ScalarProperty Name="MIN_CONC" ColumnName="MIN_CONC" />
+                <ScalarProperty Name="PCT_DIFF_LIM" ColumnName="PCT_DIFF_LIM" />
+                <ScalarProperty Name="AMT_DIFF_LIM" ColumnName="AMT_DIFF_LIM" />
+                <ScalarProperty Name="ASSESSMENT_TYPE" ColumnName="ASSESSMENT_TYPE" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_QC_AUDIT_LVL">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_QC_AUDIT_LVL">
+              <MappingFragment StoreEntitySet="T_QREST_REF_QC_AUDIT_LVL">
+                <ScalarProperty Name="MAX_AMT" ColumnName="MAX_AMT" />
+                <ScalarProperty Name="MIN_AMT" ColumnName="MIN_AMT" />
+                <ScalarProperty Name="AUDIT_LVL" ColumnName="AUDIT_LVL" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -404,3 +404,57 @@ table.dataTable.no-footer {
 .cls-top-margin {
     margin-top:10px;
 }
+
+
+
+/***********LEFT MENU BUTTONS  */
+#leftHelp {
+    font-weight: bold;
+    width: 30px;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+}
+    #leftHelp:after {
+        content: '  Help';
+        opacity: 0;
+        -webkit-transition: all 1s;
+        transition: all 1s;
+    }
+
+    #leftHelp:hover {
+        width: 60px;
+    }
+        #leftHelp:hover:after {
+            opacity: 1;
+        }
+
+#leftMap {
+    font-weight: bold;
+    width: 30px;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+}
+
+    #leftMap:after {
+        content: '  Public Site';
+        opacity: 0;
+        -webkit-transition: all 1s;
+        transition: all 1s;
+    }
+
+    #leftMap:hover {
+        width: 98px;
+    }
+
+        #leftMap:hover:after {
+            opacity: 1;
+        }
+
+
+
+
+/***********LEFT MENU BUTTONS  */
+.blurzy {
+    color: transparent;
+    text-shadow: 0 0 6px #000;
+}

@@ -151,6 +151,9 @@ namespace QREST.Controllers
         {
             string UserIDX = User.Identity.GetUserId();
 
+            if (string.IsNullOrEmpty(selOrgID))
+                selOrgID = null;
+
             var model = new vmSiteSiteList
             {
                 selOrgID = selOrgID,
@@ -271,6 +274,11 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
+                //reject if user doesn't have access to org
+                RedirectToRouteResult r = CanAccessThisSite(User.Identity.GetUserId(), model.SITE_IDX.GetValueOrDefault(), true);
+                if (r != null) return Json("Access Denied.");
+
+
                 Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_NOTIFY(null, model.SITE_IDX, model.edit_notify_user_idx.ToString(), User.Identity.GetUserId());
 
                 if (SuccID != null)
@@ -292,7 +300,21 @@ namespace QREST.Controllers
                 return Json("No record selected to delete");
             else
             {
-                int SuccID = db_Air.DeleteT_QREST_SITE_NOTIFY(new Guid(id));
+                Guid idg = new Guid(id);
+
+                //reject if user doesn't have access to org
+                T_QREST_SITE_NOTIFY _sitenotify = db_Air.GetT_QREST_SITE_NOTIFY_ByID(idg);
+                if (_sitenotify != null)
+                {
+                    RedirectToRouteResult r = CanAccessThisSite(User.Identity.GetUserId(), _sitenotify.SITE_IDX, true);
+                    if (r != null) return Json("Access Denied.");
+                }
+                else
+                    return Json("No record selected to delete.");
+
+
+
+                int SuccID = db_Air.DeleteT_QREST_SITE_NOTIFY(idg);
                 if (SuccID == 1)
                     return Json("Success");
                 else
@@ -490,9 +512,10 @@ namespace QREST.Controllers
                 T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(idg);
                 if (_site != null)
                 {
-                    RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), _site.ORG_ID, false);
+                    RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), _site.ORG_ID, true);
                     if (r != null) return Json("Access Denied.");
                 }
+
                 int SuccID = db_Air.DeleteT_QREST_SITES(idg);
                 if (SuccID == 1)
                     return Json("Success");
@@ -531,7 +554,7 @@ namespace QREST.Controllers
                 //get listing of configs
                 var model = new vmSiteSitePollConfig {
                     SITE_IDX = id,
-                    ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(id.ConvertOrDefault<Guid>(), false),
+                    ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(id.ConvertOrDefault<Guid>(), false, true),
                     ddl_Monitors = ddlHelpers.get_monitors_by_site(_site.SITE_IDX, false, true),
                     POLLING_LAST_RUN_DT = _site.POLLING_LAST_RUN_DT,
                     POLLING_NEXT_RUN_DT = _site.POLLING_NEXT_RUN_DT,
@@ -611,6 +634,8 @@ namespace QREST.Controllers
             }
             //*************** VALIDATION END  *********************************
 
+            model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), false, true);
+
             if (ModelState.IsValid)
             {
                 T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(model.SITE_IDX ?? Guid.Empty);
@@ -623,7 +648,7 @@ namespace QREST.Controllers
                     //set all others to inactive if this one is active
                     if (model.editACT_IND == true)
                     {
-                        List<T_QREST_SITE_POLL_CONFIG> _ps = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), true);
+                        List<T_QREST_SITE_POLL_CONFIG> _ps = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), true, true);
                         foreach (T_QREST_SITE_POLL_CONFIG _p in _ps)
                             db_Air.UpdatetT_QREST_SITE_POLL_CONFIG_SetInactive(_p.POLL_CONFIG_IDX);
                     }
@@ -642,7 +667,6 @@ namespace QREST.Controllers
                     if (SuccID != null)
                     {
                         TempData["Success"] = "Record updated";
-                        model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), false);
                         return RedirectToAction("SitePollConfig", new { id = model.SITE_IDX, configid = SuccID });
                     }
                     else
@@ -651,7 +675,6 @@ namespace QREST.Controllers
             }
 
             //reinitialize model
-            model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), false);
             model.ddl_Monitors = ddlHelpers.get_monitors_by_site(model.SITE_IDX.ConvertOrDefault<Guid>(), false, true);
             return View(model);
         }
@@ -745,66 +768,6 @@ namespace QREST.Controllers
             }
         }
 
-
-        public ActionResult DownloadTemplate(Guid? id)
-        {
-            T_QREST_SITE_POLL_CONFIG _pol = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id ?? Guid.Empty);
-            if (id != null)
-            {
-                List<PollConfigDtlDisplay> _poldtls = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(id ?? Guid.Empty);
-                if (_poldtls != null && _poldtls.Count > 0)
-                {
-                    using (XLWorkbook wb = new XLWorkbook())
-                    {
-                        int maxCol = new[] { 1, _pol.DATE_COL ?? 1, _pol.TIME_COL ?? 1 }.Max();
-
-                        var ws = wb.Worksheets.Add("Inserting Data");
-                        wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
-                        ws.Cell(1, _pol.DATE_COL ?? 1).Value = "Date (" + _pol.DATE_FORMAT + ")";
-                        ws.Cell(1, _pol.TIME_COL ?? 1).Value = "Time (" + _pol.TIME_FORMAT + ")";
-
-                        foreach (PollConfigDtlDisplay _poldtl in _poldtls)
-                        {
-                            ws.Cell(1, _poldtl.COL ?? 1).Value = _poldtl.PAR_NAME;
-                            maxCol = (_poldtl.COL > maxCol ? _poldtl.COL ?? 1 : maxCol);
-                        }
-
-                        //apply formatting
-                        var range5 = ws.Range(1, 1, 1000, maxCol);
-                        range5.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-                        range5.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-
-                        ws.Columns().AdjustToContents();
-
-                        MemoryStream ms = new MemoryStream();
-                        wb.SaveAs(ms);
-                        ms.Position = 0;
-                        Response.Clear();
-                        Response.Buffer = true;
-                        Response.Charset = "";
-                        Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                        Response.AddHeader("content-disposition", "attachment;filename=QRESTImportTemplate.xlsx");
-                        ms.WriteTo(Response.OutputStream);
-                        Response.Flush();
-                        Response.End();
-
-                        return null;
-                    }
-
-                }
-                else
-                {
-                    TempData["Error"] = "No parameters defined for configuration";
-                    return RedirectToAction("SitePollConfig", new { id });
-                }
-            }
-            else
-            {
-                TempData["Error"] = "Unable to find configuration";
-                return RedirectToAction("SiteList");
-            }
-        }
 
 
         public ActionResult DownloadTemplateBySite(Guid? id)
@@ -985,6 +948,9 @@ namespace QREST.Controllers
         public ActionResult MonitorList(string selOrgID)
         {
             string UserIDX = User.Identity.GetUserId();
+
+            if (string.IsNullOrEmpty(selOrgID))
+                selOrgID = null;
 
             var model = new vmSiteMonitorList
             {

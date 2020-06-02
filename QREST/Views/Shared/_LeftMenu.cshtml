@@ -44,7 +44,7 @@
                         </ul>
                     </li>
                     <li class="leftmenuhead">
-                        <a href="#">
+                        <a href="#" class="">
                             <i class="fa fa-cloud icon">
                                 <b class="bg-warning"></b>
                             </i>
@@ -55,7 +55,7 @@
                             <span>Air Data</span>
                         </a>
                         <ul class="nav lt">
-                            <li class="@Html.ActivePage("Data", "ManualImport")">
+                            <li class="@Html.ActivePage("Data", "ManualImport,ImportConfig,ImportList")">
                                 <a href="@Url.Action("ManualImport", "Data")">
                                     <i class="fa fa-angle-right"></i>
                                     <span class="title">Manual Import</span>
@@ -79,13 +79,12 @@
                                     <span class="title">Quality Control</span>
                                 </a>
                             </li>
-                            <li class="@Html.ActivePage("Data", "AQS,AQSList")">
+                            <li class="@Html.ActivePage("Data", "AQS,AQSList,AQSGen,AQSGenQA,AQSAcct")">
                                 <a href="@Url.Action("AQSList", "Data")">
                                     <i class="fa fa-angle-right"></i>
                                     <span class="title">AQS Submission</span>
                                 </a>
                             </li>
-
                         </ul>
                     </li>
                     <li class="leftmenuhead">
@@ -199,7 +198,8 @@
                 <i class="fa fa-angle-right text-active"></i>
             </a>
             <div class="btn-group hidden-nav-xs">
-                <a href="@Url.Action("Index", "Home")" class="btn btn-sm btn-rounded btn-default">Public Site <i class="fa fa-share-square-o"></i></a>
+                <a href="@Url.Action("Help", "Home")/#@ViewBag.HelpLink" id="leftHelp" class="btn btn-rounded btn-sm btn-info" target="_blank"><i class="fa fa-question"></i></a>
+                <a href="@Url.Action("Index", "Home")" id="leftMap" class="btn btn-rounded btn-sm btn-icon btn-warning"><i class="fa fa-globe" style="margin-left:8px;"></i></a>
             </div>
         </footer>
     </section>

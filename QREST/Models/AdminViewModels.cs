@@ -53,10 +53,6 @@ namespace QREST.Models
     }
 
 
-    public class vmAdminDocConfig
-    {
-    }
-
 
 
     // ******************************** TASKS******** ****************************

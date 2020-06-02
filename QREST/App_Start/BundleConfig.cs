@@ -23,7 +23,6 @@ namespace QREST
                 "~/Scripts/dataTables/plugins/datetime.js" ));
             bundles.Add(new ScriptBundle("~/bundles/confirm-delete").Include("~/Scripts/confirm-delete.js"));
             bundles.Add(new ScriptBundle("~/bundles/toastr").Include("~/Scripts/toastr.min.js"));
-            //bundles.Add(new ScriptBundle("~/bundles/datepicker").Include("~/Scripts/datepicker.min.js"));
             bundles.Add(new ScriptBundle("~/bundles/filestyle").Include("~/Scripts/bootstrap-filestyle.min.js"));
             bundles.Add(new ScriptBundle("~/bundles/cleave").Include("~/Scripts/cleave.min.js","~/Scripts/cleave.qrest.js"));
             bundles.Add(new ScriptBundle("~/bundles/areyousure").Include(
@@ -47,7 +46,6 @@ namespace QREST
                       "~/Content/css/font-awesome.min.css",
                       "~/Scripts/dataTables/DataTables-1.10.18/css/jquery.dataTables.min.css",
                       "~/Content/css/toastr.min.css",
-                     // "~/Content/css/datepicker.min.css",
                       "~/Content/css/select2.min.css"
                       ));
 

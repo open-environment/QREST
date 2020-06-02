@@ -20,7 +20,7 @@ namespace QREST_TaskConsole
                     {
                         string fileSite = _site.ORG_ID.Substring(0,2) + "_" + _site.SITE_IDX.ToString().Substring(0, 8);
                         
-                        List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_site.POLL_CONFIG_IDX);
+                        List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_site.POLL_CONFIG_IDX, true);
                         if (_config_dtl != null && _config_dtl.Count > 0)
                         {
                             WriteToFile("Starting poll for org:" + _site.ORG_ID + " site: " + _site.SITE_ID);

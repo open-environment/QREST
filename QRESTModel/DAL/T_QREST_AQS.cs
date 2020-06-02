@@ -31,6 +31,7 @@ namespace QRESTModel.DAL
         public string AQS_CONTENT_XML { get; set; }
         public string CDX_TOKEN { get; set; }
         public byte[] DOWNLOAD_FILE { get; set; }
+        public string AQS_TRANS_TYPE { get; set; }
     
         public virtual T_QREST_ORGANIZATIONS T_QREST_ORGANIZATIONS { get; set; }
         public virtual T_QREST_SITES T_QREST_SITES { get; set; }

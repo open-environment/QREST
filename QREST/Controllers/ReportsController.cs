@@ -70,7 +70,7 @@ namespace QREST.Controllers
                 {
                     DateTime? d1 = d[0].ConvertOrDefault<DateTime?>();
                     DateTime? d2 = (d.Length > 1) ? d[1].ConvertOrDefault<DateTime?>() : null;
-                    dtData = DataTableGen.RawData(model.selType, model.selOrgID, null, model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault());
+                    dtData = DataTableGen.RawData(model.selType, model.selOrgID, null, model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType);
                 }
             }
 

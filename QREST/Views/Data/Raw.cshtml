@@ -9,28 +9,31 @@
     @if (Model.ddl_Organization.Count() > 0)
     {
         <div class="panel-body">
-            <form class="form-inline m-b-sm" onsubmit="return false">
+            @using (Html.BeginForm("Raw", "Data", FormMethod.Post, new { @class = "form-inline m-b-sm" }))
+            { 
+                @*@Html.HiddenFor(model => model.selDate)*@
+
                 @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
                 @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, "", new { @class = "form-control" })
-                <select id="selType" class="form-control">
-                    <option value="H">Hourly</option>
-                    <option value="F">5-Minute</option>
-                </select>
-                <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
-                <button id="btnGo" class="btn  btn-primary">Go</button>
+                @Html.DropDownListFor(model => model.selType, Model.ddl_DurationType, new { @class = "form-control" })
+                @Html.DropDownListFor(model => model.selTimeType, Model.ddl_TimeType, new { @class = "form-control" })
+                @Html.TextBoxFor(model => model.selDate, new { @data_start="", @data_end="", @class = "form-control", @style ="width:300px"  })
+                @*<input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />*@
+                <button id="btnGo" type="submit" class="btn btn-primary">Go</button>
 
                 <div class="btn-group pull-right" data-toggle="buttons">
                     <label id="btnChartToggle" class="btn btn-default btn-rounded active" data-target="#chartContainer" data-toggle="collapse">
-                        <input type="checkbox" name="options" id="option1"><i class="fa fa-check text-active"></i> <span><i class="fa fa-line-chart"></i></span>
+                        <input type="checkbox" name="option1" id="option1"><i class="fa fa-check text-active"></i> <span><i class="fa fa-line-chart"></i></span>
                     </label>
                     <label class="btn btn-default btn-rounded active" data-target="#gridContainer" data-toggle="collapse">
-                        <input type="checkbox" name="options" id="option1"><i class="fa fa-check text-active"></i> <span><i class="fa fa-table"></i></span>
+                        <input type="checkbox" name="option2" id="option2"><i class="fa fa-check text-active"></i> <span><i class="fa fa-table"></i></span>
                     </label>
                 </div>
-
-            </form>
-
-            <div id="chartContainer" class="collapse in" style="height: 370px; width: 100%;">
+                }
+            
+            @if (Model.RawData != null)
+            {
+            <div id="chartContainer" class="collapse in" style="height: 400px; width: 100%;" >
             </div>
 
             <div id="gridContainer" class="table-responsive collapse in">
@@ -41,18 +44,50 @@
                             <th>Par Code</th>
                             <th>Parameter</th>
                             <th>POC</th>
-                            <th>Time UTC</th>
+                            <th>Date/Time</th>
                             <th>Value</th>
                             <th>Flagged</th>
                         </tr>
                     </thead>
+                    <tbody>
+                        @foreach (var item in Model.RawData)
+                        {
+                            <tr data-date="@Html.DisplayFor(modelItem => item.DATA_DTTM)">
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SITE_ID)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PAR_CODE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PAR_NAME)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.POC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DATA_DTTM)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DATA_VALUE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.VAL_CD)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
                 </table>
+
+
             </div>
+            }
         </div>
     }
     else
     {
-        <div class="panel-body">You can manage sites after you have been associated with a tribal organization.</div>
+        <div class="panel-body">You can view data after you have been associated with a tribal organization.</div>
     }
 </section>
 
@@ -69,14 +104,64 @@
 
             moment.updateLocale(moment.locale(), { invalidDate: "" });
 
+            $('#gridData').DataTable({
+                "scrollY": "400px",
+                "scrollCollapse": true,
+                "paging": false,
+                "searching": false,
+            });
+
+            var dataPointsA = [];
+            var parName;
+            var chart;
+
+            @if (Model.RawData != null && Model.RawData.Count > 0)
+            {
+                <text>parName = '@Model.RawData[0].PAR_NAME (' + '@Model.RawData[0].UNIT_DESC' + ')'</text>
+                foreach (var item in Model.RawData)
+                {
+                    <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsA);</text>
+                }
+            }
+
+            function addPoint(xx, yy, zz, array) {
+                var lcolor = "#67B347";
+                if (yy == "FEW")
+                    lcolor = "#ffee8c";
+                else if (zz == "MIN")
+                    lcolor = "#d32d41";
+                else if (zz == "MAX")
+                    lcolor = "#d32d41";
+                else if (zz == "JUMP")
+                    lcolor = "#6F2DA7";
+
+                array.push({
+                    x: new Date(xx),
+                    y: yy == "FEW" ? 0 : Number(yy),
+                    lineColor: lcolor,
+                    color: lcolor
+                });
+            }
+
+            //set proper dates in datetime combo
+            var sDt = moment().startOf('day');
+            var eDt = moment().endOf('day');
+            if ($("#selDate").val().length > 0) {
+                var xxx = $("#selDate").val().split(' - ');
+                if (xxx.length == 2) {
+                    sDt = xxx[0];
+                    eDt = xxx[1];
+                }
+            }
+
             //daterange selector initialization
             $('input[name="selDate"]').daterangepicker({
                 timePicker: true,
                 timePickerIncrement: 60,
                 timePicker24Hour: true,
                 autoUpdateInput: true,
-                startDate: moment().startOf('day'),
-                endDate: moment().endOf('day'),
+                startDate: sDt,
+                endDate: eDt,
                 ranges: {
                     'Today': [moment().startOf('day'), moment().endOf('day')],
                     'Yesterday': [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')],
@@ -89,80 +174,22 @@
                 }
             }
                 , function (start, end, label) {
+                    //callback, gets fired when date range is selected, setting values to viewmodel
                     $('#selDate').data('start', start.format('YYYY-MM-DD'));
                     $('#selDate').data('end', end.format('YYYY-MM-DD'));
-                }
+            }
             );
-
-            // datatable initialization
-            var table = $("#gridData").DataTable({
-                "responsive": true,
-                "serverSide": true,
-                "processing": true,
-                "orderMulti": false,
-                "lengthChange": false,
-                "paging": true,
-                "pageLength": 50,
-                "pagingType": "full_numbers",
-                "info": false,
-                "searching": false,
-                "ajax": {
-                    "url": "@Url.Action("RawData", "Data")",
-                    "type": "POST",
-                    "datatype": "json",
-                    "error": function (e) {},
-                    "data": function (d) {
-                        return $.extend({}, d, {
-                            "selOrg": $('#selOrgID').val(),
-                            "selType": $('#selType').val(),
-                            "selDate": $('#selDate').val(),
-                            "selMon": $('#selMon').val()
-                        });
-                    }
-                },
-                "order": [[0, "desc"]],
-                "columns": [
-                    { "data": "SITE_ID", "name": "SITE_ID", "autoWidth": true },
-                    { "data": "PAR_CODE", "name": "PAR_CODE", "autoWidth": true },
-                    { "data": "PAR_NAME", "name": "PAR_NAME", "autoWidth": true },
-                    { "data": "POC", "name": "POC", "autoWidth": true },
-                    {
-                        "data": "DATA_DTTM",
-                        "name": "DATA_DTTM",
-                        "autoWidth": true,
-                        render: function (d) {
-                            return moment(d).format("MM/DD/YYYY hh:mm A ");
-                        }
-                    },
-                    { "data": "DATA_VALUE", "name": "DATA_VALUE", "autoWidth": true },
-                    { "data": "VAL_CD", "name": "VAL_CD", "autoWidth": true }
-                ],
-                fnDrawCallback: function (oSettings) {
-                    var totalPages = this.api().page.info().pages;
-                    if (totalPages == 1) {
-                        jQuery('.dataTables_paginate').hide();
-                    }
-                    else {
-                        jQuery('.dataTables_paginate').show();
-                    }
-                }
-            });
-
-            //filter click
-            $('#btnGo').on('click', function () {
-                tableDraw();
-                getDataChart();
-            })
-
 
 
             $('#chartContainer').on("shown.bs.collapse", function () {
-                getDataChart();
                 $("#chartContainer").height(400);
             });
 
+
             //initialize monitor dropdown on page load
-            fetchMonitors();
+            if ($('#selMon') == null)
+                fetchMonitors();
+
 
             //update monitor dropdown
             $('#selOrgID').change(function () {
@@ -183,90 +210,54 @@
                 });
             };
 
-            function tableDraw() {
-                table.draw();
-            }
 
-            function getDataChart() {
+            //hide chart if no data
+            if (dataPointsA.length > 0) {
+                chart = new CanvasJS.Chart("chartContainer", {
+                    zoomEnabled: true,
+                    animationEnabled: true,
+                    exportEnabled: true,
+                    title: {
+                        text: parName
+                    },
+                    data: [{
+                        type: "column",
+                        connectNullData: true,
+                        xValueType: "dateTime",
+                        xValueFormatString: "MM/DD/YYYY HH:mm",
+                        name: "line1",
+                        dataPoints: dataPointsA
+                    }],
+                    rangeChanged: function (e) {
 
-                var dataPointsA = [];
-                var parName;
+                        var x1 = moment(e.axisX[0].viewportMinimum).format('MM-DD-YYYY HH:mm');
+                        var x2 = moment(e.axisX[0].viewportMaximum).format('MM-DD-YYYY HH:mm');
 
-                $.ajax({
-                    type: "POST",
-                    datatype: "json",
-                    url: "@Url.Action("RawDataChart", "Data")",
-                    data: jQuery.param({
-                        selOrg: $('#selOrgID').val(),
-                        selType: $('#selType').val(),
-                        selDate: $('#selDate').val(),
-                        selMon: $('#selMon').val()
-                    }),
-                    success: function (field) {
-                        var fff = field;
-                        if (fff != null) {
-                            var lcolor="blue";
-                            for (var i = 0; i < fff.length; i++) {
-                                if (fff[i].DATA_VALUE == "FEW") {
-                                    lcolor = "#ffee8c";
-                                }
-                                else if (fff[i].VAL_CD == "MIN") {
-                                    lcolor = "#d32d41";
-                                }
-                                else if (fff[i].VAL_CD == "MAX") {
-                                    lcolor = "#d32d41";
-                                }
-                                else if (fff[i].VAL_CD == "JUMP") {
-                                    lcolor = "#6F2DA7";
-                                }
-                                else {
-                                    lcolor = "#67B347";
-                                }
-                                    dataPointsA.push({
-                                        x: new Date(moment(fff[i].DATA_DTTM).format('MM/DD/YYYY HH:mm')),
-                                        y: fff[i].DATA_VALUE == "FEW" ? 0 : Number(fff[i].DATA_VALUE),
-                                        lineColor: lcolor,
-                                        color: lcolor                                    
-                                    });
-                                parName = fff[i].PAR_NAME;
+                        $('#gridData tbody tr').each(function (index, element) {
+                            rowdt = $(this).attr('data-date');
+                            rowdt = new Date(rowdt);
+                            x1d = new Date(x1);
+                            x2d = new Date(x2);
+                            if (rowdt.getTime() < x1d.getTime() || rowdt.getTime() > x2d.getTime()) {
+                                $(this).css('display', 'none');
                             }
-
-                            var chart = new CanvasJS.Chart("chartContainer", {
-                                zoomEnabled: true,
-                                animationEnabled: true,
-                                exportEnabled: true,
-                                title: {
-                                    text: parName
-                                },
-                                data: [{
-                                    type: "column",
-                                    connectNullData: true,
-                                    xValueType: "dateTime",
-                                    xValueFormatString: "MM/DD/YYYY HH:mm",
-                                    name: "line1",
-                                    dataPoints: dataPointsA
-                                }],
-                                rangeChanged: function (e) {
-                                    var x1 = moment(e.axisX[0].viewportMinimum).format('MM/DD/YYYY HH:mm');
-                                    var x2 = moment(e.axisX[0].viewportMaximum).format('MM/DD/YYYY HH:mm');
-                                    $('#selDate').val(x1 + ' - ' + x2);
-                                    tableDraw();
-                                }
-                            });
-
-
-                            chart.render();
-                        }
+                            else {
+                                $(this).css('display', '');
+                            }
+                        });
                     }
                 });
 
+                chart.render();
+
+                $("#chartContainer").show();
+                $("#chartContainer").css("height", "320px");
             }
+            else
+                $("#chartContainer").hide();
 
 
         });
 
-
     </script>
-
-
 }

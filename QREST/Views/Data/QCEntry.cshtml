@@ -3,140 +3,183 @@
     ViewBag.Title = "Quality Control Data Entry";
 }
 
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<h3 class="text-center">Planned Phase 2.</h3>
 
+@using (Html.BeginForm("QCEntry", "Data", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.QC_ASSESS_IDX)
 
-<div class="row">
-
-    @using (Html.BeginForm("QCEntry", "Data", FormMethod.Post, new { @id = "norepostform", role = "form" }))
-    {
-        @Html.AntiForgeryToken()
-        @Html.HiddenFor(model => model.QC_ASSESS_IDX)
-
-        <div class="col-md-12">
-            <section class="panel panel-qrest">
-                <header class="panel-heading font-bold">Basic Info</header>
-                <div class="panel-body">
-
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Select Monitor</label>
+    <div class="row col-md-12">
+        <section class="panel panel-qrest">
+            <header class="panel-heading font-bold">Basic Info</header>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Select Monitor</label>
+                            @if (Model.QC_ASSESS_IDX == null)
+                            {
                                 @Html.DropDownListFor(model => model.MONITOR_IDX, Model.ddl_Monitor, "", new { @class = "form-control" })
                                 @Html.ValidationMessageFor(model => model.MONITOR_IDX)
-                            </div>
+                            }
+                            else
+                            {
+                                @Html.HiddenFor(model => model.MONITOR_IDX)
+                                @Html.DropDownListFor(model => model.MONITOR_IDX, Model.ddl_Monitor, "", new { @class = "form-control", @disabled = "disabled" })
+                            }
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Assessment Date</label>
-                                @Html.TextBoxFor(model => model.ASSESSMENT_DT, new { @class = "form-control date-cleave", @maxlength = "10", @autocomplete = "off", @placeholder = "mm/dd/yyyy" })
-                                @Html.TextBoxFor(model => model.ASSESSMENT_TM, new { @class = "form-control ", @maxlength = "5", @autocomplete = "off", @placeholder = "hh:mm" })
-                                @Html.ValidationMessageFor(model => model.ASSESSMENT_DT)
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Assessment Type</label>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Assessment Type</label>
+                            @if (Model.QC_ASSESS_IDX == null)
+                            {
                                 @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control" })
                                 @Html.ValidationMessageFor(model => model.ASSESSMENT_TYPE)
-                            </div>
+                            }
+                            else
+                            {
+                                @Html.HiddenFor(model => model.ASSESSMENT_TYPE)
+                                @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control", @disabled = "disabled" })
+                            }
                         </div>
                     </div>
-                    <p>
-                        <button id="btnSave" type="submit" disabled class="btn btn-primary">Continue</button>
-                        <a class=" btn btn-default" href="@Url.Action("QCList")">Back to List</a>
-                    </p>
-
-                    <div class="line line-dashed line-lg pull-in"></div>
-
-                    <h4>continue </h4>
-                    @*<div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Address</label>
-                                    @Html.TextBoxFor(model => model.ADDRESS, new { @class = "form-control", @maxlength = "100" })
-                                    @Html.ValidationMessageFor(model => model.ADDRESS)
-                                </div>
-                            </div>
-                        </div>*@
-
-                    <p>
-                        <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
-                        <a class=" btn btn-default" href="@Url.Action("QCList")">Back to List</a>
-                    </p>
                 </div>
-            </section>
-        </div>
-
-        if (Model.QC_ASSESS_IDX != null)
-        {
-            <div class="col-md-12">
-                <section class="panel panel-qrest">
-                    <header class="panel-heading font-bold">Assessment Details</header>
-                    <div class="panel-body">
-
-                        @*@if (Model.Assessment != null)
-                            {
-
-                                <div class="table-responsive">
-                                    <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 120px;"></th>
-                                                <th>Parameter</th>
-                                                <th>Method Code</th>
-                                                <th>POC</th>
-                                                <th>Duration Code</th>
-                                                <th>Collection Frequency</th>
-                                            </tr>
-                                        </thead>
-                                        @foreach (var item in Model.monitors)
-                                        {
-                                            <tr>
-                                                <td>
-                                                    <a href="@(Url.Action("MonitorEdit", "Site", new { id = item.T_QREST_MONITORS.MONITOR_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
-                                                    <div class="delete-section" style="display:inline-block">
-                                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete"><b>Confirm Delete</b></div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.PAR_NAME)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.METHOD_CODE)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.POC)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.DURATION_CODE)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.T_QREST_MONITORS.COLLECT_FREQ_CODE)
-                                                </td>
-                                            </tr>
-                                        }
-                                    </table>
-                                </div>
-                            }*@
-
-                        @*<a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>*@
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Date</label>
+                            @Html.TextBoxFor(model => model.ASSESSMENT_DT, new { @class = "form-control date-cleave", @maxlength = "10", @autocomplete = "off", @placeholder = "mm/dd/yyyy" })
+                            @Html.ValidationMessageFor(model => model.ASSESSMENT_DT)
+                        </div>
                     </div>
-                </section>
-
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Time</label>
+                            @Html.TextBoxFor(model => model.ASSESSMENT_TM, new { @class = "form-control time-cleave", @maxlength = "5", @autocomplete = "off", @placeholder = "hh:mm" })
+                            @Html.ValidationMessageFor(model => model.ASSESSMENT_TM)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Assessed By</label>
+                            @Html.TextBoxFor(model => model.ASSESSED_BY, new { @class = "form-control", @maxlength = "128" })
+                            @Html.ValidationMessageFor(model => model.ASSESSED_BY)
+                        </div>
+                    </div>
+                </div>
 
             </div>
-        }
+        </section>
+    </div>
+
+    if (Model.QC_ASSESS_IDX != null)
+    {
+        <div class="row col-md-12">
+            <section class="panel panel-qrest">
+                <header class="panel-heading font-bold">Assessment Details</header>
+                <div class="panel-body">
+
+                    @if (Model.AssessmentDetails != null)
+                    {
+                        <div class="table-responsive">
+                            <table id="gridData" class="table table-bordered" data-ride="datatables" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Assessment (known or true) Value</th>
+                                        <th>Monitor (output) Value</th>
+                                        <th>Difference</th>
+                                        <th>% Difference</th>
+                                        <th>Concentration Range</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                </thead>
+                                @for (int i = 0; i < Model.AssessmentDetails.Count(); i++)
+                                {
+                                    <tr>
+                                        @Html.HiddenFor(model => model.AssessmentDetails[i].QC_ASSESS_DTL_IDX)
+                                        <td>
+                                            <div class="delete-section" style="display:inline-block">
+                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@Html.ValueFor(model => model.AssessmentDetails[i].QC_ASSESS_DTL_IDX)" data-delete-p="/Data/QCDtlDelete"><b>Confirm Delete</b></div>
+                                            </div>
+                                        </td>
+                                        <td style="padding:0">
+                                            @Html.TextBoxFor(model => model.AssessmentDetails[i].ASSESS_KNOWN_CONCENTRATION, new { @class = "form-control input", @autocomplete="off" })
+                                        </td>
+                                        <td style="padding:0">
+                                            @Html.TextBoxFor(model => model.AssessmentDetails[i].MON_CONCENTRATION, new { @class = "form-control", @autocomplete = "off" })
+                                        </td>
+                                        @if (Model.AssessmentDetails[i].exceed_amt_difference_ind == true)
+                                        {
+                                            <td class="lert bg-danger">@String.Format("{0:G}", Model.AssessmentDetails[i].difference)</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="lert bg-success">@String.Format("{0:G}", Model.AssessmentDetails[i].difference)</td>
+                                        }
+                                        @if (Model.AssessmentDetails[i].exceed_pct_difference_ind == true)
+                                        {
+                                            <td class="lert bg-danger">@Html.DisplayFor(model => model.AssessmentDetails[i].pct_difference)</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="lert bg-success">@Html.DisplayFor(model => model.AssessmentDetails[i].pct_difference)</td>
+                                        }
+                                        <td class="lert @(Model.AssessmentDetails[i].audit_level_int==0?"bg-danger":"bg-success")">
+                                            @Html.DisplayFor(model => model.AssessmentDetails[i].audit_level_disp)
+                                        </td>
+                                        <td style="padding:0">
+                                            @Html.TextBoxFor(model => model.AssessmentDetails[i].COMMENTS, new { @class = "form-control input", @autocomplete = "off" })
+                                        </td>
+
+                                    </tr>
+                                }
+
+                                @if (Model.ASSESSMENT_TYPE== "Annual PE" && Model.AuditLevelDistinctCount != null)
+                                {
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    @if (Model.AuditLevelDistinctCount < 3)
+                                    {
+                                        <td class="lert bg-danger">Covers @Html.DisplayFor(model => model.AuditLevelDistinctCount) distinct Audit Levels</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="lert bg-success">Covers @Html.DisplayFor(model => model.AuditLevelDistinctCount) distinct Audit Levels</td>
+                                    }
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                                }
+                            </table>
+                        </div>
+                    }
+
+                    @*<a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>*@
+                </div>
+            </section>
+
+
+        </div>
     }
-</div>
+
+    <p>
+        <button id="btnSave" type="submit" disabled class="btn btn-primary ">Save</button>
+        <a class=" btn btn-default" href="@Url.Action("QCList", new { selOrgID = Model.ORG_ID })">Back to List</a>
+        @if (Model.QC_ASSESS_IDX != null)
+        {
+        <a class=" btn btn-danger pull-right" href="@Url.Action("AQSGenQA", new { typ = "QA", qid=Model.QC_ASSESS_IDX })">Send to AQS</a>
+        }
+    </p>
+
+}
+
 
 @section Scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/cleave")
     @Scripts.Render("~/bundles/areyousure")
 
@@ -146,10 +189,34 @@
         // Enable/disable the submit button when the state transitions between dirty and clean.
         $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
             if (ev.type === 'dirty') {
+                $(".lert").removeClass("bg-danger").removeClass("bg-success").addClass("bg-light").addClass("blurzy");
                 $("#btnSave").prop("disabled", false);
             } else {
+                $(".lert").removeClass("bg-light").removeClass("blurzy");
                 $("#btnSave").prop("disabled", true);
             }
+        });
+
+
+
+        $(document).ready(function () {
+            //$(".difference").each(function () {
+            //    var x = Number($(this).attr("data-known"));
+            //    var y = Number($(this).attr("data-mon"));
+            //    var z = Number(y - x);
+
+            //    if (!isNaN(z))
+            //        $(this).text(z);
+            //});
+
+            //$(".differencePct").each(function () {
+            //    var x = parseFloat($(this).attr("data-known"));
+            //    var y = parseFloat($(this).attr("data-mon"));
+            //    var z = y - x;
+            //    var pct = (z * 100) / x;
+            //    if (!isNaN(pct))
+            //        $(this).text(Math.round(pct * 10) / 10);
+            //});
         });
     </script>
 }

@@ -1,6 +1,7 @@
 ﻿@model QREST.Models.vmAdminHelpConfig
 @{
     ViewBag.Title = "Online Help Configuration";
+    ViewBag.HelpLink = "Online-Help-Configuration";
 }
 
 <section class="hbox">
@@ -48,7 +49,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            Email Body
+                            Help Body
                             @Html.EditorFor(model => model.editHelpHtml, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.EditHelp.HELP_HTML)
                         </div>
@@ -69,13 +70,14 @@
 
             <!-- Modal content-->
             <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add New Help Topic</h4>
-                </div>
-                <div class="modal-body">
-                    @using (Html.BeginForm("HelpConfig", "Admin", FormMethod.Post))
-                    {
+                @using (Html.BeginForm("HelpConfig", "Admin", FormMethod.Post))
+                {
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Add New Help Topic</h4>
+                    </div>
+                    <div class="modal-body">
+
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.EditHelp.HELP_IDX, new { id = "hdnHelpIdx" })
 
@@ -98,18 +100,13 @@
                                 </div>
                             </div>
                         </div>
-
-                        <p>
-                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </p>
-                    }
-                </div>
-                <div class="modal-footer">
-
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                }
             </div>
-
         </div>
     </div>
 </section>

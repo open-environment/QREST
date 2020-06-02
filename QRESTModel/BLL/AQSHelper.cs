@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using System.Web.Services.Protocols;
 using QRESTModel.BLL;
-
+using System.Security.Policy;
 
 namespace QRESTModel.AQSHelper
 {
@@ -32,6 +32,19 @@ namespace QRESTModel.AQSHelper
 
             return null; 
         }
+
+        public static Guid? AQS_QA_Generation_Orchestrator(string org_id, Guid siteIDX, Guid qC_ASSESS_IDX, string UserIDX, string actionCd, string format)
+        {
+            //Step 1: Create tracking record
+            Guid? _aqsid = db_Air.InsertUpdateT_QREST_AQS(null, org_id, siteIDX, null, null, null, null, null, null, "Started", UserIDX, null, null, null);
+
+            //Step 2: Generate file and store to the previously created record
+            if (_aqsid != null)
+                return AQSHelper.GenerateAQS_QA_File(_aqsid.GetValueOrDefault(), qC_ASSESS_IDX, actionCd, format, org_id);
+
+            return null;
+        }
+
 
         public static Guid? GenerateAQSFile(Guid aqsIDX, Guid siteIDX, IList<Guid> selMons, DateTime startDate, DateTime endDate, string actionCode, string format, string org_id)
         {
@@ -95,6 +108,74 @@ namespace QRESTModel.AQSHelper
             }
             return null;
         }
+
+        public static Guid? GenerateAQS_QA_File(Guid aqsIDX, Guid selQC_ASSESS_IDX, string actionCode, string format, string org_id)
+        {
+            //***************  STEP 0: GET AQS SCREENING GROUP AND AQS USER ID***************  
+            T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(org_id);
+            if (_org != null)
+            {
+                string _AQS_UID = _org.AQS_AQS_UID;
+                string _AQS_SCREENING_GRP = _org.AQS_AQS_SCREENING_GRP;
+
+                //***************  STEP 1: GENERATE FILE***************  
+                if (format == "F")
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        StreamWriter writer = new StreamWriter(ms);
+
+                        //add QA data lines
+                        QcAssessmentAqsDisplay _assess = db_Air.GetT_QREST_QC_ASSESSMENT_AQSData_ByID(selQC_ASSESS_IDX);
+                        if (_assess != null)
+                        {
+                            string dt = _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_DT.ToString("yyyyMMdd");
+                            string line = "QA|" + actionCode + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE + "||" + _assess.STATE_CODE + "|" + _assess.COUNTY_CD + "|" + _assess.AQS_SITE_ID + "|" + _assess.PAR_CODE + "|" + _assess.POC + "|" + dt + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_NUM.ToString() + _assess.METHOD_CODE + "|" + _assess.UNIT_CODE + "|";
+
+
+                            List<QC_ASSESSMENT_DTLDisplay> _rds = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(selQC_ASSESS_IDX);
+                            if (_rds != null && _rds.Count>0)
+                            {
+                                //*************** 1 POINT QC LOGIC **************************************
+                                if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "1-Point QC")
+                                {
+                                    line = line + _rds[0].MON_CONCENTRATION + "|" + _rds[0].ASSESS_KNOWN_CONCENTRATION + "||" + _rds[0].COMMENTS;
+                                }
+
+                            }
+
+                            writer.WriteLine(line);
+                            writer.Flush();
+
+                            string fileText = Encoding.UTF8.GetString(ms.ToArray());
+
+                            //add network header
+                            string fileWithHeader = AddENHeaderToFileAndSave(aqsIDX, fileText, format, _AQS_UID, _AQS_SCREENING_GRP);
+                            byte[] fileWithHeaderArray = Encoding.UTF8.GetBytes(fileWithHeader);
+                            MemoryStream msFormXml = new MemoryStream(fileWithHeaderArray);
+
+                            //zip it up
+                            byte[] zipbyteArray = UtilsZip.CreateZIPFileFromMemoryStream(msFormXml, "AQSSubmission.xml");
+
+                            //save updated file with Header version and non-header version
+                            string ext = format == "X" ? ".xml" : ".txt";
+                            string fileName = "AQS_QA_" + dt + ext;
+
+                            Guid? SuccID = db_Air.InsertUpdateT_QREST_AQS(aqsIDX, null, null, fileName, null, null, zipbyteArray, null, null, "File Created", null, fileText, null, null);
+                            return SuccID;
+                        }
+                    }
+
+
+                }
+                else if (format == "X")
+                {
+
+                }
+            }
+            return null;
+        }
+
 
         public static string AddENHeaderToFileAndSave(Guid AQSIdx, string fileBody, string format, string AQS_UID, string AQS_SCREENING_GRP)
         {

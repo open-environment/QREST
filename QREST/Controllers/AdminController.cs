@@ -226,6 +226,9 @@ namespace QREST.Controllers
             {
                 imageFile = Request.Files[0];
                 string fileName = imageFile.FileName;
+
+                if (fileName == "image.png")
+                    fileName = "image" + DateTime.Now.ToString("yyyy-dd-MM-HH-mm-ss") + ".png";
                 if (!Directory.Exists(Server.MapPath("~/TinyMCEImg/")))
                     Directory.CreateDirectory(Server.MapPath("~/TinyMCEImg/"));
                 string filePath = Server.MapPath("~/TinyMCEImg/") + fileName;
@@ -249,6 +252,7 @@ namespace QREST.Controllers
                     return Json("Unable to delete section.");
             }
         }
+
 
 
         //************************************* ORGANIZATIONS ************************************************************
@@ -534,12 +538,6 @@ namespace QREST.Controllers
 
 
 
-
-        public ActionResult DocConfig()
-        {
-            var model = new vmAdminDocConfig();
-            return View(model);
-        }
 
 
 

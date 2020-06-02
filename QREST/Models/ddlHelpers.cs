@@ -26,6 +26,14 @@ namespace QREST.Models
             return _list;
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_aqs_trans_type()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "RD", Text = "RD - Raw Data" });
+            _list.Add(new SelectListItem() { Value = "QA", Text = "QA - Quality Assurance" });
+            return _list;
+        }
+
         /// <summary>
         /// Returns all organizations, optionally filtered for active only
         /// </summary>
@@ -88,10 +96,10 @@ namespace QREST.Models
         {
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "1", Text = "1 HOUR" });
-            _list.Add(new SelectListItem() { Value = "G", Text = "1 MINUTE" });
+            //_list.Add(new SelectListItem() { Value = "G", Text = "1 MINUTE" });
             _list.Add(new SelectListItem() { Value = "H", Text = "5 MINUTE" });
-            _list.Add(new SelectListItem() { Value = "I", Text = "10 MINUTE" });
-            _list.Add(new SelectListItem() { Value = "J", Text = "15 MINUTE" });
+            //_list.Add(new SelectListItem() { Value = "I", Text = "10 MINUTE" });
+            //_list.Add(new SelectListItem() { Value = "J", Text = "15 MINUTE" });
             return _list;
         }
 
@@ -110,8 +118,6 @@ namespace QREST.Models
             _list.Add(new SelectListItem() { Value = "ZENO", Text = "Zeno 3200 - TCP Connection" });
             _list.Add(new SelectListItem() { Value = "SUTRON", Text = "Sutron - TCP Connection" });
             _list.Add(new SelectListItem() { Value = "WEATHER_PWS", Text = "Weather.com Personal Weather Station" });
-            _list.Add(new SelectListItem() { Value = "OTHER", Text = "Others (in development)" });
-            _list.Add(new SelectListItem() { Value = "NONE", Text = "None (manual import only)" });
             return _list;
         }
                 
@@ -177,12 +183,12 @@ namespace QREST.Models
         /// <param name="OrgID"></param>
         /// <param name="UserIDX"></param>
         /// <returns></returns>
-        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string OrgID, string UserIDX)
+        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string OrgID, string UserIDX, bool dispUnit)
         {
             return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
-                Text = "Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
+                Text = "Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC + (dispUnit == true ? " | " + x.UNIT_DESC : "")
             });
         }
 
@@ -254,14 +260,15 @@ namespace QREST.Models
             return _list;
         }
 
-        public static IEnumerable<SelectListItem> get_ddl_polling_config(Guid siteIDX)
+        public static IEnumerable<SelectListItem> get_ddl_import_templates(Guid siteIDX)
         {
-            return db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(siteIDX, false).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_SITE_POLL_CONFIG_BySiteByType(siteIDX, "NONE").Select(x => new SelectListItem
             {
                 Value = x.POLL_CONFIG_IDX.ToString(),
                 Text = x.CONFIG_NAME
             });
         }
+
 
         public static IEnumerable<SelectListItem> get_ddl_ref_assess_type()
         {

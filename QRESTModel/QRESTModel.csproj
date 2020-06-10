@@ -313,6 +313,7 @@
     <Content Include="App_Data\20200326_changes.sql" />
     <Content Include="App_Data\20200416_changes.sql" />
     <Content Include="App_Data\20200530_changes.sql" />
+    <Content Include="App_Data\20200603_changes.sql" />
     <Content Include="App_Data\2_createTables.sql" />
     <Content Include="App_Data\3_createFunctions.sql" />
     <Content Include="App_Data\4_populateData.sql" />

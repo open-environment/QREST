@@ -662,7 +662,7 @@ namespace QREST.Controllers
 
                     Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
                         model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
-                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE);
+                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE, true, model.editPOLL_LOG_DESC);
 
                     if (SuccID != null)
                     {

@@ -99,7 +99,7 @@ namespace QRESTModel.DataTableGen
         public static DataTable RawData(string Freq, string orgid, Guid? SiteIDX, Guid? MonIDX, DateTime startDt, DateTime endDt, string tIME_TYPE)
         {
             DataTable dtData = new DataTable("Data");
-            dtData.Columns.AddRange(new DataColumn[13] {
+            dtData.Columns.AddRange(new DataColumn[12] {
                                             new DataColumn("Org ID"),
                                             new DataColumn("Site ID"),
                                             new DataColumn("Par Code"),
@@ -108,11 +108,10 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("POC"),
                                             new DataColumn("DateTime" + (tIME_TYPE == "U" ? " (UTC)" : " (local)")),
                                             new DataColumn("Value"),
-                                            new DataColumn("Flag"),
+                                            new DataColumn("QREST Flag"),
                                             new DataColumn("AQS Null Code"),
                                             new DataColumn("Lvl1 Review"),
-                                            new DataColumn("Lvl2 Review"),
-                                            new DataColumn("")
+                                            new DataColumn("Lvl2 Review")
                                            });
 
             if (Freq == "F")
@@ -121,7 +120,7 @@ namespace QRESTModel.DataTableGen
                 foreach (var _mon in _mons)
                 {
                     dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
-                        _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND, "");
+                        _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND);
                 }
             }
             else if (Freq == "H")
@@ -130,7 +129,7 @@ namespace QRESTModel.DataTableGen
                 foreach (var _mon in _mons)
                 {
                     dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
-                        _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND, "");
+                        _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND);
                 }
             }
             return dtData;

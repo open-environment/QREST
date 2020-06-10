@@ -17,10 +17,15 @@ namespace QREST
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include("~/Scripts/bootstrap.js"));
             //CUSTOM ADDED
             bundles.Add(new ScriptBundle("~/bundles/app").Include("~/Scripts/app.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
                 "~/Scripts/dataTables/jquery.dataTables.min.js",
+                "~/Scripts/dataTables/dataTables.bootstrap.min.js",
+                "~/Scripts/dataTables/plugins/dataTables.select.min.js",
                 "~/Scripts/dataTables/plugins/moment.js",
                 "~/Scripts/dataTables/plugins/datetime.js" ));
+
+
             bundles.Add(new ScriptBundle("~/bundles/confirm-delete").Include("~/Scripts/confirm-delete.js"));
             bundles.Add(new ScriptBundle("~/bundles/toastr").Include("~/Scripts/toastr.min.js"));
             bundles.Add(new ScriptBundle("~/bundles/filestyle").Include("~/Scripts/bootstrap-filestyle.min.js"));
@@ -44,7 +49,10 @@ namespace QREST
                       "~/Content/css/site.css",
                       "~/Content/css/animate.css",
                       "~/Content/css/font-awesome.min.css",
-                      "~/Scripts/dataTables/DataTables-1.10.18/css/jquery.dataTables.min.css",
+
+                      "~/Scripts/dataTables/dataTables.bootstrap.min.css",
+                      "~/Scripts/dataTables/plugins/select.bootstrap.min.css",
+
                       "~/Content/css/toastr.min.css",
                       "~/Content/css/select2.min.css"
                       ));

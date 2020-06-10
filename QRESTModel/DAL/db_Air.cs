@@ -154,6 +154,7 @@ namespace QRESTModel.DAL
         public bool? VAL_IND { get; set; }
         public string VAL_CD { get; set; }
         public string AQS_NULL_CODE { get; set; }
+        public string AQS_QUAL_CODES { get; set; }
         public bool? LVL1_VAL_IND { get; set; }
         public string LVL1_VAL_USERIDX { get; set; }
         public string LVL1_VAL_USER { get; set; }
@@ -163,6 +164,7 @@ namespace QRESTModel.DAL
         public string LVL2_VAL_USER { get; set; }
         public DateTime? LVL2_VAL_DT { get; set; }
         public string NOTES { get; set; }
+        public bool AQSReadyInd { get; set; }
 
     }
 
@@ -1011,7 +1013,7 @@ namespace QRESTModel.DAL
 
         public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG(Guid? pOLL_CONFIG_IDX, Guid? sITE_IDX, string cONFIG_NAME, string rAW_DURATION_CODE, string lOGGER_TYPE, string lOGGER_SOURCE,
             int? lOGGER_PORT, string lOGGER_USERNAME, string lOGGER_PASSWORD, string dELIMITER, int? dATE_COL, string dATE_FORMAT, int? tIME_COL, string tIME_FORMAT, string lOCAL_TIMEZONE,
-            bool aCT_IND, string cREATE_USER, string sITE_NAME, string tIME_POLL_TYPE, bool logChange = true)
+            bool aCT_IND, string cREATE_USER, string sITE_NAME, string tIME_POLL_TYPE, bool logChange = true, string logChangeCustomDesc = null)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1056,6 +1058,9 @@ namespace QRESTModel.DAL
                                 logMsg += Environment.NewLine + "Took polling config offline.";
                             else if (e.ACT_IND == false && aCT_IND == true)
                                 logMsg += Environment.NewLine + "Put polling config online.";
+
+                            if (logChangeCustomDesc != null)
+                                logMsg += Environment.NewLine + logChangeCustomDesc;
 
                             if (cONFIG_NAME != null && cONFIG_NAME != e.CONFIG_NAME) logMsg += Environment.NewLine + "Config name changed from [" + e.CONFIG_NAME + "] to [" + cONFIG_NAME + "]";
                             if (rAW_DURATION_CODE != null && rAW_DURATION_CODE != e.RAW_DURATION_CODE) logMsg += Environment.NewLine + "Duration changed from [" + e.RAW_DURATION_CODE + "] to [" + rAW_DURATION_CODE + "]";
@@ -2091,6 +2096,50 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        public static T_QREST_QC_ASSESSMENT_DTL GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID_Zero(Guid? AssessIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_QC_ASSESSMENT_DTL.AsNoTracking()
+                               where a.QC_ASSESS_IDX == AssessIDX
+                               && a.ASSESS_KNOWN_CONCENTRATION == 0
+                               select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static T_QREST_QC_ASSESSMENT_DTL GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID_NotZero(Guid? AssessIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_QC_ASSESSMENT_DTL.AsNoTracking()
+                            where a.QC_ASSESS_IDX == AssessIDX
+                            && a.ASSESS_KNOWN_CONCENTRATION != 0
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+
+
+
         public static Guid? InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(Guid? qC_ASSESS_DTL_IDX, Guid? qC_ASSESS_IDX, double? mON_CONC, double? aSSESS_KNOWN_CON, string aQS_NULL_CODE, 
             string cOMMENTS, string cREATE_USER)
         {
@@ -2370,7 +2419,7 @@ namespace QRESTModel.DAL
                         org = null;
 
                     string orderCol = "DATA_DTTM";
-                    if (orderBy == 5) orderCol = "DATA_VALUE";
+                    if (orderBy == 5) orderCol = "DATA_VALUE_NUM";
                     else if (orderBy == 6) orderCol = "VAL_CD";
 
                     return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
@@ -2483,6 +2532,7 @@ namespace QRESTModel.DAL
                                 VAL_IND = a.VAL_IND,
                                 VAL_CD = a.VAL_CD,
                                 AQS_NULL_CODE = a.AQS_NULL_CODE,
+                                AQS_QUAL_CODES = a.AQS_QUAL_CODES,
                                 LVL1_VAL_IND = a.LVL1_VAL_IND,
                                 LVL1_VAL_USERIDX = a.LVL1_VAL_USERIDX,
                                 LVL1_VAL_USER = u1.FNAME + " " + u1.LNAME,
@@ -2491,7 +2541,8 @@ namespace QRESTModel.DAL
                                 LVL2_VAL_USERIDX = a.LVL2_VAL_USERIDX,
                                 LVL2_VAL_USER = u2.FNAME + " " + u2.LNAME,
                                 LVL2_VAL_DT = a.LVL2_VAL_DT,
-                                NOTES = a.NOTES
+                                NOTES = a.NOTES,
+                                AQSReadyInd = (a.DATA_VALUE_NUM != null || a.AQS_NULL_CODE != null)
                             }).ToList();
                 }
                 catch (Exception ex)
@@ -2658,7 +2709,8 @@ namespace QRESTModel.DAL
                                              && c.DATA_DTTM_LOCAL == dATA_DTTM_LOCAL
                                              select c).FirstOrDefault();
 
-                    if (e == null)
+                    //insert case
+                    if (e == null)  
                     {
                         insInd = true;
                         e = new T_QREST_DATA_HOURLY();
@@ -2668,7 +2720,36 @@ namespace QRESTModel.DAL
                         e.DATA_DTTM_UTC = dATA_DTTM_UTC;
                     }
 
-                    if (dATA_VALUE != null) e.DATA_VALUE = dATA_VALUE;
+                    if (dATA_VALUE != null)
+                    {
+                        decimal val_num;
+
+                        //numeric
+                        if (Decimal.TryParse(dATA_VALUE, out val_num))
+                        {
+                            e.DATA_VALUE = dATA_VALUE;
+                            e.DATA_VALUE_NUM = val_num;
+                        }
+                        else  //non-numeric
+                        {
+                            e.DATA_VALUE_NUM = null;
+
+                            //lookup AQS Null Code
+                            if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNull(dATA_VALUE))
+                                e.AQS_NULL_CODE = dATA_VALUE;
+                            //lookup AQS Qual Codes
+                            else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNotNull(dATA_VALUE.Replace("*","")))
+                            {
+                                e.AQS_QUAL_CODES = dATA_VALUE.Replace("*", "");
+                            }
+                            else
+                                e.VAL_CD = dATA_VALUE;
+                        }
+
+
+
+                    }
+
                     if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
                     if (vAL_IND != null) e.VAL_IND = vAL_IND;
                     if (vAL_CD != null) e.VAL_CD = vAL_CD.SubStringPlus(0, 5);
@@ -2763,6 +2844,7 @@ namespace QRESTModel.DAL
                                         }
 
                                         e.DATA_VALUE = double.TryParse(val, out _) ? val : null;
+                                        e.DATA_VALUE_NUM = val.ConvertOrDefault<decimal?>();
                                         e.UNIT_CODE = _item.COLLECT_UNIT_CODE;
                                         e.VAL_IND = true;
                                         e.VAL_CD = double.TryParse(val, out _) ? null : val.SubStringPlus(0, 5);
@@ -2811,7 +2893,6 @@ namespace QRESTModel.DAL
         }
 
 
-
         public static Guid? UpdateT_QREST_DATA_HOURLY_Notified(Guid dATA_HOURLY_IDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -2839,7 +2920,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Guid? UpdateT_QREST_DATA_HOURLY(Guid dATA_HOURLY_IDX, string aQS_NULL_CODE, bool? lVL1_VAL_IND, bool? lVL2_VAL_IND, string lVL_VAL_USERIDX, string uNIT_CODE, string nOTES, string dATA_VALUE, string vAL_CD)
+        public static Guid? UpdateT_QREST_DATA_HOURLY(Guid dATA_HOURLY_IDX, string aQS_NULL_CODE, bool? lVL1_VAL_IND, bool? lVL2_VAL_IND, string lVL_VAL_USERIDX, string uNIT_CODE, string nOTES, string dATA_VALUE, string vAL_CD, List<string> aQS_QUAL_CODES)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -2851,8 +2932,11 @@ namespace QRESTModel.DAL
 
                     if (e != null)
                     {
-                        if (aQS_NULL_CODE != null && aQS_NULL_CODE != "-1") e.AQS_NULL_CODE = aQS_NULL_CODE;  //if "-1" then set to null
-                        else if (aQS_NULL_CODE == "-1") e.AQS_NULL_CODE = null;
+                        if (aQS_NULL_CODE != null && aQS_NULL_CODE != "-1") e.AQS_NULL_CODE = aQS_NULL_CODE;  
+                        else if (aQS_NULL_CODE == "-1") e.AQS_NULL_CODE = null;  //if "-1" then set to null
+
+                        if (aQS_QUAL_CODES != null && aQS_QUAL_CODES.Count>0 && aQS_QUAL_CODES[0] != "-1") e.AQS_QUAL_CODES = String.Join("|", aQS_QUAL_CODES);  
+                        else if (aQS_QUAL_CODES != null && aQS_QUAL_CODES.Count > 0 && aQS_QUAL_CODES[0] == "-1") e.AQS_QUAL_CODES = null;  //if "-1" then set to null
 
                         if (lVL1_VAL_IND != null) e.LVL1_VAL_IND = lVL1_VAL_IND;
                         if (lVL1_VAL_IND == true)
@@ -2880,8 +2964,16 @@ namespace QRESTModel.DAL
                         if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
                         if (nOTES != null) e.NOTES = nOTES;
 
-                        if (dATA_VALUE != null && dATA_VALUE != "-999") e.DATA_VALUE = dATA_VALUE;
-                        else if (dATA_VALUE == "-999") e.DATA_VALUE = null;
+                        if (dATA_VALUE != null && dATA_VALUE != "-999") 
+                        { 
+                            e.DATA_VALUE = dATA_VALUE;
+                            e.DATA_VALUE_NUM = dATA_VALUE.ConvertOrDefault<decimal?>();
+                        }
+                        else if (dATA_VALUE == "-999")  //setting value to null
+                        {
+                            e.DATA_VALUE = null;
+                            e.DATA_VALUE_NUM = null;
+                        }
 
                         if (vAL_CD != null && vAL_CD != "-999") e.VAL_CD = vAL_CD;
                         else if (vAL_CD == "-999") e.VAL_CD = null;

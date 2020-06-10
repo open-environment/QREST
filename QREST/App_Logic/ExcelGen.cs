@@ -16,6 +16,37 @@ namespace QREST.App_Logic
                 wb.Worksheets.Add(ds);
                 wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 wb.Style.Font.Bold = true;
+
+                foreach (IXLWorksheet _ws in wb.Worksheets)
+                {
+                    _ws.Table(0).ShowAutoFilter = false;
+                    //_ws.Table(0).Theme = XLTableTheme.None;
+                    
+                    foreach (var column in _ws.ColumnsUsed())
+                    {
+                        if (column.Cell(1).GetString() == "Value" || column.Cell(1).GetString() == "POC") {
+                            try
+                            {
+                                string columnLetter = column.ColumnLetter();
+                                string rng = $"${columnLetter}2:{columnLetter}50000";
+                                _ws.Range(rng).DataType = XLDataType.Number;
+                            }
+                            catch { }
+                        }
+                        else if (column.Cell(1).GetString().Contains("DateTime"))
+                        {
+                            try
+                            {
+                                string columnLetter = column.ColumnLetter();
+                                string rng = $"${columnLetter}2:{columnLetter}50000";
+                                _ws.Range(rng).DataType = XLDataType.DateTime;
+                                _ws.Range(rng).Style.NumberFormat.Format = "MM/dd/yyyy hh:mm AM/PM";
+                            }
+                            catch { }
+                        }
+                    }
+                }
+                
                 MemoryStream ms = new MemoryStream();
                 wb.SaveAs(ms);
                 ms.Position = 0;
@@ -23,18 +54,15 @@ namespace QREST.App_Logic
             }
         }
 
-        public static MemoryStream GenExcelFromDataTables(DataTable dt1, DataTable dt2, DataTable dt3, DataTable dt4)
+        public static MemoryStream GenExcelFromDataTables(List<DataTable> dts)
         {
             using (XLWorkbook wb = new XLWorkbook())
             {
-                if (dt1 != null && dt1.Rows.Count > 0)
-                    wb.Worksheets.Add(dt1);
-                if (dt2 != null && dt2.Rows.Count > 0)
-                    wb.Worksheets.Add(dt2);
-                if (dt3 != null && dt3.Rows.Count > 0)
-                    wb.Worksheets.Add(dt3);
-                if (dt4 != null && dt4.Rows.Count > 0)
-                    wb.Worksheets.Add(dt4);
+                foreach (DataTable dt in dts)
+                {
+                    if (dt != null && dt.Rows.Count > 0)
+                    wb.Worksheets.Add(dt);
+                }
 
                 wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 wb.Style.Font.Bold = true;

@@ -229,12 +229,16 @@
     <Content Include="Content\css\bootstrap-theme.min.css" />
     <Content Include="Content\css\bootstrap.css" />
     <Content Include="Content\css\bootstrap.min.css" />
+    <Content Include="Content\css\select2.css" />
     <Content Include="Content\css\select2.min.css" />
     <Content Include="Content\Docs\DeployGuide.txt" />
     <Content Include="Content\favicon-16x16.png" />
     <Content Include="Content\favicon-32x32.png" />
     <Content Include="Content\favicon.ico" />
     <Content Include="Content\css\font-awesome.min.css" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Images\itep_logo_120.png" />
     <Content Include="Content\Images\main.png" />
     <Content Include="Content\Images\phone-1.png" />
@@ -299,6 +303,18 @@
     <Content Include="Content\css\bootstrap.css.map" />
     <Content Include="Content\css\bootstrap-theme.min.css.map" />
     <Content Include="Content\css\bootstrap-theme.css.map" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.eot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.woff">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.woff2">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\PublishProfiles\qrest - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\qrest-test - Web Deploy.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -313,30 +329,12 @@
     <Content Include="Scripts\cleave.min.js" />
     <Content Include="Scripts\cleave.qrest.js" />
     <Content Include="Scripts\confirm-delete.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\css\dataTables.bootstrap.css" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\css\dataTables.bootstrap.min.css" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\css\jquery.dataTables.css" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\css\jquery.dataTables.min.css" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\images\sort_asc.png" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\images\sort_asc_disabled.png" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\images\sort_both.png" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\images\sort_desc.png" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\images\sort_desc_disabled.png" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.bootstrap.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.bootstrap.min.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.bootstrap4.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.bootstrap4.min.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.foundation.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.foundation.min.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.jqueryui.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.jqueryui.min.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.semanticui.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\dataTables.semanticui.min.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\jquery.dataTables.js" />
-    <Content Include="Scripts\dataTables\DataTables-1.10.18\js\jquery.dataTables.min.js" />
-    <Content Include="Scripts\dataTables\datatables.min.css" />
+    <Content Include="Scripts\dataTables\dataTables.bootstrap.min.js" />
+    <Content Include="Scripts\dataTables\dataTables.bootstrap.min.css" />
+    <Content Include="Scripts\dataTables\plugins\dataTables.select.min.js" />
     <Content Include="Scripts\dataTables\plugins\datetime.js" />
     <Content Include="Scripts\dataTables\plugins\moment.js" />
+    <Content Include="Scripts\dataTables\plugins\select.bootstrap.min.css" />
     <Content Include="Scripts\i18n\af.js" />
     <Content Include="Scripts\i18n\ar.js" />
     <Content Include="Scripts\i18n\az.js" />

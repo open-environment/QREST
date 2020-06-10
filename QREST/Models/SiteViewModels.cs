@@ -178,6 +178,7 @@ namespace QREST.Models
         public string editLOCAL_TIMEZONE { get; set; }
         public string editTIME_POLL_TYPE { get; set; }
         public bool editACT_IND { get; set; }
+        public string editPOLL_LOG_DESC { get; set; }
 
         //EDIT COLUMN MAPPING
         public Guid? editPOLL_CONFIG_DTL_IDX { get; set; }

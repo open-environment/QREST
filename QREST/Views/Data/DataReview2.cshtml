@@ -3,11 +3,6 @@
     ViewBag.Title = "Manual Validation Data Review";
     ViewBag.HideTitle = true;
 }
-@Html.HiddenFor(model => model.selDtStart)
-@Html.HiddenFor(model => model.selDtEnd)
-@Html.HiddenFor(model => model.selDuration)
-@Html.HiddenFor(model => model.selMon.ORG_ID)
-@Html.HiddenFor(model => model.selMon.T_QREST_MONITORS.MONITOR_IDX)
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">Step 2: Manual Validation Data Review</header>
     <div class="panel-body">
@@ -29,9 +24,6 @@
             <strong class="m-l-md text-danger">Method: </strong> @Html.DisplayFor(model => model.selMon.METHOD_CODE)
             <br />
             <strong class="text-danger">Dates: </strong>  @Html.DisplayFor(model => model.selDtStart) - @Html.DisplayFor(model => model.selDtEnd)
-
-
-
         </div>
         <div class="line line-dashed  pull-in"></div>
 
@@ -44,96 +36,107 @@
             </div>
         }
 
-        @using (Html.BeginForm("DataReview2", "Data", FormMethod.Post, new { @class = "m-b-sm" }))
+        <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, month=Model.selDtStart.Month, year=Model.selDtStart.Year })">Back</a>
+        <a id="divBulk" class="btn btn-success" href="#modal-form1" data-toggle="modal" style="display:none;">Bulk Edit Selected</a>
+
+        @if (Model.RawData != null)
+        {
+            <div id="gridContainer" class="table-responsive collapse in">
+                <table id="gridData" class="table table-bordered" style="width:100%; ">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" /> All
+                            </th>
+                            <th>Site</th>
+                            <th>Par Code</th>
+                            <th>Parameter</th>
+                            <th>POC</th>
+                            <th>Local Std Time</th>
+                            <th>Value</th>
+                            <th>Unit</th>
+                            <th>QREST Flags</th>
+                            <th>AQS Null Code</th>
+                            <th>AQS Qual Codes</th>
+                            <th>AQS Ready</th>
+                            <th>Lvl 1</th>
+                            <th>Lvl 2</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.RawData.Count; i++)
+                        {
+
+                            <tr class="irow" data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
+                                <td>
+                                    @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX, new { @class = "id1" })
+                                    @*@Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })*@
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].SITE_ID)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].PAR_CODE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].PAR_NAME)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].POC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].DATA_VALUE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].UNIT_DESC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].VAL_CD)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].AQS_QUAL_CODES)
+                                </td>
+                                <td style="@(Model.RawData[i].AQSReadyInd == true ? "background-color:#85c788" : "")">
+                                    @if (@Model.RawData[i].AQSReadyInd == true)
+                                    {
+                                        <text>Y</text>
+                                    }
+                                </td>
+                                <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
+                                    @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
+                                    @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
+                                </td>
+                                <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
+                                    @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
+                                    @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.RawData[i].NOTES)
+                                    <a href="#modal-hist" data-toggle="modal" data-id="@Model.RawData[i].DATA_RAW_IDX" class="modal-hist" style="display: inline-block;"> <i class="fa fa-comments-o text-muted"></i></a>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        }
+
+        @using (Html.BeginForm("DataReview2", "Data", FormMethod.Post, new { @id = "norepostform", @class = "m-b-sm" }))
         {
             @Html.HiddenFor(model => model.selMon.T_QREST_MONITORS.MONITOR_IDX)
             @Html.HiddenFor(model => model.selDtStart)
             @Html.HiddenFor(model => model.selDtEnd)
             @Html.HiddenFor(model => model.selDuration)
-
-            <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, month=Model.selDtStart.Month, year=Model.selDtStart.Year })">Back</a>
-            <a id="divBulk" class="btn btn-success" href="#modal-form1" data-toggle="modal" style="display:none;">Bulk Edit Selected</a>
-
-            if (Model.RawData != null)
-            {
-                <div id="gridContainer" class="table-responsive collapse in">
-                    <table id="gridData" class="table table-striped table-bordered" style="width:100%; ">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <input type="checkbox" id="selectAll" /> Select All
-                                </th>
-                                <th>Site</th>
-                                <th>Par Code</th>
-                                <th>Parameter</th>
-                                <th>POC</th>
-                                <th>Local Std Time</th>
-                                <th>Value</th>
-                                <th>Unit</th>
-                                <th>Flags</th>
-                                <th>AQS Null Code</th>
-                                <th>Lvl 1</th>
-                                <th>Lvl 2</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (int i = 0; i < Model.RawData.Count; i++)
-                            {
-
-                                <tr data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
-                                    <td>
-                                        @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX)
-                                        @Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].SITE_ID)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].PAR_CODE)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].PAR_NAME)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].POC)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].DATA_VALUE)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].UNIT_DESC)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].VAL_CD)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
-                                    </td>
-                                    <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
-                                        @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
-                                        @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
-                                    </td>
-                                    <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
-                                        @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
-                                        @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => model.RawData[i].NOTES)
-                                        <a href="#modal-hist" data-toggle="modal" data-id="@Model.RawData[i].DATA_RAW_IDX" class="modal-hist" style="display: inline-block;"> <i class="fa fa-comments-o text-muted"></i></a>
-                                    </td>
-
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-
-                </div>
-            }
-
+            @Html.HiddenFor(model => model.selMon.ORG_ID)
 
             <!-- START EDIT MODAL  -->
             <div class="modal fade" id="modal-form1" style="display: none" aria-hidden="true">
@@ -171,9 +174,18 @@
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="form-group">
-                                                        <label>AQS Null Qualifier</label>
+                                                        <label>AQS Null Codes</label>
                                                         <br />
                                                         @Html.DropDownListFor(model => model.editNullQual, Model.ddl_NullQual, "", new { @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label>AQS Qualifiers</label>
+                                                        <br />
+                                                        @Html.DropDownListFor(model => model.editQual, Model.ddl_Qual, "", new { @class = "form-control", @multiple = "multiple", @style = "min-width:350px", @data_width = "100%" })
                                                     </div>
                                                 </div>
                                             </div>
@@ -208,24 +220,25 @@
                                             }
                                         </div>
                                         <div class="tab-pane" id="advanced">
-                                            @if (User.IsInRole("GLOBAL ADMIN")) {
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <label>Value</label>
-                                                        <br />
-                                                        <div class="input-group m-b">
-                                                            @Html.TextBoxFor(model => model.editValue, new { @class = "form-control", @maxlength = "20" })
-                                                            <span id="spnValChk" class="input-group-addon"> Remove All Values @Html.CheckBoxFor(x => x.editValueBlank) </span>
+                                            @if (User.IsInRole("GLOBAL ADMIN"))
+                                            {
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Value</label>
+                                                            <br />
+                                                            <div class="input-group m-b">
+                                                                @Html.TextBoxFor(model => model.editValue, new { @class = "form-control", @maxlength = "20" })
+                                                                <span id="spnValChk" class="input-group-addon"> Remove All Values @Html.CheckBoxFor(x => x.editValueBlank) </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
                                             }
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="form-group">
-                                                        <label>Flag</label>
+                                                        <label>QREST Flag</label>
                                                         <br />
                                                         <div class="input-group m-b">
                                                             @Html.TextBoxFor(model => model.editFlag, new { @class = "form-control", @maxlength = "5" })
@@ -264,7 +277,7 @@
 
                         </div>
                         <div class="modal-footer">
-                            <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                            <button id="btnSave" class="btn btn-primary">Save</button>
                             <button class="btn btn-default" data-dismiss="modal">Cancel</button>
                         </div>
                     </div>
@@ -273,6 +286,9 @@
             <!-- END EDIT MODAL -->
 
         }
+
+
+
 
     </div>
 </section>
@@ -321,17 +337,36 @@
     @Scripts.Render("~/bundles/datatables")
     @Scripts.Render("~/bundles/canvasjs")
     @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/select2")
 
 <script type="text/javascript">
+    var table;
     $(document).ready(function () {
 
+
+        //$.fn.table.moment('M/D/YYYY hh:mm:ss A');
         moment.updateLocale(moment.locale(), { invalidDate: "" });
 
-        $('#gridData').DataTable({
+
+        table = $('#gridData').DataTable({
             "scrollY": "400px",
             "scrollCollapse": true,
             "paging": false,
             "searching": false,
+            columnDefs: [{
+                orderable: false,
+                className: 'select-checkbox',
+                targets: 0
+            },
+                { orderable: false, targets: 2 },
+                { orderable: false, targets: 3 },
+                { orderable: false, targets: 4 }
+            ],
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+            order: [[1, 'asc']]
         });
 
         var dataPointsA = [], dataPointsSupp1 = [];
@@ -364,13 +399,13 @@
 
         function addPoint(xx, yy, zz, array) {
             var lcolor = "#67B347";
-            if (yy == "FEW") 
+            if (yy == "FEW")
                 lcolor = "#ffee8c";
-            else if (zz == "MIN") 
+            else if (zz == "MIN")
                 lcolor = "#d32d41";
-            else if (zz == "MAX") 
+            else if (zz == "MAX")
                 lcolor = "#d32d41";
-            else if (zz == "JUMP") 
+            else if (zz == "JUMP")
                 lcolor = "#6F2DA7";
 
             array.push({
@@ -441,10 +476,12 @@
 
         chart.render();
 
+        //handling chart visibility
         $('#chartContainer').on("shown.bs.collapse", function () {
             $("#chartContainer").height(300);
         });
 
+        //handling grid visibility
         $("#btnChartToggle").bind('click', function () {
             if ($('#gridContainer').is(':visible') && $('#chartContainer').is(':visible')) {
                 $(".dataTables_scrollBody").css("maxHeight", "550px");
@@ -476,56 +513,50 @@
             chart1.render();
         }
 
-        ////setting table height **************************
-        //function resizePage() {
-        //    const container = $("#gridContainer");
-        //    const height = container.height() - container.find(".dataTables_scrollHead").height();
-        //    updateDataTable(height + "px");
-        //};
+        //initialize select2
+        $('#editQual').select2();
 
-        //var resizeTimer;
 
-        //$(window).resize(function () {
-        //    clearTimeout(resizeTimer);
-        //    resizeTimer = setTimeout(resizePage, 100);
-        //});
-
-        //function updateDataTable(scrollHeight) {
-        //    $('#gridData').DataTable(
-        //        {
-        //            destroy: true,
-        //            paging: false,
-        //            "bFilter": false,
-        //            "bInfo": false,
-        //            scrollY: scrollHeight,
-        //            columnDefs: [{ width: "16%", targets: 0 }]
-        //        }
-        //    );
-        //}
-        //updateDataTable('1px'); // give it any height, it will be changed by the timer event, but it needs some size for the page to work
-        //resizeTimer = setTimeout(resizePage, 100);
+        //toggles display of Edit button based on whether there are any rows selected
+        table.on('select', function (e, dt, type, indexes) {
+            $('#divBulk').show();
+        });
+        table.on('deselect', function (e, dt, type, indexes) {
+            if (table.rows({ selected: true }).count() == 0)
+                $('#divBulk').hide();
+        });
 
     });
 
 
 
-    //select all
+    //select/unselect all (mark all visible rows in datatable as selected)
     $('#selectAll').click(function (e) {
-        $('#gridData').find('tr:visible').find('td input:checkbox').prop('checked', this.checked);
-        if ($('input.check-box:checked').length == 0)
-            $('#divBulk').hide();
-        else
+        if (this.checked) {
+            $('#gridData').find('tbody > tr:visible').addClass("selected");
             $('#divBulk').show();
+        }
+        else {
+            $('#gridData').find('tr').removeClass("selected");
+            $('#divBulk').hide();
+        }
     });
 
-    
-    //allow bulk edit
-    $('.check-box').click(function (e) {
-        if ($('input.check-box:checked').length == 0)
-            $('#divBulk').hide();
-        else
-            $('#divBulk').show();
-    });
+
+
+
+
+    ////show edit button if any rows are selected in table
+    //$('#gridData  tbody  tr').on('click', function () {
+
+    //    var selectedRows = table.rows({ selected: true });
+    //    console.log(selectedRows);
+
+    //    //if (table.rows('.selected').any()) 
+    //    //    $('#divBulk').show();
+    //    //else
+    //    //    $('#divBulk').hide();
+    //});
 
 
     //clear textbox when checkbox checked
@@ -585,6 +616,28 @@
         });
     })
 
-</script>
+
+
+
+
+
+    //javascript before submit update data form to pass the checked IDs into the form
+    $('#btnSave').on('click', function (e) {
+        e.preventDefault();
+        var arrayOfValues = [];
+
+        $('#gridData tr.selected').each(function () {
+            arrayOfValues.push($(this).find('.id1').val());
+        });
+
+        $.each(arrayOfValues, function (index, val) {
+            $("#norepostform").append('<input id="editRawDataIDX" name="editRawDataIDX" type="hidden" value="' + val + '">');
+        });
+
+        $("#norepostform").submit(); 
+    });
+
+
+    </script>
 }
 

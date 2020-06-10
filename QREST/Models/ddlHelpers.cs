@@ -306,6 +306,15 @@ namespace QREST.Models
             });
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_ref_qualifierNonNull()
+        {
+            return db_Ref.GetT_QREST_REF_QUALIFIER_NonNull().Select(x => new SelectListItem
+            {
+                Value = x.QUAL_CODE,
+                Text = x.QUAL_CODE + " - " + x.QUAL_DESC.Truncate(50)
+            });
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_ref_units(string parCode)
         {
             return db_Ref.GetT_QREST_REF_UNITS(parCode).Select(x => new SelectListItem

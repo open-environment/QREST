@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -73,7 +74,7 @@ namespace QREST.Controllers
             DataTable dt = DataTableGen.ReportDaily(id ?? Guid.Empty, month ?? 1, year ?? System.DateTime.Now.Year, day ?? 1, time);
             if (dt.Rows.Count > 0)
             {
-                MemoryStream ms = ExcelGen.GenExcelFromDataTables(dt, null, null, null);
+                MemoryStream ms = ExcelGen.GenExcelFromDataTables(new List<DataTable> { dt });
                 Response.Clear();
                 Response.Buffer = true;
                 Response.Charset = "";
@@ -137,7 +138,7 @@ namespace QREST.Controllers
             DataTable dt = DataTableGen.ReportMonthly(monid ?? Guid.Empty, month ?? 1, year ?? 0, time);
             if (dt.Rows.Count > 0)
             {
-                MemoryStream ms = ExcelGen.GenExcelFromDataTables(dt, null, null, null);
+                MemoryStream ms = ExcelGen.GenExcelFromDataTables(new List<DataTable> { dt });
                 Response.Clear();
                 Response.Buffer = true;
                 Response.Charset = "";
@@ -198,7 +199,7 @@ namespace QREST.Controllers
             DataTable dt = DataTableGen.ReportAnnual(monid ?? Guid.Empty, year ?? 0, time);
             if (dt.Rows.Count > 0)
             {
-                MemoryStream ms = ExcelGen.GenExcelFromDataTables(dt, null, null, null);
+                MemoryStream ms = ExcelGen.GenExcelFromDataTables(new List<DataTable> { dt });
                 Response.Clear();
                 Response.Buffer = true;
                 Response.Charset = "";

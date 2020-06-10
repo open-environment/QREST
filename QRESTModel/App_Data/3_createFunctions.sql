@@ -229,6 +229,7 @@ BEGIN
 	------------------------------
 	--11/19/2019 fix sql for JUMP
 	--12/16/2019 blank out LOST if subsequent data comes in
+	--6/4/2020 tweak LOST to only happen if data is missing for more than 2 hours
 
 	SET NOCOUNT ON;  
   
@@ -277,7 +278,7 @@ BEGIN
 			from T_SYS_HR S 
 			left join T_QREST_DATA_HOURLY H on S.HR=H.DATA_DTTM_UTC and H.MONITOR_IDX=@mon_id
 			where S.HR> @minDate
-			and S.HR<GetDate()
+			and S.HR<GetDate()-0.1
 			and monitor_IDX is null;
 
 			--insert MIN for hourly values below minimum

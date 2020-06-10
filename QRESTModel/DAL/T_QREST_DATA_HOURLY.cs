@@ -39,6 +39,8 @@ namespace QRESTModel.DAL
         public Nullable<System.DateTime> LVL2_VAL_DT { get; set; }
         public string NOTES { get; set; }
         public Nullable<System.Guid> IMPORT_IDX { get; set; }
+        public Nullable<decimal> DATA_VALUE_NUM { get; set; }
+        public string AQS_QUAL_CODES { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_DATA_HOURLY_LOG> T_QREST_DATA_HOURLY_LOG { get; set; }

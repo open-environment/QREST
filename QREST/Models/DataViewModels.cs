@@ -245,8 +245,6 @@ namespace QREST.Models
         public DateTime selDtStart { get; set; }
         public DateTime selDtEnd { get; set; }
         public string selDuration { get; set; }
-        public DateTime? selDtStartSub { get; set; }
-        public DateTime? selDtEndSub { get; set; }
 
 
         public List<RawDataDisplay> RawData { get; set; }
@@ -263,7 +261,9 @@ namespace QREST.Models
 
         //bulk edit
         public string editNullQual { get; set; }
+        public List<string> editQual { get; set; }
         public IEnumerable<SelectListItem> ddl_NullQual { get; set; }
+        public IEnumerable<SelectListItem> ddl_Qual { get; set; }
         public IEnumerable<SelectListItem> ddl_ParUnits { get; set; }
 
         public bool secLvl1Ind { get; set; }  //indicates if user has Lvl1 Validation rights
@@ -277,11 +277,13 @@ namespace QREST.Models
         public bool editValueBlank { get; set; }
         public string editFlag { get; set; }
         public bool editFlagBlank { get; set; }
+        public List<Guid> editRawDataIDX { get; set; }
 
         //initialize
         public vmDataReview2()
         {
             ddl_NullQual = ddlHelpers.get_ddl_ref_qualifier("NULL");
+            ddl_Qual = ddlHelpers.get_ddl_ref_qualifierNonNull();
             editValueBlank = false;
             editFlagBlank = false;
         }

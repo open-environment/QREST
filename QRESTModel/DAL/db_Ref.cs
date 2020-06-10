@@ -1621,6 +1621,25 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<T_QREST_REF_QUALIFIER> GetT_QREST_REF_QUALIFIER_NonNull()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QUALIFIER
+                            where (a.QUAL_TYPE == "INFORM" || a.QUAL_TYPE == "QA" || a.QUAL_CODE == "-1")
+                            orderby a.QUAL_CODE
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static int GetT_QREST_REF_QUALIFIERCount()
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -1698,6 +1717,37 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static bool GetT_QREST_REF_QUALIFIER_LookupNull(string qUAL_CODE)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.T_QREST_REF_QUALIFIER.Any(x => x.QUAL_TYPE == "NULL" && x.QUAL_CODE == qUAL_CODE);
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+        public static bool GetT_QREST_REF_QUALIFIER_LookupNotNull(string qUAL_CODE)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.T_QREST_REF_QUALIFIER.Any(x => (x.QUAL_TYPE == "INFORM" || x.QUAL_TYPE == "QA") && x.QUAL_CODE == qUAL_CODE);
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
 
 
         //***************** REF_REGION ******************************

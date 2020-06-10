@@ -6,7 +6,6 @@ using System.IO;
 using System.Text;
 using System.Web.Services.Protocols;
 using QRESTModel.BLL;
-using System.Security.Policy;
 
 namespace QRESTModel.AQSHelper
 {
@@ -74,7 +73,8 @@ namespace QRESTModel.AQSHelper
                                     string tm = _rd.DATA_DTTM.Value.ToString("HH:mm");
                                     string val = (string.IsNullOrEmpty(_rd.AQS_NULL_CODE) && _rd.DATA_VALUE.IsNumeric()) ? _rd.DATA_VALUE : "";
                                     string nullValCd = val.Length == 0 ? "|" + _rd.AQS_NULL_CODE : "";
-                                    writer.WriteLine("RD|" + actionCode + "|" + _rd.STATE_CD + "|" + _rd.COUNTY_CD + "|" + _rd.AQS_SITE_ID + "|" + _rd.PAR_CODE + "|" + _rd.POC + "|1|" + _rd.UNIT_CODE + "|" + _rd.METHOD_CODE + "|" + dt + "|" + tm + "|" + val + nullValCd);
+                                    string qualCd = string.IsNullOrEmpty(_rd.AQS_QUAL_CODES) ? "" : "|||" + _rd.AQS_QUAL_CODES;
+                                    writer.WriteLine("RD|" + actionCode + "|" + _rd.STATE_CD + "|" + _rd.COUNTY_CD + "|" + _rd.AQS_SITE_ID + "|" + _rd.PAR_CODE + "|" + _rd.POC + "|1|" + _rd.UNIT_CODE + "|" + _rd.METHOD_CODE + "|" + dt + "|" + tm + "|" + val + nullValCd + qualCd);
                                 }
                             }
                         }
@@ -133,15 +133,32 @@ namespace QRESTModel.AQSHelper
                             string line = "QA|" + actionCode + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE + "||" + _assess.STATE_CODE + "|" + _assess.COUNTY_CD + "|" + _assess.AQS_SITE_ID + "|" + _assess.PAR_CODE + "|" + _assess.POC + "|" + dt + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_NUM.ToString() + _assess.METHOD_CODE + "|" + _assess.UNIT_CODE + "|";
 
 
-                            List<QC_ASSESSMENT_DTLDisplay> _rds = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(selQC_ASSESS_IDX);
-                            if (_rds != null && _rds.Count>0)
+                            //*************** 1 POINT QC LOGIC **************************************
+                            if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "1-Point QC")
                             {
-                                //*************** 1 POINT QC LOGIC **************************************
-                                if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "1-Point QC")
+                                List<QC_ASSESSMENT_DTLDisplay> _rds = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(selQC_ASSESS_IDX);
+                                if (_rds != null && _rds.Count > 0)
                                 {
                                     line = line + _rds[0].MON_CONCENTRATION + "|" + _rds[0].ASSESS_KNOWN_CONCENTRATION + "||" + _rds[0].COMMENTS;
                                 }
+                            }
+                            //*************** 1 POINT QC LOGIC **************************************
+                            else if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "Annual PE")
+                            {
+                                List<QC_ASSESSMENT_DTLDisplay> _dtls = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(_assess.T_QREST_QC_ASSESSMENT.QC_ASSESS_IDX);
+                                foreach (QC_ASSESSMENT_DTLDisplay _dtl in _dtls)
+                                {
+                                    line = line + _dtl.MON_CONCENTRATION + "|" + _dtl.ASSESS_KNOWN_CONCENTRATION;
+                                }
+                            }
+                            else if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "Zero Span") {
+                                T_QREST_QC_ASSESSMENT_DTL _zero = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID_Zero(_assess.T_QREST_QC_ASSESSMENT.AQS_IDX);
+                                T_QREST_QC_ASSESSMENT_DTL _span = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID_NotZero(_assess.T_QREST_QC_ASSESSMENT.AQS_IDX);
 
+                                if (_zero != null && _span != null)
+                                {
+                                    line = line + _zero.MON_CONCENTRATION + "|" + _span.ASSESS_KNOWN_CONCENTRATION  + "|" + _span.MON_CONCENTRATION + "|" + _zero.COMMENTS + _span.COMMENTS;
+                                }
                             }
 
                             writer.WriteLine(line);
@@ -180,8 +197,8 @@ namespace QRESTModel.AQSHelper
         public static string AddENHeaderToFileAndSave(Guid AQSIdx, string fileBody, string format, string AQS_UID, string AQS_SCREENING_GRP)
         {
             //parameters
-            string AQSUserID = AQS_UID;//"ROE";                                               // AQS User-ID (aka The user ID for the backend system if it is different from the NAAS user ID.)
-            string AQSScreeningGroup = AQS_SCREENING_GRP;// "ITEP TRAINING";                             // AQS Screening Group (like the agency)
+            string AQSUserID = AQS_UID;                                             // AQS User-ID (aka The user ID for the backend system if it is different from the NAAS user ID.)
+            string AQSScreeningGroup = AQS_SCREENING_GRP;                           // AQS Screening Group (like the agency)
             string creationDate = System.DateTime.UtcNow.ToString("yyyy-MM-dd");    // "2020-02-05T15:15:36.826673Z";
             string creationTime = System.DateTime.UtcNow.ToString("HH:mm:ss");      // "2020-02-05T15:15:36.826673Z";
             string payloadType = format == "X" ? "XML" : "FLAT";                    // acceptable values are XML or FLAT

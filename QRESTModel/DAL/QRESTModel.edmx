@@ -123,6 +123,8 @@
           <Property Name="LVL2_VAL_DT" Type="datetime2" Precision="0" />
           <Property Name="NOTES" Type="varchar" MaxLength="100" />
           <Property Name="IMPORT_IDX" Type="uniqueidentifier" />
+          <Property Name="DATA_VALUE_NUM" Type="decimal" Precision="18" Scale="9" />
+          <Property Name="AQS_QUAL_CODES" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="T_QREST_DATA_HOURLY_LOG">
           <Key>
@@ -2378,6 +2380,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="NOTES" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="IMPORT_IDX" Type="Guid" />
           <NavigationProperty Name="T_QREST_DATA_HOURLY_LOG" Relationship="QRESTModel.FK_T_QREST_DATA_HOURLY_LOG_O" FromRole="T_QREST_DATA_HOURLY" ToRole="T_QREST_DATA_HOURLY_LOG" />
+          <Property Name="DATA_VALUE_NUM" Type="Decimal" Precision="18" Scale="9" />
+          <Property Name="AQS_QUAL_CODES" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_REF_QUALIFIER">
           <Key>
@@ -3434,6 +3438,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_DATA_HOURLY">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_HOURLY">
               <MappingFragment StoreEntitySet="T_QREST_DATA_HOURLY">
+                <ScalarProperty Name="AQS_QUAL_CODES" ColumnName="AQS_QUAL_CODES" />
+                <ScalarProperty Name="DATA_VALUE_NUM" ColumnName="DATA_VALUE_NUM" />
                 <ScalarProperty Name="IMPORT_IDX" ColumnName="IMPORT_IDX" />
                 <ScalarProperty Name="NOTES" ColumnName="NOTES" />
                 <ScalarProperty Name="LVL2_VAL_DT" ColumnName="LVL2_VAL_DT" />

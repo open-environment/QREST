@@ -691,7 +691,7 @@ namespace QREST.Controllers
                             db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
                             db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
                         }
-                        else if (model.ASSESSMENT_TYPE == "QA Zero Span")
+                        else if (model.ASSESSMENT_TYPE == "Zero Span")
                         {
                             db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, 0, null, "Zero Check", UserIDX);
                             db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, "Span Check", UserIDX);
@@ -904,7 +904,7 @@ namespace QREST.Controllers
         public ActionResult DataReview2(Guid? monid, DateTime? sdt, DateTime? edt, string dur, Guid? supp1)
         {
             if (monid == null || sdt == null || edt == null || dur == null)
-                return RedirectToAction("DataReview");
+                return RedirectToAction("DataReviewSummary");
 
             string UserIDX = User.Identity.GetUserId();
 
@@ -968,20 +968,22 @@ namespace QREST.Controllers
 
                 string UserIDX = User.Identity.GetUserId();
 
-
-                foreach (var item in model.RawData)
+                if (model.editRawDataIDX != null)
                 {
-                    if (item.EditInd == true)
+                    foreach (var item in model.editRawDataIDX)
                     {
                         editCount++;
 
-                        Guid? SuccID = db_Air.UpdateT_QREST_DATA_HOURLY(item.DATA_RAW_IDX, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank==true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag));
+                        Guid? SuccID = db_Air.UpdateT_QREST_DATA_HOURLY(item, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank == true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag), model.editQual);
                         if (SuccID == null)
                             TempData["Error"] = "Error updating record";
                         else
                             db_Air.InsertUpdatetT_QREST_DATA_HOURLY_LOG(null, SuccID, model.editNotes, UserIDX);
                     }
                 }
+                else
+                    TempData["Error"] = "You must select a row to edit.";
+
                 return RedirectToAction("DataReview2", new { monid = model.selMon.T_QREST_MONITORS.MONITOR_IDX, sdt = model.selDtStart, edt = model.selDtEnd, dur = model.selDuration });
 
             }
@@ -1680,7 +1682,6 @@ namespace QREST.Controllers
 
 
         #endregion
-
 
     }
 }

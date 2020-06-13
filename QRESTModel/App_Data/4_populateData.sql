@@ -161,6 +161,12 @@ INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('022','6410
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('059','64101');
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('021','65102');
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('029','65102');
+
+INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('073','68101');
+INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('083','68101');
+INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('118','68101');
+INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('119','68101');
+
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('001','81102');
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('005','81102');
 INSERT INTO [T_QREST_REF_PAR_UNITS] ([UNIT_CODE],[PAR_CODE]) VALUES ('105','81102');
@@ -208,3 +214,72 @@ INSERT INTO [T_QREST_REF_USER_STATUS] ([STATUS_IND],[STATUS_IND_DESC]) VALUES ('
 
 --****************ADDITIONAL QUALIFIER NOT COMING FROM EPA *****************************************************************************************
     insert into T_QREST_REF_QUALIFIER(QUAL_CODE,QUAL_DESC,QUAL_TYPE,CREATE_DT) values ('-1','<<REMOVE ANY>>','NULL',GetDate());
+
+
+
+
+--****************QC STUFF *****************************************************************************************
+    
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',1,0.004,0.0059);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',2,0.006,0.019);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',3,0.020,0.039);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',4,0.040,0.069);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',5,0.070,0.089);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',6,0.090,0.119);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',7,0.120,0.139);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',8,0.140,0.169);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',9,0.170,0.189);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('44201',10,0.190,0.259);
+
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',1,0.0003,0.0029);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',2,0.0030,0.0049);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',3,0.0050,0.0079);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',4,0.0080,0.0199);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',5,0.0200,0.0499);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',6,0.0500,0.0999);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',7,0.1000,0.1499);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',8,0.1500,0.2599);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',9,0.2600,0.7999);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42401',10,0.8000,1.0000);
+
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',1,0.0003,0.0029);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',2,0.0030,0.0049);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',3,0.0050,0.0079);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',4,0.0080,0.0199);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',5,0.0200,0.0499);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',6,0.0500,0.0999);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',7,0.1000,0.1499);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',8,0.1500,0.2599);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',9,0.2600,0.7999);
+insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',10,0.8000,1.0000);
+
+--ozone
+insert into T_QREST_REF_QC values ('44201','1-Point QC',0.0015,7, 0.005, 0.08);
+--SO2
+insert into T_QREST_REF_QC values ('42401','1-Point QC',0.0015,10, 0.005, 0.08);
+--SO2
+insert into T_QREST_REF_QC values ('42406','1-Point QC',0.0015,10, 0.005, 0.08);
+
+insert into T_QREST_REF_QC values ('44201','Annual PE',0.0015,15, null, null);
+insert into T_QREST_REF_QC values ('42401','Annual PE',0.0015,15, null, null);
+insert into T_QREST_REF_QC values ('42406','Annual PE',0.0015,15, null, null);
+
+--PM 2.5
+insert into T_QREST_REF_QC values ('81104','Flow Rate Verification',null,4.1, null, null);
+insert into T_QREST_REF_QC values ('88101','Flow Rate Verification',null,4.1, null, null);
+insert into T_QREST_REF_QC values ('88500','Flow Rate Verification',null,4.1, null, null);
+insert into T_QREST_REF_QC values ('88501','Flow Rate Verification',null,4.1, null, null);
+insert into T_QREST_REF_QC values ('88502','Flow Rate Verification',null,4.1, null, null);
+--PM 10
+insert into T_QREST_REF_QC values ('81102','Flow Rate Verification',null,7.1, null, null);
+insert into T_QREST_REF_QC values ('85101','Flow Rate Verification',null,7.1, null, null);
+
+--PM 2.5
+insert into T_QREST_REF_QC values ('81104','Semi-Annual Flow Rate Audit',null,4.1, null, null);
+insert into T_QREST_REF_QC values ('88101','Semi-Annual Flow Rate Audit',null,4.1, null, null);
+insert into T_QREST_REF_QC values ('88500','Semi-Annual Flow Rate Audit',null,4.1, null, null);
+insert into T_QREST_REF_QC values ('88501','Semi-Annual Flow Rate Audit',null,4.1, null, null);
+insert into T_QREST_REF_QC values ('88502','Semi-Annual Flow Rate Audit',null,4.1, null, null);
+--PM 10
+insert into T_QREST_REF_QC values ('81102','Semi-Annual Flow Rate Audit',null,7.1, null, null);
+insert into T_QREST_REF_QC values ('85101','Semi-Annual Flow Rate Audit',null,7.1, null, null);

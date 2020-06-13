@@ -11,7 +11,7 @@ namespace QREST.Models
     }
 
     public class vmHomeHelp {
-        public List<T_QREST_HELP_DOCS> HelpTopics { get; set; }
+        public List<HelpDisplay> HelpTopics { get; set; }
     }
 
 

@@ -11,14 +11,11 @@
         <div class="panel-body">
             @using (Html.BeginForm("Raw", "Data", FormMethod.Post, new { @class = "form-inline m-b-sm" }))
             { 
-                @*@Html.HiddenFor(model => model.selDate)*@
-
                 @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
-                @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, "", new { @class = "form-control" })
+                @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, new { @class = "form-control" })
                 @Html.DropDownListFor(model => model.selType, Model.ddl_DurationType, new { @class = "form-control" })
                 @Html.DropDownListFor(model => model.selTimeType, Model.ddl_TimeType, new { @class = "form-control" })
                 @Html.TextBoxFor(model => model.selDate, new { @data_start="", @data_end="", @class = "form-control", @style ="width:300px"  })
-                @*<input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />*@
                 <button id="btnGo" type="submit" class="btn btn-primary">Go</button>
 
                 <div class="btn-group pull-right" data-toggle="buttons">
@@ -185,9 +182,8 @@
                 $("#chartContainer").height(400);
             });
 
-
             //initialize monitor dropdown on page load
-            if ($('#selMon') == null)
+            if ($('#selMon option').length == 0)
                 fetchMonitors();
 
 

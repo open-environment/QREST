@@ -231,6 +231,17 @@ namespace QREST.Models
             });
         }
 
+
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_user_qc_type(string userIDX, string QCtype)
+        {
+            return db_Air.GetT_QREST_MONITORS_Display_ByUser_QCType(userIDX, QCtype).Select(x => new SelectListItem
+            {
+                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
+                Text = "Org: " + x.ORG_ID + " | Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC + " | " + x.UNIT_DESC
+//                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
+            });
+        }
+
         public static IEnumerable<SelectListItem> get_ddl_days_in_month(int? month)
         {
             List<SelectListItem> _list = new List<SelectListItem>();

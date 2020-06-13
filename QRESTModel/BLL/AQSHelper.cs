@@ -130,7 +130,7 @@ namespace QRESTModel.AQSHelper
                         if (_assess != null)
                         {
                             string dt = _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_DT.ToString("yyyyMMdd");
-                            string line = "QA|" + actionCode + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE + "||" + _assess.STATE_CODE + "|" + _assess.COUNTY_CD + "|" + _assess.AQS_SITE_ID + "|" + _assess.PAR_CODE + "|" + _assess.POC + "|" + dt + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_NUM.ToString() + _assess.METHOD_CODE + "|" + _assess.UNIT_CODE + "|";
+                            string line = "QA|" + actionCode + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE + "||" + _assess.STATE_CODE + "|" + _assess.COUNTY_CD + "|" + _assess.AQS_SITE_ID + "|" + _assess.PAR_CODE + "|" + _assess.POC + "|" + dt + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_NUM.ToString() + _assess.METHOD_CODE + "|";
 
 
                             //*************** 1 POINT QC LOGIC **************************************
@@ -139,25 +139,45 @@ namespace QRESTModel.AQSHelper
                                 List<QC_ASSESSMENT_DTLDisplay> _rds = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(selQC_ASSESS_IDX);
                                 if (_rds != null && _rds.Count > 0)
                                 {
-                                    line = line + _rds[0].MON_CONCENTRATION + "|" + _rds[0].ASSESS_KNOWN_CONCENTRATION + "||" + _rds[0].COMMENTS;
+                                    line = line + _assess.UNIT_CODE + "|" + _rds[0].MON_CONCENTRATION + "|" + _rds[0].ASSESS_KNOWN_CONCENTRATION + "||" + _rds[0].COMMENTS;
                                 }
                             }
                             //*************** 1 POINT QC LOGIC **************************************
                             else if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "Annual PE")
                             {
-                                List<QC_ASSESSMENT_DTLDisplay> _dtls = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(_assess.T_QREST_QC_ASSESSMENT.QC_ASSESS_IDX);
+                                line = line = _assess.UNIT_CODE + "|";
+                                List <QC_ASSESSMENT_DTLDisplay> _dtls = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(_assess.T_QREST_QC_ASSESSMENT.QC_ASSESS_IDX);
                                 foreach (QC_ASSESSMENT_DTLDisplay _dtl in _dtls)
                                 {
                                     line = line + _dtl.MON_CONCENTRATION + "|" + _dtl.ASSESS_KNOWN_CONCENTRATION;
                                 }
                             }
+                            //*************** ZERO SPAN **************************************
                             else if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "Zero Span") {
                                 T_QREST_QC_ASSESSMENT_DTL _zero = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID_Zero(_assess.T_QREST_QC_ASSESSMENT.AQS_IDX);
                                 T_QREST_QC_ASSESSMENT_DTL _span = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID_NotZero(_assess.T_QREST_QC_ASSESSMENT.AQS_IDX);
 
                                 if (_zero != null && _span != null)
                                 {
-                                    line = line + _zero.MON_CONCENTRATION + "|" + _span.ASSESS_KNOWN_CONCENTRATION  + "|" + _span.MON_CONCENTRATION + "|" + _zero.COMMENTS + _span.COMMENTS;
+                                    line = line + _assess.UNIT_CODE + "|" + _zero.MON_CONCENTRATION + "|" + _span.ASSESS_KNOWN_CONCENTRATION  + "|" + _span.MON_CONCENTRATION + "|" + _zero.COMMENTS + _span.COMMENTS;
+                                }
+                            }
+                            //*************** FLOW VERIFICATION **************************************
+                            else if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "Flow Rate Verification")
+                            {
+                                List<QC_ASSESSMENT_DTLDisplay> _dtls = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(_assess.T_QREST_QC_ASSESSMENT.QC_ASSESS_IDX);
+                                foreach (QC_ASSESSMENT_DTLDisplay _dtl in _dtls)
+                                {
+                                    line = line + _assess.FLOW_UNIT_CODE + "|" + _dtl.MON_CONCENTRATION + "|" + _dtl.ASSESS_KNOWN_CONCENTRATION;
+                                }
+                            }
+                            //*************** SEMI ANNUAL FLOW RATE AUDIT **************************************
+                            else if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "Semi-Annual Flow Rate Audit	")
+                            {
+                                List<QC_ASSESSMENT_DTLDisplay> _dtls = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(_assess.T_QREST_QC_ASSESSMENT.QC_ASSESS_IDX);
+                                foreach (QC_ASSESSMENT_DTLDisplay _dtl in _dtls)
+                                {
+                                    line = line + _assess.FLOW_UNIT_CODE + "|" + _dtl.MON_CONCENTRATION + "|" + _dtl.ASSESS_KNOWN_CONCENTRATION;
                                 }
                             }
 

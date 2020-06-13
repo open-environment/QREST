@@ -23,6 +23,11 @@ namespace QRESTModel.DAL
         public string SUPPORTING_ID { get; set; }
     }
 
+    public class HelpDisplay
+    {
+        public string HELP_CAT { get; set; }
+        public List<T_QREST_HELP_DOCS> T_QREST_HELP_DOCS { get; set; }
+    }
 
     public class AgencyImportType
     {
@@ -538,6 +543,29 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<HelpDisplay> GetT_QREST_HELP_DOCS_Grouped()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+
+                try
+                {
+                    return (from a in ctx.T_QREST_HELP_DOCS
+                            group a by a.HELP_CAT into catGrp
+                            orderby catGrp.Min(r => r.SORT_SEQ)
+                            select new HelpDisplay { 
+                                HELP_CAT = catGrp.Key, 
+                                T_QREST_HELP_DOCS = (from z in ctx.T_QREST_HELP_DOCS where z.HELP_CAT == catGrp.Key orderby z.SORT_SEQ select z).ToList() 
+                        }).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static T_QREST_HELP_DOCS GetT_QREST_HELP_DOCS_ByID(int id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -556,7 +584,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static int InsertUpdateT_QREST_HELP_DOCS(int? hELP_IDX, string hELP_TITLE, string hELP_HTML, int? sORT_SEQ)
+        public static int InsertUpdateT_QREST_HELP_DOCS(int? hELP_IDX, string hELP_TITLE, string hELP_HTML, int? sORT_SEQ, string hELP_CAT)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -580,6 +608,7 @@ namespace QRESTModel.DAL
                     {
                         if (sORT_SEQ != null) e.SORT_SEQ = sORT_SEQ ?? 1;
                         if (hELP_HTML != null) e.HELP_HTML = hELP_HTML;
+                        if (hELP_CAT != null) e.HELP_CAT = hELP_CAT;
                     }
 
                     if (hELP_TITLE != null) e.HELP_TITLE = hELP_TITLE;

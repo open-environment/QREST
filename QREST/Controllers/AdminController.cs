@@ -208,7 +208,7 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                model.EditHelp.HELP_IDX = db_Ref.InsertUpdateT_QREST_HELP_DOCS(model.EditHelp.HELP_IDX, model.EditHelp.HELP_TITLE, model.editHelpHtml ?? "", model.EditHelp.SORT_SEQ);
+                model.EditHelp.HELP_IDX = db_Ref.InsertUpdateT_QREST_HELP_DOCS(model.EditHelp.HELP_IDX, model.EditHelp.HELP_TITLE, model.editHelpHtml ?? "", model.EditHelp.SORT_SEQ, model.EditHelp.HELP_CAT);
                 if (model.EditHelp.HELP_IDX > 0)
                     TempData["Success"] = "Data Saved.";
                 else

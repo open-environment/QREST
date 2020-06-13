@@ -223,7 +223,7 @@ namespace QREST.Controllers
         public ActionResult Help()
         {
             var model = new vmHomeHelp();
-            model.HelpTopics = db_Ref.GetT_QREST_HELP_DOCS();
+            model.HelpTopics = db_Ref.GetT_QREST_HELP_DOCS_Grouped();
             return View(model);
         }
 

@@ -14,6 +14,22 @@
             <header class="panel-heading font-bold">Basic Info</header>
             <div class="panel-body">
                 <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Assessment Type</label>
+                            @if (Model.QC_ASSESS_IDX == null)
+                            {
+                                @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.ASSESSMENT_TYPE)
+                            }
+                            else
+                            {
+                                @Html.HiddenFor(model => model.ASSESSMENT_TYPE)
+                                @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control", @disabled = "disabled" })
+                            }
+                        </div>
+                        <a href="https://qrest-test.azurewebsites.net/Home/Help/#Users-Guide" class="btn btn-sm btn-icon btn-info"><i class="fa fa-question-circle"></i></a>
+                    </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Select Monitor</label>
@@ -29,19 +45,11 @@
                             }
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div id="divUnit" class="col-md-3" style='@(Model.DisplayUnit==true ? "" : "display:none")'>
                         <div class="form-group">
-                            <label>Assessment Type</label>
-                            @if (Model.QC_ASSESS_IDX == null)
-                            {
-                                @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control" })
-                                @Html.ValidationMessageFor(model => model.ASSESSMENT_TYPE)
-                            }
-                            else
-                            {
-                                @Html.HiddenFor(model => model.ASSESSMENT_TYPE)
-                                @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control", @disabled = "disabled" })
-                            }
+                            <label>Flow Rate Unit</label>
+                            @Html.DropDownListFor(model => model.UNIT_CODE, Model.ddl_FlowRate_Unit, "", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.UNIT_CODE)
                         </div>
                     </div>
                 </div>
@@ -106,7 +114,7 @@
                                             </div>
                                         </td>
                                         <td style="padding:0">
-                                            @Html.TextBoxFor(model => model.AssessmentDetails[i].ASSESS_KNOWN_CONCENTRATION, new { @class = "form-control input", @autocomplete="off" })
+                                            @Html.TextBoxFor(model => model.AssessmentDetails[i].ASSESS_KNOWN_CONCENTRATION, new { @class = "form-control input", @autocomplete = "off" })
                                         </td>
                                         <td style="padding:0">
                                             @Html.TextBoxFor(model => model.AssessmentDetails[i].MON_CONCENTRATION, new { @class = "form-control", @autocomplete = "off" })
@@ -137,22 +145,22 @@
                                     </tr>
                                 }
 
-                                @if (Model.ASSESSMENT_TYPE== "Annual PE" && Model.AuditLevelDistinctCount != null)
+                                @if (Model.ASSESSMENT_TYPE == "Annual PE" && Model.AuditLevelDistinctCount != null)
                                 {
-                            <tfoot>
-                                <tr>
-                                    <td colspan="5"></td>
-                                    @if (Model.AuditLevelDistinctCount < 3)
-                                    {
-                                        <td class="lert bg-danger">Covers @Html.DisplayFor(model => model.AuditLevelDistinctCount) distinct Audit Levels</td>
-                                    }
-                                    else
-                                    {
-                                        <td class="lert bg-success">Covers @Html.DisplayFor(model => model.AuditLevelDistinctCount) distinct Audit Levels</td>
-                                    }
-                                    <td></td>
-                                </tr>
-                            </tfoot>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="5"></td>
+                                            @if (Model.AuditLevelDistinctCount < 3)
+                                            {
+                                                <td class="lert bg-danger">Covers @Html.DisplayFor(model => model.AuditLevelDistinctCount) distinct Audit Levels</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="lert bg-success">Covers @Html.DisplayFor(model => model.AuditLevelDistinctCount) distinct Audit Levels</td>
+                                            }
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 }
                             </table>
                         </div>
@@ -171,7 +179,7 @@
         <a class=" btn btn-default" href="@Url.Action("QCList", new { selOrgID = Model.ORG_ID })">Back to List</a>
         @if (Model.QC_ASSESS_IDX != null)
         {
-        <a class=" btn btn-danger pull-right" href="@Url.Action("AQSGenQA", new { typ = "QA", qid=Model.QC_ASSESS_IDX })">Send to AQS</a>
+            <a class=" btn btn-danger pull-right" href="@Url.Action("AQSGenQA", new { typ = "QA", qid=Model.QC_ASSESS_IDX })">Send to AQS</a>
         }
     </p>
 
@@ -179,6 +187,7 @@
 
 
 @section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/cleave")
     @Scripts.Render("~/bundles/areyousure")
@@ -200,23 +209,51 @@
 
 
         $(document).ready(function () {
-            //$(".difference").each(function () {
-            //    var x = Number($(this).attr("data-known"));
-            //    var y = Number($(this).attr("data-mon"));
-            //    var z = Number(y - x);
 
-            //    if (!isNaN(z))
-            //        $(this).text(z);
-            //});
 
-            //$(".differencePct").each(function () {
-            //    var x = parseFloat($(this).attr("data-known"));
-            //    var y = parseFloat($(this).attr("data-mon"));
-            //    var z = y - x;
-            //    var pct = (z * 100) / x;
-            //    if (!isNaN(pct))
-            //        $(this).text(Math.round(pct * 10) / 10);
-            //});
+            //assessment type dropdown change
+            $('#ASSESSMENT_TYPE').change(function () {
+                var typ = $(this).val();
+                if (typ == "Flow Rate Verification" || typ == "Semi-Annual Flow Rate Audit")
+                    $("#divUnit").show();
+                else
+                    $("#divUnit").hide();
+            });
+
+
+
+            //initialize monitor dropdown on page load
+            //if ($('#selMon option').length == 0)
+            //    fetchMonitors();
+
+
+            //update monitor dropdown
+            $('#ASSESSMENT_TYPE').change(function () {
+                fetchMonitors();
+            });
+
+            //update monitor dropdown
+            function fetchMonitors() {
+                $('#MONITOR_IDX').empty();
+                $.getJSON('@Url.Action("FetchMonitorsQC")', { qctyp: $("#ASSESSMENT_TYPE").val() }, function (data) {
+                    if (!data) {
+                        return;
+                    }
+                    if (data.length != 1)
+                        $('#MONITOR_IDX').append($('<option></option>').val('').text('Please select'));
+
+                    $.each(data, function (index, item) {
+                        $('#MONITOR_IDX').append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+
+                    //if (data.length == 1) {
+                    //    console.log('setting first');
+                    //    $("#MONITOR_IDX option:first").attr('selected', 'selected');
+                    //    //$("#MONITOR_IDX").val($("#MONITOR_IDX option:first").val());
+                    //}
+                });
+            };
+
         });
     </script>
 }

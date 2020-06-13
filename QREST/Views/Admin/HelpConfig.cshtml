@@ -31,7 +31,7 @@
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(model => model.EditHelp.HELP_IDX)
                 <div class="row">
-                    <div class="col-md-9">
+                    <div class="col-md-6">
                         <div class="form-group">
                             Help Topic Name
                             @Html.TextBoxFor(model => model.EditHelp.HELP_TITLE, new { @class = "form-control" })
@@ -41,8 +41,15 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             Sort Sequence
-                            @Html.TextBoxFor(model => model.EditHelp.SORT_SEQ, new { @class = "form-control" })
+                            @Html.TextBoxFor(model => model.EditHelp.SORT_SEQ, new { @class = "form-control", maxlength = 3 })
                             @Html.ValidationMessageFor(model => model.EditHelp.SORT_SEQ)
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            Category
+                            @Html.TextBoxFor(model => model.EditHelp.HELP_CAT, new { @class = "form-control", maxlength = 50 })
+                            @Html.ValidationMessageFor(model => model.EditHelp.HELP_CAT)
                         </div>
                     </div>
                 </div>

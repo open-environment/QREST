@@ -18,9 +18,15 @@
                     <ul class="nav">
                         @foreach (var item in Model.HelpTopics)
                         {
-                            <li>
-                                <a href="#@item.HELP_TITLE.Replace(" ","-")">@item.HELP_TITLE</a>
+                            <li class="dropdown-header b-b b-light" style="background-color: #4cc6cf; font-size: 13pt; font-weight: bold; color: #eee; padding-left: 10px;">
+                                <em>@item.HELP_CAT</em>
                             </li>
+                            foreach (var subItem in item.T_QREST_HELP_DOCS)
+                            {
+                            <li>
+                                <a href="#@subItem.HELP_TITLE.Replace(" ", "-")" style="font-size:12px">@subItem.HELP_TITLE</a>
+                            </li>
+                            }
                         }
                     </ul>
                 </nav>
@@ -36,11 +42,14 @@
 
                         @foreach (var item in Model.HelpTopics)
                         {
-                            <h3 id="@item.HELP_TITLE.Replace(" ","-")" class="text-info">
-                                @item.HELP_TITLE
+                            foreach (var subItem in item.T_QREST_HELP_DOCS)
+                            {
+                            <h3 id="@subItem.HELP_TITLE.Replace(" ", "-")" class="text-info">
+                                @subItem.HELP_TITLE
                             </h3>
                             <div class="line"></div>
-                            @Html.Raw(HttpUtility.HtmlDecode(item.HELP_HTML))
+                            @Html.Raw(HttpUtility.HtmlDecode(subItem.HELP_HTML))
+                            }
                         }
                         <br /><br />
                         <div class="line"></div><span class="font-bold">QREST Version: </span>

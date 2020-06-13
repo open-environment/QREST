@@ -252,6 +252,7 @@ namespace QRESTModel.DAL
         public int POC { get; set; }
         public string METHOD_CODE { get; set; }
         public string UNIT_CODE { get; set; }
+        public string FLOW_UNIT_CODE { get; set; }
     }
 
     public class db_Air
@@ -1649,6 +1650,46 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<SiteMonitorDisplayType> GetT_QREST_MONITORS_Display_ByUser_QCType(string UserIDX, string QCType)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_MONITORS.AsNoTracking()
+                               join s in ctx.T_QREST_SITES.AsNoTracking() on a.SITE_IDX equals s.SITE_IDX
+                               join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on a.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
+                               join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on r.PAR_CODE equals p.PAR_CODE
+                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on s.ORG_ID equals u.ORG_ID
+                               join q in ctx.T_QREST_REF_QC.AsNoTracking() on r.PAR_CODE equals q.PAR_CODE
+                               join unit in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.COLLECT_UNIT_CODE equals unit.UNIT_CODE
+                               into lj from unit in lj.DefaultIfEmpty() //left join on monitor's unit
+                               where u.USER_IDX == UserIDX
+                               && u.STATUS_IND == "A"
+                               && q.ASSESSMENT_TYPE == QCType
+                               select new SiteMonitorDisplayType
+                               {
+                                   T_QREST_MONITORS = a,
+                                   METHOD_CODE = r.METHOD_CODE,
+                                   COLLECTION_DESC = r.COLLECTION_DESC,
+                                   PAR_CODE = p.PAR_CODE,
+                                   PAR_NAME = p.PAR_NAME,
+                                   SITE_ID = s.SITE_ID,
+                                   ORG_ID = u.ORG_ID,
+                                   UNIT_DESC = unit.UNIT_DESC
+                               }).ToList();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
 
         /// <summary>
         /// Returns list of monitors a user has access to, optionally filtered by OrgID
@@ -1960,7 +2001,8 @@ namespace QRESTModel.DAL
                                 PAR_CODE = pm.PAR_CODE,
                                 POC = m.POC,
                                 METHOD_CODE = pm.METHOD_CODE,
-                                UNIT_CODE = m.COLLECT_UNIT_CODE
+                                UNIT_CODE = m.COLLECT_UNIT_CODE,
+                                FLOW_UNIT_CODE = a.UNIT_CODE
                             }).FirstOrDefault();
                 }
                 catch (Exception ex)

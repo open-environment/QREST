@@ -23,6 +23,7 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
         public IEnumerable<SelectListItem> ddl_Assess_Type { get; set; }
         public IEnumerable<SelectListItem> ddl_AQS_Null { get; set; }
+        public IEnumerable<SelectListItem> ddl_FlowRate_Unit { get; set; }
 
         public string ORG_ID { get; set; }
 
@@ -37,6 +38,7 @@ namespace QREST.Models
         [Required]
         public string ASSESSMENT_TYPE { get; set; }
         public string UNIT_CODE { get; set; }
+        public bool DisplayUnit { get; set; }
         public int? ASSESSMENT_NUM { get; set; }
         public string ASSESSED_BY { get; set; }
 

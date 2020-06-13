@@ -619,7 +619,9 @@ namespace QREST.Controllers
             var model = new vmDataQCEntry {
                 ddl_Assess_Type = ddlHelpers.get_ddl_ref_assess_type(),
                 ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX, true),
-                ddl_AQS_Null = ddlHelpers.get_ddl_ref_qualifier("NULL")
+                ddl_AQS_Null = ddlHelpers.get_ddl_ref_qualifier("NULL"),
+                ddl_FlowRate_Unit = ddlHelpers.get_ddl_ref_units("68101"),
+                DisplayUnit = false
             };
 
             //assessment
@@ -634,6 +636,10 @@ namespace QREST.Controllers
                 model.UNIT_CODE = x.UNIT_CODE;
                 model.ASSESSMENT_NUM = x.ASSESSMENT_NUM;
                 model.ASSESSED_BY = x.ASSESSED_BY;
+
+                //unit display
+                if (model.ASSESSMENT_TYPE == "Flow Rate Verification" || model.ASSESSMENT_TYPE == "Semi-Annual Flow Rate Audit")
+                    model.DisplayUnit = true;
 
                 //populate org id
                 T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByMonitorID(model.MONITOR_IDX.GetValueOrDefault());
@@ -696,6 +702,14 @@ namespace QREST.Controllers
                             db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, 0, null, "Zero Check", UserIDX);
                             db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, "Span Check", UserIDX);
                         }
+                        else if (model.ASSESSMENT_TYPE == "Flow Rate Verification")
+                        {
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                        }
+                        else if (model.ASSESSMENT_TYPE == "Semi-Annual Flow Rate Audit")
+                        {
+                            db_Air.InsertUpdatetT_QREST_QC_ASSESSMENT_DTL(null, AssessIDX, null, null, null, null, UserIDX);
+                        }
 
                     }
                     else
@@ -722,6 +736,7 @@ namespace QREST.Controllers
             model.ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX, true);
             model.ddl_Assess_Type = ddlHelpers.get_ddl_ref_assess_type();
             model.ddl_AQS_Null = ddlHelpers.get_ddl_ref_qualifier("NULL");
+            model.ddl_FlowRate_Unit = ddlHelpers.get_ddl_ref_units("68101");
             return View(model);
 
         }
@@ -1586,6 +1601,19 @@ namespace QREST.Controllers
             var data = ddlHelpers.get_monitors_sampled_by_org(ID);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+
+        [HttpGet]
+        public JsonResult FetchMonitorsQC(string qctyp)
+        {
+            string UserIDX = User.Identity.GetUserId();
+            var data = ddlHelpers.get_monitors_sampled_by_user_qc_type(UserIDX, qctyp);
+
+            if (data.Count() == 0)
+                data = ddlHelpers.get_monitors_sampled_by_user(UserIDX);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
 
 
         [HttpGet]

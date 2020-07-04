@@ -1,0 +1,275 @@
+﻿@model QREST.Models.vmImportStatus
+@{
+    ViewBag.Title = "Import Status";
+    ViewBag.HelpLink = "Manual-Import";
+}
+@Html.HiddenFor(model => model.T_QREST_DATA_IMPORTS.IMPORT_IDX)
+<section class="panel panel-default">
+    <div class="row m-l-none m-r-none bg-light lter">
+        <div class="col-sm-12 col-md-4 padder-v b-r b-light">
+            <span class="fa-stack fa-2x pull-left m-r-sm">
+                <i class="fa fa-circle fa-stack-2x text-dark"></i>
+                <i class="fa fa-download fa-stack-1x text-white"></i>
+            </span>
+            <a class="clear" href="#">
+                <span class="h4 block m-t-xs"><strong id="firers">Import Status: @Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS</strong></span>
+                <small class="text-muted text-uc">Record Count: @Model.ImportTotalCount</small>
+
+                @if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS != "IMPORTED")
+                {
+                    <br />
+                    <small class="text-muted text-uc">Errors: @Model.ImportValErrorCount</small>
+                    <br />
+                    <small class="text-muted text-uc">Duplicates: @Model.ImportValDupCount</small>
+                }
+                else
+                {
+
+                }
+            </a>
+        </div>
+        <div class="col-sm-12 col-md-8 padder-v b-r b-light lt" style="height:115px">
+            <div class="">
+
+                @if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "VALIDATED")
+                {
+                    if (Model.ImportValErrorCount == 0)
+                    {
+                        using (Html.BeginForm("ImportManualOverride", "Data", FormMethod.Post, new { @class = "form-horizontal" }))
+                        {
+                        @Html.HiddenFor(model => model.T_QREST_DATA_IMPORTS.IMPORT_IDX)
+                        <button type="submit" class="btn btn-primary">Import Data</button>
+                        }
+                    }
+                    <div class="delete-section" style="display:inline-block;">
+                        <a class="btn btn-danger delete-link">Cancel Import</a>
+                        <div class="btn btn-warning delete-confirm" style="display:none" data-delete-id="@Model.T_QREST_DATA_IMPORTS.IMPORT_IDX" data-success-url="/Data/ManualImport" data-delete-p="/Data/ImportStatusDelete">
+                            <b>Confirm Cancellation</b>
+                        </div>
+                    </div>
+                }
+                else if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "IMPORTED")
+                {
+                    <div class="alert alert-success">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <i class="fa fa-ok-sign"></i>
+                        <strong>Congrats!</strong> @Model.ImportTotalCount records were successfully imported.
+                    </div>
+                    <a class=" btn btn-default" href="@Url.Action("ImportList", new { selOrgID = Model.selOrg })">View in Import History</a>
+                }
+            </div>
+            <a class="clear" href="#">
+                <span class="h4 block m-t-xs"><strong></strong></span>
+                <small class="text-muted text-uc"></small>
+            </a>
+        </div>
+
+
+    </div>
+</section>
+
+
+
+@if (Model.ImportValErrorCount > 0)
+{
+    <!-- DISPLAY ERRORS-->
+    <section class="panel panel-danger">
+        <header class="panel-heading font-bold">Validation Errors Found</header>
+        <div class="panel-body">
+            <div class="alert alert-danger alert-block">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                <h4>
+                    <i class="fa fa-bell-alt"></i>Error!
+                </h4>
+                <p>
+                    The following validation errors were detected during import validation. No data has been imported. Please fix these errors and import again.
+                </p>
+            </div>
+            <div class="table-responsive">
+                <table id="gridDataError" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Datetime (Local)</th>
+                            <th>Datetime (UTC)</th>
+                            <th>Value</th>
+                            <th>Unit</th>
+                            <th>QREST Code</th>
+                            <th>AQS Qual Code</th>
+                            <th>AQS Null Code</th>
+                            <th>Validation Error</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </section>
+}
+else if (Model.ImportValDupCount > 0)
+{
+    <!-- DISPLAY DUPLICATES-->
+    <section class="panel panel-danger">
+        <header class="panel-heading font-bold">Existing Data Found</header>
+        <div class="panel-body">
+            <div class="alert alert-warning alert-block">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                <h4>
+                    <i class="fa fa-bell-alt"></i>Warning!
+                </h4>
+                <p>
+                    Data matching the date/times below already exists in QREST for this site & parameter. You must click the
+                    <b>IMPORT</b> button above to confirm
+                    import all this data, including these duplicates, or click
+                    <b>CANCEL IMPORT</b> to prevent import of any data in this import set and start over).
+                </p>
+            </div>
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Datetime (Local)</th>
+                            <th>Datetime (UTC)</th>
+                            <th>Value</th>
+                            <th>Unit</th>
+                            <th>QREST Code</th>
+                            <th>AQS Qual Code</th>
+                            <th>AQS Null Code</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </section>
+}
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+
+            // datatable initialization
+            var table = $("#gridData").DataTable({
+                "responsive": true,
+                "serverSide": true,
+                "processing": true,
+                "orderMulti": false,
+                "lengthChange": false,
+                "paging": true,
+                "pageLength": 25,
+                "pagingType": "full_numbers",
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("ImportStatusDupData", "Data")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "data": function (d) {
+                        return $.extend({}, d, {
+                            "p_imp": $('#T_QREST_DATA_IMPORTS_IMPORT_IDX').val()
+                        });
+                    }
+                },
+                "order": [[1, "asc"]],
+                "columns": [
+                    {
+                        "data": "DATA_DTTM_LOCAL",
+                        "name": "DATA_DTTM_LOCAL",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY HH:mm A");
+                        }
+                    },
+                    {
+                        "data": "DATA_DTTM_UTC",
+                        "name": "DATA_DTTM_UTC",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY HH:mm");
+                        }
+                    },
+                    { "data": "DATA_VALUE", "name": "DATA_VALUE", "autoWidth": true },
+                    { "data": "UNIT_CODE", "name": "UNIT_CODE", "autoWidth": true },
+                    { "data": "VAL_CD", "name": "VAL_CD", "autoWidth": true },
+                    { "data": "AQS_QUAL_CODES", "name": "AQS_QUAL_CODES", "autoWidth": true },
+                    { "data": "AQS_NULL_CODE", "name": "AQS_NULL_CODE", "autoWidth": true }
+                ],
+                fnDrawCallback: function (oSettings) {
+                    var totalPages = this.api().page.info().pages;
+                    if (totalPages == 1) {
+                        jQuery('.dataTables_paginate').hide();
+                    }
+                    else {
+                        jQuery('.dataTables_paginate').show();
+                    }
+                }
+            });
+
+
+            // datatable initialization
+            var table = $("#gridDataError").DataTable({
+                "responsive": true,
+                "serverSide": true,
+                "processing": true,
+                "orderMulti": false,
+                "lengthChange": false,
+                "paging": true,
+                "pageLength": 25,
+                "pagingType": "full_numbers",
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("ImportStatusErrorData", "Data")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "data": function (d) {
+                        return $.extend({}, d, {
+                            "p_imp": $('#T_QREST_DATA_IMPORTS_IMPORT_IDX').val()
+                        });
+                    }
+                },
+                "order": [[1, "asc"]],
+                "columns": [
+                    {
+                        "data": "DATA_DTTM_LOCAL",
+                        "name": "DATA_DTTM_LOCAL",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY HH:mm A");
+                        }
+                    },
+                    {
+                        "data": "DATA_DTTM_UTC",
+                        "name": "DATA_DTTM_UTC",
+                        "autoWidth": true,
+                        render: function (d) {
+                            return moment(d).format("MM/DD/YYYY HH:mm");
+                        }
+                    },
+                    { "data": "DATA_VALUE", "name": "DATA_VALUE", "autoWidth": true },
+                    { "data": "UNIT_CODE", "name": "UNIT_CODE", "autoWidth": true },
+                    { "data": "VAL_CD", "name": "VAL_CD", "autoWidth": true },
+                    { "data": "AQS_QUAL_CODES", "name": "AQS_QUAL_CODES", "autoWidth": true },
+                    { "data": "AQS_NULL_CODE", "name": "AQS_NULL_CODE", "autoWidth": true },
+                    { "data": "IMPORT_MSG", "name": "IMPORT_MSG", "autoWidth": true }
+                ],
+                fnDrawCallback: function (oSettings) {
+                    var totalPages = this.api().page.info().pages;
+                    if (totalPages == 1) {
+                        jQuery('.dataTables_paginate').hide();
+                    }
+                    else {
+                        jQuery('.dataTables_paginate').show();
+                    }
+                }
+            });
+
+        });
+
+    </script>
+}
+

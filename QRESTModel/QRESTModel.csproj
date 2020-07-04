@@ -49,8 +49,8 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="SendGrid, Version=9.14.0.0, Culture=neutral, PublicKeyToken=4f047e93159395ca, processorArchitecture=MSIL">
-      <HintPath>..\packages\SendGrid.9.14.0\lib\net452\SendGrid.dll</HintPath>
+    <Reference Include="SendGrid, Version=9.17.0.0, Culture=neutral, PublicKeyToken=4f047e93159395ca, processorArchitecture=MSIL">
+      <HintPath>..\packages\SendGrid.9.17.0\lib\net452\SendGrid.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -89,16 +89,17 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Twilio, Version=5.37.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Twilio.5.37.1\lib\net451\Twilio.dll</HintPath>
+    <Reference Include="Twilio, Version=5.44.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Twilio.5.44.0\lib\net451\Twilio.dll</HintPath>
     </Reference>
     <Reference Include="UnitsNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=f8601875a1f041da, processorArchitecture=MSIL">
-      <HintPath>..\packages\UnitsNet.4.40.0\lib\net40\UnitsNet.dll</HintPath>
+      <HintPath>..\packages\UnitsNet.4.67.0\lib\net40\UnitsNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BLL\AQSHelper.cs" />
     <Compile Include="BLL\DataTableGen.cs" />
+    <Compile Include="BLL\ImportHelper.cs" />
     <Compile Include="BLL\UtilCrypto.cs" />
     <Compile Include="BLL\UtilsZip.cs" />
     <Compile Include="COMM\LoggerComm.cs" />
@@ -177,6 +178,9 @@
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_DATA_IMPORTS.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_DATA_IMPORT_TEMP.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_EMAIL_TEMPLATE.cs">
@@ -308,12 +312,11 @@
   <ItemGroup>
     <Content Include="App_Data\1_createDatabase.sql" />
     <Content Include="App_Data\20200302_changes.sql" />
-    <Content Include="App_Data\20200312_changes.sql" />
-    <Content Include="App_Data\20200320_changes.sql" />
     <Content Include="App_Data\20200326_changes.sql" />
     <Content Include="App_Data\20200416_changes.sql" />
     <Content Include="App_Data\20200530_changes.sql" />
     <Content Include="App_Data\20200603_changes.sql" />
+    <Content Include="App_Data\20200619_changes.sql" />
     <Content Include="App_Data\2_createTables.sql" />
     <Content Include="App_Data\3_createFunctions.sql" />
     <Content Include="App_Data\4_populateData.sql" />

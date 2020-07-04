@@ -89,6 +89,8 @@
         <AssociationConnector Association="QRESTModel.FK_T_QREST_QC_ASSESSMENT_DTL_A" />
         <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_QC" Width="1.5" PointX="22.75" PointY="0.75" />
         <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_QC_AUDIT_LVL" Width="1.5" PointX="0.75" PointY="22.75" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_IMPORT_TEMP" Width="1.5" PointX="12.75" PointY="27.25" />
+        <AssociationConnector Association="QRESTModel.FK_QREST_DATA_IMPORT_TEMP" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

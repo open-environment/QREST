@@ -7,7 +7,7 @@ namespace QRESTModel.DataTableGen
 {
     public static class DataTableGen
     {
-        public static DataTable SitesByUser(string UserIDX)
+        public static DataTable SitesByUser(string UserIDX, string orgid)
         {
             DataTable dtSites = new DataTable("Sites");
             dtSites.Columns.AddRange(new DataColumn[20] {
@@ -33,7 +33,7 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("Site Comments")
                 });
 
-            List<T_QREST_SITES> _sites = db_Air.GetT_QREST_SITES_ByUser_OrgID(null, UserIDX);
+            List<T_QREST_SITES> _sites = db_Air.GetT_QREST_SITES_ByUser_OrgID(orgid, UserIDX);
             foreach (var _site in _sites)
             {
                 dtSites.Rows.Add(_site.ORG_ID, _site.SITE_ID, _site.SITE_NAME, _site.AQS_SITE_ID, _site.STATE_CD, _site.COUNTY_CD, _site.LATITUDE, _site.LONGITUDE,
@@ -43,7 +43,7 @@ namespace QRESTModel.DataTableGen
             return dtSites;
         }
 
-        public static DataTable MonitorsByUser(string UserIDX)
+        public static DataTable MonitorsByUser(string UserIDX, string org)
         {
             DataTable dtMonitors = new DataTable("Monitors");
             dtMonitors.Columns.AddRange(new DataColumn[13] {
@@ -62,7 +62,7 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("Alert Stuck Count")
                                            });
 
-            List<SiteMonitorDisplayType> _mons = db_Air.GetT_QREST_MONITORS_ByUser_OrgID(null, UserIDX);
+            List<SiteMonitorDisplayType> _mons = db_Air.GetT_QREST_MONITORS_ByUser_OrgID(org, UserIDX);
             foreach (var _mon in _mons)
             {
                 dtMonitors.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.T_QREST_MONITORS.POC, _mon.T_QREST_MONITORS.DURATION_CODE,
@@ -99,7 +99,7 @@ namespace QRESTModel.DataTableGen
         public static DataTable RawData(string Freq, string orgid, Guid? SiteIDX, Guid? MonIDX, DateTime startDt, DateTime endDt, string tIME_TYPE)
         {
             DataTable dtData = new DataTable("Data");
-            dtData.Columns.AddRange(new DataColumn[12] {
+            dtData.Columns.AddRange(new DataColumn[14] {
                                             new DataColumn("Org ID"),
                                             new DataColumn("Site ID"),
                                             new DataColumn("Par Code"),
@@ -107,6 +107,8 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("Method Code"),
                                             new DataColumn("POC"),
                                             new DataColumn("DateTime" + (tIME_TYPE == "U" ? " (UTC)" : " (local)")),
+                                            new DataColumn("Date" + (tIME_TYPE == "U" ? " (UTC)" : " (local)")),
+                                            new DataColumn("Time" + (tIME_TYPE == "U" ? " (UTC)" : " (local)")),
                                             new DataColumn("Value"),
                                             new DataColumn("QREST Flag"),
                                             new DataColumn("AQS Null Code"),
@@ -119,7 +121,7 @@ namespace QRESTModel.DataTableGen
                 List<RawDataDisplay> _mons = db_Air.GetT_QREST_DATA_FIVE_MIN(orgid, SiteIDX, MonIDX, startDt, endDt, 50000, null, 3, "asc", tIME_TYPE);
                 foreach (var _mon in _mons)
                 {
-                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
+                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_DTTM.GetValueOrDefault().Date, _mon.DATA_DTTM.GetValueOrDefault().TimeOfDay, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
                         _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND);
                 }
             }
@@ -128,7 +130,7 @@ namespace QRESTModel.DataTableGen
                 List<RawDataDisplay> _mons = db_Air.GetT_QREST_DATA_HOURLY(orgid, MonIDX, startDt, endDt, 50000, null, 3, "asc", tIME_TYPE);
                 foreach (var _mon in _mons)
                 {
-                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
+                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_DTTM.GetValueOrDefault().Date, _mon.DATA_DTTM.GetValueOrDefault().TimeOfDay, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
                         _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND);
                 }
             }
@@ -290,7 +292,7 @@ namespace QRESTModel.DataTableGen
             return ds;
         }
 
-        public static DataTable GetPollingConfig(string UserIDX)
+        public static DataTable GetPollingConfig(string UserIDX, string org)
         {
             DataTable pollingConfig = new DataTable("Polling_Config");
             pollingConfig.Columns.AddRange(new DataColumn[18] {
@@ -314,7 +316,7 @@ namespace QRESTModel.DataTableGen
                 new DataColumn("ACT_IND")
                 });
 
-            List<SitePollingConfigTypeExtended> _sitePollingConfigTypes = db_Air.GetT_QREST_SITES_POLLING_CONFIG_List(UserIDX);
+            List<SitePollingConfigTypeExtended> _sitePollingConfigTypes = db_Air.GetT_QREST_SITES_POLLING_CONFIG_List(UserIDX, org);
             if (_sitePollingConfigTypes != null)
             {
                 foreach (var _sitePollingConfigType in _sitePollingConfigTypes)
@@ -344,10 +346,12 @@ namespace QRESTModel.DataTableGen
             return pollingConfig;
         }
 
-        public static DataTable GetPollingConfigDetail(string UserIDX)
+        public static DataTable GetPollingConfigDetail(string UserIDX, string org)
         {
             DataTable pollingConfigDetail = new DataTable("Polling_Config_Detail");
             pollingConfigDetail.Columns.AddRange(new DataColumn[10] {
+                new DataColumn("Org ID"),
+                new DataColumn("Site ID"),
                 new DataColumn("POLL_CONFIG_DTL_IDX"),
                 new DataColumn("POLL_CONFIG_IDX"),
                 new DataColumn("MONITOR_IDX"),
@@ -355,17 +359,17 @@ namespace QRESTModel.DataTableGen
                 new DataColumn("COL"),
                 new DataColumn("COLLECT_UNIT_CODE"),
                 new DataColumn("SUM_TYPE"),
-                new DataColumn("ROUNDING"),
-                new DataColumn("ORG_ID"),
-                new DataColumn("SITE_ID")
+                new DataColumn("ROUNDING")
                 });
 
-            List<SitePollingConfigDetailTypeExtended> _sitePollingConfigDetailTypes = db_Air.GetT_QREST_SITES_POLLING_CONFIG_DetailList(UserIDX);
+            List<SitePollingConfigDetailTypeExtended> _sitePollingConfigDetailTypes = db_Air.GetT_QREST_SITES_POLLING_CONFIG_DetailList(UserIDX, org);
             if (_sitePollingConfigDetailTypes != null)
             {
                 foreach (var _sitePollingConfigDetailType in _sitePollingConfigDetailTypes)
                 {
                     pollingConfigDetail.Rows.Add(
+                        _sitePollingConfigDetailType.ORG_ID,
+                        _sitePollingConfigDetailType.SITE_ID,
                         _sitePollingConfigDetailType.POLL_CONFIG_DTL_IDX,
                         _sitePollingConfigDetailType.POLL_CONFIG_IDX,
                         _sitePollingConfigDetailType.MONITOR_IDX,
@@ -373,9 +377,7 @@ namespace QRESTModel.DataTableGen
                         _sitePollingConfigDetailType.COL,
                         _sitePollingConfigDetailType.COLLECT_UNIT_CODE,
                         _sitePollingConfigDetailType.SUM_TYPE,
-                        _sitePollingConfigDetailType.ROUNDING,
-                        _sitePollingConfigDetailType.ORG_ID,
-                        _sitePollingConfigDetailType.SITE_ID);
+                        _sitePollingConfigDetailType.ROUNDING);
                 }
             }
 
@@ -415,6 +417,41 @@ namespace QRESTModel.DataTableGen
 
             return _dt;
         }
+
+        public static DataTable GetFiveMinDataByImportIDX(Guid iMPORT_IDX)
+        {
+            DataTable _dt = new DataTable("Imported Data");
+            _dt.Columns.AddRange(new DataColumn[8] {
+                new DataColumn("ORG_ID"),
+                new DataColumn("SITE_ID"),
+                new DataColumn("POC"),
+                new DataColumn("PAR_CODE"),
+                new DataColumn("PAR_NAME"),
+                new DataColumn("DATA_DTTM"),
+                new DataColumn("DATA_VALUE"),
+                new DataColumn("VAL_CD")
+                });
+
+            List<RawDataDisplay> _datas = db_Air.GetT_QREST_DATA_FIVE_MIN_ByImportIDX(iMPORT_IDX);
+            if (_datas != null)
+            {
+                foreach (var _data in _datas)
+                {
+                    _dt.Rows.Add(
+                        _data.ORG_ID,
+                        _data.SITE_ID,
+                        _data.POC,
+                        _data.PAR_CODE,
+                        _data.PAR_NAME,
+                        _data.DATA_DTTM,
+                        _data.DATA_VALUE,
+                        _data.VAL_CD);
+                }
+            }
+
+            return _dt;
+        }
+
 
         public static DataTable GetHourlyLogByHourlyIDX(Guid dATA_HOURLY_IDX)
         {

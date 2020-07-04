@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "Raw Data";
     ViewBag.HideTitle = true;
+    ViewBag.HelpLink = "Raw-Data";
 }
 
 <section class="panel panel-qrest">
@@ -247,11 +248,10 @@
                 chart.render();
 
                 $("#chartContainer").show();
-                $("#chartContainer").css("height", "320px");
+                $("#chartContainer").css("height", "400px");
             }
             else
                 $("#chartContainer").hide();
-
 
         });
 

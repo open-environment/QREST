@@ -257,7 +257,6 @@ insert into [T_QREST_REF_QC_AUDIT_LVL] values ('42406',10,0.8000,1.0000);
 insert into T_QREST_REF_QC values ('44201','1-Point QC',0.0015,7, 0.005, 0.08);
 --SO2
 insert into T_QREST_REF_QC values ('42401','1-Point QC',0.0015,10, 0.005, 0.08);
---SO2
 insert into T_QREST_REF_QC values ('42406','1-Point QC',0.0015,10, 0.005, 0.08);
 
 insert into T_QREST_REF_QC values ('44201','Annual PE',0.0015,15, null, null);

@@ -44,6 +44,17 @@ namespace QREST.App_Logic
                             }
                             catch { }
                         }
+                        else if (column.Cell(1).GetString().Contains("Date ("))
+                        {
+                            try
+                            {
+                                string columnLetter = column.ColumnLetter();
+                                string rng = $"${columnLetter}2:{columnLetter}50000";
+                                _ws.Range(rng).DataType = XLDataType.DateTime;
+                                _ws.Range(rng).Style.NumberFormat.Format = "MM/dd/yyyy";
+                            }
+                            catch { }
+                        }
                     }
                 }
                 

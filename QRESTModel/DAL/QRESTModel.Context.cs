@@ -77,6 +77,7 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_QC_ASSESSMENT_DTL> T_QREST_QC_ASSESSMENT_DTL { get; set; }
         public virtual DbSet<T_QREST_REF_QC> T_QREST_REF_QC { get; set; }
         public virtual DbSet<T_QREST_REF_QC_AUDIT_LVL> T_QREST_REF_QC_AUDIT_LVL { get; set; }
+        public virtual DbSet<T_QREST_DATA_IMPORT_TEMP> T_QREST_DATA_IMPORT_TEMP { get; set; }
     
         public virtual ObjectResult<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)
         {
@@ -199,6 +200,15 @@ namespace QRESTModel.DAL
                 new ObjectParameter("edate", typeof(System.DateTime));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_AQS_REVIEW_STATUS_Result>("SP_AQS_REVIEW_STATUS", siteidParameter, adateParameter, edateParameter);
+        }
+    
+        public virtual int SP_IMPORT_DATA_FROM_TEMP(Nullable<System.Guid> import_idx)
+        {
+            var import_idxParameter = import_idx.HasValue ?
+                new ObjectParameter("import_idx", import_idx) :
+                new ObjectParameter("import_idx", typeof(System.Guid));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_IMPORT_DATA_FROM_TEMP", import_idxParameter);
         }
     }
 }

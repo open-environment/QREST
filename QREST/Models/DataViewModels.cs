@@ -98,6 +98,7 @@ namespace QREST.Models
 
         public string selTimeType { get; set; }
         public string selCalc { get; set; }
+        public string selVal { get; set; }
 
         public string selTimeZone { get; set; }
 
@@ -115,10 +116,6 @@ namespace QREST.Models
         [Required]
         [Display(Name = "Import Data")]
         public string IMPORT_BLOCK { get; set; }  //raw text imported
-        public List<ImportResponse> error_data { get; set; }   //in-memory storage of array of data to import
-        public int ImportSuccCount { get; set; }
-        public Guid? IMPORT_IDX { get; set; }
-
     }
 
     public class vmDataImportList {
@@ -139,6 +136,9 @@ namespace QREST.Models
         [Required]
         [Display(Name = "Configuration Name")]
         public string editCONFIG_NAME { get; set; }
+
+        public string editCONFIG_DESC { get; set; }
+
 
         [Required]
         [Display(Name = "Delimiter")]
@@ -202,6 +202,16 @@ namespace QREST.Models
         }
     }
 
+
+    public class vmImportStatus {
+        public string selOrg { get; set; }
+        public T_QREST_DATA_IMPORTS T_QREST_DATA_IMPORTS { get; set; }
+        public int ImportTotalCount { get; set; }
+        public int ImportValDupCount { get; set; }
+        public int ImportValErrorCount { get; set; }
+        public int ImportSuccCount { get; set; }
+        public List<T_QREST_DATA_IMPORT_TEMP> TempDupRecords { get; set; }
+    }
 
 
     public class vmDataReviewSummary
@@ -279,6 +289,8 @@ namespace QREST.Models
         public bool editValueBlank { get; set; }
         public string editFlag { get; set; }
         public bool editFlagBlank { get; set; }
+        public bool editDeleteRecords { get; set; }
+
         public List<Guid> editRawDataIDX { get; set; }
 
         //initialize
@@ -288,6 +300,7 @@ namespace QREST.Models
             ddl_Qual = ddlHelpers.get_ddl_ref_qualifierNonNull();
             editValueBlank = false;
             editFlagBlank = false;
+            editDeleteRecords = false;
         }
     }
 

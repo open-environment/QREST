@@ -5,7 +5,7 @@
    
 }
 
-@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @id = "norepostform", @class = "panel-body wrapper-md", @style = "padding-top:0; padding-bottom:0", role = "form" }))
+@using (Html.BeginForm("QRESTRegister", "Account", FormMethod.Post, new { @id = "norepostform", @class = "panel-body wrapper-md", @style = "padding-top:0; padding-bottom:0", role = "form" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary("", new { @class = "text-danger" })
@@ -14,7 +14,7 @@
         @Html.LabelFor(m => m.Email, new { @class = "control-label" })
         @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @maxlength = "150", @autofocus = "autofocus" })
         @Html.ValidationMessageFor(m => m.Email)
-        <span class="help-block"><i class="fa fa-info-circle"></i> Registration is only open to members of approved tribal agencies. Register using an email you have access to.</span>
+        <span class="help-block"><i class="fa fa-info-circle"></i> This registration link is for tribal agencies on the list below, who already have established an agency in QREST.  If your tribal agency is not yet in QREST, please email christopher.lee@nau.edu, and we will get you established so that you can use the features of QREST for your data.</span>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Password, new { @class = "control-label" })
@@ -75,7 +75,7 @@
     </div>
 
     <div class="form-group">
-        <input id="btnSubmit" type="submit" class="btn btn-primary" value="Register" disabled="disabled" />
+        <input id="btnSubmit" type="submit" class="btn btn-primary" disabled="disabled" />
         @Html.ActionLink("Already have an account?", "Login", new object { }, new { @class = "pull-right m-t-xs" })
     </div>
 }

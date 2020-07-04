@@ -58,8 +58,17 @@ namespace QREST.Controllers
 
             string UserIDX = User.Identity.GetUserId();
 
-            DataTable dtSites = exportdata.Contains("Sites") ? DataTableGen.SitesByUser(UserIDX) : new DataTable("Sites");
-            DataTable dtMonitors = exportdata.Contains("Monitors") ? DataTableGen.MonitorsByUser(UserIDX) : new DataTable("Monitors");
+            DataTable dtSites = exportdata.Contains("Sites") ? DataTableGen.SitesByUser(UserIDX, model.selOrgID) : new DataTable("Sites");
+            DataTable dtMonitors = exportdata.Contains("Monitors") ? DataTableGen.MonitorsByUser(UserIDX, model.selOrgID) : new DataTable("Monitors");
+
+            //Polling Config
+            DataTable dtPollingConfig = new DataTable("Polling_Config");
+            DataTable dtPollingConfigDetail = new DataTable("Polling_Config_Detail");
+            if (exportdata.Contains("PollingConfig"))
+            {
+                dtPollingConfig = DataTableGen.GetPollingConfig(UserIDX, model.selOrgID);
+                dtPollingConfigDetail = DataTableGen.GetPollingConfigDetail(UserIDX, model.selOrgID);
+            }
 
             //raw data
             DataTable dtData = new DataTable("Data");
@@ -74,14 +83,7 @@ namespace QREST.Controllers
                 }
             }
 
-            //Polling Config
-            DataTable dtPollingConfig = new DataTable("Polling_Config");
-            DataTable dtPollingConfigDetail = new DataTable("Polling_Config_Detail");
-            if (exportdata.Contains("PollingConfig"))
-            {
-                dtPollingConfig = DataTableGen.GetPollingConfig(UserIDX);
-                dtPollingConfigDetail = DataTableGen.GetPollingConfigDetail(UserIDX);
-            }
+
 
             DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dtSites, dtMonitors, dtPollingConfig, dtPollingConfigDetail, dtData });
             if (dsExport.Tables.Count > 0)

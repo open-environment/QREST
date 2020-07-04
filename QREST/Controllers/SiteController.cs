@@ -662,7 +662,7 @@ namespace QREST.Controllers
 
                     Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
                         model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
-                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE, true, model.editPOLL_LOG_DESC);
+                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE, true, model.editPOLL_LOG_DESC, null);
 
                     if (SuccID != null)
                     {
@@ -1264,13 +1264,21 @@ namespace QREST.Controllers
             else
             {
                 Guid idg = new Guid(id);
-                int SuccID = db_Air.DeleteT_QREST_MONITORS(idg);
-                if (SuccID == 1)
-                    return Json("Success");
-                else if (SuccID == -1)
-                    return Json("Cannot delete monitor that has air quality data collected. Delete results first.");
+
+                //get counts
+                int hrCnt = db_Air.GetT_QREST_DATA_HOURLYcountByMon(idg);
+                int qcCnt = db_Air.GetT_QREST_QC_ASSESSMENT_CountByMon(idg);
+
+                if (hrCnt == 0 && qcCnt == 0)
+                {
+                    int SuccID = db_Air.DeleteT_QREST_MONITORS(idg);
+                    if (SuccID == 1)
+                        return Json("Success");
+                    else
+                        return Json("Unspecified error attempting to delete monitor.");
+                }
                 else
-                    return Json("Unable to find monitor to delete.");
+                    return Json("Cannot delete monitor that has air quality data collected. Delete results first. (" + hrCnt + " hourly records and " + qcCnt + " QC assessments)");
             }
         }
 

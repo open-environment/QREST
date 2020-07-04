@@ -1,7 +1,7 @@
 ﻿@using QREST.App_Logic.BusinessLogicLayer
 @model QREST.Models.vmSiteSiteEdit
 @{
-    ViewBag.HelpLink = "Site-Edit";
+    ViewBag.HelpLink = "Site-Management";
     if (Model.SITE_IDX == null)
     {
         ViewBag.Title = "Add Site";
@@ -180,14 +180,13 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
-                    <div class="form-group">
+                    @*<div class="form-group">
                         <label class="checkbox-inline label-lg">
                             @Html.CheckBoxFor(model => model.AQS_IND, new { @class = "checkbox-inline" })
                             Enable Submission to AQS
                         </label>
-                    </div>
+                    </div>*@
                     <div class="line line-dashed pull-in"></div>
                     <p>
                         <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
@@ -213,6 +212,7 @@
                             <thead>
                                 <tr>
                                     <th style="width: 120px;"></th>
+                                    <th>Par Code</th>
                                     <th>Parameter</th>
                                     <th>Method Code</th>
                                     <th>POC</th>
@@ -232,6 +232,8 @@
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.PAR_CODE)
+                                    </td>
+                                    <td>
                                         @Html.DisplayFor(modelItem => item.PAR_NAME)
                                     </td>
                                     <td>

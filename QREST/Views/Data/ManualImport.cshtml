@@ -2,21 +2,7 @@
 @{
     ViewBag.Title = "Import Data";
     ViewBag.SubTitle = "Import hourly or n-minute raw data";
-}
-
-@if (Model.ImportSuccCount > 0)
-{
-    <div class="alert alert-success">
-        <p>
-            @Model.ImportSuccCount records imported successfully.
-        </p>
-        @if (Model.IMPORT_IDX != null)
-        {
-        <p>
-            Import ID: @Model.IMPORT_IDX
-        </p>
-        }
-    </div>
+    ViewBag.HelpLink = "Manual-Import";
 }
 
 <div class="row">
@@ -62,7 +48,15 @@
                         @Html.ValidationMessageFor(model => model.selTimeZone)
 
                     </div>
-                    <div id="recalcDiv" class="row col-md-6 typen" style="display:none;">
+                    <div class="row col-md-6 typeh typehAny" style="display:none;">
+                        <div class="form-group">
+                            <label class="text-danger">Schedule validation check (min/max/stuck values) on hourly data following import</label>
+                            @Html.DropDownListFor(model => model.selVal, Model.ddl_Calc, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.selVal)
+                        </div>
+                    </div>
+
+                    <div class="row col-md-6 typen" style="display:none;">
                         <div class="form-group">
                             <label class="text-danger">Calculate Hourly Data Upon Import <b>(WARNING: will override any existing hourly data!)</b></label>
                             @Html.DropDownListFor(model => model.selCalc, Model.ddl_Calc, new { @class = "form-control" })
@@ -91,36 +85,6 @@
 </div>
 
 
-@if (Model.error_data != null && Model.error_data.Count > 0)
-{
-    <!-- DISPLAY ERRORS-->
-    <h3>Validation Summary</h3>
-    <span class="">Some records have import validation errors. Please fix and reimport the entire data set.</span>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered" data-ride="datatables">
-                    <tr>
-                        <th>DateTime</th>
-                        <th>Value</th>
-                    </tr>
-                    @foreach (var item in Model.error_data)
-                    {
-                        <tr class="danger">
-                            <td>
-                                @Html.DisplayFor(modelItem => item.DATA_DTTM)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.DATA_VALUE)
-                            </td>
-                        </tr>
-                    }
-                </table>
-            </div>
-        </div>
-    </div>
-}
-
 @Html.Partial("_PleaseWait", "Shared")
 
 @section Scripts{
@@ -140,6 +104,7 @@
 
                 $(".typeh").toggle(impTyp == "H");
                 $(".typeh1").toggle(impTyp == "H1");
+                $(".typehAny").toggle(impTyp == "H" || impTyp == "H1");
                 $(".typen").toggle(impTyp == "F");
                 $("#tempUrl").toggle(site != "" && site != null && pollConfig != "" && pollConfig != null && impTyp != "H1");
                 $("#tempUrl2").toggle(site != "" && site != null && pollConfig != "" && pollConfig != null && impTyp != "H1");

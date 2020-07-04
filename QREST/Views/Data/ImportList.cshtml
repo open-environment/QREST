@@ -1,6 +1,7 @@
 ﻿@model QREST.Models.vmDataImportList
 @{
-    ViewBag.Title = "Import List";
+    ViewBag.Title = "Import History";
+    ViewBag.HelpLink = "Manual-Import";
 }
 
 @if (Model.ddl_Organization != null)
@@ -31,6 +32,7 @@
                             <th>Site</th>
                             <th>Import Date</th>
                             <th>Imported By</th>
+                            <th>Data Type</th>
                             <th>Import Status</th>
                             <th># Records</th>
                             <th></th>
@@ -54,11 +56,14 @@
                                 @Html.DisplayFor(modelItem => item.SUBMITTER)
                             </td>
                             <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.IMPORT_TYPE)
+                            </td>
+                            <td>
                                 @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.COUNT)
-                                <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("ImportFileDownload", new { id = item.T_QREST_DATA_IMPORTS.IMPORT_IDX })"><i class="fa fa-download"></i></a>
+                                <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("ImportFileDownload", new { id = item.T_QREST_DATA_IMPORTS.IMPORT_IDX })"><i class="fa fa-download"></i> Download</a>
                             </td>
                             <td>
                                 <div class="delete-section">

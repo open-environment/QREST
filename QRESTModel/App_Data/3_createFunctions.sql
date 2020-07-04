@@ -366,37 +366,57 @@ AS
 BEGIN
 	--PROCEDURE DESCRIPTION
 	-------------------------
-	--for a given site and month, shows the summary of data collection and validation
+	--for a given site and date range, shows the summary of data collection and validation
 
 	--set @adate = '10/12/2019';
 	--set @siteid = '563C2DE0-5323-4601-ABC4-6EEA894AF6BC';
+
+	--CHANGE LOG
+	---------------------------
+	--20200324 change from UTC to local time
+	--20200416 changed from hardcode month to variable date range for documents
+	--20200616 add POC
+	DECLARE @totHrs int = 1;
+
 
 	if (@edate is null)
 	BEGIN
 		set @edate = DATEADD(s, -1, DATEADD(MONTH, DATEDIFF(MONTH, 0, @adate) + 1, 0));
 	END
 
-	select P.PAR_CODE, PP.PAR_NAME, M.MONITOR_IDX, DAY(EOMONTH(@adate))*24 as hrs, sum(rec) as hrs_data, sum(aqs_ready) as aqs_ready, cast(sum(sign(z.lvl1_val_ind)) as int) as lvl1_val_ind, cast(sum(sign(lvl2_val_ind)) as int) as lvl2_val_ind
-	,(select count(*) from T_QREST_ASSESS_DOCS dd where (dd.MONITOR_IDX=M.MONITOR_IDX or (dd.SITE_IDX=@siteid and dd.MONITOR_IDX is null)) and year(@adate)=dd.YR and month(@adate)=dd.MON) as doc_cnt
+	set @totHrs = DATEDIFF(hh, @adate, @edate) + 1;
+
+
+	select P.PAR_CODE, PP.PAR_NAME, M.MONITOR_IDX, M.POC,
+		@totHrs as hrs,
+		sum(rec) as hrs_data, 
+		sum(aqs_ready) as aqs_ready, 
+		cast(sum(sign(z.lvl1_val_ind)) as int) as lvl1_val_ind, 
+		cast(sum(sign(lvl2_val_ind)) as int) as lvl2_val_ind
+		,(select count(*) from T_QREST_ASSESS_DOCS dd 
+			where (dd.MONITOR_IDX=M.MONITOR_IDX or (dd.SITE_IDX=@siteid and dd.MONITOR_IDX is null) )
+			and (dd.START_DT between @adate and @edate or dd.END_DT between @adate and @edate or (dd.START_DT <= @adate and dd.END_DT > @edate))
+			) as doc_cnt
 	from
-	(select H.MONITOR_IDX, 1 as rec, case when isnumeric(H.data_value)=0 and H.AQS_NULL_CODE is null then 0 else 1 end as aqs_ready, 
-		isnull(H.lvl1_val_ind,0) as lvl1_val_ind, isnull(H.lvl2_val_ind,0) as lvl2_val_ind
+	(select H.MONITOR_IDX, 1 as rec, 
+		case when isnumeric(H.data_value)=0 and H.AQS_NULL_CODE is null then 0 else 1 end as aqs_ready, 
+		isnull(H.lvl1_val_ind,0) as lvl1_val_ind, 
+		isnull(H.lvl2_val_ind,0) as lvl2_val_ind
 		from T_QREST_DATA_HOURLY H,T_QREST_MONITORS M
 		where H.MONITOR_IDX = M.MONITOR_IDX
-		--and H.DATA_DTTM_UTC between DATEADD(MONTH, DATEDIFF(MONTH, 0, @adate), 0) and DATEADD(s, -1, DATEADD(MONTH, DATEDIFF(MONTH, 0, @adate) + 1, 0)) 
-		and H.DATA_DTTM_UTC between @adate and @edate 
+		and H.DATA_DTTM_LOCAL between @adate and @edate 
 		and M.SITE_IDX = @siteid
 	) Z
 	, T_QREST_MONITORS M, T_QREST_REF_PAR_METHODS P, T_QREST_REF_PARAMETERS PP
 	where Z.MONITOR_IDX=M.MONITOR_IDX
 	and M.PAR_METHOD_IDX = P.PAR_METHOD_IDX
 	and P.PAR_CODE = PP.PAR_CODE
-	group by P.PAR_CODE, PP.PAR_NAME, M.MONITOR_IDX;
+	group by P.PAR_CODE, PP.PAR_NAME, M.MONITOR_IDX, M.POC;
 
 END
 
-GO
 
+GO
 
 
 --&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[SP_RPT_DAILY]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -765,3 +785,104 @@ BEGIN
 			ORDER BY Z.MONTH1, Z.DAY1;
 		END
 END;
+
+
+
+
+GO
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[[SP_RPT_ANNUAL_SUMS]]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+CREATE   PROCEDURE [dbo].[SP_IMPORT_DATA_FROM_TEMP] 
+	@import_idx uniqueidentifier
+AS
+BEGIN
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--inserts or updates RAW data from RAW TEMP IMPORT table
+	--declare @import_idx uniqueidentifier
+	declare @import_typ varchar(2);
+	declare @recalc_ind bit;
+	declare @mod_dt datetime2(0);
+
+	--set @import_idx = '563C2DE0-5323-4601-ABC4-6EEA894AF6BC';
+
+	--CHANGE LOG
+	---------------------------
+	--20200625 created
+	--20200702 fix updating import_idx
+	--20200703 fix table naming
+
+
+	--get summary type to calculate
+	select @import_typ=T.IMPORT_TYPE, @recalc_ind=T.RECALC_IND
+	from T_QREST_DATA_IMPORTS T 
+	where T.IMPORT_IDX = @import_idx;
+
+	--initialize importing status
+	UPDATE T_QREST_DATA_IMPORTS set SUBMISSION_STATUS='IMPORTING' where IMPORT_IDX = @import_idx;
+
+	if (@import_typ = 'H' or @import_typ = 'H1')
+	BEGIN
+		-- HANDLING HOURLY UPDATED RECORDS
+		UPDATE H SET
+			H.DATA_DTTM_UTC = T.DATA_DTTM_UTC,
+			H.[DATA_DTTM_LOCAL] = T.DATA_DTTM_LOCAL,
+			H.DATA_VALUE = T.DATA_VALUE,
+			H.DATA_VALUE_NUM = T.DATA_VALUE_NUM,
+			H.UNIT_CODE = T.UNIT_CODE,
+			H.VAL_IND = @recalc_ind ^ 1,
+			H.VAL_CD = T.VAL_CD,
+			H.AQS_NULL_CODE = T.AQS_NULL_CODE,
+			H.AQS_QUAL_CODES = T.AQS_QUAL_CODES,
+			H.MODIFY_DT = GetDATE(),
+			H.IMPORT_IDX = @import_idx
+		FROM
+			T_QREST_DATA_HOURLY AS H
+			INNER JOIN T_QREST_DATA_IMPORT_TEMP AS T ON H.DATA_HOURLY_IDX = T.DATA_ORIG_TABLE_IDX
+		WHERE T.IMPORT_IDX = @import_idx 
+		and T.DATA_ORIG_TABLE_IDX is not null;
+
+		
+		-- HANDLING HOURLY INSERT RECORDS
+		INSERT INTO T_QREST_DATA_HOURLY ([DATA_HOURLY_IDX], MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND, VAL_CD, MODIFY_DT, AQS_NULL_CODE, IMPORT_IDX, DATA_VALUE_NUM, AQS_QUAL_CODES)
+		SELECT newid(), MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, @recalc_ind ^ 1, VAL_CD, GetDate(), AQS_NULL_CODE, @import_idx, DATA_VALUE_NUM, AQS_QUAL_CODES
+		FROM T_QREST_DATA_IMPORT_TEMP
+		WHERE IMPORT_IDX = @import_idx 
+		and DATA_ORIG_TABLE_IDX is null;
+	END
+	else if (@import_typ = 'F')
+	BEGIN
+		--having year of 1888 is work around for not recalculating hourly from n-min
+		set @mod_Dt = case when @recalc_ind=1 then GetDate() else '1/1/1888' end;
+	
+		-- HANDLING FIVE MINUTE UPDATED RECORDS
+		UPDATE H SET
+			H.DATA_DTTM = T.DATA_DTTM_UTC,
+			H.DATA_DTTM_LOCAL = T.DATA_DTTM_LOCAL,
+			H.DATA_VALUE = T.DATA_VALUE,
+			H.UNIT_CODE = T.UNIT_CODE,
+			H.VAL_IND = @recalc_ind ^ 1,
+			H.VAL_CD = T.VAL_CD,
+			H.MODIFY_DT = @mod_Dt,
+			H.IMPORT_IDX =  @import_idx
+		FROM
+			T_QREST_DATA_FIVE_MIN AS H
+			INNER JOIN T_QREST_DATA_IMPORT_TEMP AS T ON H.DATA_FIVE_IDX = T.DATA_ORIG_TABLE_IDX
+		WHERE T.IMPORT_IDX = @import_idx
+		and T.DATA_ORIG_TABLE_IDX is not null;		
+
+		-- HANDLING FIVE MINUTE INSERT RECORDS
+		INSERT INTO T_QREST_DATA_FIVE_MIN (DATA_FIVE_IDX, MONITOR_IDX, DATA_DTTM, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND, VAL_CD, MODIFY_DT, IMPORT_IDX)
+		SELECT newid(), MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, @recalc_ind ^ 1, VAL_CD, @mod_dt, @import_idx
+		FROM T_QREST_DATA_IMPORT_TEMP
+		WHERE IMPORT_IDX = @import_idx 
+		and DATA_ORIG_TABLE_IDX is null;
+	END		
+
+
+	DELETE FROM T_QREST_DATA_IMPORT_TEMP where IMPORT_IDX = @import_idx;
+
+	UPDATE T_QREST_DATA_IMPORTS set SUBMISSION_STATUS='IMPORTED' where IMPORT_IDX = @import_idx;
+
+END
+

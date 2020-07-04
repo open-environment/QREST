@@ -16,6 +16,7 @@ namespace QRESTModel.DAL
         public string PAR_CODE { get; set; }
         public string PAR_NAME { get; set; }
         public System.Guid MONITOR_IDX { get; set; }
+        public int POC { get; set; }
         public Nullable<int> hrs { get; set; }
         public Nullable<int> hrs_data { get; set; }
         public Nullable<int> aqs_ready { get; set; }

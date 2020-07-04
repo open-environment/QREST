@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Web.Services.Description;
 using QRESTModel.BLL;
 
 namespace QRESTModel.DAL
@@ -209,6 +210,7 @@ namespace QRESTModel.DAL
         public string SITE_NAME { get; set; }
         public string SUBMITTER { get; set; }
         public int COUNT { get; set; }
+        public int COUNT_FIVE { get; set; }
     }
 
     public class HourlyLogDisplay
@@ -1014,7 +1016,7 @@ namespace QRESTModel.DAL
 
         public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG(Guid? pOLL_CONFIG_IDX, Guid? sITE_IDX, string cONFIG_NAME, string rAW_DURATION_CODE, string lOGGER_TYPE, string lOGGER_SOURCE,
             int? lOGGER_PORT, string lOGGER_USERNAME, string lOGGER_PASSWORD, string dELIMITER, int? dATE_COL, string dATE_FORMAT, int? tIME_COL, string tIME_FORMAT, string lOCAL_TIMEZONE,
-            bool aCT_IND, string cREATE_USER, string sITE_NAME, string tIME_POLL_TYPE, bool logChange = true, string logChangeCustomDesc = null)
+            bool aCT_IND, string cREATE_USER, string sITE_NAME, string tIME_POLL_TYPE, bool logChange = true, string logChangeCustomDesc = null, string cONFIG_DESC = null)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1038,6 +1040,7 @@ namespace QRESTModel.DAL
 
                     if (e == null)
                     {
+                        //************** INSERT CASE ONLY **********************
                         insInd = true;
                         e = new T_QREST_SITE_POLL_CONFIG();
                         e.POLL_CONFIG_IDX = Guid.NewGuid();
@@ -1046,6 +1049,7 @@ namespace QRESTModel.DAL
                     }
                     else
                     {
+                        //************** UPDATE CASE ONLY **********************
                         e.MODIFY_USER_IDX = cREATE_USER;
                         e.MODIFY_DT = System.DateTime.Now;
 
@@ -1079,6 +1083,7 @@ namespace QRESTModel.DAL
 
                     if (sITE_IDX != null) e.SITE_IDX = sITE_IDX.ConvertOrDefault<Guid>();
                     if (cONFIG_NAME != null) e.CONFIG_NAME = cONFIG_NAME;
+                    if (cONFIG_DESC != null) e.CONFIG_DESC = cONFIG_DESC;
                     if (rAW_DURATION_CODE != null) e.RAW_DURATION_CODE = rAW_DURATION_CODE;
                     if (lOGGER_TYPE != null) e.LOGGER_TYPE = lOGGER_TYPE;
                     if (lOGGER_SOURCE != null) e.LOGGER_SOURCE = lOGGER_SOURCE;
@@ -1153,7 +1158,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<SitePollingConfigTypeExtended> GetT_QREST_SITES_POLLING_CONFIG_List(string USER_IDX)
+        public static List<SitePollingConfigTypeExtended> GetT_QREST_SITES_POLLING_CONFIG_List(string USER_IDX, string orgID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1163,6 +1168,7 @@ namespace QRESTModel.DAL
                                join b in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
                                join c in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals c.ORG_ID
                                where c.USER_IDX == USER_IDX
+                               && (orgID != null ? a.ORG_ID == orgID : true)
                                orderby a.ORG_ID, a.SITE_ID
                                select new SitePollingConfigTypeExtended
                                {
@@ -1390,7 +1396,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<SitePollingConfigDetailTypeExtended> GetT_QREST_SITES_POLLING_CONFIG_DetailList(String USER_IDX)
+        public static List<SitePollingConfigDetailTypeExtended> GetT_QREST_SITES_POLLING_CONFIG_DetailList(string USER_IDX, string orgID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1403,6 +1409,8 @@ namespace QRESTModel.DAL
                             join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
                             join d in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals d.ORG_ID
                             where d.USER_IDX == USER_IDX
+                            && (orgID != null ? a.ORG_ID == orgID : true)
+                            orderby a.ORG_ID, a.SITE_ID
                             select new SitePollingConfigDetailTypeExtended
                             {
                                 POLL_CONFIG_DTL_IDX = c.POLL_CONFIG_DTL_IDX,
@@ -1824,18 +1832,11 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    //don't delete if there is data for the monitor
-                    //List<T_QREST_MONITORS> _mon = GetT_QREST_MONITORS_bySiteIDX(id);
-                    //if (_mon == null || _mon.Count == 0)
-                    //{
                     T_QREST_MONITORS rec = new T_QREST_MONITORS { MONITOR_IDX = id };
                     ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
                     ctx.SaveChanges();
 
                     return 1;
-                    //}
-                    //else
-                    //    return -1;
                 }
                 catch (Exception ex)
                 {
@@ -1961,6 +1962,26 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+        public static int GetT_QREST_QC_ASSESSMENT_CountByMon(Guid mON_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_QC_ASSESSMENT.AsNoTracking()
+                            where a.MONITOR_IDX == mON_IDX
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+
 
         public static T_QREST_QC_ASSESSMENT GetT_QREST_QC_ASSESSMENT_ByID(Guid? AssessIDX)
         {
@@ -2446,6 +2467,77 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static int GetT_QREST_DATA_FIVE_MINcountByImportIDX(Guid? imp)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_FIVE_MIN.AsNoTracking()
+                            where a.IMPORT_IDX == imp
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static int DeleteT_QREST_DATA_FIVE_MIN_ByImportIDX(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    ctx.Database.ExecuteSqlCommand("DELETE FROM T_QREST_DATA_FIVE_MIN WHERE IMPORT_IDX = {0}", id);
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static List<RawDataDisplay> GetT_QREST_DATA_FIVE_MIN_ByImportIDX(Guid iMPORT_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_FIVE_MIN.AsNoTracking()
+                            join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
+                            join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
+                            join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                            join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
+                            where a.IMPORT_IDX == iMPORT_IDX
+                            orderby a.DATA_DTTM_LOCAL, p.PAR_NAME
+                            select new RawDataDisplay
+                            {
+                                ORG_ID = s.ORG_ID,
+                                SITE_ID = s.SITE_ID,
+                                MONITOR_IDX = m.MONITOR_IDX,
+                                POC = m.POC,
+                                PAR_CODE = p.PAR_CODE,
+                                PAR_NAME = p.PAR_NAME,
+                                DATA_DTTM = a.DATA_DTTM_LOCAL,
+                                DATA_VALUE = a.DATA_VALUE,
+                                VAL_CD = a.VAL_CD,
+                            }).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
 
 
         //*****************HOURLY**********************************
@@ -2534,6 +2626,45 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        public static int GetT_QREST_DATA_HOURLYcountByMon(Guid? mon)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
+                            where a.MONITOR_IDX == mon
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static int GetT_QREST_DATA_HOURLYcountByImportIDX(Guid? imp)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
+                            where a.IMPORT_IDX == imp
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+
+
         public static List<RawDataDisplay> GetT_QREST_DATA_HOURLY_ManVal(Guid mon, DateTime DateFrom, DateTime DateTo)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -2595,6 +2726,7 @@ namespace QRESTModel.DAL
             }
         }
 
+
         public static List<string> GetT_QREST_DATA_HOURLY_NotificationUsers()
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -2616,6 +2748,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
         public static List<RawDataDisplay> GetT_QREST_DATA_HOURLY_NotificationsListForUser(string UserIDX)
         {
@@ -2651,6 +2784,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
         public static List<T_QREST_DATA_HOURLY> GetT_QREST_DATA_HOURLY_NotNotified()
         {
@@ -2962,6 +3096,7 @@ namespace QRESTModel.DAL
             }
         }
 
+
         public static Guid? UpdateT_QREST_DATA_HOURLY(Guid dATA_HOURLY_IDX, string aQS_NULL_CODE, bool? lVL1_VAL_IND, bool? lVL2_VAL_IND, string lVL_VAL_USERIDX, string uNIT_CODE, string nOTES, string dATA_VALUE, string vAL_CD, List<string> aQS_QUAL_CODES)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -3034,6 +3169,28 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        public static int DeleteT_QREST_DATA_HOURLY(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_DATA_HOURLY rec = new T_QREST_DATA_HOURLY { DATA_HOURLY_IDX = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+
         public static int DeleteT_QREST_DATA_HOURLY_ByImportIDX(Guid id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -3051,6 +3208,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
         public static List<RawDataDisplay> GetT_QREST_DATA_HOURLY_ByImportIDX(Guid iMPORT_IDX)
         {
@@ -3085,6 +3243,360 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
+
+
+
+        //*****************DATA_IMPORTS**********************************
+        public static T_QREST_DATA_IMPORTS GetT_QREST_DATA_IMPORTS_byID(Guid iMPORT_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_IMPORTS.AsNoTracking()
+                            where a.IMPORT_IDX == iMPORT_IDX
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<T_QREST_DATA_IMPORTS> GetT_QREST_DATA_IMPORTS_ByStatus(string sUBMISSION_STATUS)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_IMPORTS.AsNoTracking()
+                            where a.SUBMISSION_STATUS == "STARTED"
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<ImportListDisplay> GetT_QREST_DATA_IMPORTS_byORG_ID(string oRG_ID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_IMPORTS.AsNoTracking()
+                            join b in ctx.T_QREST_SITES.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
+                            join u in ctx.T_QREST_USERS.AsNoTracking() on a.IMPORT_USERIDX equals u.USER_IDX
+                                into lj1
+                            from u in lj1.DefaultIfEmpty() //left join on submitter
+                            where a.ORG_ID == oRG_ID
+                            orderby a.IMPORT_DT descending
+                            select new ImportListDisplay
+                            {
+                                T_QREST_DATA_IMPORTS = a,
+                                SITE_ID = b.SITE_ID,
+                                SITE_NAME = b.SITE_NAME,
+                                SUBMITTER = u.FNAME + " " + u.LNAME,
+                                COUNT = (a.IMPORT_TYPE == "H" || a.IMPORT_TYPE == "H1") ? (from h in ctx.T_QREST_DATA_HOURLY where h.IMPORT_IDX == a.IMPORT_IDX select h).Count() : 
+                                a.IMPORT_TYPE == "F" ? (from h in ctx.T_QREST_DATA_FIVE_MIN where h.IMPORT_IDX == a.IMPORT_IDX select h).Count() : 0
+                            }).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static Guid? InsertUpdateT_QREST_DATA_IMPORTS(Guid? iMPORT_IDX, string oRG_ID, Guid? sITE_IDX, string cOMMENT, string sUBMISSION_STATUS, string UserIDX,
+            DateTime? iMPORT_DT, string sUBMISSION_FILE, string iMPORT_TYPE, Guid? mONITOR_IDX, Guid? pOLL_CONFIG_IDX, bool? rECALC_IND)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    bool insInd = false;
+
+                    T_QREST_DATA_IMPORTS e = (from c in ctx.T_QREST_DATA_IMPORTS
+                                              where c.IMPORT_IDX == iMPORT_IDX
+                                              select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_DATA_IMPORTS();
+                        e.IMPORT_IDX = iMPORT_IDX ?? Guid.NewGuid();
+                        e.SITE_IDX = sITE_IDX.GetValueOrDefault();
+                        e.ORG_ID = oRG_ID;
+                        e.IMPORT_DT = iMPORT_DT;
+                    }
+
+                    if (cOMMENT != null) e.COMMENT = cOMMENT;
+                    if (sUBMISSION_STATUS != null) e.SUBMISSION_STATUS = sUBMISSION_STATUS;
+                    if (UserIDX != null) e.IMPORT_USERIDX = UserIDX;
+                    if (sUBMISSION_FILE != null) e.SUBMISSION_FILE = sUBMISSION_FILE;
+                    if (iMPORT_TYPE != null) e.IMPORT_TYPE = iMPORT_TYPE;
+                    if (mONITOR_IDX != null) e.MONITOR_IDX = mONITOR_IDX;
+                    if (pOLL_CONFIG_IDX != null) e.POLL_CONFIG_IDX = pOLL_CONFIG_IDX;
+                    if (rECALC_IND != null) e.RECALC_IND = rECALC_IND;
+
+                    if (insInd)
+                        ctx.T_QREST_DATA_IMPORTS.Add(e);
+                    ctx.SaveChanges();
+
+                    return e.IMPORT_IDX;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int DeleteT_QREST_DATA_IMPORTS(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_DATA_IMPORTS rec = new T_QREST_DATA_IMPORTS { IMPORT_IDX = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+
+
+        //*****************DATA_IMPORT_TEMP**********************************
+        public static T_QREST_DATA_IMPORT_TEMP InsertT_QREST_DATA_IMPORT_TEMP(Guid mONITOR_IDX, string dateTimeString, int timeZoneOffset, string timePollType, string dATA_VALUE, 
+            string uNIT_CODE, string UserIDX, Guid iMPORT_IDX, string[] allowedFormats)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_DATA_IMPORT_TEMP f = new T_QREST_DATA_IMPORT_TEMP
+                    {
+                        DATA_IMPORT_TEMP_IDX = Guid.NewGuid(),
+                        IMPORT_USER_IDX = UserIDX,
+                        MONITOR_IDX = mONITOR_IDX,
+                        UNIT_CODE = uNIT_CODE,
+                        IMPORT_DT = System.DateTime.Now,
+                        IMPORT_VAL_IND = true,
+                        IMPORT_DUP_IND = false,
+                        IMPORT_IDX = iMPORT_IDX
+                    };
+
+
+                    DateTime dtRaw;
+                    if (DateTime.TryParseExact(dateTimeString.Trim(), allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dtRaw))
+                    {
+                        f.DATA_DTTM_UTC = (timePollType == "U" ? dtRaw : dtRaw.AddHours(timeZoneOffset * (-1)));
+                        f.DATA_DTTM_LOCAL = (timePollType == "L" ? dtRaw : dtRaw.AddHours(timeZoneOffset));
+                    }
+                    else
+                    {
+                        f.IMPORT_VAL_IND = false;
+                        f.IMPORT_MSG = "Datetime cannot be read";
+                    }
+
+
+
+                    // EXISTING RECORD VALIDATION
+                    T_QREST_DATA_HOURLY e = (from c in ctx.T_QREST_DATA_HOURLY
+                                             where c.MONITOR_IDX == mONITOR_IDX
+                                             && c.DATA_DTTM_LOCAL == f.DATA_DTTM_LOCAL
+                                             select c).FirstOrDefault();
+                    if (e != null)
+                    {
+                        f.DATA_ORIG_TABLE_IDX = e.DATA_HOURLY_IDX;
+                        f.IMPORT_DUP_IND = true;
+                    }
+
+
+                    //DATA VALUE VALIDATION/POPULATION
+                    if (dATA_VALUE != null)
+                    {
+                        //if numeric, store as numeric
+                        if (Decimal.TryParse(dATA_VALUE, out decimal val_num))
+                        {
+                            f.DATA_VALUE = dATA_VALUE;
+                            f.DATA_VALUE_NUM = val_num;
+                        }
+                        else  //non-numeric
+                        {
+                            dATA_VALUE = dATA_VALUE.Replace("*", "");
+
+                            //fail if nonnumeric too long
+                            if (dATA_VALUE.Length > 5)
+                            {
+                                f.IMPORT_VAL_IND = false;
+                                f.IMPORT_MSG = "Non-numeric and string length > 5";
+                            }
+                            //save as AQS Null Code if matched
+                            else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNull(dATA_VALUE))
+                                f.AQS_NULL_CODE = dATA_VALUE;
+                            //lookup AQS Qual Codes
+                            else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNotNull(dATA_VALUE))
+                                f.AQS_QUAL_CODES = dATA_VALUE;
+                            else
+                                f.VAL_CD = dATA_VALUE;
+                        }
+
+
+                        ctx.T_QREST_DATA_IMPORT_TEMP.Add(f);
+                        ctx.SaveChanges();
+                    }
+
+                    return f;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static List<T_QREST_DATA_IMPORT_TEMP> GetT_QREST_DATA_IMPORT_TEMP_Dup(Guid iMPORT_IDX, int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
+                            where a.IMPORT_IDX == iMPORT_IDX
+                            && a.IMPORT_DUP_IND == true
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static List<T_QREST_DATA_IMPORT_TEMP> GetT_QREST_DATA_IMPORT_TEMP_Error(Guid iMPORT_IDX, int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
+                            where a.IMPORT_IDX == iMPORT_IDX
+                            && a.IMPORT_VAL_IND == false
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int GetT_QREST_DATA_IMPORT_TEMP_DupCount(Guid iMPORT_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
+                            where a.IMPORT_IDX == iMPORT_IDX
+                            && a.IMPORT_DUP_IND == true
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static int GetT_QREST_DATA_IMPORT_TEMP_ErrorCount(Guid iMPORT_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
+                            where a.IMPORT_IDX == iMPORT_IDX
+                            && a.IMPORT_VAL_IND == false
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static int GetT_QREST_DATA_IMPORT_TEMP_Count(Guid iMPORT_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
+                            where a.IMPORT_IDX == iMPORT_IDX
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static Guid? GetT_QREST_DATA_IMPORT_TEMP_ImportByUser(string UserIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
+                            where a.IMPORT_USER_IDX == UserIDX
+                            select a).FirstOrDefault();
+
+                    if (xxx != null)
+                        return xxx.IMPORT_IDX;
+                    else
+                        return null;
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+
 
 
         //*****************HOURLY LOG **********************************
@@ -3344,6 +3856,7 @@ namespace QRESTModel.DAL
 
 
 
+
         //*****************AQS**********************************
         public static List<AQSDisplay> GetT_QREST_AQS_byORG_ID(string oRG_ID)
         {
@@ -3467,97 +3980,7 @@ namespace QRESTModel.DAL
         }
 
 
-        //*****************DATA_IMPORTS**********************************
-        public static List<ImportListDisplay> GetT_QREST_DATA_IMPORTS_byORG_ID(string oRG_ID)
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    return (from a in ctx.T_QREST_DATA_IMPORTS.AsNoTracking()
-                            join b in ctx.T_QREST_SITES.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
-                            join u in ctx.T_QREST_USERS.AsNoTracking() on a.IMPORT_USERIDX equals u.USER_IDX
-                                into lj1
-                            from u in lj1.DefaultIfEmpty() //left join on submitter
-                            where a.ORG_ID == oRG_ID
-                            orderby a.IMPORT_DT descending
-                            select new ImportListDisplay
-                            {
-                                T_QREST_DATA_IMPORTS = a,
-                                SITE_ID = b.SITE_ID,
-                                SITE_NAME = b.SITE_NAME,
-                                SUBMITTER = u.FNAME + " " + u.LNAME,
-                                COUNT = (from h in ctx.T_QREST_DATA_HOURLY where h.IMPORT_IDX == a.IMPORT_IDX select h).Count()
-                                
-                            }).ToList();
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return null;
-                }
-            }
-        }
 
-        public static Guid? InsertUpdateT_QREST_DATA_IMPORTS(Guid? iMPORT_IDX, string oRG_ID, Guid? sITE_IDX, string cOMMENT, string sUBMISSION_STATUS, string UserIDX, DateTime? iMPORT_DT)
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    bool insInd = false;
-
-                    T_QREST_DATA_IMPORTS e = (from c in ctx.T_QREST_DATA_IMPORTS
-                                     where c.IMPORT_IDX == iMPORT_IDX
-                                     select c).FirstOrDefault();
-
-                    if (e == null)
-                    {
-                        insInd = true;
-                        e = new T_QREST_DATA_IMPORTS();
-                        e.IMPORT_IDX = iMPORT_IDX ?? Guid.NewGuid();
-                        e.SITE_IDX = sITE_IDX.GetValueOrDefault();
-                        e.ORG_ID = oRG_ID;
-                        e.IMPORT_DT = iMPORT_DT;
-                    }
-
-                    if (cOMMENT != null) e.COMMENT = cOMMENT;
-                    if (sUBMISSION_STATUS != null) e.SUBMISSION_STATUS = sUBMISSION_STATUS;
-                    if (UserIDX != null) e.IMPORT_USERIDX = UserIDX;
-
-                    if (insInd)
-                        ctx.T_QREST_DATA_IMPORTS.Add(e);
-                    ctx.SaveChanges();
-
-                    return e.IMPORT_IDX;
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return null;
-                }
-            }
-        }
-
-        public static int DeleteT_QREST_DATA_IMPORTS(Guid id)
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    T_QREST_DATA_IMPORTS rec = new T_QREST_DATA_IMPORTS { IMPORT_IDX = id };
-                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
-                    ctx.SaveChanges();
-
-                    return 1;
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return 0;
-                }
-            }
-        }
 
 
 
@@ -3599,6 +4022,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
 
         //*****************STORED PROCEDURES**********************************
@@ -3716,6 +4140,22 @@ namespace QRESTModel.DAL
                 {
                     logEF.LogEFException(ex);
                     return null;
+                }
+            }
+        }
+
+        public static int SP_IMPORT_DATA_FROM_TEMP(Guid iMPORT_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_IMPORT_DATA_FROM_TEMP(iMPORT_IDX);
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
                 }
             }
         }

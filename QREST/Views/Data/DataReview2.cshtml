@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "Manual Validation Data Review";
     ViewBag.HideTitle = true;
+    ViewBag.HelpLink = "Data-Review";
 }
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">Step 2: Manual Validation Data Review</header>
@@ -153,7 +154,7 @@
                             <div class="alert alert-danger m-b-none" style="border-radius:0">
                                 <strong>Careful!</strong> This will update all rows you have selected.
                             </div>
-                            <section class="panel panel-default">
+                            <section class="panel panel-default m-b-none">
                                 <header class="panel-heading bg-light">
                                     <ul class="nav nav-tabs nav-justified">
                                         <li class="active">
@@ -230,6 +231,18 @@
                                                             <div class="input-group m-b">
                                                                 @Html.TextBoxFor(model => model.editValue, new { @class = "form-control", @maxlength = "20" })
                                                                 <span id="spnValChk" class="input-group-addon"> Remove All Values @Html.CheckBoxFor(x => x.editValueBlank) </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Delete</label>
+                                                            <br />
+                                                            <div class="input-group m-b">
+                                                                <a class=" btn btn-rounded btn-xs btn-danger confirm-link">Delete Records!!</a> 
+                                                                <span id="spnValChk" class="input-group-addon btn-danger confirm-confirm" style="display:none"> Click Again to Confirm (then click save)! @Html.CheckBoxFor(x => x.editDeleteRecords) </span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -617,6 +630,12 @@
         $("#norepostform").submit(); 
     });
 
+    $(document).on('click', 'a.confirm-link', function () {
+        var deleteLink = $(this);
+        deleteLink.hide();
+        var confirmButton = deleteLink.siblings(".confirm-confirm");
+        confirmButton.delay(100).fadeIn(300);
+    })
 
     </script>
 }

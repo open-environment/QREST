@@ -1,7 +1,7 @@
 ﻿@model QREST.Models.vmSiteMonitorList
 @{
     ViewBag.Title = "Monitors";
-    ViewBag.HelpLink = "Monitor-List";
+    ViewBag.HelpLink = "Monitor-Management";
 }
 
 @if (Model.ddl_Organization != null && Model.ddl_Organization.Count() > 1)
@@ -33,6 +33,7 @@
                             <th style="width: 120px;"></th>
                             <th>Organization</th>
                             <th>Site ID</th>
+                            <th>Par Code</th>
                             <th>Parameter</th>
                             <th>Method</th>
                             <th>POC</th>
@@ -53,6 +54,9 @@
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.SITE_ID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.PAR_CODE)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.PAR_NAME)

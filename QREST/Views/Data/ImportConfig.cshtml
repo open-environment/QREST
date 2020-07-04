@@ -2,6 +2,7 @@
 @model QREST.Models.vmDataImportConfig
 @{
     ViewBag.Title = "Import Config";
+    ViewBag.HelpLink = "Manual-Import";
 }
 
 @if (Model.editPOLL_CONFIG_IDX != null)
@@ -17,7 +18,7 @@
                 <li class="divider"></li>
                 <li data-value="4">
                     <a href="#" class="delete-link">Delete</a>
-                    <a href="#" class="delete-confirm" style="display:none" data-delete-id="@Model.editPOLL_CONFIG_IDX" data-delete-path="" data-delete-p="/Site/SitePollConfigDelete" data-success-url="/Data/ManualImport">
+                    <a href="#" class="delete-confirm" style="display:none" data-delete-id="@Model.editPOLL_CONFIG_IDX" data-delete-path="" data-delete-p="/Data/ImportConfigDelete" data-success-url="/Data/ManualImport">
                         <b>Confirm Delete</b>
                     </a>
                 </li>
@@ -38,6 +39,15 @@
                                     @Html.LabelForRequired(m => m.editCONFIG_NAME, "Config Name", new { @class = "control-label" })
                                     @Html.TextBoxFor(model => model.editCONFIG_NAME, new { @class = "form-control", @maxlength = "20" })
                                     @Html.ValidationMessageFor(model => model.editCONFIG_NAME)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    Description / Notes
+                                    @Html.TextAreaFor(model => model.editCONFIG_DESC, new { @class = "form-control", @maxlength = "200" })
+                                    @Html.ValidationMessageFor(model => model.editCONFIG_DESC)
                                 </div>
                             </div>
                         </div>

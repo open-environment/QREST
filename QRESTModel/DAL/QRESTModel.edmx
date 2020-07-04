@@ -136,6 +136,28 @@
           <Property Name="MODIFY_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
         </EntityType>
+        <EntityType Name="T_QREST_DATA_IMPORT_TEMP">
+          <Key>
+            <PropertyRef Name="DATA_IMPORT_TEMP_IDX" />
+          </Key>
+          <Property Name="DATA_IMPORT_TEMP_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="IMPORT_USER_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="DATA_ORIG_TABLE_IDX" Type="uniqueidentifier" />
+          <Property Name="MONITOR_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="DATA_DTTM_UTC" Type="datetime2" Precision="0" />
+          <Property Name="DATA_DTTM_LOCAL" Type="datetime2" Precision="0" />
+          <Property Name="DATA_VALUE" Type="varchar" MaxLength="20" />
+          <Property Name="DATA_VALUE_NUM" Type="decimal" Precision="18" Scale="9" />
+          <Property Name="UNIT_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="VAL_CD" Type="varchar" MaxLength="5" />
+          <Property Name="AQS_NULL_CODE" Type="varchar" MaxLength="2" />
+          <Property Name="AQS_QUAL_CODES" Type="varchar" MaxLength="30" />
+          <Property Name="IMPORT_IDX" Type="uniqueidentifier" />
+          <Property Name="IMPORT_DT" Type="datetime2" Precision="0" />
+          <Property Name="IMPORT_VAL_IND" Type="bit" />
+          <Property Name="IMPORT_DUP_IND" Type="bit" />
+          <Property Name="IMPORT_MSG" Type="varchar" MaxLength="100" />
+        </EntityType>
         <EntityType Name="T_QREST_DATA_IMPORTS">
           <Key>
             <PropertyRef Name="IMPORT_IDX" />
@@ -147,6 +169,11 @@
           <Property Name="SUBMISSION_STATUS" Type="varchar" MaxLength="20" />
           <Property Name="IMPORT_USERIDX" Type="nvarchar" MaxLength="128" />
           <Property Name="IMPORT_DT" Type="datetime2" Precision="0" />
+          <Property Name="SUBMISSION_FILE" Type="varchar(max)" />
+          <Property Name="IMPORT_TYPE" Type="varchar" MaxLength="2" />
+          <Property Name="MONITOR_IDX" Type="uniqueidentifier" />
+          <Property Name="POLL_CONFIG_IDX" Type="uniqueidentifier" />
+          <Property Name="RECALC_IND" Type="bit" />
         </EntityType>
         <EntityType Name="T_QREST_EMAIL_TEMPLATE">
           <Key>
@@ -495,6 +522,7 @@
           <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
           <Property Name="CONFIG_NAME" Type="varchar" MaxLength="20" />
           <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="CONFIG_DESC" Type="varchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
@@ -804,6 +832,20 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Principal>
             <Dependent Role="T_QREST_USER_ROLES">
               <PropertyRef Name="USER_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_QREST_DATA_IMPORT_TEMP">
+          <End Role="T_QREST_DATA_IMPORTS" Type="Self.T_QREST_DATA_IMPORTS" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="T_QREST_DATA_IMPORT_TEMP" Type="Self.T_QREST_DATA_IMPORT_TEMP" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_DATA_IMPORTS">
+              <PropertyRef Name="IMPORT_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_IMPORT_TEMP">
+              <PropertyRef Name="IMPORT_IDX" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1178,6 +1220,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Parameter Name="adate" Type="datetime" Mode="In" />
           <Parameter Name="edate" Type="datetime" Mode="In" />
         </Function>
+        <Function Name="SP_IMPORT_DATA_FROM_TEMP" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="import_idx" Type="uniqueidentifier" Mode="In" />
+        </Function>
         <Function Name="SP_RPT_ANNUAL" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="yr" Type="int" Mode="In" />
@@ -1217,6 +1262,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="T_QREST_DATA_FIVE_MIN" EntityType="Self.T_QREST_DATA_FIVE_MIN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_HOURLY" EntityType="Self.T_QREST_DATA_HOURLY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_HOURLY_LOG" EntityType="Self.T_QREST_DATA_HOURLY_LOG" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_DATA_IMPORT_TEMP" EntityType="Self.T_QREST_DATA_IMPORT_TEMP" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_DATA_IMPORTS" EntityType="Self.T_QREST_DATA_IMPORTS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_EMAIL_TEMPLATE" EntityType="Self.T_QREST_EMAIL_TEMPLATE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_HELP_DOCS" EntityType="Self.T_QREST_HELP_DOCS" Schema="dbo" store:Type="Tables" />
@@ -1323,6 +1369,10 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <AssociationSet Name="FK_AspNetUserRoles_Users_UserId" Association="Self.FK_AspNetUserRoles_Users_UserId">
             <End Role="T_QREST_USERS" EntitySet="T_QREST_USERS" />
             <End Role="T_QREST_USER_ROLES" EntitySet="T_QREST_USER_ROLES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_QREST_DATA_IMPORT_TEMP" Association="Self.FK_QREST_DATA_IMPORT_TEMP">
+            <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
+            <End Role="T_QREST_DATA_IMPORT_TEMP" EntitySet="T_QREST_DATA_IMPORT_TEMP" />
           </AssociationSet>
           <AssociationSet Name="FK_T_QREST_AQS_O" Association="Self.FK_T_QREST_AQS_O">
             <End Role="T_QREST_ORGANIZATIONS" EntitySet="T_QREST_ORGANIZATIONS" />
@@ -1649,11 +1699,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
           </AssociationSet>
           <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" />
-          <FunctionImport Name="SP_AQS_REVIEW_STATUS" ReturnType="Collection(QRESTModel.SP_AQS_REVIEW_STATUS_Result)">
-            <Parameter Name="siteid" Mode="In" Type="Guid" />
-            <Parameter Name="adate" Mode="In" Type="DateTime" />
-            <Parameter Name="edate" Mode="In" Type="DateTime" />
-          </FunctionImport>
           <EntitySet Name="T_QREST_DATA_HOURLY_LOG" EntityType="QRESTModel.T_QREST_DATA_HOURLY_LOG" />
           <AssociationSet Name="FK_T_QREST_DATA_HOURLY_LOG_O" Association="QRESTModel.FK_T_QREST_DATA_HOURLY_LOG_O">
             <End Role="T_QREST_DATA_HOURLY" EntitySet="T_QREST_DATA_HOURLY" />
@@ -1666,6 +1711,19 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           </AssociationSet>
           <EntitySet Name="T_QREST_REF_QC" EntityType="QRESTModel.T_QREST_REF_QC" />
           <EntitySet Name="T_QREST_REF_QC_AUDIT_LVL" EntityType="QRESTModel.T_QREST_REF_QC_AUDIT_LVL" />
+          <FunctionImport Name="SP_AQS_REVIEW_STATUS" ReturnType="Collection(QRESTModel.SP_AQS_REVIEW_STATUS_Result)">
+            <Parameter Name="siteid" Mode="In" Type="Guid" />
+            <Parameter Name="adate" Mode="In" Type="DateTime" />
+            <Parameter Name="edate" Mode="In" Type="DateTime" />
+          </FunctionImport>
+          <FunctionImport Name="SP_IMPORT_DATA_FROM_TEMP">
+          <Parameter Name="import_idx" Mode="In" Type="Guid" />
+          </FunctionImport>
+          <EntitySet Name="T_QREST_DATA_IMPORT_TEMP" EntityType="QRESTModel.T_QREST_DATA_IMPORT_TEMP" />
+          <AssociationSet Name="FK_QREST_DATA_IMPORT_TEMP" Association="QRESTModel.FK_QREST_DATA_IMPORT_TEMP">
+            <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
+            <End Role="T_QREST_DATA_IMPORT_TEMP" EntitySet="T_QREST_DATA_IMPORT_TEMP" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -2544,6 +2602,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="CONFIG_NAME" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="TIME_POLL_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
+          <Property Name="CONFIG_DESC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_T_SITE_POLL_CONFIG_D">
           <End Type="QRESTModel.T_QREST_REF_DURATION" Role="T_QREST_REF_DURATION" Multiplicity="0..1" />
@@ -2693,6 +2752,12 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="IMPORT_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_O" FromRole="T_QREST_DATA_IMPORTS" ToRole="T_QREST_ORGANIZATIONS" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_DATA_IMPORTS_S" FromRole="T_QREST_DATA_IMPORTS" ToRole="T_QREST_SITES" />
+          <Property Name="SUBMISSION_FILE" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="IMPORT_TYPE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="MONITOR_IDX" Type="Guid" />
+          <Property Name="POLL_CONFIG_IDX" Type="Guid" />
+          <Property Name="RECALC_IND" Type="Boolean" />
+          <NavigationProperty Name="T_QREST_DATA_IMPORT_TEMP" Relationship="QRESTModel.FK_QREST_DATA_IMPORT_TEMP" FromRole="T_QREST_DATA_IMPORTS" ToRole="T_QREST_DATA_IMPORT_TEMP" />
         </EntityType>
         <Association Name="FK_T_QREST_DATA_IMPORTS_O">
           <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
@@ -2895,17 +2960,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="QaReviewer" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <Property Name="Operator" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
-        <ComplexType Name="SP_AQS_REVIEW_STATUS_Result">
-          <Property Type="String" Name="PAR_CODE" Nullable="false" MaxLength="6" />
-          <Property Type="String" Name="PAR_NAME" Nullable="false" MaxLength="100" />
-          <Property Type="Guid" Name="MONITOR_IDX" Nullable="false" />
-          <Property Type="Int32" Name="hrs" Nullable="true" />
-          <Property Type="Int32" Name="hrs_data" Nullable="true" />
-          <Property Type="Int32" Name="aqs_ready" Nullable="true" />
-          <Property Type="Int32" Name="lvl1_val_ind" Nullable="true" />
-          <Property Type="Int32" Name="lvl2_val_ind" Nullable="true" />
-          <Property Type="Int32" Name="doc_cnt" Nullable="true" />
-        </ComplexType>
         <EntityType Name="T_QREST_DATA_HOURLY_LOG">
           <Key>
             <PropertyRef Name="DATA_HOURLY_LOG_IDX" />
@@ -2983,6 +3037,55 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="MIN_AMT" Type="Double" />
           <Property Name="MAX_AMT" Type="Double" />
         </EntityType>
+        <ComplexType Name="SP_AQS_REVIEW_STATUS_Result">
+          <Property Type="String" Name="PAR_CODE" Nullable="false" MaxLength="6" />
+          <Property Type="String" Name="PAR_NAME" Nullable="false" MaxLength="100" />
+          <Property Type="Guid" Name="MONITOR_IDX" Nullable="false" />
+          <Property Type="Int32" Name="POC" Nullable="false" />
+          <Property Type="Int32" Name="hrs" Nullable="true" />
+          <Property Type="Int32" Name="hrs_data" Nullable="true" />
+          <Property Type="Int32" Name="aqs_ready" Nullable="true" />
+          <Property Type="Int32" Name="lvl1_val_ind" Nullable="true" />
+          <Property Type="Int32" Name="lvl2_val_ind" Nullable="true" />
+          <Property Type="Int32" Name="doc_cnt" Nullable="true" />
+        </ComplexType>
+        <EntityType Name="T_QREST_DATA_IMPORT_TEMP">
+          <Key>
+            <PropertyRef Name="DATA_IMPORT_TEMP_IDX" />
+          </Key>
+          <Property Name="DATA_IMPORT_TEMP_IDX" Type="Guid" Nullable="false" />
+          <Property Name="IMPORT_USER_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="DATA_ORIG_TABLE_IDX" Type="Guid" />
+          <Property Name="MONITOR_IDX" Type="Guid" Nullable="false" />
+          <Property Name="DATA_DTTM_UTC" Type="DateTime" Precision="0" />
+          <Property Name="DATA_DTTM_LOCAL" Type="DateTime" Precision="0" />
+          <Property Name="DATA_VALUE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="DATA_VALUE_NUM" Type="Decimal" Precision="18" Scale="9" />
+          <Property Name="UNIT_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="VAL_CD" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_NULL_CODE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="AQS_QUAL_CODES" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="IMPORT_IDX" Type="Guid" />
+          <Property Name="IMPORT_DT" Type="DateTime" Precision="0" />
+          <Property Name="IMPORT_VAL_IND" Type="Boolean" />
+          <Property Name="IMPORT_DUP_IND" Type="Boolean" />
+          <Property Name="IMPORT_MSG" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="T_QREST_DATA_IMPORTS" Relationship="QRESTModel.FK_QREST_DATA_IMPORT_TEMP" FromRole="T_QREST_DATA_IMPORT_TEMP" ToRole="T_QREST_DATA_IMPORTS" />
+        </EntityType>
+        <Association Name="FK_QREST_DATA_IMPORT_TEMP">
+          <End Type="QRESTModel.T_QREST_DATA_IMPORTS" Role="T_QREST_DATA_IMPORTS" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="QRESTModel.T_QREST_DATA_IMPORT_TEMP" Role="T_QREST_DATA_IMPORT_TEMP" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="T_QREST_DATA_IMPORTS">
+              <PropertyRef Name="IMPORT_IDX" />
+            </Principal>
+            <Dependent Role="T_QREST_DATA_IMPORT_TEMP">
+              <PropertyRef Name="IMPORT_IDX" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3622,6 +3725,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG">
               <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG">
+                <ScalarProperty Name="CONFIG_DESC" ColumnName="CONFIG_DESC" />
                 <ScalarProperty Name="TIME_POLL_TYPE" ColumnName="TIME_POLL_TYPE" />
                 <ScalarProperty Name="CONFIG_NAME" ColumnName="CONFIG_NAME" />
                 <ScalarProperty Name="LOCAL_TIMEZONE" ColumnName="LOCAL_TIMEZONE" />
@@ -3716,6 +3820,11 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_DATA_IMPORTS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_IMPORTS">
               <MappingFragment StoreEntitySet="T_QREST_DATA_IMPORTS">
+                <ScalarProperty Name="RECALC_IND" ColumnName="RECALC_IND" />
+                <ScalarProperty Name="POLL_CONFIG_IDX" ColumnName="POLL_CONFIG_IDX" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="IMPORT_TYPE" ColumnName="IMPORT_TYPE" />
+                <ScalarProperty Name="SUBMISSION_FILE" ColumnName="SUBMISSION_FILE" />
                 <ScalarProperty Name="IMPORT_DT" ColumnName="IMPORT_DT" />
                 <ScalarProperty Name="IMPORT_USERIDX" ColumnName="IMPORT_USERIDX" />
                 <ScalarProperty Name="SUBMISSION_STATUS" ColumnName="SUBMISSION_STATUS" />
@@ -3795,21 +3904,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="SP_AQS_REVIEW_STATUS" FunctionName="QRESTModel.Store.SP_AQS_REVIEW_STATUS">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="QRESTModel.SP_AQS_REVIEW_STATUS_Result">
-                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
-                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
-                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
-                <ScalarProperty Name="hrs" ColumnName="hrs" />
-                <ScalarProperty Name="hrs_data" ColumnName="hrs_data" />
-                <ScalarProperty Name="aqs_ready" ColumnName="aqs_ready" />
-                <ScalarProperty Name="lvl1_val_ind" ColumnName="lvl1_val_ind" />
-                <ScalarProperty Name="lvl2_val_ind" ColumnName="lvl2_val_ind" />
-                <ScalarProperty Name="doc_cnt" ColumnName="doc_cnt" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
           <EntitySetMapping Name="T_QREST_DATA_HOURLY_LOG">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_HOURLY_LOG">
               <MappingFragment StoreEntitySet="T_QREST_DATA_HOURLY_LOG">
@@ -3856,6 +3950,46 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="MIN_AMT" ColumnName="MIN_AMT" />
                 <ScalarProperty Name="AUDIT_LVL" ColumnName="AUDIT_LVL" />
                 <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_AQS_REVIEW_STATUS" FunctionName="QRESTModel.Store.SP_AQS_REVIEW_STATUS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_AQS_REVIEW_STATUS_Result">
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="POC" ColumnName="POC" />
+                <ScalarProperty Name="hrs" ColumnName="hrs" />
+                <ScalarProperty Name="hrs_data" ColumnName="hrs_data" />
+                <ScalarProperty Name="aqs_ready" ColumnName="aqs_ready" />
+                <ScalarProperty Name="lvl1_val_ind" ColumnName="lvl1_val_ind" />
+                <ScalarProperty Name="lvl2_val_ind" ColumnName="lvl2_val_ind" />
+                <ScalarProperty Name="doc_cnt" ColumnName="doc_cnt" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_IMPORT_DATA_FROM_TEMP" FunctionName="QRESTModel.Store.SP_IMPORT_DATA_FROM_TEMP" />
+          <EntitySetMapping Name="T_QREST_DATA_IMPORT_TEMP">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_IMPORT_TEMP">
+              <MappingFragment StoreEntitySet="T_QREST_DATA_IMPORT_TEMP">
+                <ScalarProperty Name="IMPORT_MSG" ColumnName="IMPORT_MSG" />
+                <ScalarProperty Name="IMPORT_DUP_IND" ColumnName="IMPORT_DUP_IND" />
+                <ScalarProperty Name="IMPORT_VAL_IND" ColumnName="IMPORT_VAL_IND" />
+                <ScalarProperty Name="IMPORT_DT" ColumnName="IMPORT_DT" />
+                <ScalarProperty Name="IMPORT_IDX" ColumnName="IMPORT_IDX" />
+                <ScalarProperty Name="AQS_QUAL_CODES" ColumnName="AQS_QUAL_CODES" />
+                <ScalarProperty Name="AQS_NULL_CODE" ColumnName="AQS_NULL_CODE" />
+                <ScalarProperty Name="VAL_CD" ColumnName="VAL_CD" />
+                <ScalarProperty Name="UNIT_CODE" ColumnName="UNIT_CODE" />
+                <ScalarProperty Name="DATA_VALUE_NUM" ColumnName="DATA_VALUE_NUM" />
+                <ScalarProperty Name="DATA_VALUE" ColumnName="DATA_VALUE" />
+                <ScalarProperty Name="DATA_DTTM_LOCAL" ColumnName="DATA_DTTM_LOCAL" />
+                <ScalarProperty Name="DATA_DTTM_UTC" ColumnName="DATA_DTTM_UTC" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="DATA_ORIG_TABLE_IDX" ColumnName="DATA_ORIG_TABLE_IDX" />
+                <ScalarProperty Name="IMPORT_USER_IDX" ColumnName="IMPORT_USER_IDX" />
+                <ScalarProperty Name="DATA_IMPORT_TEMP_IDX" ColumnName="DATA_IMPORT_TEMP_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

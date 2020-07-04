@@ -1,6 +1,7 @@
 ﻿@model QREST.Models.vmDataReviewSummary
 @{
     ViewBag.Title = "Data Review Summary";
+    ViewBag.HelpLink = "Data-Review";
 }
 
 <section class="panel panel-qrest">
@@ -19,6 +20,10 @@
         }
         @if (Model.Results != null)
         {
+            if (Model.Results.Count == 0)
+            {
+                <span class="text-danger">No data for the selected parameter and month.</span>
+            }
             <div class="row">
                 @foreach (var item in Model.Results)
                 {
@@ -26,7 +31,7 @@
                         <section class="panel panel-default" style="border-width:3px;">
                             <header class="panel-heading bg-default lt no-border">
                                 <div class="clearfix">
-                                    <div class="chart pull-left m-r" data-percent="@((item.hrs_data+item.aqs_ready+item.lvl1_val_ind+item.lvl2_val_ind)*100/(4*item.hrs))" data-scale-color="#ffb400">
+                                    <div class="chart pull-left m-r" data-percent="@((item.hrs_data + item.aqs_ready + item.lvl1_val_ind + item.lvl2_val_ind) * 100 / (4 * item.hrs))" data-scale-color="#ffb400">
                                         <span style="margin-top: 18px; display: block;">
                                             @((item.hrs_data + item.aqs_ready + item.lvl1_val_ind + item.lvl2_val_ind) * 100 / (4 * item.hrs))%
                                         </span>
@@ -36,21 +41,24 @@
                                             @item.PAR_NAME
                                         </div>
                                         <small class="text-muted">Par Code: @item.PAR_CODE</small>
+                                        <small class="text-muted m-l-lg">POC: @item.POC</small>
                                     </div>
                                 </div>
                             </header>
                             <div class="text-center">
                                 <div class="btn-group">
-                                    <a class="btn btn-rounded btn-xs btn-dark padder m-xs" style="background-color:#2c66af" href="@Url.Action("DataReview2", new { monid=item.MONITOR_IDX, sdt=Model.selsDt, edt=Model.seleDt, dur=1 })">Review</a>
-                                    <button class="btn btn-rounded btn-xs btn-dark dropdown-toggle padder m-xs" data-toggle="dropdown" style="background-color:#2c66af" ><span class="caret"></span></button>
+                                    <a class="btn btn-rounded btn-xs btn-dark padder m-xs" style="background-color:#2c66af" href="@Url.Action("DataReview2", new { monid = item.MONITOR_IDX, sdt = Model.selsDt, edt = Model.seleDt, dur = 1 })">Review</a>
+                                    <button class="btn btn-rounded btn-xs btn-dark dropdown-toggle padder m-xs" data-toggle="dropdown" style="background-color:#2c66af"><span class="caret"></span></button>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a href="@Url.Action("DataReview", new { monid=item.MONITOR_IDX })" >Advanced Selection</a>
+                                            <a href="@Url.Action("DataReview", new { monid = item.MONITOR_IDX })">Advanced Selection</a>
                                         </li>
                                     </ul>
                                 </div>
-                                <a class="btn btn-rounded btn-xs btn-dark padder m-xs" style="background-color:#2c66af" href="@Url.Action("DataDocs", new { id=Model.selSite, monid=item.MONITOR_IDX, sDt=Model.selsDt.Value.ToString("d"), eDt=Model.seleDt.Value.ToString("d") })"> Documentation @if (item.doc_cnt > 0)
-                                {<span class="badge bg-black badge-xs ">@item.doc_cnt</span>}</a>
+                                <a class="btn btn-rounded btn-xs btn-dark padder m-xs" style="background-color:#2c66af" href="@Url.Action("DataDocs", new { id = Model.selSite, monid = item.MONITOR_IDX, sDt = Model.selsDt.Value.ToString("d"), eDt = Model.seleDt.Value.ToString("d") })">
+                                    Documentation @if (item.doc_cnt > 0)
+                                    {<span class="badge bg-black badge-xs ">@item.doc_cnt</span>}
+                                </a>
                             </div>
                             <footer class="panel-footer bg-default text-center">
                                 <div class="row pull-out">
@@ -85,6 +93,10 @@
                     </div>
                 }
             </div>
+        }
+        else
+        {            
+            <div class="row col-md-12">No data</div>
         }
         <div class="row">
             <div class="col-md-12">

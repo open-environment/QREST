@@ -130,9 +130,7 @@ namespace QREST.Controllers
         public async Task<ActionResult> VerifyCode(VerifyCodeViewModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
             // The following code protects for brute force attacks against the two factor codes. 
             // If a user enters incorrect codes for a specified amount of time then the user account 
@@ -153,7 +151,7 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult Register()
+        public ActionResult QRESTRegister()
         {
             return View(new RegisterViewModel()
             {
@@ -165,7 +163,7 @@ namespace QREST.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+        public async Task<ActionResult> QRESTRegister(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -182,13 +180,19 @@ namespace QREST.Controllers
                     CREATE_DT = System.DateTime.Now
                 };
 
+                //********************* SPAM CHECK *******************************
+                var tld = model.Email.Substring(model.Email.LastIndexOf('.') + 1).ToLower();
+                if (tld == "ru" || tld == "xyz" || tld == "de" || tld == "tst" || tld == "fr")
+                {
+                    TempData["Error"] = "Blacklisted email provider";
+                    return RedirectToAction("QRESTRegister", "Account");
+                }
 
                 // ******************** AGENCY VALIDATION ******************************
                 if (model.selOrgID != null)
                 {
                 }
                 // ****************** END AGENCY VALIDATION ******************************
-
 
 
                 //create user record

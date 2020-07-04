@@ -14,6 +14,12 @@ namespace QRESTModel.DAL
     
     public partial class T_QREST_DATA_IMPORTS
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public T_QREST_DATA_IMPORTS()
+        {
+            this.T_QREST_DATA_IMPORT_TEMP = new HashSet<T_QREST_DATA_IMPORT_TEMP>();
+        }
+    
         public System.Guid IMPORT_IDX { get; set; }
         public string ORG_ID { get; set; }
         public System.Guid SITE_IDX { get; set; }
@@ -21,8 +27,15 @@ namespace QRESTModel.DAL
         public string SUBMISSION_STATUS { get; set; }
         public string IMPORT_USERIDX { get; set; }
         public Nullable<System.DateTime> IMPORT_DT { get; set; }
+        public string SUBMISSION_FILE { get; set; }
+        public string IMPORT_TYPE { get; set; }
+        public Nullable<System.Guid> MONITOR_IDX { get; set; }
+        public Nullable<System.Guid> POLL_CONFIG_IDX { get; set; }
+        public Nullable<bool> RECALC_IND { get; set; }
     
         public virtual T_QREST_ORGANIZATIONS T_QREST_ORGANIZATIONS { get; set; }
         public virtual T_QREST_SITES T_QREST_SITES { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<T_QREST_DATA_IMPORT_TEMP> T_QREST_DATA_IMPORT_TEMP { get; set; }
     }
 }

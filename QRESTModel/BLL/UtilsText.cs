@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace QRESTModel.BLL
@@ -68,8 +69,31 @@ namespace QRESTModel.BLL
         public static bool IsNumeric(this String s) {
             return decimal.TryParse(s, out _);
         }
-        
 
+
+
+        public static string[] GetDateTimeAllowedFormats(string dtFormat, string tmFormat)
+        {
+            //date format can be "MM/dd/yyyy", or "yy/MM/dd"
+            //time format can be "HH:MM", "HH:mm:ss"
+
+            //date handling
+            string[] dts = new[] { "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy", "M/d/yyyy" };
+            if (dtFormat == "yy/MM/dd")
+                dts = new[] { "yy/MM/dd", "yy/M/dd", "yy/M/d", "yy/MM/d" };
+
+            string[] tms = new[] { "HH:mm", "H:mm" };
+            if (tmFormat == "HH:mm:ss")
+                tms = new[] { "HH:mm:ss", "H:mm:ss" };
+
+            List<string> combo = new List<string>();
+
+            foreach (string x in dts)
+                foreach (string y in tms)
+                    combo.Add(x + " " + y);
+
+            return combo.ToArray();
+        }
 
     }
 }

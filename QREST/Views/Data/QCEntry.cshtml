@@ -1,6 +1,8 @@
-﻿@model QREST.Models.vmDataQCEntry
+﻿@using QREST.App_Logic.BusinessLogicLayer
+@model QREST.Models.vmDataQCEntry
 @{
     ViewBag.Title = "Quality Control Data Entry";
+    ViewBag.HelpLink = "Quality-Control";
 }
 
 
@@ -16,23 +18,32 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Assessment Type</label>
+                            @Html.LabelForRequired(m => m.ASSESSMENT_TYPE, "Assessment Type", new { @class = "control-label" })
                             @if (Model.QC_ASSESS_IDX == null)
                             {
-                                @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control" })
+                                <div class="input-group">
+                                    @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control" })
+                                    <div class="input-group-btn">
+                                        <a href="@Url.Action("Help","Home")/#QC-Types" class="btn btn-icon btn-info" target="_blank"><i class="fa fa-question-circle"></i></a>
+                                    </div>
+                                </div>
                                 @Html.ValidationMessageFor(model => model.ASSESSMENT_TYPE)
                             }
                             else
                             {
-                                @Html.HiddenFor(model => model.ASSESSMENT_TYPE)
-                                @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control", @disabled = "disabled" })
+                                <div class="input-group">
+                                    @Html.HiddenFor(model => model.ASSESSMENT_TYPE)
+                                    @Html.DropDownListFor(model => model.ASSESSMENT_TYPE, Model.ddl_Assess_Type, "", new { @class = "form-control", @disabled = "disabled" })
+                                    <div class="input-group-btn">
+                                        <a href="@Url.Action("Help","Home")/#QC-Types" class="btn btn-icon btn-info" target="_blank"><i class="fa fa-question-circle"></i></a>
+                                    </div>
+                                </div>
                             }
                         </div>
-                        <a href="https://qrest-test.azurewebsites.net/Home/Help/#Users-Guide" class="btn btn-sm btn-icon btn-info"><i class="fa fa-question-circle"></i></a>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Select Monitor</label>
+                            @Html.LabelForRequired(m => m.MONITOR_IDX, "Select Monitor", new { @class = "control-label" })
                             @if (Model.QC_ASSESS_IDX == null)
                             {
                                 @Html.DropDownListFor(model => model.MONITOR_IDX, Model.ddl_Monitor, "", new { @class = "form-control" })
@@ -56,7 +67,7 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Date</label>
+                            @Html.LabelForRequired(m => m.MONITOR_IDX, "Assessment Date", new { @class = "control-label" })
                             @Html.TextBoxFor(model => model.ASSESSMENT_DT, new { @class = "form-control date-cleave", @maxlength = "10", @autocomplete = "off", @placeholder = "mm/dd/yyyy" })
                             @Html.ValidationMessageFor(model => model.ASSESSMENT_DT)
                         </div>
@@ -99,7 +110,10 @@
                                         <th>Monitor (output) Value</th>
                                         <th>Difference</th>
                                         <th>% Difference</th>
+                                        @if (Model.ASSESSMENT_TYPE != "Flow Rate Verification" && Model.ASSESSMENT_TYPE != "Semi-Annual Flow Rate Audit")
+                                        {
                                         <th>Concentration Range</th>
+                                        }
                                         <th>Comments</th>
                                     </tr>
                                 </thead>
@@ -135,9 +149,14 @@
                                         {
                                             <td class="lert bg-success">@Html.DisplayFor(model => model.AssessmentDetails[i].pct_difference)</td>
                                         }
-                                        <td class="lert @(Model.AssessmentDetails[i].audit_level_int==0?"bg-danger":"bg-success")">
+
+                                        @if (Model.ASSESSMENT_TYPE != "Flow Rate Verification" && Model.ASSESSMENT_TYPE != "Semi-Annual Flow Rate Audit")
+                                        {
+                                        <td class="lert @(Model.AssessmentDetails[i].audit_level_int == 0 ? "bg-danger" : "bg-success")">
                                             @Html.DisplayFor(model => model.AssessmentDetails[i].audit_level_disp)
                                         </td>
+                                        }
+                                        
                                         <td style="padding:0">
                                             @Html.TextBoxFor(model => model.AssessmentDetails[i].COMMENTS, new { @class = "form-control input", @autocomplete = "off" })
                                         </td>

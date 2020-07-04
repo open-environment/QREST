@@ -80,7 +80,6 @@ namespace QREST.Models
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "yy/MM/dd", Text = "yy/MM/dd" });
             _list.Add(new SelectListItem() { Value = "MM/dd/yyyy", Text = "MM/dd/yyyy" });
-            _list.Add(new SelectListItem() { Value = "MMddyyyy", Text = "MMddyyyy" });
             return _list;
         }
         
@@ -107,8 +106,7 @@ namespace QREST.Models
         {
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "HH:mm:ss", Text = "HH:mm:ss (eg 22:12:14)" });
-            _list.Add(new SelectListItem() { Value = "HH:MM", Text = "HH:MM (eg 22:12)" });
-            _list.Add(new SelectListItem() { Value = "hh:MM:ss tt", Text = "HH:MM:ss tt (eg 10:12:14 PM)" });
+            _list.Add(new SelectListItem() { Value = "HH:MM", Text = "HH:mm (eg 22:12)" });
             return _list;
         }
         

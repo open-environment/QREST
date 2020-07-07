@@ -19,13 +19,17 @@ The overarching goals of QREST are to:
 
 ## QREST Features
 
-The primary features of QREST allow users to:
-- Use up-to-date codes, guidance, and regulations from EPA, because AQS and other relevant codes and limits can be pushed to QREST users when EPA makes changes
-- More quickly conduct the 1st phase of data review, by using functions to automatically flag data using the 3 factors of the initial data review
-- Analyze, interpret and present data, using preformatted report and chart templates to aggregate and plot validated data, create reports, and summary statistics
-- Fulfill the independent quality assurance function required for regulatory and legally-defensible data, by providing a structure for the two levels of separation required between data gatherer and final data validation as required by CFR and all quality system requirements (ISO). Many tribal agencies consist of one or two people, making this review impossible within the same tribal agency. A structured collaboration with another tribe’s qualified reviewer, with SOPs, documentation), and strict access limitations can be possible for tribal agencies using QREST, thereby enabling more tribes to fill the QA function required for regulatory data;
-- Incorporate supporting data into their validation package, by allowing users to set up companion sites and parameters so that the validity of unusual concentrations can be supported by relevant downwind or other data from AirNow or other agency websites, and provide functions that document validity decisions, including importing, plotting, and saving such supporting data in the final data validation record;
-- Push data to the Exchange Network (and EPA’s Air Quality Subsystem (AQS) and the EPA’s AirNow).
+QREST is a set of software tools that includes the following features:
+-	**Data Logger Integration:** Integrate with tribal data loggers to automatically retrieve air monitoring data
+-	**Automated Data Averaging:** As n-minute data are streamed into QREST, hourly summaries are immediately calculated and stored, using calculation logic defined for a tribe’s specific monitoring conditions. QREST is capable of calculating averages, mins, maxes, angular averages, totals, standard deviations, and angular (Yamartino) standard deviations. 
+-	**Automated Data Validation & Alerting:** as data is streamed into QREST, validation checks are automatically performed, identifying data that exceeds expected ranges, identifies 'stuck' readings, or shows missing data (indicating data logger communication issues). Designated tribal operators are notified of exceptions, via email and/or text message.  
+-	**Manual Data Upload:** Support for manual upload of data logger files in lieu of automated data integration
+-	**Multi-Phase Data Review:**  Fulfill the independent quality assurance function required for regulatory and legally-defensible data, by providing a structure for the two levels of separation required between data gatherer and final data validation as required by CFR and all quality system requirements (ISO). 
+-	**Quality Control:** Manage single-point QC, Annual Performance Evaluations, Flow Rate Verifications, Semi-Annual Flow Rate Audits (for particulate matter), and Zero/Span checks
+-	**AQS Integration:** Push raw data (RD) and quality control (QA) data to EPA’s Air Quality Subsystem (AQS) via EPA’s Exchange Network. In addition, AQS reference data and other relevant codes and limits are pushed to QREST users when EPA makes changes 
+-	**AirNow Integration:** tribes can opt to share data from QREST to EPA’s AirNow program
+-	**Data Sharing with Public:** map-based website allowing tribes to share air data with the public, with options to download data reports
+
 
 ## Sending Feedback
 

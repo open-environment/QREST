@@ -1103,6 +1103,67 @@ namespace QREST.Controllers
         }
 
 
+        public ActionResult MonitorEditMethod(Guid? id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+            var model = new vmSiteMonitorEditMethod();
+
+            SiteMonitorDisplayType _monitor = db_Air.GetT_QREST_MONITORS_ByID(id ?? Guid.Empty);
+            if (_monitor != null)
+            {
+                //reject if user doesn't have access to site
+                RedirectToRouteResult r = CanAccessThisSite(UserIDX, _monitor.T_QREST_MONITORS.SITE_IDX, false);
+                if (r != null) return r;
+
+                model.MONITOR_IDX = _monitor.T_QREST_MONITORS.MONITOR_IDX;
+                model.SITE_IDX = _monitor.T_QREST_MONITORS.SITE_IDX;
+                model.PAR_METHOD_IDX = _monitor.T_QREST_MONITORS.PAR_METHOD_IDX;
+                model.POC = _monitor.T_QREST_MONITORS.POC;
+                model.PAR_NAME = _monitor.PAR_NAME;
+                model.PAR_CODE = _monitor.PAR_CODE;
+                model.METHOD_CODE = _monitor.METHOD_CODE;
+
+                model.PerMethods = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(model.PAR_CODE, null, 1000, null);
+
+                //populate site name
+                if (model.SITE_IDX != null)
+                {
+                    T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(model.SITE_IDX.GetValueOrDefault());
+                    model.SITE_NAME = _site.SITE_NAME;
+                }
+
+            }
+            else
+            {
+                //fail if monitor doesn't exist
+                TempData["Error"] = "Monitor not found.";
+                return RedirectToAction("SiteList", "Site");
+            }
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public JsonResult MonitorEditMethod(string id)
+        {
+            if (id == null)
+                return Json("No record selected");
+            else
+            {
+                Guid idg = new Guid(id);
+                Guid parMethodIDX = Guid.Empty;
+                string UserIDX = User.Identity.GetUserId();
+
+                Guid? SuccID = db_Air.InsertUpdatetT_QREST_MONITORS(idg, null, parMethodIDX, null, null, null, null, null, null, null, null, null, null, null, null, UserIDX);
+                if (SuccID != null)
+                    return Json("Success");
+                else
+                    return Json("Unspecified error attempting to delete monitor.");
+            }
+        }
+
+
         public ActionResult MonitorImport(Guid? id)
         {
             string UserIDX = User.Identity.GetUserId();

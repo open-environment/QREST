@@ -286,6 +286,25 @@ namespace QREST.Models
         }
     }
 
+
+    public class vmSiteMonitorEditMethod
+    {
+        public Guid? MONITOR_IDX { get; set; }
+        public Guid? SITE_IDX { get; set; }
+        public string SITE_NAME { get; set; }
+
+        [Required]
+        [Display(Name = "Parameter Method")]
+        public Guid? PAR_METHOD_IDX { get; set; }
+        public string PAR_CODE { get; set; }
+        public string PAR_NAME { get; set; }
+        public string METHOD_CODE { get; set; }
+        public int? POC { get; set; }
+        public List<RefParMethodDisplay> PerMethods { get; set; }
+
+    }
+
+
     public class vmSiteMonitorImport
     {
         public Guid siteIDX { get; set; }

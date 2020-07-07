@@ -1,6 +1,6 @@
 ﻿@using QREST.App_Logic.BusinessLogicLayer
 @model QREST.Models.vmSiteMonitorEdit
-@{    
+@{
     ViewBag.Title = "Edit Monitor";
     ViewBag.HelpLink = "Monitor-Management";
 }
@@ -15,7 +15,9 @@
     <div class="row">
         <div class="col-md-12">
             <section class="panel panel-qrest">
-                <header class="panel-heading font-bold">Monitor Details</header>
+                <header class="panel-heading font-bold dirtyignore">
+                    Monitor Details
+                </header>
                 <div class="panel-body">
 
                     @if (Model != null)
@@ -53,7 +55,12 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Method</label>
-                                        @Html.TextBoxFor(model => model.METHOD_CODE, new { @class = "form-control", @readonly = "readonly" })
+                                        <div class="input-group m-b">
+                                            <span class="input-group-btn">
+                                                <a href="@Url.Action("MonitorEditMethod", new { id = Model.MONITOR_IDX } )" class="btn btn-info">Change</a>
+                                            </span>
+                                            @Html.TextBoxFor(model => model.METHOD_CODE, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
                                     </div>
                                 </div>
                             }
@@ -195,7 +202,6 @@
                     <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th></th>
                                 <th>Par</th>
                                 <th>Par Name</th>
@@ -217,6 +223,7 @@
     </div>
 </div>
 <!-- END MODAL FORM -->
+
 
 
 @section scripts {
@@ -244,29 +251,19 @@
                 "serverSide": true,
                 "processing": true,
                 "ordering": false,
-                "orderMulti": false,
                 "lengthChange": false,
                 "paging": true,
                 "pageLength": 10,
                 "pagingType": "full_numbers",
                 "info": false,
                 "searching": true,
+                "dom": '<"pull-left"f><"pull-right"l>tip',
                 "ajax": {
                     "url": "@Url.Action("RefParMethodData", "Site")",
                     "type": "POST",
                     "datatype": "json"
                 },
-                "columnDefs":
-                    [{
-                        "targets": [0],
-                        "visible": false,
-                    },
-                    {
-                        "targets": [1],
-                        "orderable" : false
-                    }],
                 "columns": [
-                    { "data": "T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX", "name": "T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX", "autoWidth": true },
                     {
                         "render": function (data, type, row) {
                             return '<a data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX
@@ -284,13 +281,7 @@
                     { "data": "T_QREST_REF_PAR_METHODS.ANALYSIS_DESC", "name": "T_QREST_REF_PAR_METHODS.ANALYSIS_DESC", "autoWidth": true },
                     { "data": "T_QREST_REF_PAR_METHODS.REFERENCE_METHOD_ID", "name": "T_QREST_REF_PAR_METHODS.REFERENCE_METHOD_ID", "autoWidth": true },
                     { "data": "T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD", "name": "T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD", "autoWidth": true }
-                ],
-                "createdRow": function (row, data, dataIndex) {
-                    $('td:eq(0)', row).css('width', '90px');
-                    $('td:eq(0)', row).css('min-width', '90px');
-                    $('td:eq(0)', row).css('padding-right', '0px');
-                    $('td:eq(0)', row).css('white-space', 'nowrap');
-                }
+                ]
             });
 
             //select a par/method

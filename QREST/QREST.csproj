@@ -315,6 +315,7 @@
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Docs\QREST Users Guide.docx" />
     <None Include="Properties\PublishProfiles\qrest - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\qrest-test - Web Deploy.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -643,6 +644,7 @@
     <Content Include="Scripts\tinymce\langs\readme.md" />
     <Content Include="Views\Data\AQSGenQA.cshtml" />
     <Content Include="Views\Data\ImportStatus.cshtml" />
+    <Content Include="Views\Site\MonitorEditMethod.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

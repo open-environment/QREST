@@ -1,0 +1,77 @@
+﻿@using QREST.App_Logic.BusinessLogicLayer
+@model QREST.Models.vmSiteMonitorEditMethod
+@{
+    ViewBag.Title = "Change Monitor Method";
+    ViewBag.HelpLink = "Monitor-Management";
+}
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            Site:
+            @Html.TextBoxFor(model => model.SITE_NAME, new { @class = "form-control", @readonly = "readonly" })   
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            Parameter:
+            @Html.TextBoxFor(model => model.PAR_NAME, new { @class = "form-control", @readonly = "readonly" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            Current Method:
+            @Html.TextBoxFor(model => model.METHOD_CODE, new { @class = "form-control", @readonly = "readonly" })
+        </div>
+    </div>
+</div>
+<div class="alert alert-danger">
+    <b>WARNING: </b>Changing the method for this monitor will update the method for <b>ALL</b> raw data in QRSEST for this monitor. <br />If sending raw data for this monitor
+    to AQS, make sure the new method you select matches the monitor specified in AQS.
+</div>
+@using (Html.BeginForm("MonitorEditMethod", "Site", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+{
+
+
+
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.MONITOR_IDX)
+    @Html.HiddenFor(model => model.SITE_IDX)
+    <div class="row">
+        <div class="col-md-12">
+            <section class="panel panel-qrest">
+                <header class="panel-heading font-bold dirtyignore">
+                    Select New Method for Monitor
+                </header>
+                <div class="panel-body">
+                    <div class="row col-md-12">
+                        <div class="table-responsive">
+                            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Par</th>
+                                        <th>Par Name</th>
+                                        <th>Recording Mode</th>
+                                        <th>Method</th>
+                                        <th>Collection</th>
+                                        <th>Analysis</th>
+                                        <th>Ref Method</th>
+                                        <th>Equivalent Method</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <a class=" btn btn-default" href="@Url.Action("MonitorEdit", new { id = Model.MONITOR_IDX } )">Cancel</a>
+        </div>
+
+    </div>
+
+}

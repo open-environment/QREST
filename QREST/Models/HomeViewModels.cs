@@ -33,6 +33,9 @@ namespace QREST.Models
         public int selYear { get; set; }
         public string selTime { get; set; }
 
+
+        public DateTime currServerDateTime { get; set; }
+
         public List<SP_RPT_DAILY_Result> Results { get; set; }
         public IEnumerable<SelectListItem> ddl_Day { get; set; }
         public IEnumerable<SelectListItem> ddl_Month { get; set; }

@@ -77,6 +77,9 @@ namespace QRESTServiceCatalog
                         {
                             T_QREST_SITE_POLL_CONFIG _c = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(_config.POLL_CONFIG_IDX);
                             bool xxx = LoggerComm.RetrieveWeatherCompanyPWS(_c).Result;
+                            if (xxx == false)
+                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###Unreadable weather station format");
+
                         }
 
                         General.WriteToFile("End poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);

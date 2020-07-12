@@ -7,7 +7,7 @@
 
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">Raw Data</header>
-    @if (Model.ddl_Organization.Count() > 0)
+    @if (Model.ddl_Organization.Any())
     {
         <div class="panel-body">
             @using (Html.BeginForm("Raw", "Data", FormMethod.Post, new { @class = "form-inline m-b-sm" }))
@@ -115,7 +115,7 @@
 
             @if (Model.RawData != null && Model.RawData.Count > 0)
             {
-                <text>parName = '@Model.RawData[0].PAR_NAME (' + '@Model.RawData[0].UNIT_DESC' + ')'</text>
+                <text>parName = '@Model.RawData[0].PAR_NAME (' + '@Model.RawData[0].UNIT_DESC' + ')';</text>
                 foreach (var item in Model.RawData)
                 {
                     <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsA);</text>
@@ -184,7 +184,7 @@
             });
 
             //initialize monitor dropdown on page load
-            if ($('#selMon option').length == 0)
+            if ($('#selMon option').length === 0)
                 fetchMonitors();
 
 

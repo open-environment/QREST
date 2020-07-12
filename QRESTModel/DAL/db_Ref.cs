@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using QRESTModel.BLL;
 
@@ -9,10 +8,6 @@ namespace QRESTModel.DAL
 {
     public class LogDisplayType
     {
-        public LogDisplayType()
-        {
-
-        }
         public int LOG_ID { get; set; }
         public DateTime? LOG_DT { get; set; }
         public string LOG_TYP { get; set; }
@@ -205,14 +200,14 @@ namespace QRESTModel.DAL
 
 
         //*****************APP_TASKS**********************************
-        public static T_QREST_APP_TASKS GetT_VCCB_TASKS_ByTaskID(int TaskID)
+        public static T_QREST_APP_TASKS GetT_VCCB_TASKS_ByTaskID(int taskId)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from r in ctx.T_QREST_APP_TASKS
-                            where r.TASK_IDX == TaskID
+                            where r.TASK_IDX == taskId
                             select r).FirstOrDefault();
                 }
                 catch (Exception ex)
@@ -259,7 +254,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool UpdateT_QREST_TASKS(int tASK_IDX, string fREQ_TYP, int? fREQ_NUM, DateTime? lAST_RUN_DT, DateTime? nEXT_RUN_DT, string sTATUS, string UserIDX)
+        public static bool UpdateT_QREST_TASKS(int tASK_IDX, string fREQ_TYP, int? fREQ_NUM, DateTime? lAST_RUN_DT, DateTime? nEXT_RUN_DT, string sTATUS, string UserIDX, string tASK_NAME = null)
         {
             try
             {
@@ -270,6 +265,13 @@ namespace QRESTModel.DAL
                         T_QREST_APP_TASKS e = (from r in ctx.T_QREST_APP_TASKS
                                                where r.TASK_IDX == tASK_IDX
                                                select r).FirstOrDefault();
+                        
+                        //if not updated by ID, then update by if (e == null)
+                        {
+                            e = (from r in ctx.T_QREST_APP_TASKS
+                                 where r.TASK_NAME == tASK_NAME
+                                 select r).FirstOrDefault();
+                        }
 
                         if (e != null)
                         {
@@ -333,14 +335,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool UpdateT_QREST_TASKS_SetRunning(int TaskID)
+        public static bool UpdateT_QREST_TASKS_SetRunning(int taskId)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     T_QREST_APP_TASKS x = (from t in ctx.T_QREST_APP_TASKS
-                                           where t.TASK_IDX == TaskID
+                                           where t.TASK_IDX == taskId
                                            select t).FirstOrDefault();
 
 
@@ -356,14 +358,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool UpdateT_QREST_TASKS_SetStopped(int TaskID)
+        public static bool UpdateT_QREST_TASKS_SetStopped(int taskId)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     T_QREST_APP_TASKS x = (from t in ctx.T_QREST_APP_TASKS
-                                           where t.TASK_IDX == TaskID
+                                           where t.TASK_IDX == taskId
                                            select t).FirstOrDefault();
 
 
@@ -379,14 +381,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static bool UpdateT_QREST_TASKS_SetCompleted(int TaskID)
+        public static bool UpdateT_QREST_TASKS_SetCompleted(int taskId)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     T_QREST_APP_TASKS x = (from t in ctx.T_QREST_APP_TASKS
-                                           where t.TASK_IDX == TaskID
+                                           where t.TASK_IDX == taskId
                                            select t).FirstOrDefault();
 
                     x.STATUS = "Completed";
@@ -649,7 +651,7 @@ namespace QRESTModel.DAL
 
 
 
-        //***************** ORGANZIATIONS ******************************
+        //***************** ORGANIZATIONS ******************************
         public static List<T_QREST_ORGANIZATIONS> GetT_QREST_ORGANIZATIONS(bool actInd, bool selfRegOnly)
         {
             try
@@ -688,7 +690,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static T_QREST_ORGANIZATIONS GetT_QREST_ORGANIZATION_ByOrg_Email(string orgID, string email)
+        public static T_QREST_ORGANIZATIONS GetT_QREST_ORGANIZATION_ByOrg_Email(string orgId, string email)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -699,7 +701,7 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_ORGANIZATIONS.AsNoTracking()
                             join b in ctx.T_QREST_ORG_EMAIL_RULE.AsNoTracking() on a.ORG_ID equals b.ORG_ID
                             where b.EMAIL_STRING.ToUpper() == domain.ToUpper()
-                            && a.ORG_ID == orgID
+                            && a.ORG_ID == orgId
                             select a).FirstOrDefault();
                 }
                 catch (Exception ex)
@@ -1016,15 +1018,15 @@ namespace QRESTModel.DAL
 
 
         //***************** REF_COUNTY ******************************
-        public static T_QREST_REF_COUNTY GetT_QREST_REF_COUNTY_ByID(string StateCd, string CountyCd)
+        public static T_QREST_REF_COUNTY GetT_QREST_REF_COUNTY_ByID(string stateCd, string countyCd)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_REF_COUNTY
-                            where a.COUNTY_CD == CountyCd
-                            && a.STATE_CD == StateCd
+                            where a.COUNTY_CD == countyCd
+                            && a.STATE_CD == stateCd
                             select a).FirstOrDefault();
                 }
                 catch (Exception ex)
@@ -1035,14 +1037,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_REF_COUNTY> GetT_QREST_REF_COUNTY_ByState(string StateCd)
+        public static List<T_QREST_REF_COUNTY> GetT_QREST_REF_COUNTY_ByState(string stateCd)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_REF_COUNTY
-                            where a.STATE_CD == StateCd
+                            where a.STATE_CD == stateCd
                             orderby a.COUNTY_CD
                             select a).ToList();
                 }
@@ -1232,15 +1234,15 @@ namespace QRESTModel.DAL
         }
 
 
-        public static T_QREST_REF_PAR_METHODS GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(string parCD, string methodCD)
+        public static T_QREST_REF_PAR_METHODS GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(string parCd, string methodCd)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking()
-                            where a.PAR_CODE == parCD
-                            && a.METHOD_CODE == methodCD
+                            where a.PAR_CODE == parCd
+                            && a.METHOD_CODE == methodCd
                             select a).FirstOrDefault();
                 }
                 catch (Exception ex)
@@ -1752,7 +1754,7 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    return ctx.T_QREST_REF_QUALIFIER.Any(x => x.QUAL_TYPE == "NULL" && x.QUAL_CODE == qUAL_CODE);
+                    return ctx.T_QREST_REF_QUALIFIER.AsNoTracking().Any(x => x.QUAL_TYPE == "NULL" && x.QUAL_CODE == qUAL_CODE);
                 }
                 catch (Exception ex)
                 {
@@ -1768,7 +1770,7 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    return ctx.T_QREST_REF_QUALIFIER.Any(x => (x.QUAL_TYPE == "INFORM" || x.QUAL_TYPE == "QA") && x.QUAL_CODE == qUAL_CODE);
+                    return ctx.T_QREST_REF_QUALIFIER.AsNoTracking().Any(x => (x.QUAL_TYPE == "INFORM" || x.QUAL_TYPE == "QA") && x.QUAL_CODE == qUAL_CODE);
                 }
                 catch (Exception ex)
                 {
@@ -1868,14 +1870,14 @@ namespace QRESTModel.DAL
                 }
             }
         }
-        public static T_QREST_REF_TIMEZONE GetT_QREST_REF_TIMEZONE_ByCode(string tz_code)
+        public static T_QREST_REF_TIMEZONE GetT_QREST_REF_TIMEZONE_ByCode(string tzCode)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_REF_TIMEZONE
-                            where a.TZ_CODE == tz_code
+                            where a.TZ_CODE == tzCode
                             select a).FirstOrDefault();
                 }
                 catch (Exception ex)
@@ -2072,14 +2074,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static int GetT_QREST_SYS_LOG_count(DateTime? DateFrom, DateTime? DateTo)
+        public static int GetT_QREST_SYS_LOG_count(DateTime? dateFrom, DateTime? dateTo)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
-                    DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
+                    DateTime DateFromDt = (dateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(dateFrom.ConvertOrDefault<DateTime>().Year, dateFrom.ConvertOrDefault<DateTime>().Month, dateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
+                    DateTime DateToDt = (dateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(dateTo.ConvertOrDefault<DateTime>().Year, dateTo.ConvertOrDefault<DateTime>().Month, dateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
                     var xxx = (from a in ctx.T_QREST_SYS_LOG
                                where a.LOG_DT >= DateFromDt
@@ -2286,14 +2288,14 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static int GetT_QREST_SYS_LOG_EMAILcount(DateTime? DateFrom, DateTime? DateTo)
+        public static int GetT_QREST_SYS_LOG_EMAILcount(DateTime? dateFrom, DateTime? dateTo)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
-                    DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
+                    DateTime DateFromDt = (dateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(dateFrom.ConvertOrDefault<DateTime>().Year, dateFrom.ConvertOrDefault<DateTime>().Month, dateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
+                    DateTime DateToDt = (dateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(dateTo.ConvertOrDefault<DateTime>().Year, dateTo.ConvertOrDefault<DateTime>().Month, dateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
 
                     var xxx = (from a in ctx.T_QREST_SYS_LOG_EMAIL
                                where a.EMAIL_DT >= DateFromDt

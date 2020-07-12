@@ -37,7 +37,14 @@
             </div>
         }
 
-        <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, month=Model.selDtStart.Month, year=Model.selDtStart.Year })">Back</a>
+        @if (Model.selMode == "a")
+        {
+            <a class=" btn btn-default" href="@Url.Action("AQSGen", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, sDt = Model.selDtStart, eDt = Model.selDtEnd })">Back</a>
+        }
+        else
+        {
+            <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, month = Model.selDtStart.Month, year = Model.selDtStart.Year })">Back</a>
+        }
         <a id="divBulk" class="btn btn-success" href="#modal-form1" data-toggle="modal" style="display:none;">Bulk Edit Selected</a>
 
         @if (Model.RawData != null)
@@ -138,6 +145,8 @@
             @Html.HiddenFor(model => model.selDtEnd)
             @Html.HiddenFor(model => model.selDuration)
             @Html.HiddenFor(model => model.selMon.ORG_ID)
+            @Html.HiddenFor(model => model.selMode)
+
 
             <!-- START EDIT MODAL  -->
             <div class="modal fade" id="modal-form1" style="display: none" aria-hidden="true">
@@ -241,7 +250,7 @@
                                                             <label>Delete</label>
                                                             <br />
                                                             <div class="input-group m-b">
-                                                                <a class=" btn btn-rounded btn-xs btn-danger confirm-link">Delete Records!!</a> 
+                                                                <a class=" btn btn-rounded btn-xs btn-danger confirm-link">Delete Records!!</a>
                                                                 <span id="spnValChk" class="input-group-addon btn-danger confirm-confirm" style="display:none"> Click Again to Confirm (then click save)! @Html.CheckBoxFor(x => x.editDeleteRecords) </span>
                                                             </div>
                                                         </div>
@@ -389,7 +398,7 @@
 
         @if (Model.RawData != null && Model.RawData.Count > 0)
         {
-            <text>parName = '@Model.RawData[0].PAR_NAME (' + '@Model.RawData[0].UNIT_DESC' + ')'</text>
+            <text>parName = '@Model.RawData[0].PAR_NAME (' + '@Model.RawData[0].UNIT_DESC' + ')';</text>
 
             foreach (var item in Model.RawData)
             {
@@ -401,7 +410,7 @@
 
         @if (Model.SuppData1 != null && Model.SuppData1.Count > 0) {
 
-            <text>parNameSupp1 = '@Model.SuppData1[0].PAR_NAME (' + '@Model.SuppData1[0].UNIT_DESC' + ')'</text>
+            <text>parNameSupp1 = '@Model.SuppData1[0].PAR_NAME (' + '@Model.SuppData1[0].UNIT_DESC' + ')';</text>
 
             foreach (var item in Model.SuppData1)
             {

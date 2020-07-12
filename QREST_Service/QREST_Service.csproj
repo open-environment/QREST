@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="General.cs" />
+    <Compile Include="TaskImport.cs" />
     <Compile Include="TaskAirNow.cs" />
     <Compile Include="TaskHourlyValidation.cs" />
     <Compile Include="TaskLoggerPolling.cs" />

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
@@ -17,6 +15,7 @@ using QRESTModel.DataTableGen;
 using QREST.App_Logic;
 using ClosedXML.Excel;
 
+
 namespace QREST.Controllers
 {
     [Authorize]
@@ -25,7 +24,7 @@ namespace QREST.Controllers
         // GET: Data
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("Raw");
         }
 
         #region MANUAL IMPORT
@@ -39,6 +38,10 @@ namespace QREST.Controllers
             if (prevImportIDX != null)
                 return RedirectToAction("ImportStatus", new { id = prevImportIDX });
 
+            //if the user has an import with status of STARTED, then also redirect
+            T_QREST_DATA_IMPORTS prevStartedIDX = db_Air.GetT_QREST_DATA_IMPORTS_StartedByUser(UserIDX);
+            if (prevStartedIDX != null)
+                return RedirectToAction("ImportStatus", new { id = prevStartedIDX.IMPORT_IDX });
 
 
             var model = new vmDataImport {
@@ -137,10 +140,19 @@ namespace QREST.Controllers
                 Guid? importIDX = db_Air.InsertUpdateT_QREST_DATA_IMPORTS(Guid.NewGuid(), model.selOrgID, model.selSite, "", "STARTED", UserIDX, System.DateTime.Now, model.IMPORT_BLOCK,
                     model.selImportType, model.selMonitor, model.selPollConfig, (model.selImportType == "F" ? (model.selCalc == "Y") : (model.selVal == "Y")) );
 
-                //temporarily do this now
                 if (importIDX != null)
                 {
-                    QRESTModel.BLL.ImportHelper.ImportValidateAndSaveToTemp(importIDX.GetValueOrDefault());
+                    //if not too many records, import immediately
+                    if (model.IMPORT_BLOCK.Length < 25000)
+                        QRESTModel.BLL.ImportHelper.ImportValidateAndSaveToTemp(importIDX.GetValueOrDefault());
+                    else
+                    {
+                        //set the import task to run now
+                        db_Ref.UpdateT_QREST_TASKS(9999, null, null, null, System.DateTime.Now, null, UserIDX, "Import");
+
+                        TempData["Success"] = "Import file is large and scheduled to run in a few minutes";
+                    }
+
                     return RedirectToAction("ImportStatus", new { id = importIDX });
                 }
                 else
@@ -160,7 +172,6 @@ namespace QREST.Controllers
             return View(model);
 
         }
-
 
 
         public ActionResult ImportConfig(Guid? id, Guid? siteid)
@@ -266,6 +277,7 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         public JsonResult ImportConfigDelete(string id)
         {
@@ -286,6 +298,7 @@ namespace QREST.Controllers
                     return Json("Unable to find polling configuration to delete.");
             }
         }
+
 
         [HttpPost]
         public ActionResult ImportManualOverride(vmImportStatus model)
@@ -316,6 +329,7 @@ namespace QREST.Controllers
             if (model.T_QREST_DATA_IMPORTS != null)
             {
                 model.selOrg = model.T_QREST_DATA_IMPORTS.ORG_ID;
+                model.durationSecs = System.DateTime.Now.Subtract(model.T_QREST_DATA_IMPORTS.IMPORT_DT.GetValueOrDefault()).TotalSeconds;
 
                 if (model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "IMPORTED")
                 {
@@ -364,6 +378,7 @@ namespace QREST.Controllers
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
 
+
         public JsonResult ImportStatusErrorData(Guid? id)
         {
             var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
@@ -390,7 +405,7 @@ namespace QREST.Controllers
                 ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
             };
 
-            //autopopulate if only rights to 1 org that has made aqs submission
+            //auto-populate if only rights to 1 org that has made aqs submission
             if (model.ddl_Organization != null && model.ddl_Organization.ToList().Count == 1)
                 model.selOrgID = model.ddl_Organization.First().Value;
 
@@ -876,6 +891,7 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         public ActionResult DataReviewSummary(vmHomeReportDaily model)
         {
@@ -925,7 +941,7 @@ namespace QREST.Controllers
 
         
         [HttpGet]
-        public ActionResult DataReview2(Guid? monid, DateTime? sdt, DateTime? edt, string dur, Guid? supp1)
+        public ActionResult DataReview2(Guid? monid, DateTime? sdt, DateTime? edt, string dur, Guid? supp1, string md)
         {
             if (monid == null || sdt == null || edt == null || dur == null)
                 return RedirectToAction("DataReviewSummary");
@@ -937,7 +953,8 @@ namespace QREST.Controllers
                 selDtStart = sdt.GetValueOrDefault(),
                 selDtEnd = edt.GetValueOrDefault(),
                 selDuration = dur,
-                selMon = db_Air.GetT_QREST_MONITORS_ByID(monid.GetValueOrDefault())
+                selMon = db_Air.GetT_QREST_MONITORS_ByID(monid.GetValueOrDefault()),
+                selMode = md
             };
 
             //security check
@@ -996,8 +1013,8 @@ namespace QREST.Controllers
                 {
                     foreach (var item in model.editRawDataIDX)
                     {
-                        int SuccID = db_Air.DeleteT_QREST_DATA_HOURLY(item);
-                        if (SuccID == 0)
+                        int succId = db_Air.DeleteT_QREST_DATA_HOURLY(item);
+                        if (succId == 0)
                             TempData["Error"] = "Error deleting record";
                     }
                 }
@@ -1007,24 +1024,24 @@ namespace QREST.Controllers
                     {
                         editCount++;
 
-                        Guid? SuccID = db_Air.UpdateT_QREST_DATA_HOURLY(item, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank == true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag), model.editQual);
-                        if (SuccID == null)
+                        Guid? succId = db_Air.UpdateT_QREST_DATA_HOURLY(item, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank == true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag), model.editQual);
+                        if (succId == null)
                             TempData["Error"] = "Error updating record";
                         else
-                            db_Air.InsertUpdatetT_QREST_DATA_HOURLY_LOG(null, SuccID, model.editNotes, UserIDX);
+                            db_Air.InsertUpdatetT_QREST_DATA_HOURLY_LOG(null, succId, model.editNotes, UserIDX);
                     }
                 }
                 else
                     TempData["Error"] = "You must select a row to edit.";
 
-                return RedirectToAction("DataReview2", new { monid = model.selMon.T_QREST_MONITORS.MONITOR_IDX, sdt = model.selDtStart, edt = model.selDtEnd, dur = model.selDuration });
+                return RedirectToAction("DataReview2", new { monid = model.selMon.T_QREST_MONITORS.MONITOR_IDX, sdt = model.selDtStart, edt = model.selDtEnd, dur = model.selDuration, md = model.selMode });
 
             }
             else
             {
                 IEnumerable<ModelError> allErrors = ModelState.Values.SelectMany(v => v.Errors);
                 TempData["Error"] = "Model Error";
-                return RedirectToAction("DataReview2", new { monid = model.selMon.T_QREST_MONITORS.MONITOR_IDX, sdt = model.selDtStart, edt = model.selDtEnd, dur = model.selDuration });
+                return RedirectToAction("DataReview2", new { monid = model.selMon.T_QREST_MONITORS.MONITOR_IDX, sdt = model.selDtStart, edt = model.selDtEnd, dur = model.selDuration, md = model.selMode });
             }
         }
 
@@ -1062,12 +1079,7 @@ namespace QREST.Controllers
         [HttpPost]
         public ActionResult HourlyLogData()
         {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            //int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            //int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            //int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            //string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
-            //string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault(); 
 
             //date filters
             Guid? id = Request.Form.GetValues("id")?.FirstOrDefault().ConvertOrDefault<Guid?>();
@@ -1105,6 +1117,7 @@ namespace QREST.Controllers
 
             return null;
         }
+
 
         public ActionResult DataDocs(Guid? id, Guid? monid, DateTime? sDt, DateTime? eDt)
         {
@@ -1179,10 +1192,10 @@ namespace QREST.Controllers
                 return Json("No record selected to delete");
             else
             {
-                int SuccID = db_Air.DeleteT_QREST_ASSESS_DOCS(id.GetValueOrDefault());
-                if (SuccID == 1)
+                int succId = db_Air.DeleteT_QREST_ASSESS_DOCS(id.GetValueOrDefault());
+                if (succId == 1)
                     return Json("Success");
-                else if (SuccID == -1)
+                else if (succId == -1)
                     return Json("Cannot delete Organization that still has site records. Delete sites first.");
                 else
                     return Json("Unable to find organization to delete.");
@@ -1194,20 +1207,20 @@ namespace QREST.Controllers
         {
             try
             {
-                string UserIDX = User.Identity.GetUserId();
-
                 T_QREST_ASSESS_DOCS _doc = db_Air.GetT_QREST_ASSESS_DOCS_ByID(id.GetValueOrDefault());
                 if (_doc != null)
                 {
                     //reject if user doesn't have access to site
-                    RedirectToRouteResult r = CanAccessThisSite(UserIDX, _doc.SITE_IDX, true);
+                    RedirectToRouteResult r = CanAccessThisSite(User.Identity.GetUserId(), _doc.SITE_IDX, true);
                     if (r != null) return null;
 
                     return File(_doc.DOC_CONTENT, System.Net.Mime.MediaTypeNames.Application.Octet, _doc.DOC_NAME);
                 }
             }
             catch
-            { }
+            {
+                // ignored
+            }
 
             return null;
         }
@@ -1239,6 +1252,7 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         public ActionResult AQSListEdit(vmDataAQSList model)
         {
@@ -1253,6 +1267,7 @@ namespace QREST.Controllers
                 return RedirectToAction("AQSList");
             }
         }
+
 
         public FileResult AQSFileDownload(Guid? id)
         {
@@ -1273,6 +1288,7 @@ namespace QREST.Controllers
             return null;
         }
 
+
         public FileResult AQSFileDownloadHeader(Guid? id)
         {
             try
@@ -1288,6 +1304,7 @@ namespace QREST.Controllers
 
             return null;
         }
+
 
         public FileResult AQSResponseDownload(Guid? id)
         {
@@ -1306,17 +1323,35 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult AQSGen(string typ)
+        public ActionResult AQSGen(Guid? id, DateTime? sDt, DateTime? eDt, string typ)
         {
             string UserIDX = User.Identity.GetUserId();
 
             var model = new vmDataAQSGen {
                 ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(null, UserIDX),
                 selAQSTransType = typ ?? "RD",
-                selDtStart = new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddMonths(-1),
-                selDtEnd = new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddHours(-1),
-                passValidation = false
+                selDtStart = sDt ?? new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddMonths(-1),
+                selDtEnd = eDt ?? new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddHours(-1),
+                passValidation = false,
+                selSite = id
             };
+
+            if (model.selActionCode == null)
+                model.selActionCode = "I";
+            if (model.selAQSFormat == null)
+                model.selAQSFormat = "F";
+
+            //if site and dates are possed in, then go for the review
+            if (model.selSite != null && model.selDtStart != null && model.selDtEnd != null)
+            {
+                List<SiteMonitorDisplayType> _ms = db_Air.GetT_QREST_MONITORS_Display_SampledBySiteIDX(model.selSite);
+                foreach (SiteMonitorDisplayType _m in _ms) {
+                    model.selMons.Add(_m.T_QREST_MONITORS.MONITOR_IDX);
+                }
+
+                AQSGenDataReview(model);
+            }
+
             return View(model);
         }
 
@@ -1324,22 +1359,28 @@ namespace QREST.Controllers
         [HttpPost]
         public ActionResult AQSGen(vmDataAQSGen model)
         {
-            model.Results = db_Air.SP_AQS_REVIEW_STATUS(model.selSite ?? Guid.Empty, model.selDtStart.GetValueOrDefault(), model.selDtEnd);
-            model.Results = model.Results.Where(o => model.selMons.Contains(o.MONITOR_IDX)).ToList();
-
-            model.passValidation = true;
-            bool send = false;
-            foreach (SP_AQS_REVIEW_STATUS_Result _result in model.Results)
-            {
-                if (_result.hrs != _result.lvl2_val_ind)
-                    model.passValidation = false;
-            }
+            AQSGenDataReview(model);
 
             //repopulate model before returning
             string UserIDX = User.Identity.GetUserId();
             model.ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(null, UserIDX);
 
             return View(model);
+        }
+
+
+        private static void AQSGenDataReview(vmDataAQSGen model)
+        {
+            model.Results = db_Air.SP_AQS_REVIEW_STATUS(model.selSite ?? Guid.Empty, model.selDtStart.GetValueOrDefault(), model.selDtEnd);
+            model.Results = model.Results.Where(o => model.selMons.Contains(o.MONITOR_IDX)).ToList();
+
+            model.passValidation = true;
+
+            foreach (SP_AQS_REVIEW_STATUS_Result _result in model.Results)
+            {
+                if (_result.hrs != _result.lvl2_val_ind)
+                    model.passValidation = false;
+            }
         }
 
 
@@ -1370,7 +1411,6 @@ namespace QREST.Controllers
         }
 
 
-
         public ActionResult AQSAcct(string id, string returnUrl, string returnid)
         {
             ViewBag.ReturnUrl = returnUrl ?? "AQSGen";
@@ -1395,6 +1435,7 @@ namespace QREST.Controllers
 
             return View(model);
         }
+
 
         [HttpPost]
         public ActionResult AQSAcct(vmDataAQSAcct model)
@@ -1423,7 +1464,7 @@ namespace QREST.Controllers
                 Guid? SuccID = AQSHelper.AQSGeneration_Orchestrator(_site.ORG_ID, _site.SITE_IDX, model.selMons, model.selDtStart.GetValueOrDefault(), model.selDtEnd.GetValueOrDefault(), UserIDX, model.selActionCode, model.selAQSFormat);
                 if (SuccID != null)
                 {
-                    TempData["Success"] = "File generated and submission initiated.";
+                    TempData["Success"] = "AQS File generated - click to proceed with submission";
                     return RedirectToAction("AQSList", new { selOrgID=_site.ORG_ID });
                 }
             }
@@ -1570,7 +1611,6 @@ namespace QREST.Controllers
         #region SHARED
 
 
-
         [HttpGet]
         public JsonResult FetchSites(string ID)
         {
@@ -1606,12 +1646,14 @@ namespace QREST.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpGet]
         public JsonResult FetchMonitorsSampledBySite(Guid? ID)
         {
             var data = ddlHelpers.get_monitors_sampled_by_site(ID ?? Guid.Empty);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
 
         [HttpGet]
         public JsonResult FetchMonitorsWithData(string ID)
@@ -1631,7 +1673,6 @@ namespace QREST.Controllers
                 data = ddlHelpers.get_monitors_sampled_by_user(UserIDX);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
-
 
 
         [HttpGet]
@@ -1702,9 +1743,9 @@ namespace QREST.Controllers
         }
 
 
-        public RedirectToRouteResult CanAccessThisOrg(string UserIDX, string OrgID, bool CanEditToo)
+        public RedirectToRouteResult CanAccessThisOrg(string UserIDX, string orgId, bool canEditToo)
         {
-            if (db_Account.CanAccessThisOrg(UserIDX, OrgID, CanEditToo) == false)
+            if (db_Account.CanAccessThisOrg(UserIDX, orgId, canEditToo) == false)
             {
                 TempData["Error"] = "Access Denied.";
                 return RedirectToAction("SiteList", "Site");
@@ -1714,10 +1755,10 @@ namespace QREST.Controllers
         }
 
 
-        public RedirectToRouteResult CanAccessThisSite(string UserIDX, Guid SiteIDX, bool CanEditToo)
+        public RedirectToRouteResult CanAccessThisSite(string UserIDX, Guid SiteIDX, bool canEditToo)
         {
 
-            if (db_Account.CanAccessThisSite(UserIDX, SiteIDX, CanEditToo) == false)
+            if (db_Account.CanAccessThisSite(UserIDX, SiteIDX, canEditToo) == false)
             {
                 TempData["Error"] = "Access Denied.";
                 return RedirectToAction("SiteList", "Site");

@@ -39,7 +39,8 @@ INSERT INTO [dbo].[T_QREST_APP_TASKS]([TASK_NAME],[TASK_DESC],[FREQ_TYPE],[FREQ_
      VALUES ('HourlyValidation','Performs Level 0 validation on hourly data','M',60,GetDate(),GetDate(),'Stopped',null,GetDate());
 INSERT INTO [dbo].[T_QREST_APP_TASKS]([TASK_NAME],[TASK_DESC],[FREQ_TYPE],[FREQ_NUM],[LAST_RUN_DT],[NEXT_RUN_DT],[STATUS],[MODIFY_USER_IDX],[MODIFY_DT])
      VALUES ('AirNow','Sends data to AirNow ftp folder','M',60,GetDate(),GetDate(),'Stopped',null,GetDate());
-
+INSERT INTO [dbo].[T_QREST_APP_TASKS]([TASK_NAME],[TASK_DESC],[FREQ_TYPE],[FREQ_NUM],[LAST_RUN_DT],[NEXT_RUN_DT],[STATUS],[MODIFY_USER_IDX],[MODIFY_DT])
+     VALUES ('Import','Background task that processes any large import files','M',240,GetDate(),'12/12/2050','Stopped',null,GetDate());
 
 
 --****************ONLINE HELP*****************************************************************************************
@@ -209,11 +210,11 @@ INSERT INTO [T_QREST_REF_USER_STATUS] ([STATUS_IND],[STATUS_IND_DESC]) VALUES ('
 
 
 --****************ADDITIONAL DURATION NOT COMING FROM EPA *****************************************************************************************
-  insert into [T_QREST_REF_DURATION](DURATION_CODE, DURATION_DESC, ACT_IND, CREATE_DT) values ('G','1 MINUTE',1,GetDate());
+insert into [T_QREST_REF_DURATION](DURATION_CODE, DURATION_DESC, ACT_IND, CREATE_DT) values ('G','1 MINUTE',1,GetDate());
 
 
 --****************ADDITIONAL QUALIFIER NOT COMING FROM EPA *****************************************************************************************
-    insert into T_QREST_REF_QUALIFIER(QUAL_CODE,QUAL_DESC,QUAL_TYPE,CREATE_DT) values ('-1','<<REMOVE ANY>>','NULL',GetDate());
+insert into T_QREST_REF_QUALIFIER(QUAL_CODE,QUAL_DESC,QUAL_TYPE,CREATE_DT) values ('-1','<<REMOVE ANY>>','NULL',GetDate());
 
 
 

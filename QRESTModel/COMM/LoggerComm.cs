@@ -306,41 +306,47 @@ namespace QRESTModel.COMM
             using (var client = new System.Net.Http.HttpClient())
             {
                 var xxx = await client.GetStringAsync("https://api.weather.com/v2/pws/observations/current?stationId=" + config.LOGGER_SOURCE + "&format=json&units=e&apiKey=" + config.LOGGER_PASSWORD); //uri
-
-                JObject rss = JObject.Parse(xxx);
-
-                string site = (string)rss["observations"][0]["stationID"];
-
-                //take this as a successful reading and continue with parsing
-                if (site == config.LOGGER_SOURCE)
+                try
                 {
-                    string obsTimeLocal = (string)rss["observations"][0]["obsTimeLocal"];
-                    DateTime local = DateTime.Parse(obsTimeLocal, new CultureInfo("en-US"), DateTimeStyles.NoCurrentDateDefault);
-                    DateTime localrounded = new DateTime(local.Year, local.Month, local.Day, local.Hour, 0, 0);
-                    string obsTimeUtc = (string)rss["observations"][0]["obsTimeUtc"];
-                    DateTime utc  = DateTime.Parse(obsTimeUtc, new CultureInfo("en-US"), DateTimeStyles.NoCurrentDateDefault);
-                    DateTime utcrounded = new DateTime(utc.Year, utc.Month, utc.Day, utc.Hour, 0, 0);
-                    string solarRad = (string)rss["observations"][0]["solarRadiation"];
-                    string windDir = (string)rss["observations"][0]["winddir"];
-                    string temp1 = (string)rss["observations"][0]["imperial"]["temp"];
-                    string windSpeed = (string)rss["observations"][0]["imperial"]["windSpeed"];
-                    string pressure = (string)rss["observations"][0]["imperial"]["pressure"];
+                    JObject rss = JObject.Parse(xxx);
 
-                    List<PollConfigDtlDisplay> _dtls = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(config.POLL_CONFIG_IDX);
-                    foreach (PollConfigDtlDisplay _dtl in _dtls)
+                    string site = (string)rss["observations"][0]["stationID"];
+
+                    //take this as a successful reading and continue with parsing
+                    if (site == config.LOGGER_SOURCE)
                     {
-                        if (_dtl.PAR_CODE == "63301") 
-                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, solarRad, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                        if (_dtl.PAR_CODE == "61104")
-                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, windDir, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                        if (_dtl.PAR_CODE == "62101")
-                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, temp1, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                        if (_dtl.PAR_CODE == "61101")
-                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, windSpeed, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                        if (_dtl.PAR_CODE == "64101")
-                            db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, pressure, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                    }
+                        string obsTimeLocal = (string)rss["observations"][0]["obsTimeLocal"];
+                        DateTime local = DateTime.Parse(obsTimeLocal, new CultureInfo("en-US"), DateTimeStyles.NoCurrentDateDefault);
+                        DateTime localrounded = new DateTime(local.Year, local.Month, local.Day, local.Hour, 0, 0);
+                        string obsTimeUtc = (string)rss["observations"][0]["obsTimeUtc"];
+                        DateTime utc = DateTime.Parse(obsTimeUtc, new CultureInfo("en-US"), DateTimeStyles.NoCurrentDateDefault);
+                        DateTime utcrounded = new DateTime(utc.Year, utc.Month, utc.Day, utc.Hour, 0, 0);
+                        string solarRad = (string)rss["observations"][0]["solarRadiation"];
+                        string windDir = (string)rss["observations"][0]["winddir"];
+                        string temp1 = (string)rss["observations"][0]["imperial"]["temp"];
+                        string windSpeed = (string)rss["observations"][0]["imperial"]["windSpeed"];
+                        string pressure = (string)rss["observations"][0]["imperial"]["pressure"];
 
+                        List<PollConfigDtlDisplay> _dtls = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(config.POLL_CONFIG_IDX);
+                        foreach (PollConfigDtlDisplay _dtl in _dtls)
+                        {
+                            if (_dtl.PAR_CODE == "63301")
+                                db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, solarRad, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                            if (_dtl.PAR_CODE == "61104")
+                                db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, windDir, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                            if (_dtl.PAR_CODE == "62101")
+                                db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, temp1, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                            if (_dtl.PAR_CODE == "61101")
+                                db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, windSpeed, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                            if (_dtl.PAR_CODE == "64101")
+                                db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, pressure, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                        }
+
+                    }
+                }
+                catch {
+                    db_Ref.CreateT_QREST_SYS_LOG("SYSTEM", "POLLING ERROR", "FAILURE ON POLLING WEATHER STATION - unreadable format");
+                    return false;
                 }
 
             }

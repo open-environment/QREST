@@ -348,7 +348,6 @@ namespace QREST.Controllers
         }
 
 
-
         public ActionResult ForgotPassword()
         {
             return View();
@@ -544,6 +543,7 @@ namespace QREST.Controllers
             return RedirectToAction("MyProfile");
         }
 
+
         [Authorize]
         public ActionResult Notifications()
         {
@@ -593,7 +593,6 @@ namespace QREST.Controllers
 
 
 
-
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -635,6 +634,7 @@ namespace QREST.Controllers
             }
         }
 
+
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
@@ -643,6 +643,7 @@ namespace QREST.Controllers
             }
         }
 
+
         private ActionResult RedirectToLocal(string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))
@@ -650,6 +651,7 @@ namespace QREST.Controllers
             else
                 return RedirectToAction("Index", "Dashboard");
         }
+
 
         internal class ChallengeResult : HttpUnauthorizedResult
         {

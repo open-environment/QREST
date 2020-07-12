@@ -8,7 +8,7 @@
     <div class="col-md-4">
         <div class="form-group">
             Site:
-            @Html.TextBoxFor(model => model.SITE_NAME, new { @class = "form-control", @readonly = "readonly" })   
+            @Html.TextBoxFor(model => model.SITE_NAME, new { @class = "form-control", @readonly = "readonly" })
         </div>
     </div>
     <div class="col-md-4">
@@ -30,9 +30,6 @@
 </div>
 @using (Html.BeginForm("MonitorEditMethod", "Site", FormMethod.Post, new { @id = "norepostform", role = "form" }))
 {
-
-
-
     @Html.AntiForgeryToken()
     @Html.HiddenFor(model => model.MONITOR_IDX)
     @Html.HiddenFor(model => model.SITE_IDX)
@@ -59,6 +56,42 @@
                                         <th>Equivalent Method</th>
                                     </tr>
                                 </thead>
+                                @foreach (QRESTModel.DAL.RefParMethodDisplay item in Model.PerMethods)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="delete-section" style="display:inline-block">
+                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link">Select</a>
+                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX" data-delete-id2="@Model.MONITOR_IDX" data-delete-p="/Site/MonitorEditMethod" data-success-url="/Site/MonitorEdit/@Model.MONITOR_IDX"><b>Confirm Selection</b></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.T_QREST_REF_PAR_METHODS.PAR_CODE)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PAR_NAME)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.T_QREST_REF_PAR_METHODS.RECORDING_MODE)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.T_QREST_REF_PAR_METHODS.METHOD_CODE)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.T_QREST_REF_PAR_METHODS.COLLECTION_DESC)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.T_QREST_REF_PAR_METHODS.ANALYSIS_DESC)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.T_QREST_REF_PAR_METHODS.REFERENCE_METHOD_ID)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD)
+                                        </td>
+                                    </tr>
+                                }
+
                             </table>
                         </div>
 
@@ -73,5 +106,10 @@
         </div>
 
     </div>
+
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
 
 }

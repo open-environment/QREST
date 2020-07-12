@@ -4,6 +4,7 @@
     ViewBag.HelpLink = "Manual-Import";
 }
 @Html.HiddenFor(model => model.T_QREST_DATA_IMPORTS.IMPORT_IDX)
+
 <section class="panel panel-default">
     <div class="row m-l-none m-r-none bg-light lter">
         <div class="col-sm-12 col-md-4 padder-v b-r b-light">
@@ -30,15 +31,33 @@
         </div>
         <div class="col-sm-12 col-md-8 padder-v b-r b-light lt" style="height:115px">
             <div class="">
+                @if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "STARTED")
+                {
+                    <h4>Because import contains a large amount of data, it has been scheduled and will begin within a couple minutes.</h4>
+                    <a class=" btn btn-info" href="@Url.Action("ImportStatus", new { id = Model.T_QREST_DATA_IMPORTS.IMPORT_IDX })">Click to Refresh Status</a>
+                }
+                else if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "VALIDATING")
+                {
+                    <div class="alert alert-info">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <i class="fa fa-ok-sign"></i>
+                        <h4>Import is currently being processed</h4>
+                        <h4>@Model.ImportTotalCount records processed so far.</h4>
+                    </div>
+                    <a class=" btn btn-info" href="@Url.Action("ImportStatus", new { id = Model.T_QREST_DATA_IMPORTS.IMPORT_IDX })">Click to Refresh Status</a>
 
-                @if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "VALIDATED")
+                    <br />
+                    <small class="text-muted text-uc">Seconds: @Model.durationSecs</small>
+
+                }
+                else if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "VALIDATED")
                 {
                     if (Model.ImportValErrorCount == 0)
                     {
                         using (Html.BeginForm("ImportManualOverride", "Data", FormMethod.Post, new { @class = "form-horizontal" }))
                         {
-                        @Html.HiddenFor(model => model.T_QREST_DATA_IMPORTS.IMPORT_IDX)
-                        <button type="submit" class="btn btn-primary">Import Data</button>
+                            @Html.HiddenFor(model => model.T_QREST_DATA_IMPORTS.IMPORT_IDX)
+                            <button type="submit" class="btn btn-primary">Import Data</button>
                         }
                     }
                     <div class="delete-section" style="display:inline-block;">
@@ -70,7 +89,7 @@
 
 
 
-@if (Model.ImportValErrorCount > 0)
+@if (Model.ImportValErrorCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS != "VALIDATING")
 {
     <!-- DISPLAY ERRORS-->
     <section class="panel panel-danger">
@@ -104,7 +123,7 @@
         </div>
     </section>
 }
-else if (Model.ImportValDupCount > 0)
+else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS != "VALIDATING")
 {
     <!-- DISPLAY DUPLICATES-->
     <section class="panel panel-danger">

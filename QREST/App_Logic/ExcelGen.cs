@@ -31,7 +31,10 @@ namespace QREST.App_Logic
                                 string rng = $"${columnLetter}2:{columnLetter}50000";
                                 _ws.Range(rng).DataType = XLDataType.Number;
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
                         else if (column.Cell(1).GetString().Contains("DateTime"))
                         {
@@ -42,7 +45,10 @@ namespace QREST.App_Logic
                                 _ws.Range(rng).DataType = XLDataType.DateTime;
                                 _ws.Range(rng).Style.NumberFormat.Format = "MM/dd/yyyy hh:mm AM/PM";
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
                         else if (column.Cell(1).GetString().Contains("Date ("))
                         {
@@ -53,7 +59,10 @@ namespace QREST.App_Logic
                                 _ws.Range(rng).DataType = XLDataType.DateTime;
                                 _ws.Range(rng).Style.NumberFormat.Format = "MM/dd/yyyy";
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
                     }
                 }
@@ -71,8 +80,8 @@ namespace QREST.App_Logic
             {
                 foreach (DataTable dt in dts)
                 {
-                    if (dt != null && dt.Rows.Count > 0)
-                    wb.Worksheets.Add(dt);
+                    if (dt != null && dt.Rows.Count > 0) 
+                        wb.Worksheets.Add(dt);
                 }
 
                 wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;

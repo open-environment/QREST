@@ -6,7 +6,7 @@
 
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">
-        Daily Summary
+        Daily Summary @*(now is @Model.currServerDateTime)*@
     </header>
     <div class="panel-body">
         @using (Html.BeginForm("ReportDaily", "Home", FormMethod.Post, new { @id = "norepostform", role = "form", @class = "form-inline m-b-sm" }))

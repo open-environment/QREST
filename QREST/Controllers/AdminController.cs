@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using QREST.Models;
-using Microsoft.AspNet.Identity;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using QREST.App_Logic;
 using QREST.App_Logic.BusinessLogicLayer;
-using System.IO;
-using System.Data;
-using System.Text.RegularExpressions;
+using QREST.Models;
 using QRESTModel.DAL;
 using QRESTModel.DataTableGen;
-using QREST.App_Logic;
-using System.Net;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 
 namespace QREST.Controllers
 {
@@ -49,7 +48,7 @@ namespace QREST.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("OrgList");
         }
 
 
@@ -83,10 +82,10 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                string UserID = User.Identity.GetUserId();
+                string userId = User.Identity.GetUserId();
 
-                int SuccID = db_Ref.InsertOrUpdateT_QREST_APP_SETTINGS(model.edit_app_setting.SETTING_IDX, model.edit_app_setting.SETTING_NAME, model.edit_app_setting.SETTING_VALUE, false, null, UserID);
-                if (SuccID > 0)
+                int succId = db_Ref.InsertOrUpdateT_QREST_APP_SETTINGS(model.edit_app_setting.SETTING_IDX, model.edit_app_setting.SETTING_NAME, model.edit_app_setting.SETTING_VALUE, false, null, userId);
+                if (succId > 0)
                     TempData["Success"] = "Data Saved.";
                 else
                     TempData["Error"] = "Data Not Saved.";
@@ -100,8 +99,8 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                int SuccID = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(model.TermsAndConditions ?? "", null);
-                if (SuccID > 0)
+                int succId = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(model.TermsAndConditions ?? "", null);
+                if (succId > 0)
                     TempData["Success"] = "Data Saved.";
                 else
                     TempData["Error"] = "Data Not Saved.";
@@ -115,8 +114,8 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                int SuccID = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(null, model.Announcements ?? "");
-                if (SuccID > 0)
+                int succId = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(null, model.Announcements ?? "");
+                if (succId > 0)
                     TempData["Success"] = "Data Saved.";
                 else
                     TempData["Error"] = "Data Not Saved.";
@@ -130,8 +129,8 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                int SuccID = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(model.TermsAndConditions ?? "", null);
-                if (SuccID > 0)
+                int succId = db_Ref.InsertUpdateT_QREST_APP_SETTING_CUSTOM(model.TermsAndConditions ?? "", null);
+                if (succId > 0)
                     TempData["Success"] = "Data Saved.";
                 else
                     TempData["Error"] = "Data Not Saved.";
@@ -151,9 +150,8 @@ namespace QREST.Controllers
                 T_QREST_EMAIL_TEMPLATE = db_Ref.GetT_QREST_EMAIL_TEMPLATE()
             };
 
-            var xxx = db_Ref.GetT_QREST_EMAIL_TEMPLATE_ByID(id ?? -1);
-            if (xxx == null)
-                xxx = db_Ref.GetT_QREST_EMAIL_TEMPLATE_ByID(model.T_QREST_EMAIL_TEMPLATE[0].EMAIL_TEMPLATE_ID);
+            var xxx = db_Ref.GetT_QREST_EMAIL_TEMPLATE_ByID(id ?? -1) 
+                      ?? db_Ref.GetT_QREST_EMAIL_TEMPLATE_ByID(model.T_QREST_EMAIL_TEMPLATE[0].EMAIL_TEMPLATE_ID);
 
             if (xxx != null)
             {
@@ -173,8 +171,8 @@ namespace QREST.Controllers
             {
                 string UserIDX = User.Identity.GetUserId();
 
-                int SuccID = db_Ref.InsertUpdateT_QREST_EMAIL_TEMPLATE(model.editID, model.editSUBJ, model.editMSG, UserIDX);
-                if (SuccID > 0)
+                int succId = db_Ref.InsertUpdateT_QREST_EMAIL_TEMPLATE(model.editID, model.editSUBJ, model.editMSG, UserIDX);
+                if (succId > 0)
                     TempData["Success"] = "Data Saved.";
                 else
                     TempData["Error"] = "Data Not Saved.";
@@ -219,58 +217,20 @@ namespace QREST.Controllers
         }
 
         [HttpPost]
-        public ContentResult ImagePosted(HttpPostedFileBase imageFile)
+        public ContentResult ImagePosted()
         {
-            //TODO: keeping commented code for now
-            //-------------------------------------
-
             var jsonString = "";
             if (Request.Files.Count > 0)
             {
-                imageFile = Request.Files[0];
-                string fileName = imageFile.FileName;
-
-                //if (fileName == "image.png")
-                //    fileName = "image" + DateTime.Now.ToString("yyyy-dd-MM-HH-mm-ss") + ".png";
-                //if (!Directory.Exists(Server.MapPath("~/TinyMCEImg/")))
-                //    Directory.CreateDirectory(Server.MapPath("~/TinyMCEImg/"));
-                //string filePath = Server.MapPath("~/TinyMCEImg/") + fileName;
-                //imageFile.SaveAs(filePath);
-
-                BinaryReader br = new BinaryReader(imageFile.InputStream);
-                Byte[] fileBytes = br.ReadBytes(imageFile.ContentLength);
-                string base64String = Convert.ToBase64String(fileBytes);
-                string srcString = string.Format("data:image/png;base64,{0}", base64String);
-                jsonString = String.Format("{{\"location\":\"{0}\"}}", srcString);
-
-
-                //using(var ms = new MemoryStream(fileBytes))
-                //{
-                //    string base64String = "";
-                //    //using (Image image = Image.FromFile(filePath))
-                //    using (Image image = Image.FromStream(ms))
-                //    {
-                //        using (MemoryStream m = new MemoryStream())
-                //        {
-                //            image.Save(m, image.RawFormat);
-                //            byte[] imageBytes = m.ToArray();
-
-                //            // Convert byte[] to Base64 String
-                //            base64String = Convert.ToBase64String(imageBytes);
-                //            //return base64String;
-                //        }
-                //    }
-                //}
-
-                //if (!string.IsNullOrEmpty(base64String))
-                //{
-                //    string srcString = string.Format("data:image/png;base64,{0}", base64String);
-                //    jsonString = String.Format("{{\"location\":\"{0}\"}}", srcString);
-                //}
-                //else
-                //{
-                //    jsonString = String.Format("{{\"location\":\"{0}\"}}", "/TinyMCEImg/" + fileName);
-                //}
+                HttpPostedFileBase imageFile = Request.Files[0];
+                if (imageFile != null)
+                {
+                    BinaryReader br = new BinaryReader(imageFile.InputStream);
+                    byte[] fileBytes = br.ReadBytes(imageFile.ContentLength);
+                    string base64String = Convert.ToBase64String(fileBytes);
+                    string srcString = $"data:image/png;base64,{base64String}";
+                    jsonString = $"{{\"location\":\"{srcString}\"}}";
+                }
             }
             return Content(jsonString);
         }
@@ -282,8 +242,8 @@ namespace QREST.Controllers
                 return Json("No record selected to delete");
             else
             {
-                int SuccID = db_Ref.DeleteT_HELP_DOCS(id);
-                if (SuccID == 1)
+                int succId = db_Ref.DeleteT_HELP_DOCS(id);
+                if (succId == 1)
                     return Json("Success");
                 else
                     return Json("Unable to delete section.");
@@ -343,10 +303,10 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
+                int succId = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
                     null, null, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null);
 
-                if (SuccID == 1)
+                if (succId == 1)
                     TempData["Success"] = "Record updated";
                 else
                     TempData["Error"] = "Error updating record.";
@@ -367,10 +327,10 @@ namespace QREST.Controllers
                 return Json("No record selected to delete");
             else
             {
-                int SuccID = db_Ref.DeleteT_QREST_ORGANIZATIONS(id);
-                if (SuccID == 1)
+                int succId = db_Ref.DeleteT_QREST_ORGANIZATIONS(id);
+                if (succId == 1)
                     return Json("Success");
-                else if (SuccID == -1)
+                else if (succId == -1)
                     return Json("Cannot delete Organization that still has site records. Delete sites first.");
                 else
                     return Json("Unable to find organization to delete.");
@@ -383,9 +343,9 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                Guid? SuccID = db_Account.InsertUpdateT_QREST_ORG_USERS(model.edit_user_idx, model.edit_org_id, model.edit_org_user_access_level, model.edit_org_user_status, "");
+                Guid? succId = db_Account.InsertUpdateT_QREST_ORG_USERS(model.edit_user_idx, model.edit_org_id, model.edit_org_user_access_level, model.edit_org_user_status, "");
 
-                if (SuccID != null)
+                if (succId != null)
                     TempData["Success"] = "Record updated";
                 else
                     TempData["Error"] = "Error updating record.";
@@ -543,7 +503,7 @@ namespace QREST.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult UserRoleEdit(vmAdminUserEdit model, string submitButton)
         {
-            IdentityResult succID = new IdentityResult();
+            IdentityResult succId = new IdentityResult();
 
             // ADDING USER TO ROLE
             if (submitButton == "Add")
@@ -552,7 +512,7 @@ namespace QREST.Controllers
                     TempData["Error"] = "You must select a role to add.";
                 else
                     foreach (string u in model.Roles_Not_In_User_Selected)
-                        succID = UserManager.AddToRole(model.user.Id, u);
+                        succId = UserManager.AddToRole(model.user.Id, u);
             }
             // REMOVE USER FROM ROLE
             else if (submitButton == "Remove")
@@ -561,12 +521,12 @@ namespace QREST.Controllers
                     TempData["Error"] = "You must select a role to remove.";
                 else
                     foreach (string u in model.Roles_In_User_Selected)
-                        succID = UserManager.RemoveFromRole(model.user.Id, u);
+                        succId = UserManager.RemoveFromRole(model.user.Id, u);
             }
             else
-                return View(model);
+                TempData["Error"] = "Invalid action.";
 
-            if (succID.Succeeded)
+            if (succId.Succeeded)
                 TempData["Success"] = "Update successful.";
 
             return RedirectToAction("UserEdit", "Admin", new { id = model.user.Id });
@@ -595,10 +555,10 @@ namespace QREST.Controllers
             {
                 string UserIDX = User.Identity.GetUserId();
 
-                bool SuccInd = db_Ref.UpdateT_QREST_TASKS(model.EditTask.TASK_IDX, model.EditTask.FREQ_TYPE, model.EditTask.FREQ_NUM,
+                bool succInd = db_Ref.UpdateT_QREST_TASKS(model.EditTask.TASK_IDX, model.EditTask.FREQ_TYPE, model.EditTask.FREQ_NUM,
                     null, model.EditTask.NEXT_RUN_DT, model.EditTask.STATUS, UserIDX);
 
-                if (SuccInd)
+                if (succInd)
                     TempData["Success"] = "Data Saved.";
                 else
                     TempData["Error"] = "Data Not Saved.";
@@ -610,26 +570,26 @@ namespace QREST.Controllers
 
         public ActionResult TaskStop(int? id)
         {
-            bool SuccInd = db_Ref.UpdateT_QREST_TASKS_SetStopped(id ?? -1);
+            bool succInd = db_Ref.UpdateT_QREST_TASKS_SetStopped(id ?? -1);
 
-            if (SuccInd)
+            if (succInd)
                 TempData["Success"] = "Task Stopped.";
             else
                 TempData["Error"] = "Task Not Stopped.";
 
-            return RedirectToAction("TaskConfig", new { id = id });
+            return RedirectToAction("TaskConfig", new { id });
         }
 
         public ActionResult TaskStart(int? id)
         {
-            bool SuccInd = db_Ref.UpdateT_QREST_TASKS_SetCompleted(id ?? -1);
+            bool succInd = db_Ref.UpdateT_QREST_TASKS_SetCompleted(id ?? -1);
 
-            if (SuccInd)
+            if (succInd)
                 TempData["Success"] = "Task Scheduled to Run.";
             else
                 TempData["Error"] = "Task Not Scheduled to Run.";
 
-            return RedirectToAction("TaskConfig", new { id = id });
+            return RedirectToAction("TaskConfig", new { id });
         }
 
 
@@ -823,8 +783,8 @@ namespace QREST.Controllers
                                     T_QREST_REF_COLLECT_FREQ _data = db_Ref.GetT_QREST_REF_COLLECT_FREQ_ByID(cols[0]);
                                     if (_data == null)
                                     {
-                                        bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_COLLECT_FREQ(cols[0], cols[1], true, UserIDX);
-                                        if (SuccID)
+                                        bool succId = db_Ref.InsertUpdatetT_QREST_REF_COLLECT_FREQ(cols[0], cols[1], true, UserIDX);
+                                        if (succId)
                                             insCount++;
                                         else
                                             errorCount++;
@@ -837,8 +797,8 @@ namespace QREST.Controllers
                                     T_QREST_REF_UNITS _data = db_Ref.GetT_QREST_REF_UNITS_ByID(cols[0]);
                                     if (_data == null)
                                     {
-                                        bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_UNITS(cols[0], cols[1], true, UserIDX);
-                                        if (SuccID)
+                                        bool succId = db_Ref.InsertUpdatetT_QREST_REF_UNITS(cols[0], cols[1], true, UserIDX);
+                                        if (succId)
                                             insCount++;
                                         else
                                             errorCount++;
@@ -855,8 +815,8 @@ namespace QREST.Controllers
                                         T_QREST_REF_UNITS _unit = db_Ref.GetT_QREST_REF_UNITS_ByDesc(cols[5]);
                                         if (_unit != null)
                                         {
-                                            bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(cols[0], cols[1], cols[3], cols[4], _unit.UNIT_CODE, true, cols[6] == "YES", UserIDX);
-                                            if (SuccID)
+                                            bool succId = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(cols[0], cols[1], cols[3], cols[4], _unit.UNIT_CODE, true, cols[6] == "YES", UserIDX);
+                                            if (succId)
                                                 insCount++;
                                             else
                                                 errorCount++;
@@ -873,15 +833,15 @@ namespace QREST.Controllers
                                     T_QREST_REF_UNITS _unit = db_Ref.GetT_QREST_REF_UNITS_ByDesc(cols[14]);
                                     if (_unit != null)
                                     {
-                                        Tuple<string, string> SuccID = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(null, cols[1], cols[2], cols[3], cols[4], cols[5], cols[7], cols[8], _unit.UNIT_CODE, cols[9].ConvertOrDefault<double?>(), cols[10].ConvertOrDefault<double?>(), cols[11].ConvertOrDefault<double?>(), null, null, UserIDX);
-                                        if (SuccID.Item1 == "I")
+                                        Tuple<string, string> succId = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(null, cols[1], cols[2], cols[3], cols[4], cols[5], cols[7], cols[8], _unit.UNIT_CODE, cols[9].ConvertOrDefault<double?>(), cols[10].ConvertOrDefault<double?>(), cols[11].ConvertOrDefault<double?>(), null, null, UserIDX);
+                                        if (succId.Item1 == "I")
                                             insCount++;
-                                        else if (SuccID.Item1 == "U")
+                                        else if (succId.Item1 == "U")
                                         {
-                                            if (SuccID.Item2.Length == 0)
+                                            if (succId.Item2.Length == 0)
                                                 existCount++;
                                             else
-                                                updateDetails.Add(cols[1] + "/" + cols[2] + " has been modified: " + SuccID.Item2);
+                                                updateDetails.Add(cols[1] + "/" + cols[2] + " has been modified: " + succId.Item2);
 
                                         }
                                         else
@@ -900,8 +860,8 @@ namespace QREST.Controllers
                                     T_QREST_REF_COUNTY _data = db_Ref.GetT_QREST_REF_COUNTY_ByID(cols[0], cols[3]);
                                     if (_data == null)
                                     {
-                                        bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_COUNTY(cols[0], cols[3], cols[4]);
-                                        if (SuccID)
+                                        bool succId = db_Ref.InsertUpdatetT_QREST_REF_COUNTY(cols[0], cols[3], cols[4]);
+                                        if (succId)
                                             insCount++;
                                         else
                                             errorCount++;
@@ -914,8 +874,8 @@ namespace QREST.Controllers
                                     T_QREST_REF_QUALIFIER _data = db_Ref.GetT_QREST_REF_QUALIFIER_ByID(cols[0]);
                                     if (_data == null)
                                     {
-                                        bool SuccID = db_Ref.InsertUpdatetT_QREST_REF_QUALIFIER(cols[0], cols[1], cols[3], UserIDX);
-                                        if (SuccID)
+                                        bool succId = db_Ref.InsertUpdatetT_QREST_REF_QUALIFIER(cols[0], cols[1], cols[3], UserIDX);
+                                        if (succId)
                                             insCount++;
                                         else
                                             errorCount++;
@@ -1204,66 +1164,65 @@ namespace QREST.Controllers
 
 
         //************************************* TEST METHODS ************************************************************
-        public ActionResult Testing()
-        {
+        //public ActionResult Testing()
+        //{
 
-            List<AIRNOW_LAST_HOUR> _recs = db_Air.GetAIRNOW_LAST_HOUR();
-            if (_recs != null)
-            {
-                foreach (AIRNOW_LAST_HOUR _rec in _recs)
-                {
+        //    List<AIRNOW_LAST_HOUR> _recs = db_Air.GetAIRNOW_LAST_HOUR();
+        //    if (_recs != null)
+        //    {
+        //        foreach (AIRNOW_LAST_HOUR _rec in _recs)
+        //        {
                     
-                }
-            }
+        //        }
+        //    }
 
-            return View();
-        }
-
-
-        public ActionResult HourlyPollValidation()
-        {
-            //this is where logic for the task goes
-            db_Air.SP_VALIDATE_HOURLY();
-
-            //then send out notifications
-            List<string> NotifyUsers = db_Air.GetT_QREST_DATA_HOURLY_NotificationUsers();
-            foreach (string u in NotifyUsers)
-            {
-                string msg = "" + Environment.NewLine;
-                List<RawDataDisplay> notifies = db_Air.GetT_QREST_DATA_HOURLY_NotificationsListForUser(u);
-                foreach (RawDataDisplay n in notifies)
-                {
-                    msg += n.SITE_ID + ": " + n.PAR_NAME + ": " + n.VAL_CD + " alert." + Environment.NewLine;
-                }
-
-                var emailParams = new Dictionary<string, string> { { "notifyMsg", msg } };
-                QRESTModel.BLL.UtilsNotify.NotifyUser(u, null, null, null, null, "POLLING_ALERT", emailParams, null);
-            }
-
-            //then update all records to notified
-            List<T_QREST_DATA_HOURLY> xxx = db_Air.GetT_QREST_DATA_HOURLY_NotNotified();
-            foreach (T_QREST_DATA_HOURLY xx in xxx)
-            {
-                db_Air.UpdateT_QREST_DATA_HOURLY_Notified(xx.DATA_HOURLY_IDX);
-            }
+        //    return View();
+        //}
 
 
-            return View("Testing");
-        }
+        //public ActionResult HourlyPollValidation()
+        //{
+        //    //this is where logic for the task goes
+        //    db_Air.SP_VALIDATE_HOURLY();
 
-        public ActionResult AirNow()
-        {
-            using (var client = new WebClient())
-            {
-                string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
-                string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
+        //    //then send out notifications
+        //    List<string> NotifyUsers = db_Air.GetT_QREST_DATA_HOURLY_NotificationUsers();
+        //    foreach (string u in NotifyUsers)
+        //    {
+        //        string msg = "" + Environment.NewLine;
+        //        List<RawDataDisplay> notifies = db_Air.GetT_QREST_DATA_HOURLY_NotificationsListForUser(u);
+        //        foreach (RawDataDisplay n in notifies)
+        //        {
+        //            msg += n.SITE_ID + ": " + n.PAR_NAME + ": " + n.VAL_CD + " alert." + Environment.NewLine;
+        //        }
 
-                client.Credentials = new System.Net.NetworkCredential(ftpUser, ftpPwd);
-                client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/202002261403_840.TRX", WebRequestMethods.Ftp.UploadFile, @"C:\temp\202002261403_840.TRX");
-            }
+        //        var emailParams = new Dictionary<string, string> {{"notifyMsg", msg}};
+        //        QRESTModel.BLL.UtilsNotify.NotifyUser(u, null, null, null, null, "POLLING_ALERT", emailParams, null);
+        //    }
 
-            return View("Testing");
-        }
+        //    //then update all records to notified
+        //    List<T_QREST_DATA_HOURLY> xxx = db_Air.GetT_QREST_DATA_HOURLY_NotNotified();
+        //    foreach (T_QREST_DATA_HOURLY xx in xxx)
+        //    {
+        //        db_Air.UpdateT_QREST_DATA_HOURLY_Notified(xx.DATA_HOURLY_IDX);
+        //    }
+
+        //    return View("Testing");
+        //}
+
+        //public ActionResult AirNow()
+        //{
+        //    using (var client = new WebClient())
+        //    {
+        //        string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
+        //        string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
+
+        //        client.Credentials = new System.Net.NetworkCredential(ftpUser, ftpPwd);
+        //        client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/202002261403_840.TRX", WebRequestMethods.Ftp.UploadFile, @"C:\temp\202002261403_840.TRX");
+        //    }
+
+        //    return View("Testing");
+        //}
 
     }
 }

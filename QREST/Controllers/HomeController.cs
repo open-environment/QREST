@@ -1,30 +1,31 @@
-﻿using System;
+﻿using QREST.App_Logic;
+using QREST.Models;
+using QRESTModel.DAL;
+using QRESTModel.DataTableGen;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Mvc;
-using Newtonsoft.Json;
-using QREST.App_Logic;
-using QREST.Models;
-using QRESTModel.DAL;
-using QRESTModel.DataTableGen;
 
 namespace QREST.Controllers
 {
     public class HomeController : Controller
     {
+        [HttpGet]
         public ActionResult Index()
         {
-            var model = new vmHomeIndex();
-            model.T_QREST_SITES = db_Air.GetT_QREST_SITES_All_Display();
+            var model = new vmHomeIndex
+            {
+                T_QREST_SITES = db_Air.GetT_QREST_SITES_All_Display()
+            };
 
             return View(model);
         }
 
 
+        [HttpGet]
         public ActionResult SignUp()
         {
             var model = new vmHomeSignUp();
@@ -37,7 +38,7 @@ namespace QREST.Controllers
             return View();
         }
 
-
+        [HttpGet]
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
@@ -46,6 +47,7 @@ namespace QREST.Controllers
         }
 
 
+        [HttpGet]
         public ActionResult ReportDaily(Guid? id, int? month, int? year, int? day, string time)
         {
             var model = new vmHomeReportDaily
@@ -53,14 +55,16 @@ namespace QREST.Controllers
                 selSite = id,
                 selMonth = month ?? System.DateTime.Now.Month,
                 selYear = year ?? System.DateTime.Now.Year,
-                selDay = day ?? System.DateTime.Now.Day,
-                selTime = time ?? "L"
+                selDay = day ?? System.DateTime.Now.AddHours(-7).Day,  //hack since server is in UTC
+                selTime = time ?? "L",
+                currServerDateTime = System.DateTime.Now
             };
 
             model.Results = db_Air.SP_RPT_DAILY(id ?? Guid.Empty, model.selMonth, model.selYear, model.selDay, model.selTime);
 
             return View(model);
         }
+
 
         [HttpPost]
         public ActionResult ReportDaily(vmHomeReportDaily model)
@@ -69,6 +73,7 @@ namespace QREST.Controllers
         }
 
 
+        [HttpGet]
         public ActionResult ReportDailyExport(Guid? id, int? month, int? year, int? day, string time)
         {
             DataTable dt = DataTableGen.ReportDaily(id ?? Guid.Empty, month ?? 1, year ?? System.DateTime.Now.Year, day ?? 1, time);
@@ -86,22 +91,21 @@ namespace QREST.Controllers
 
                 return null;
             }
-            else
-            {
-                TempData["Error"] = "No data found to export";
-                return RedirectToAction("ReportDaily", new { id, month, year, day, time });
-            }
+
+            TempData["Error"] = "No data found to export";
+            return RedirectToAction("ReportDaily", new { id, month, year, day, time });
 
         }
 
 
+        [HttpGet]
         public ActionResult ReportMonthly(Guid? id, Guid? monid, int? month, int? year, string time)
         {
             var model = new vmHomeReportMonthly { 
                 selSite = id,
                 selMon = monid,
-                selMonth = month ?? System.DateTime.Now.Month,
-                selYear = year ?? System.DateTime.Now.Year,
+                selMonth = month ?? DateTime.Now.Month,
+                selYear = year ?? DateTime.Now.Year,
                 selTime = time ?? "L"
             };
 
@@ -117,7 +121,7 @@ namespace QREST.Controllers
             if (model.selMon != null)
             {
                 SiteMonitorDisplayType xxx = db_Air.GetT_QREST_MONITORS_ByID(model.selMon ?? Guid.Empty);
-                if (xxx != null && xxx.T_QREST_MONITORS != null && xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE != null)
+                if (xxx?.T_QREST_MONITORS?.COLLECT_UNIT_CODE != null)
                 {
                     var yyy = db_Ref.GetT_QREST_REF_UNITS_ByID(xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE);
                     model.Units = yyy?.UNIT_DESC;
@@ -127,11 +131,13 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         public ActionResult ReportMonthly(vmHomeReportMonthly model)
         {
             return RedirectToAction("ReportMonthly", new { id = model.selSite, monid = model.selMon, month = model.selMonth, year = model.selYear, time = model.selTime });
         }
+
 
         public ActionResult ReportMonthlyExport(Guid? id, Guid? monid, int? month, int? year, string time)
         {
@@ -150,15 +156,14 @@ namespace QREST.Controllers
 
                 return null;
             }
-            else
-            {
-                TempData["Error"] = "No data found to export";
-                return RedirectToAction("ReportMonthly", new { id, monid, month, year, time });
-            }
+
+            TempData["Error"] = "No data found to export";
+            return RedirectToAction("ReportMonthly", new { id, monid, month, year, time });
 
         }
 
 
+        [HttpGet]
         public ActionResult ReportAnnual(Guid? id, Guid? monid, int? year, string time)
         {
             var model = new vmHomeReportAnnual
@@ -179,7 +184,7 @@ namespace QREST.Controllers
             model.ResultSums = db_Air.SP_RPT_ANNUAL_SUMS(model.selMon ?? Guid.Empty, model.selYear, model.selTime);
 
             SiteMonitorDisplayType xxx = db_Air.GetT_QREST_MONITORS_ByID(model.selMon ?? Guid.Empty);
-            if (xxx != null && xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE != null)
+            if (xxx?.T_QREST_MONITORS.COLLECT_UNIT_CODE != null)
             {
                 var yyy = db_Ref.GetT_QREST_REF_UNITS_ByID(xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE);
                 model.Units = yyy.UNIT_DESC;
@@ -188,11 +193,13 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         public ActionResult ReportAnnual(vmHomeReportAnnual model)
         {
             return RedirectToAction("ReportAnnual", new { id = model.selSite, monid = model.selMon, year = model.selYear, time = model.selTime });
         }
+
 
         public ActionResult ReportAnnualExport(Guid? id, Guid? monid, int? month, int? year, string time)
         {
@@ -211,15 +218,14 @@ namespace QREST.Controllers
 
                 return null;
             }
-            else
-            {
-                TempData["Error"] = "No data found to export";
-                return RedirectToAction("ReportMonthly", new { id, monid, month, year, time });
-            }
+
+            TempData["Error"] = "No data found to export";
+            return RedirectToAction("ReportMonthly", new { id, monid, month, year, time });
 
         }
 
 
+        [HttpGet]
         public ActionResult Help()
         {
             var model = new vmHomeHelp();
@@ -227,7 +233,8 @@ namespace QREST.Controllers
             return View(model);
         }
 
-        
+
+        [HttpGet]
         public ActionResult Terms()
         {
             var model = new vmHomeTerms();
@@ -236,69 +243,6 @@ namespace QREST.Controllers
             return View(model);
         }
 
-
-        public ActionResult Test()
-        {
-            try
-            {
-                using (var httpClient = new HttpClient())
-                {
-                    Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=test@aqs.api&key=test&bdate=20000101&edate=20251231&state=41&county=011&site=1036", UriKind.Absolute);
-                    var json = httpClient.GetStringAsync(myUri).Result;
-                    dynamic stuff = JsonConvert.DeserializeObject(json);
-                    foreach (var item in stuff.Data)
-                    {
-                        TempData["Success"] = "Read stuff success.";
-                    }
-
-                    
-                }
-
-            }
-            catch (AggregateException err)
-            {
-                foreach (var errInner in err.InnerExceptions)
-                    db_Ref.CreateT_QREST_SYS_LOG(null, "ERROR", "Failed to import monitor - code 5 " + errInner);
-            }
-            catch (Exception ex)
-            {
-                db_Ref.CreateT_QREST_SYS_LOG(null, "ERROR", "Failed to import monitor - code 4 " + ex.Message);
-            }
-
-            return View();
-        }
-
-        public ActionResult Test2()
-        {
-            //HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://aqs.epa.gov/aqsweb/codes/qa/SitesV4.txt");
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://raw.githubusercontent.com/open-environment/QREST/master/QREST/Content/Docs/DeployGuide.txt");
-            try
-            {
-                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-                using (StreamReader csvreader = new StreamReader(resp.GetResponseStream()))
-                {
-                    string currentLine;
-                    while ((currentLine = csvreader.ReadLine()) != null)
-                    {
-                    }
-                    TempData["Success"] = "Worked";
-                 }
-            }
-            catch (AggregateException err)
-            {
-                foreach (var errInner in err.InnerExceptions)
-                    db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Failed to import monitor - code 5 " + errInner);
-                TempData["Error"] = "Unable to connect to AQS, please try again later.";
-            }
-            catch (Exception ex)
-            {
-                db_Ref.CreateT_QREST_SYS_LOG("", "ERROR", "Failed to import monitor - code 4 " + ex.Message);
-                TempData["Error"] = "Unable to connect to AQS, please try again later.";
-            }
-
-
-            return RedirectToAction("Index");
-        }
 
         [HttpGet]
         public JsonResult FetchMonitorsBySite(Guid? ID)

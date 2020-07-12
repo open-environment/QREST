@@ -1,23 +1,18 @@
-﻿using ClosedXML.Excel;
-using Microsoft.AspNet.Identity;
+﻿using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
 using QREST.App_Logic.BusinessLogicLayer;
 using QREST.Models;
+using QRESTModel.COMM;
 using QRESTModel.DAL;
+using QRESTModel.Units;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Mvc;
-using QRESTModel.Units;
 using System.Threading.Tasks;
-using System.Threading;
-using System.Net.Sockets;
-using System.Text;
-using QRESTModel.COMM;
+using System.Web.Mvc;
 
 namespace QREST.Controllers
 {
@@ -28,7 +23,7 @@ namespace QREST.Controllers
         // GET: Site
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("SiteList");
         }
 
 
@@ -83,7 +78,7 @@ namespace QREST.Controllers
             else
             {
                 TempData["Error"] = "You are not an Admin for this organization.";
-                return RedirectToAction("Dashboard", "Index");
+                return RedirectToAction("Index", "Dashboard");
             }
         }
 
@@ -96,10 +91,10 @@ namespace QREST.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
+                    int succId = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
                         model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null);
 
-                    if (SuccID == 1)
+                    if (succId == 1)
                         TempData["Success"] = "Record updated";
                     else
                         TempData["Error"] = "Error updating record.";
@@ -114,7 +109,7 @@ namespace QREST.Controllers
             else
             {
                 TempData["Error"] = "You are not an Admin for this organization.";
-                return RedirectToAction("Dashboard", "Index");
+                return RedirectToAction("Index", "Dashboard");
             }
         }
 
@@ -124,21 +119,17 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                Guid? SuccID = db_Account.InsertUpdateT_QREST_ORG_USERS(model.edit_user_idx, model.edit_org_id, model.edit_org_user_access_level, model.edit_org_user_status, "");
+                Guid? succId = db_Account.InsertUpdateT_QREST_ORG_USERS(model.edit_user_idx, model.edit_org_id, model.edit_org_user_access_level, model.edit_org_user_status, "");
 
-                if (SuccID != null)
+                if (succId != null)
                     TempData["Success"] = "Record updated";
                 else
                     TempData["Error"] = "Error updating record.";
             }
             else
                 TempData["Error"] = "Error updating record.";
-
-
-            if (model.edit_typ == "org")
-                return RedirectToAction("OrgEdit", "Site", new { id = model.edit_org_id });
-            else
-                return RedirectToAction("UserEdit", "Site", new { id = model.edit_user_idx });
+            
+            return RedirectToAction("OrgEdit", "Site", new { id = model.edit_org_id });
         }
 
 
@@ -249,15 +240,15 @@ namespace QREST.Controllers
                 RedirectToRouteResult r = CanAccessThisOrg(UserIDX, model.ORG_ID, true);
                 if (r != null) return r;
 
-                Guid? SuccId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
+                Guid? succId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
                     model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
                     model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR, model.AIRNOW_PWD, 
                     model.AIRNOW_ORG, model.AIRNOW_SITE, model.SITE_COMMENTS ?? "", UserIDX);
 
-                if (SuccId != null)
+                if (succId != null)
                 {
                     TempData["Success"] = "Record updated";
-                    return RedirectToAction("SiteEdit", "Site", new { id = SuccId });
+                    return RedirectToAction("SiteEdit", "Site", new { id = succId });
                 }
                 else
                     TempData["Error"] = "Error updating record.";
@@ -279,9 +270,9 @@ namespace QREST.Controllers
                 if (r != null) return Json("Access Denied.");
 
 
-                Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_NOTIFY(null, model.SITE_IDX, model.edit_notify_user_idx.ToString(), User.Identity.GetUserId());
+                Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_NOTIFY(null, model.SITE_IDX, model.edit_notify_user_idx.ToString(), User.Identity.GetUserId());
 
-                if (SuccID != null)
+                if (succId != null)
                     TempData["Success"] = "Record updated";
                 else
                     TempData["Error"] = "Error updating record.";
@@ -314,8 +305,8 @@ namespace QREST.Controllers
 
 
 
-                int SuccID = db_Air.DeleteT_QREST_SITE_NOTIFY(idg);
-                if (SuccID == 1)
+                int succId = db_Air.DeleteT_QREST_SITE_NOTIFY(idg);
+                if (succId == 1)
                     return Json("Success");
                 else
                     return Json("Unable to find record to delete.");
@@ -465,19 +456,13 @@ namespace QREST.Controllers
                     {
                         //split row's columns into string array
                         string[] cols = currentLine.Split('"');
-                        if (cols.Length > 0) //skip blank rows
+                        if (cols.Length > 0 && cols[9] != "None" && cols[9] == _org.AQS_AGENCY_CODE) //skip blank rows
                         {
-                            if (cols[9] != "None")
-                            {
-                                if (_org.AQS_AGENCY_CODE == cols[9])
-                                {
-                                    //check if QREST already has the site.
-                                    T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
-                                    if (_existSite == null)
-                                        db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null,
-                                            null, null, null, false, null, null, null, null, false, false, null, null, null, null, null, UserIDX);
-                                }
-                            }
+                            //check if QREST already has the site.
+                            T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
+                            if (_existSite == null)
+                                db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null,
+                                    null, null, null, false, null, null, null, null, false, false, null, null, null, null, null, UserIDX);
                         }
 
                     }
@@ -516,10 +501,10 @@ namespace QREST.Controllers
                     if (r != null) return Json("Access Denied.");
                 }
 
-                int SuccID = db_Air.DeleteT_QREST_SITES(idg);
-                if (SuccID == 1)
+                int succId = db_Air.DeleteT_QREST_SITES(idg);
+                if (succId == 1)
                     return Json("Success");
-                else if (SuccID == -1)
+                else if (succId == -1)
                     return Json("Cannot delete Site that still has monitor records. Delete monitors first.");
                 else
                     return Json("Unable to find site to delete.");
@@ -660,14 +645,14 @@ namespace QREST.Controllers
                         model.editTIME_POLL_TYPE = "L";
                     }
 
-                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
+                    Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
                         model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
                         model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE, true, model.editPOLL_LOG_DESC, null);
 
-                    if (SuccID != null)
+                    if (succId != null)
                     {
                         TempData["Success"] = "Record updated";
-                        return RedirectToAction("SitePollConfig", new { id = model.SITE_IDX, configid = SuccID });
+                        return RedirectToAction("SitePollConfig", new { id = model.SITE_IDX, configid = succId });
                     }
                     else
                         TempData["Error"] = "Error updating record.";
@@ -693,8 +678,8 @@ namespace QREST.Controllers
                 RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(idg), true);
                 if (r != null) return Json("Access Denied");
 
-                int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG(idg);
-                if (SuccID == 1)
+                int succId = db_Air.DeleteT_QREST_SITE_POLL_CONFIG(idg);
+                if (succId == 1)
                     return Json("Success");
                 else
                     return Json("Unable to find polling configuration to delete.");
@@ -734,8 +719,8 @@ namespace QREST.Controllers
                         RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _site.ORG_ID, true);
                         if (r != null) return Json(new { msg = "Access Denied" });
 
-                        Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(configdtlid, configid, monid, col, sumtype, rounding, adjustfactor);
-                        if (SuccID != null)
+                        Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(configdtlid, configid, monid, col, sumtype, rounding, adjustfactor);
+                        if (succId != null)
                             return Json(new { msg = "Success" });
 
                     }
@@ -760,30 +745,14 @@ namespace QREST.Controllers
                 if (r != null) 
                     return Json("Access Denied");
 
-                int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg);
-                if (SuccID == 1)
+                int succId = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg);
+                if (succId == 1)
                     return Json("Success");
                 else
                     return Json("Unable to find column mapping to delete.");
             }
         }
 
-
-
-        public ActionResult DownloadTemplateBySite(Guid? id)
-        {
-
-            T_QREST_SITE_POLL_CONFIG _pol = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(id ?? Guid.Empty);
-            if (id != null)
-            {
-                return RedirectToAction("DownloadTemplate", new { id = _pol.POLL_CONFIG_IDX });
-            }
-            else
-            {
-                TempData["Error"] = "Unable to find configuration";
-                return RedirectToAction("ManualImport");
-            }
-        }
 
 
         public ActionResult SitePollPing(Guid? id)
@@ -833,10 +802,10 @@ namespace QREST.Controllers
                 if (_site != null)
                 {
                     //take offline
-                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(id, null, null, null, null, null, null, null, null,
+                    Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(id, null, null, null, null, null, null, null, null,
                     null, null, null, null, null, null, false, UserIDX, _site.SITE_NAME, null);
 
-                    if (SuccID != null)
+                    if (succId != null)
                     {
                         TempData["Success"] = "Configuration Taken Offline";
                         return RedirectToAction("SitePollConfig", new { configid = id });
@@ -936,6 +905,8 @@ namespace QREST.Controllers
             if (_config.LOGGER_TYPE == "WEATHER_PWS")
             {
                 bool xxx = await LoggerComm.RetrieveWeatherCompanyPWS(_config);
+                if (xxx == false)
+                    TempData["Error"] = "Weather station not returning valid data";
             }
 
             return RedirectToAction("SitePollConfig", new { configid = id });
@@ -1047,7 +1018,7 @@ namespace QREST.Controllers
             if (model.MONITOR_IDX == null && model.POC != null && model.PAR_METHOD_IDX != null)
             {
                 T_QREST_MONITORS _exist = db_Air.GetT_QREST_MONITORS_bySiteIDX_ParMethod_POC(model.SITE_IDX.ConvertOrDefault<Guid>(), model.PAR_METHOD_IDX.ConvertOrDefault<Guid>(), model.POC.GetValueOrDefault());
-                if (_exist != null && _exist.PAR_METHOD_IDX != null)
+                if (_exist != null)
                     ModelState.AddModelError("POC", "This parameter / method / POC already exists for this site.");
             }
 
@@ -1144,19 +1115,23 @@ namespace QREST.Controllers
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">id is selected par method idx</param>
+        /// <param name="id2">id2 is monitor idx</param>
+        /// <returns></returns>
         [HttpPost]
-        public JsonResult MonitorEditMethod(string id)
+        public JsonResult MonitorEditMethod(Guid? id, Guid? id2)
         {
-            if (id == null)
+            if (id == null || id2 == null)
                 return Json("No record selected");
             else
             {
-                Guid idg = new Guid(id);
-                Guid parMethodIDX = Guid.Empty;
                 string UserIDX = User.Identity.GetUserId();
 
-                Guid? SuccID = db_Air.InsertUpdatetT_QREST_MONITORS(idg, null, parMethodIDX, null, null, null, null, null, null, null, null, null, null, null, null, UserIDX);
-                if (SuccID != null)
+                Guid? succId = db_Air.InsertUpdatetT_QREST_MONITORS(id2.GetValueOrDefault(), null, id.GetValueOrDefault(), null, null, null, null, null, null, null, null, null, null, null, null, UserIDX);
+                if (succId != null)
                     return Json("Success");
                 else
                     return Json("Unspecified error attempting to delete monitor.");
@@ -1277,13 +1252,6 @@ namespace QREST.Controllers
         {
             string UserIDX = User.Identity.GetUserId();
 
-            //if user hasn't selected an org, return view now
-            if (model.siteIDX == null)
-            {
-                TempData["Error"] = "Site not found";
-                return View(model);
-            }
-
             //// check security (whether can update)
             //if (db_Account.CanAccessThisOrg(UserIDX, model.selOrgID, true) == false)
             //{
@@ -1302,7 +1270,7 @@ namespace QREST.Controllers
             int i = 0;
             foreach (var item in model.ImportMonitors)
             {
-                if (item.T_QREST_MONITORS.MONITOR_IDX != null && item.monSelInd == true)
+                if (item.monSelInd)
                 {
                     i++;
                     db_Air.InsertUpdatetT_QREST_MONITORS(null, model.siteIDX, item.T_QREST_MONITORS.PAR_METHOD_IDX, item.T_QREST_MONITORS.POC,
@@ -1332,8 +1300,8 @@ namespace QREST.Controllers
 
                 if (hrCnt == 0 && qcCnt == 0)
                 {
-                    int SuccID = db_Air.DeleteT_QREST_MONITORS(idg);
-                    if (SuccID == 1)
+                    int succId = db_Air.DeleteT_QREST_MONITORS(idg);
+                    if (succId == 1)
                         return Json("Success");
                     else
                         return Json("Unspecified error attempting to delete monitor.");

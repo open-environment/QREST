@@ -211,6 +211,7 @@ namespace QREST.Models
         public int ImportValErrorCount { get; set; }
         public int ImportSuccCount { get; set; }
         public List<T_QREST_DATA_IMPORT_TEMP> TempDupRecords { get; set; }
+        public double durationSecs { get; set; }
     }
 
 
@@ -257,6 +258,7 @@ namespace QREST.Models
         public DateTime selDtStart { get; set; }
         public DateTime selDtEnd { get; set; }
         public string selDuration { get; set; }
+        public string selMode { get; set; } //set to a for AQS mode (used for return URL)
 
 
         public List<RawDataDisplay> RawData { get; set; }
@@ -367,7 +369,6 @@ namespace QREST.Models
 
 
         public IEnumerable<SelectListItem> ddl_AQSTransType { get; set; }
-        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_Sites { get; set; }
         public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
         public IEnumerable<SelectListItem> ddl_AQSFormat { get; set; }

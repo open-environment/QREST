@@ -33,22 +33,21 @@ namespace QRESTModel.BLL
 
 
 
-        public static bool ImportOrchestrator()
-        {
-            //select all those that are STARTED
-            List<T_QREST_DATA_IMPORTS> _imports = db_Air.GetT_QREST_DATA_IMPORTS_ByStatus("STARTED");
-            if (_imports != null)
-            {
-                foreach (T_QREST_DATA_IMPORTS _import in _imports)
-                {
-                    ImportValidateAndSaveToTemp(_import.IMPORT_IDX);
-                }
-            }
+        //public static bool ImportOrchestrator()
+        //{
+        //    //select all those that are STARTED
+        //    List<T_QREST_DATA_IMPORTS> _imports = db_Air.GetT_QREST_DATA_IMPORTS_ByStatus("STARTED");
+        //    if (_imports != null)
+        //    {
+        //        foreach (T_QREST_DATA_IMPORTS _import in _imports)
+        //        {
 
-            return true;
+        //            ImportValidateAndSaveToTemp(_import.IMPORT_IDX);
+        //        }
+        //    }
 
-
-        }
+        //    return true;
+        //}
 
 
 
@@ -84,32 +83,27 @@ namespace QRESTModel.BLL
                 //**************************************************************************************
                 if (_import.IMPORT_TYPE == "F" || _import.IMPORT_TYPE == "H")
                 {
-                    char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
-                    int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
-                    int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
-
                     //get polling config dtl
                     List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, false);
 
-                    //import
-                    foreach (string row in allRows)
-                    {
-                        //split row's columns into string array
-                        string[] cols = row.Split(delimiter, StringSplitOptions.None);
-                        if (cols.Length > 2) //skip blank rows
-                        {
-                            foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
-                            {
-                                string val = cols[(_item.COL ?? 1) - 1].ToString().Trim();
+                    //NEW WAY
+                    AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H(allRows, _pollConfig, _pollConfigDtl, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
 
-                                T_QREST_DATA_IMPORT_TEMP _temp = db_Air.InsertT_QREST_DATA_IMPORT_TEMP(_item.MONITOR_IDX, cols[dateCol].ToString().Trim() + " " + cols[timeCol].ToString().Trim(), _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, val, _item.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
-                                //ImportResponse xxx = db_Air.ImportT_QREST_DATA_FIVE_MIN(_item.MONITOR_IDX, dt, double.TryParse(val, out _) ? val : null, _item.COLLECT_UNIT_CODE, model.selCalc == "N" ? true : false, "", model.selCalc == "N" ? new DateTime(1888, 8, 8) : System.DateTime.Now, importIDX, _pollConfig.TIME_POLL_TYPE, _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>());
-
-                                if (_temp.IMPORT_DUP_IND == true || _temp.IMPORT_VAL_IND == false)
-                                    AnyDupsOrErrors = true;
-                            }
-                        }
-                    }
+                    ////OLD WAY
+                    //foreach (string row in allRows)
+                    //{
+                    //    //split row's columns into string array
+                    //    string[] cols = row.Split(delimiter, StringSplitOptions.None);
+                    //    if (cols.Length > 2) //skip blank rows
+                    //    {
+                    //        foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
+                    //        {
+                    //            T_QREST_DATA_IMPORT_TEMP _temp = db_Air.InsertT_QREST_DATA_IMPORT_TEMP(_item.MONITOR_IDX, cols[dateCol].ToString().Trim() + " " + cols[timeCol].ToString().Trim(), _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, cols[(_item.COL ?? 1) - 1].ToString().Trim(), _item.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
+                    //            if (_temp.IMPORT_DUP_IND == true || _temp.IMPORT_VAL_IND == false)
+                    //                AnyDupsOrErrors = true;
+                    //        }
+                    //    }
+                    //}
 
                 }
 
@@ -121,22 +115,24 @@ namespace QRESTModel.BLL
                     T_QREST_MONITORS _monitor = db_Air.GetT_QREST_MONITORS_ByID_Simple(_import.MONITOR_IDX ?? Guid.Empty);
                     if (_monitor != null)
                     {
-                        foreach (string row in allRows)
-                        {
-                            //split row's columns into string array
-                            string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
-                            if (cols.Length > 20 && cols[0] != "Date") //skip blank rows
-                            {
-                                for (int i = 0; i <= 23; i++)
-                                {
-                                    T_QREST_DATA_IMPORT_TEMP _temp = db_Air.InsertT_QREST_DATA_IMPORT_TEMP(_import.MONITOR_IDX.GetValueOrDefault(), cols[0] + " " + i + ":00", _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, cols[i + 1], _monitor.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
-                                    //ImportResponse xxx = db_Air.InsertUpdateT_QREST_DATA_HOURLY(_monitor.MONITOR_IDX, model.selTimeType == "L" ? dt : (DateTime?)null, model.selTimeType == "U" ? dt : (DateTime?)null, tzOffset, double.TryParse(cols[i + 1], out _) ? cols[i + 1] : null, _monitor.COLLECT_UNIT_CODE, true, double.TryParse(cols[i + 1], out _) ? null : cols[i + 1], importID);
+                        //NEW WAY
+                        AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H1(allRows, new char[] { ',' }, _import.MONITOR_IDX.GetValueOrDefault(), _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, _monitor.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
 
-                                    if (_temp == null || _temp.IMPORT_DUP_IND == true || _temp.IMPORT_VAL_IND == false)
-                                        AnyDupsOrErrors = true;
-                                }
-                            }
-                        }
+                        ////OLD WAY
+                        //foreach (string row in allRows)
+                        //{
+                        //    //split row's columns into string array
+                        //    string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
+                        //    if (cols.Length > 20 && cols[0] != "Date") //skip blank rows
+                        //    {
+                        //        for (int i = 0; i <= 23; i++)
+                        //        {
+                        //            T_QREST_DATA_IMPORT_TEMP _temp = db_Air.InsertT_QREST_DATA_IMPORT_TEMP(_import.MONITOR_IDX.GetValueOrDefault(), cols[0] + " " + i + ":00", _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, cols[i + 1], _monitor.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
+                        //            if (_temp == null || _temp.IMPORT_DUP_IND == true || _temp.IMPORT_VAL_IND == false)
+                        //                AnyDupsOrErrors = true;
+                        //        }
+                        //    }
+                        //}
                     }
 
 

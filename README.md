@@ -40,6 +40,7 @@ We are always open to [your feedback](https://github.com/open-environment/QREST/
 QREST development has benefitted from the following open source partnerships programs:
 
 BrowserStack | Resharper
+------------ | -------------
 QREST uses Browserstack to perform automated application testing on the latest deployed solution to the test environment. | JetBrains provided a free open source license for Resharper, to aid in code analysis and code standardization. 
 
 [![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=Sm5jWFJqcDVkZEZMUE9WVUw2TzJ5cTBYS1FHZVRrRWFvNDVPOUdLSERtRT0tLW0zeC9jS1NML3plV0s2MmpsOWg5RGc9PQ==--c20c975e4629edd13e4548bed839e172bd1a8238)](https://automate.browserstack.com/public-build/Sm5jWFJqcDVkZEZMUE9WVUw2TzJ5cTBYS1FHZVRrRWFvNDVPOUdLSERtRT0tLW0zeC9jS1NML3plV0s2MmpsOWg5RGc9PQ==--c20c975e4629edd13e4548bed839e172bd1a8238) | 

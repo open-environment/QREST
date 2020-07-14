@@ -36,7 +36,7 @@ QREST is a set of software tools that includes the following features:
 We are always open to [your feedback](https://github.com/open-environment/QREST/issues).
 
 
-## Thanks go to
+## Open Source Partnership Programs
 QREST development has benefitted from the following open source partnerships programs:
 
 BrowserStack | Resharper

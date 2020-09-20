@@ -31,7 +31,7 @@ CREATE TABLE [dbo].[T_QREST_DATA_IMPORT_TEMP](
 GO
 
 
---&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[[SP_RPT_ANNUAL_SUMS]]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_IMPORT_DATA_FROM_TEMP]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 CREATE   PROCEDURE [dbo].[SP_IMPORT_DATA_FROM_TEMP] 
 	@import_idx uniqueidentifier
 AS

@@ -11,7 +11,7 @@
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">
         Parameters
-        <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
+        <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
     </header>
     <div class="panel-body">
         <div class="table-responsive">
@@ -29,13 +29,13 @@
                 </table>
             </div>
         </div>
-        <a id="add-it" href="#modal-form1" data-toggle="modal" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add Non-AQS Parameter</a>
+        <a id="add-it" href="#modal-form" data-toggle="modal" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add Non-AQS Parameter</a>
     </div>
 </section>
 
 
-<!-- START NOTIFY MODAL  -->
-<div class="modal fade" id="modal-form1" style="display: none;" aria-hidden="true">
+<!-- START EDIT MODAL  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog" style="width:600px">
 
         @using (Html.BeginForm("RefParEdit", "Admin", FormMethod.Post))
@@ -53,13 +53,13 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Parameter Code</label>
-                                @Html.TextBoxFor(model => model.editPAR_CODE, new { @class = "form-control", @maxlength = "6", @readonly = "readonly" })
+                                @Html.TextBoxFor(model => model.editPAR_CODE, new { @class = "form-control", maxlength = "6", @readonly = "readonly" })
                             </div>
                         </div>
                         <div class="col-md-9">
                             <div class="form-group">
                                 <label>Parameter Name</label>
-                                @Html.TextBoxFor(model => model.editPAR_NAME, new { @class = "form-control", @maxlength = "100" })
+                                @Html.TextBoxFor(model => model.editPAR_NAME, new { @class = "form-control", maxlength = "100" })
                             </div>
                         </div>
                     </div>
@@ -83,6 +83,7 @@
 <!-- END NOTIFY MODAL -->
 
 @section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/datatables")
     @Scripts.Render("~/bundles/confirm-delete")
 
@@ -108,16 +109,18 @@
                     "datatype": "json"
                 },
                 "columnDefs":
-                    [{
+                    [
+                        {
                         "targets": [0],
                         "orderable" : false
-                        },
+                        }
                     ],
                 "columns": [
                     {
                         "render": function (data, type, row) {
-                            if (row.AQS_IND == false) {
-                                return '<a href="#" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
+                            if (row.AQS_IND === false) {
+                                return '<a href="#modal-form" data-toggle="modal" data-id="' + row.PAR_CODE + '" ' +
+                                    'class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
                                     + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
                                     + row.PAR_CODE + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/RefParDelete"><b>Confirm Delete</b></div></div>';
                             }
@@ -131,14 +134,19 @@
                     { "data": "CAS_NUM", "name": "CAS_NUM", "autoWidth": true },
                     { "data": "STD_UNIT_CODE", "name": "STD_UNIT_CODE", "autoWidth": true }
                 ],
-                "createdRow": function (row, data, dataIndex) {
+                "createdRow": function (row) {
                     $('td:eq(0)', row).css('width', '90px');
                     $('td:eq(0)', row).css('min-width', '90px');
-                    $('td:eq(0)', row).css('padding-right', '0px');
+                    $('td:eq(0)', row).css('padding-right', '0');
                     $('td:eq(0)', row).css('white-space', 'nowrap');
                 }
             });
 
+
+            //load modal
+            $(document).on('click', '.modal-it', function () {
+                $("#editPAR_CODE").val($(this).attr('data-id'));
+            });
         });
 
     </script>

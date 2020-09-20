@@ -63,7 +63,7 @@
                                 <td>
                                     @Html.DisplayFor(modelItem => item.POC)
                                 </td>
-                                <td>
+                                <td data-sort='@item.DATA_DTTM.GetValueOrDefault().ToString("yyyy-M-d HH-mm")'>
                                     @Html.DisplayFor(modelItem => item.DATA_DTTM)
                                 </td>
                                 <td>
@@ -106,7 +106,7 @@
                 "scrollY": "400px",
                 "scrollCollapse": true,
                 "paging": false,
-                "searching": false,
+                "searching": false
             });
 
             var dataPointsA = [];

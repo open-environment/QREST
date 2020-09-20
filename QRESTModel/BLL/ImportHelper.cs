@@ -83,28 +83,7 @@ namespace QRESTModel.BLL
                 //**************************************************************************************
                 if (_import.IMPORT_TYPE == "F" || _import.IMPORT_TYPE == "H")
                 {
-                    //get polling config dtl
-                    List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, false);
-
-                    //NEW WAY
-                    AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H(allRows, _pollConfig, _pollConfigDtl, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
-
-                    ////OLD WAY
-                    //foreach (string row in allRows)
-                    //{
-                    //    //split row's columns into string array
-                    //    string[] cols = row.Split(delimiter, StringSplitOptions.None);
-                    //    if (cols.Length > 2) //skip blank rows
-                    //    {
-                    //        foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
-                    //        {
-                    //            T_QREST_DATA_IMPORT_TEMP _temp = db_Air.InsertT_QREST_DATA_IMPORT_TEMP(_item.MONITOR_IDX, cols[dateCol].ToString().Trim() + " " + cols[timeCol].ToString().Trim(), _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, cols[(_item.COL ?? 1) - 1].ToString().Trim(), _item.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
-                    //            if (_temp.IMPORT_DUP_IND == true || _temp.IMPORT_VAL_IND == false)
-                    //                AnyDupsOrErrors = true;
-                    //        }
-                    //    }
-                    //}
-
+                    AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H(allRows, _pollConfig, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
                 }
 
                 //**************************************************************************************
@@ -115,38 +94,19 @@ namespace QRESTModel.BLL
                     T_QREST_MONITORS _monitor = db_Air.GetT_QREST_MONITORS_ByID_Simple(_import.MONITOR_IDX ?? Guid.Empty);
                     if (_monitor != null)
                     {
-                        //NEW WAY
                         AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H1(allRows, new char[] { ',' }, _import.MONITOR_IDX.GetValueOrDefault(), _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, _monitor.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
-
-                        ////OLD WAY
-                        //foreach (string row in allRows)
-                        //{
-                        //    //split row's columns into string array
-                        //    string[] cols = row.Split(new char[] { ',' }, StringSplitOptions.None);
-                        //    if (cols.Length > 20 && cols[0] != "Date") //skip blank rows
-                        //    {
-                        //        for (int i = 0; i <= 23; i++)
-                        //        {
-                        //            T_QREST_DATA_IMPORT_TEMP _temp = db_Air.InsertT_QREST_DATA_IMPORT_TEMP(_import.MONITOR_IDX.GetValueOrDefault(), cols[0] + " " + i + ":00", _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, cols[i + 1], _monitor.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
-                        //            if (_temp == null || _temp.IMPORT_DUP_IND == true || _temp.IMPORT_VAL_IND == false)
-                        //                AnyDupsOrErrors = true;
-                        //        }
-                        //    }
-                        //}
                     }
-
-
                 }
 
-                //update status to VALIDATING
+                //update status to VALIDATED
                 db_Air.InsertUpdateT_QREST_DATA_IMPORTS(_import.IMPORT_IDX, null, null, null, "VALIDATED", null, null, null, null, null, null, null);
 
 
                 //if there are no errors or dups, then just continue on with import
                 if (AnyDupsOrErrors == false)
-                {
                     ImportFinal(_import.IMPORT_IDX);
-                }
+
+
                 return true;
             }
             else
@@ -162,7 +122,17 @@ namespace QRESTModel.BLL
         /// <returns></returns>
         public static bool ImportFinal(Guid iMPORT_IDX)
         {
+            //copy from temp table to real table
             db_Air.SP_IMPORT_DATA_FROM_TEMP(iMPORT_IDX);
+
+
+            //if hourly data is being imported, and user selected to revalidate, then revalidate
+            T_QREST_DATA_IMPORTS _imp = db_Air.GetT_QREST_DATA_IMPORTS_byID(iMPORT_IDX);
+            if (_imp != null && (_imp.IMPORT_TYPE== "H1" || _imp.IMPORT_TYPE == "H") && _imp.RECALC_IND==true)
+            {
+                //run min/max validation on data
+                db_Air.SP_VALIDATE_HOURLY_IMPORT(iMPORT_IDX);
+            }
 
             return true;
         }

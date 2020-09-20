@@ -947,7 +947,7 @@ namespace QREST.Controllers
                 if (r != null) return r;
 
                 model.SITE_IDX = siteIDX;
-                model.ddl_Unit = ddlHelpers.get_ddl_ref_units(null);
+                model.ddl_Unit = ddlHelpers.get_ddl_ref_units_with_code_too(null);
             }
 
             //update case
@@ -978,7 +978,7 @@ namespace QREST.Controllers
                     model.ALERT_MAX_TYPE = _monitor.T_QREST_MONITORS.ALERT_MAX_TYPE;
                     model.ALERT_AMT_CHANGE_TYPE = _monitor.T_QREST_MONITORS.ALERT_AMT_CHANGE_TYPE;
                     model.ALERT_STUCK_TYPE = _monitor.T_QREST_MONITORS.ALERT_STUCK_TYPE;
-                    model.ddl_Unit = ddlHelpers.get_ddl_ref_units(_monitor.PAR_CODE);
+                    model.ddl_Unit = ddlHelpers.get_ddl_ref_units_with_code_too(_monitor.PAR_CODE);
 
                 }
                 else

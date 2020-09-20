@@ -178,30 +178,30 @@ namespace QREST.Models
         /// <summary>
         /// Leave OrgID blank to list all monitors the user has access to
         /// </summary>
-        /// <param name="OrgID"></param>
-        /// <param name="UserIDX"></param>
+        /// <param name="orgId"></param>
+        /// <param name="userIdx"></param>
         /// <returns></returns>
-        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string OrgID, string UserIDX, bool dispUnit)
+        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string orgId, string userIdx, bool dispUnit)
         {
-            return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(orgId, userIdx).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
                 Text = "Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC + (dispUnit == true ? " | " + x.UNIT_DESC : "")
             });
         }
 
-        public static IEnumerable<SelectListItem> get_monitors_by_site(Guid SiteIDX, bool dispUnit, bool dispPOC)
+        public static IEnumerable<SelectListItem> get_monitors_by_site(Guid siteIdx, bool dispUnit, bool dispPOC)
         {
-            return db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(SiteIDX).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(siteIdx).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
                 Text = "Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | Method: " + x.METHOD_CODE + (dispPOC==true ? " | " + x.T_QREST_MONITORS.POC : "") + (dispUnit == true ? " | " + x.UNIT_DESC : "")
             });
         }
 
-        public static IEnumerable<SelectListItem> get_monitors_sampled_by_site(Guid SiteIDX)
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_site(Guid siteIdx)
         {
-            var yyy = db_Air.GetT_QREST_MONITORS_Display_SampledBySiteIDX(SiteIDX);
+            var yyy = db_Air.GetT_QREST_MONITORS_Display_SampledBySiteIDX(siteIdx);
             var zzz = yyy.Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
@@ -211,28 +211,28 @@ namespace QREST.Models
             return zzz;
         }
 
-        public static IEnumerable<SelectListItem> get_monitors_sampled_by_org(string orgID)
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_org(string orgId)
         {
-            return db_Air.GetT_QREST_MONITORS_Display_SampledByOrgID(orgID).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_MONITORS_Display_SampledByOrgID_ForDdl(orgId).Select(x => new SelectListItem
+            {
+                Value = x.MONITOR_IDX.ToString(),
+                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.POC
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_user(string userIdx)
+        {
+            return db_Air.GetT_QREST_MONITORS_Display_SampledByUser(userIdx).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
                 Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
             });
         }
 
-        public static IEnumerable<SelectListItem> get_monitors_sampled_by_user(string userIDX)
-        {
-            return db_Air.GetT_QREST_MONITORS_Display_SampledByUser(userIDX).Select(x => new SelectListItem
-            {
-                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
-                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
-            });
-        }
 
-
-        public static IEnumerable<SelectListItem> get_monitors_sampled_by_user_qc_type(string userIDX, string QCtype)
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_user_qc_type(string userIdx, string QCtype)
         {
-            return db_Air.GetT_QREST_MONITORS_Display_ByUser_QCType(userIDX, QCtype).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_MONITORS_Display_ByUser_QCType(userIdx, QCtype).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
                 Text = "Org: " + x.ORG_ID + " | Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC + " | " + x.UNIT_DESC
@@ -330,6 +330,16 @@ namespace QREST.Models
             {
                 Value = x.UNIT_CODE,
                 Text = x.UNIT_DESC
+            });
+        }
+
+
+        public static IEnumerable<SelectListItem> get_ddl_ref_units_with_code_too(string parCode)
+        {
+            return db_Ref.GetT_QREST_REF_UNITS(parCode).Select(x => new SelectListItem
+            {
+                Value = x.UNIT_CODE,
+                Text = x.UNIT_CODE + " - " + x.UNIT_DESC
             });
         }
 

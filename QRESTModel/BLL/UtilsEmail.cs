@@ -3,6 +3,7 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -146,6 +147,14 @@ namespace QRESTModel.BLL
         {
             try
             {
+                //******************** VALIDATION ********************************************
+                var foo = new EmailAddressAttribute();
+                if (foo.IsValid(from) == false)
+                {
+                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Invalid FROM email. Check global config.");
+                    return false;
+                }
+
                 var client = new SendGridClient(apiKey);
 
                 //******************** CONSTRUCT EMAIL ********************************************
@@ -161,7 +170,7 @@ namespace QRESTModel.BLL
                     bodyHTML = bodyHTML.Replace("\r\n", "<br>");
                     msg.AddContent(MimeType.Html, bodyHTML);
                 }
-                msg.From = new EmailAddress(from);
+                msg.From = new EmailAddress(from, "QREST");
                 msg.AddTo(to);
 
                 foreach (string cc1 in cc ?? Enumerable.Empty<string>())
@@ -181,7 +190,7 @@ namespace QRESTModel.BLL
                 else if (response.StatusCode == HttpStatusCode.Unauthorized)
                     db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Sendgrid call fails authorization");
                 else
-                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Unknown send error");
+                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Unknown send error: " + response.StatusCode);
 
                 return false;
                 //************************************************************************************

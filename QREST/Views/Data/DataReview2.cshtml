@@ -75,11 +75,11 @@
                     <tbody>
                         @for (int i = 0; i < Model.RawData.Count; i++)
                         {
+                            string dtSortVal = Model.RawData[i].DATA_DTTM.GetValueOrDefault().ToString("yyyy-M-d HH-mm"); 
 
                             <tr class="irow" data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
                                 <td>
                                     @Html.HiddenFor(model => model.RawData[i].DATA_RAW_IDX, new { @class = "id1" })
-                                    @*@Html.EditorFor(model => model.RawData[i].EditInd, new { @class = "chk1" })*@
                                 </td>
                                 <td>
                                     @Html.DisplayFor(model => model.RawData[i].SITE_ID)
@@ -93,7 +93,7 @@
                                 <td>
                                     @Html.DisplayFor(model => model.RawData[i].POC)
                                 </td>
-                                <td>
+                                <td data-sort='@dtSortVal'>
                                     @Html.DisplayFor(model => model.RawData[i].DATA_DTTM)
                                 </td>
                                 <td>
@@ -286,7 +286,7 @@
                                                 <div class="form-group">
                                                     <label>Notes</label>
                                                     <br />
-                                                    @Html.TextAreaFor(model => model.editNotes, new { @class = "form-control", @style = "width:100%" })
+                                                    @Html.TextAreaFor(model => model.editNotes, new { @class = "form-control", @style = "width:100%", @maxlength="100" })
                                                     @Html.ValidationMessageFor(model => model.editNotes)
                                                 </div>
                                             </div>
@@ -617,7 +617,7 @@
                     }
                 },
                 { "data": "NOTES", "name": "NOTES", "autoWidth": true },
-                { "data": "USER_NAME", "name": "USER_NAME", "autoWidth": true },
+                { "data": "USER_NAME", "name": "USER_NAME", "autoWidth": true }
             ]
         });
     })
@@ -627,18 +627,22 @@
     $('#btnSave').on('click', function (e) {
         e.preventDefault();
         var arrayOfValues = [];
+        $("input[id=editRawDataIDX]").remove();
 
         $('#gridData tr.selected').each(function () {
             arrayOfValues.push($(this).find('.id1').val());
         });
 
         $.each(arrayOfValues, function (index, val) {
+            console.log('hi');
             $("#norepostform").append('<input id="editRawDataIDX" name="editRawDataIDX" type="hidden" value="' + val + '">');
         });
 
         $("#norepostform").submit(); 
     });
 
+
+    //make user click confirm when marking records for deletion
     $(document).on('click', 'a.confirm-link', function () {
         var deleteLink = $(this);
         deleteLink.hide();

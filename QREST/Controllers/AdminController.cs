@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Windows.Forms;
 
 namespace QREST.Controllers
 {
@@ -982,9 +983,9 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                bool SuccInd = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(model.editPAR_CODE, model.editPAR_NAME, null, null, model.editSTD_UNIT_CODE, false, true, User.Identity.GetUserId());
+                bool succInd = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(model.editPAR_CODE, model.editPAR_NAME, null, null, model.editSTD_UNIT_CODE, false, true, User.Identity.GetUserId());
 
-                if (SuccInd)
+                if (succInd)
                     TempData["Success"] = "Record updated";
                 else
                     TempData["Error"] = "Error updating record.";
@@ -1003,11 +1004,14 @@ namespace QREST.Controllers
                 return Json("No record selected to delete");
             else
             {
-                int SuccID = db_Ref.DeleteT_QREST_REF_PARAMETERS(id);
-                if (SuccID == 1)
+                if (db_Ref.GetT_QREST_REF_PAR_METHODS_CountByPar(id))
+                    return Json("This record cannot be deleted because a parameter method exists for it, which must be deleted first.");
+
+                int succId = db_Ref.DeleteT_QREST_REF_PARAMETERS(id);
+                if (succId == 1)
                     return Json("Success");
                 else
-                    return Json("This record cannot be deleted. If this parameter has parameter methods, they may need to be deleted first.");
+                    return Json("This record cannot be deleted. There may be data or a monitor configure to use it.");
             }
         }
 
@@ -1024,7 +1028,7 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid && model.editPAR_METHOD_IDX != null)
             {
-                Tuple<string, string> SuccInd = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(model.editPAR_METHOD_IDX, null, null, null, null, null, null, null, null, null, null, null,
+                Tuple<string, string> SuccInd = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(model.editPAR_METHOD_IDX, null, null, null, model.editCOLLECTION_DESC, null, null, null, null, null, null, null,
                     model.editCUST_MIN_VALUE ?? -9999, model.editCUST_MAX_VALUE ?? -9999, User.Identity.GetUserId());
 
                 if (SuccInd.Item1 == "U")
@@ -1052,6 +1056,25 @@ namespace QREST.Controllers
             List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(selSearch, null, pageSize, start);
             var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(selSearch, null);
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
+        [HttpPost]
+        public JsonResult RefParMethDelete(string id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                Guid idg = Guid.Parse(id);
+                if (db_Air.GetT_QREST_MONITORS_AnyByParMethodIdx(idg))
+                    return Json("This record cannot be deleted because a monitor is currently using it. Delete the site's monitor first.");
+
+                if (db_Ref.DeleteT_QREST_REF_PAR_METHODS(idg))
+                    return Json("Success");
+                else
+                    return Json("This record cannot be deleted. There may be data or a monitor configure to use it.");
+            }
         }
 
 

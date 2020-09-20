@@ -376,6 +376,7 @@ BEGIN
 	--20200324 change from UTC to local time
 	--20200416 changed from hardcode month to variable date range for documents
 	--20200616 add POC
+	--20200727 made not AQS ready if unit is missing
 	DECLARE @totHrs int = 1;
 
 
@@ -399,7 +400,7 @@ BEGIN
 			) as doc_cnt
 	from
 	(select H.MONITOR_IDX, 1 as rec, 
-		case when isnumeric(H.data_value)=0 and H.AQS_NULL_CODE is null then 0 else 1 end as aqs_ready, 
+		case when isnumeric(H.data_value)=0 and H.AQS_NULL_CODE is null then 0 when H.UNIT_CODE is null then 0 else 1 end as aqs_ready, 
 		isnull(H.lvl1_val_ind,0) as lvl1_val_ind, 
 		isnull(H.lvl2_val_ind,0) as lvl2_val_ind
 		from T_QREST_DATA_HOURLY H,T_QREST_MONITORS M
@@ -585,11 +586,20 @@ BEGIN
 	-------------------------
 	--1. returns monthly summary of air monitoring data
 
+	--CHANGE LOG
+	---------------------------
+	--8/24/2020 Fix counting error if multiple polling configs for a monitor
+
+	DECLARE @rounding int;
 --	DECLARE @monid uniqueidentifier;
 --	DECLARE @mn int, @yr int;
 --	set @monid = '4537f9ea-bb4f-488f-90b8-59d58d72c41a';
 --	set @mn = 10;
 --	set @yr = 2019;
+
+	select top 1 @rounding = rounding from T_QREST_SITE_POLL_CONFIG_DTL where [MONITOR_IDX]=@monid and ROUNDING is not null;
+	if @rounding is null
+		set @rounding = 2;
 
 	IF @timetype='U'
 		BEGIN
@@ -604,14 +614,13 @@ BEGIN
 				DATEPART(DAY, HR) AS DAY1, 
 				MAX(cast(DATA_VALUE as float)) as MAX,
 				MIN(cast(DATA_VALUE as float)) as MIN,
-				round(AVG(cast(DATA_VALUE as float)),max(d.ROUNDING)) as AVG,
-				round(STDEV(cast(DATA_VALUE as float)),max(d.ROUNDING)) as STDEV			
+				round(AVG(cast(DATA_VALUE as float)),@rounding) as AVG,
+				round(STDEV(cast(DATA_VALUE as float)),@rounding) as STDEV			
 				,count(*) as CNT
 			FROM 
 				T_SYS_HR S left join [T_QREST_DATA_HOURLY] p on S.HR=p.DATA_DTTM_UTC and MONITOR_IDX = @monid and ISNUMERIC(p.DATA_VALUE)=1
-				left join T_QREST_SITE_POLL_CONFIG_DTL d on p.MONITOR_IDX=d.MONITOR_IDX
-					where MONTH(HR)=@mn
-					and YEAR(HR)=@yr
+				where MONTH(HR)=@mn
+				and YEAR(HR)=@yr
 			GROUP BY DATEPART(DAY, HR) 
 			) Z
 			ORDER BY Z.DAY1;
@@ -629,14 +638,13 @@ BEGIN
 				DATEPART(DAY, HR) AS DAY1, 
 				MAX(cast(DATA_VALUE as float)) as MAX,
 				MIN(cast(DATA_VALUE as float)) as MIN,
-				round(AVG(cast(DATA_VALUE as float)),max(d.ROUNDING)) as AVG,
-				round(STDEV(cast(DATA_VALUE as float)),max(d.ROUNDING)) as STDEV			
+				round(AVG(cast(DATA_VALUE as float)),@rounding) as AVG,
+				round(STDEV(cast(DATA_VALUE as float)),@rounding) as STDEV			
 				,count(*) as CNT
 			FROM 
 				T_SYS_HR S left join [T_QREST_DATA_HOURLY] p on S.HR=p.DATA_DTTM_LOCAL and MONITOR_IDX = @monid and ISNUMERIC(p.DATA_VALUE)=1
-				left join T_QREST_SITE_POLL_CONFIG_DTL d on p.MONITOR_IDX=d.MONITOR_IDX
-					where MONTH(HR)=@mn
-					and YEAR(HR)=@yr
+				where MONTH(HR)=@mn
+				and YEAR(HR)=@yr
 			GROUP BY DATEPART(DAY, HR) 
 			) Z
 			ORDER BY Z.DAY1;
@@ -659,6 +667,7 @@ BEGIN
 	--PROCEDURE DESCRIPTION
 	-------------------------
 	--1. returns annual summary of air monitoring data
+
 
 	--DECLARE @monid uniqueidentifier;
 	--DECLARE @yr int;
@@ -716,7 +725,7 @@ GO
 
 
 
---&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[[SP_RPT_ANNUAL_SUMS]]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_RPT_ANNUAL_SUMS]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 CREATE     PROCEDURE [dbo].[SP_RPT_ANNUAL_SUMS] 
 	@monid uniqueidentifier, 
 	@yr int,
@@ -727,12 +736,22 @@ BEGIN
 	-------------------------
 	--1. returns monthly summary of air monitoring data
 
+	
+	--CHANGE LOG
+	---------------------------
+	--8/24/2020 Fix counting error if multiple polling configs for a monitor
+
+	DECLARE @rounding int;
 	--DECLARE @monid uniqueidentifier;
 	--DECLARE @yr int;
 	--DECLARE @timetype varchar(1);
 	--set @monid = '2C2A653E-51F9-4206-9EC7-5FBF768105AA';
 	--set @yr = 2019;
 	--set @timetype = 'L';
+
+	select top 1 @rounding = rounding from T_QREST_SITE_POLL_CONFIG_DTL where [MONITOR_IDX]=@monid and ROUNDING is not null;
+	if @rounding is null
+		set @rounding = 2;
 
 	IF @timetype='U'
 		BEGIN
@@ -748,12 +767,11 @@ BEGIN
 				DATEPART(DAY, HR) AS DAY1, 
 				MAX(cast(DATA_VALUE as float)) as MAX,
 				MIN(cast(DATA_VALUE as float)) as MIN,
-				round(AVG(cast(DATA_VALUE as float)),max(d.ROUNDING)) as AVG,
-				round(STDEV(cast(DATA_VALUE as float)),max(d.ROUNDING)) as STDEV			
+				round(AVG(cast(DATA_VALUE as float)),@rounding) as AVG,
+				round(STDEV(cast(DATA_VALUE as float)),@rounding) as STDEV			
 				,count(*) as CNT
 			FROM 
 				T_SYS_HR S left join [T_QREST_DATA_HOURLY] p on S.HR=p.DATA_DTTM_UTC and MONITOR_IDX = @monid and ISNUMERIC(p.DATA_VALUE)=1
-				left join T_QREST_SITE_POLL_CONFIG_DTL d on p.MONITOR_IDX=d.MONITOR_IDX
 				where YEAR(HR)=@yr
 			GROUP BY DATEPART(MONTH, HR), DATEPART(DAY, HR) 
 			) Z
@@ -773,13 +791,12 @@ BEGIN
 				DATEPART(DAY, HR) AS DAY1, 
 				MAX(cast(DATA_VALUE as float)) as MAX,
 				MIN(cast(DATA_VALUE as float)) as MIN,
-				round(AVG(cast(DATA_VALUE as float)),max(d.ROUNDING)) as AVG,
-				round(STDEV(cast(DATA_VALUE as float)),max(d.ROUNDING)) as STDEV			
+				round(AVG(cast(DATA_VALUE as float)),@rounding) as AVG,
+				round(STDEV(cast(DATA_VALUE as float)),@rounding) as STDEV			
 				,count(*) as CNT
 			FROM 
 				T_SYS_HR S left join [T_QREST_DATA_HOURLY] p on S.HR=p.DATA_DTTM_LOCAL and MONITOR_IDX = @monid and ISNUMERIC(p.DATA_VALUE)=1
-				left join T_QREST_SITE_POLL_CONFIG_DTL d on p.MONITOR_IDX=d.MONITOR_IDX
-					where YEAR(HR)=@yr
+				where YEAR(HR)=@yr
 			GROUP BY DATEPART(MONTH, HR), DATEPART(DAY, HR) 
 			) Z
 			ORDER BY Z.MONTH1, Z.DAY1;
@@ -791,7 +808,7 @@ END;
 
 GO
 
---&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[[SP_RPT_ANNUAL_SUMS]]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_IMPORT_DATA_FROM_TEMP]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 CREATE   PROCEDURE [dbo].[SP_IMPORT_DATA_FROM_TEMP] 
 	@import_idx uniqueidentifier
 AS
@@ -886,3 +903,100 @@ BEGIN
 
 END
 
+
+
+
+GO
+
+
+
+
+
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_VALIDATE_HOURLY_IMPORT]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+CREATE PROCEDURE [dbo].[SP_VALIDATE_HOURLY_IMPORT] 
+	@import_id uniqueidentifier
+AS
+BEGIN
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--for a given import ID, sets MIN/MAX or JUMP validation
+
+
+	--CHANGE LOG
+	---------------------------
+
+
+	--SET @import_id = '03d2a879-3bf8-460b-92cf-82c33ad62c83';
+
+	SET NOCOUNT ON;
+
+
+	--***************MIN************************
+	UPDATE T_QREST_DATA_HOURLY 
+	set VAL_IND=1, VAL_CD='MIN', VAL0_NOTIFY_IND=1
+	FROM T_QREST_DATA_HOURLY H
+	JOIN T_QREST_MONITORS M on H.MONITOR_IDX=M.MONITOR_IDX
+	where IMPORT_IDX= @import_id
+	and VAL_IND=0
+	and VAL_CD IS NULL
+	and ISNUMERIC(DATA_VALUE)=1 
+	and M.ALERT_MIN_VALUE IS NOT NULL
+	and DATA_VALUE_NUM<M.ALERT_MIN_VALUE;	
+
+
+	--***************MAX************************
+	UPDATE T_QREST_DATA_HOURLY 
+	set VAL_IND=1, VAL_CD='MAX', VAL0_NOTIFY_IND=1
+	FROM T_QREST_DATA_HOURLY H
+	JOIN T_QREST_MONITORS M on H.MONITOR_IDX=M.MONITOR_IDX
+	where IMPORT_IDX= @import_id
+	and VAL_IND=0
+	and VAL_CD IS NULL
+	and ISNUMERIC(DATA_VALUE)=1 
+	and M.ALERT_MAX_VALUE IS NOT NULL
+	and DATA_VALUE_NUM>M.ALERT_MAX_VALUE;	
+
+
+
+	--***************JUMP************************
+	UPDATE H 
+	set VAL_IND=1, VAL_CD='JUMP', VAL0_NOTIFY_IND=1
+	FROM T_QREST_DATA_HOURLY H
+	JOIN T_QREST_DATA_HOURLY H1 on H.MONITOR_IDX=H1.MONITOR_IDX and H1.DATA_DTTM_UTC=DATEADD(HOUR,-1,H.DATA_DTTM_UTC)
+	JOIN T_QREST_MONITORS M on H.MONITOR_IDX=M.MONITOR_IDX
+	where H.IMPORT_IDX= @import_id
+	and H.VAL_IND=0
+	and H.VAL_CD IS NULL
+	and ISNUMERIC(H.DATA_VALUE)=1
+	and ISNUMERIC(H1.DATA_VALUE)=1
+	and M.ALERT_AMT_CHANGE_TYPE = 'H'
+	and ((H.DATA_VALUE_NUM - H1.DATA_VALUE_NUM) > M.ALERT_AMT_CHANGE 
+		or (H1.DATA_VALUE_NUM - H.DATA_VALUE_NUM) > M.ALERT_AMT_CHANGE )	 
+
+
+	--***************STUCK************************
+	----DECLARE @import_id UNIQUEIDENTIFIER;
+	----SET @import_id = '03d2a879-3bf8-460b-92cf-82c33ad62c83';
+	--UPDATE T_QREST_DATA_HOURLY 
+	--set VAL_IND=1, VAL_CD='STUCK' 
+	--select H.DATA_HOURLY_IDX , H.DATA_VALUE_NUM, H1.DATA_VALUE_NUM
+	--FROM T_QREST_DATA_HOURLY H
+	--JOIN T_QREST_MONITORS M on H.MONITOR_IDX=M.MONITOR_IDX
+	--JOIN T_QREST_DATA_HOURLY H1 on H.DATA_DTTM_UTC=DATEADD(HOUR,1,H1.DATA_DTTM_UTC) and H.MONITOR_IDX=H1.MONITOR_IDX
+	--JOIN T_QREST_DATA_HOURLY H2 on H.DATA_DTTM_UTC=DATEADD(HOUR,2,H2.DATA_DTTM_UTC) and H.MONITOR_IDX=H2.MONITOR_IDX
+	--where H.IMPORT_IDX= @import_id
+	--and H.VAL_IND=0
+	--and H.VAL_CD IS NULL
+	--and ISNUMERIC(H.DATA_VALUE)=1 
+	--and M.ALERT_STUCK_TYPE='H'
+	--and M.ALERT_STUCK_REC_COUNT = 3
+	--and H.DATA_VALUE_NUM=H1.DATA_VALUE_NUM
+	--and h1.DATA_VALUE_NUM=H2.DATA_VALUE_NUM;
+
+
+
+	--***************update all other records for this import to 1***************
+	UPDATE T_QREST_DATA_HOURLY set VAL_IND = 1 where IMPORT_IDX=@import_id and VAL_IND = 0;
+
+END

@@ -55,7 +55,7 @@
             @Html.HiddenFor(model => model.editPAR_METHOD_IDX)
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 style="float: left" class="modal-title">Add Person to Notify List</h4>
+                    <h4 style="float: left" class="modal-title">Add/Edit Parameter Method</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -64,14 +64,20 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Custom Minimum</label>
-                                @Html.TextBoxFor(model => model.editCUST_MIN_VALUE, new { @class = "form-control"})
+                                <label>Custom Minimum Limit</label>
+                                @Html.TextBoxFor(model => model.editCUST_MIN_VALUE, new { @class = "form-control" })
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Custom Maximum</label>
+                                <label>Custom Maximum Limit</label>
                                 @Html.TextBoxFor(model => model.editCUST_MAX_VALUE, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Collection Description</label>
+                                @Html.TextBoxFor(model => model.editCOLLECTION_DESC, new { @class = "form-control" })
                             </div>
                         </div>
                     </div>
@@ -88,23 +94,12 @@
 <!-- END  MODAL -->
 
 @section scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/datatables")
 
     <script type="text/javascript">
 
-        $(document).ready(function () {
-
-            //filter click
-            $('#btnGo').on('click', function () {
-                table.draw();
-            });
-
-            //load modal
-            $(document).on('click', '.modal-it', function () {
-                $("#editPAR_METHOD_IDX").val($(this).attr('data-id'));
-                $("#editCUST_MIN_VALUE").val($(this).attr('data-min'));
-                $("#editCUST_MAX_VALUE").val($(this).attr('data-max'));
-            });
+        $(document).ready(function() {
 
             // datatable initialization
             var table = $("#gridData").DataTable({
@@ -123,24 +118,31 @@
                     "url": "@Url.Action("RefParMethodData", "Admin")",
                     "type": "POST",
                     "datatype": "json",
-                    "error": function (e) {},
-                    "data": function (d) {
-                        return $.extend({}, d, {
-                            "selSearch": $('#selSearch').val()
-                        });
+                    "error": function() {},
+                    "data": function(d) {
+                        return $.extend({},
+                            d,
+                            {
+                                "selSearch": $('#selSearch').val()
+                            });
                     }
                 },
                 "columnDefs":
-                    [{
+                [
+                    {
                         "targets": [1],
-                        "orderable" : false
-                    }],
+                        "orderable": false
+                    }
+                ],
                 "columns": [
                     {
-                        "render": function (data, type, row) {
-                            return '<a href="#modal-form" data-toggle="modal" data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX 
-                                + '" data-min="' + (row.T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE || "")
-                                + '" data-max="' + (row.T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE || "") + '" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;">Edit</a>';
+                        "render": function(data, type, row) {
+                            if (row.T_QREST_REF_PAR_METHODS.PAR_CODE.substring(0, 1) !== "Q") {
+                                return '<a href="#modal-form" data-toggle="modal" data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX + '" data-desc="' + row.T_QREST_REF_PAR_METHODS.COLLECTION_DESC + '" data-min="' + (row.T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE || "") + '" data-max="' + (row.T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE || "") + '" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;">Edit</a>';
+                            } else
+                                return '<a href="#modal-form" data-toggle="modal" data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX + '" data-desc="' + row.T_QREST_REF_PAR_METHODS.COLLECTION_DESC + '" data-min="' + (row.T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE || "") + '" data-max="' + (row.T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE || "") + '" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;">Edit</a>' +
+                                    '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
+                                    + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/RefParMethDelete"><b>Confirm Delete</b></div></div>';
                         }
                     },
                     { "data": "T_QREST_REF_PAR_METHODS.PAR_CODE", "name": "T_QREST_REF_PAR_METHODS.PAR_CODE", "autoWidth": true },
@@ -157,13 +159,30 @@
                     { "data": "T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE", "name": "T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE", "autoWidth": true },
                     { "data": "T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE", "name": "T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE", "autoWidth": true }
                 ],
-                "createdRow": function (row, data, dataIndex) {
+                "createdRow": function(row) {
                     $('td:eq(0)', row).css('width', '80px');
                     $('td:eq(0)', row).css('min-width', '80px');
-                    $('td:eq(0)', row).css('padding-right', '0px');
+                    $('td:eq(0)', row).css('padding-right', '0');
                     $('td:eq(0)', row).css('white-space', 'nowrap');
                 }
             });
+
+
+            //load modal
+            $(document).on('click',
+                '.modal-it',
+                function() {
+                    $("#editPAR_METHOD_IDX").val($(this).attr('data-id'));
+                    $("#editCUST_MIN_VALUE").val($(this).attr('data-min'));
+                    $("#editCUST_MAX_VALUE").val($(this).attr('data-max'));
+                    $("#editCOLLECTION_DESC").val($(this).attr('data-desc'));
+                });
+
+            //filter click
+            $('#btnGo').on('click',
+                function() {
+                    table.draw();
+                });
 
         });
 

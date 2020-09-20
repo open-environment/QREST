@@ -1197,32 +1197,14 @@ namespace QRESTModel.DAL
 
 
         //***************** REF_PAR_METHODS ******************************
-        public static List<T_QREST_REF_PAR_METHODS> GetT_QREST_REF_PAR_METHODS()
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    return (from a in ctx.T_QREST_REF_PAR_METHODS
-                            orderby a.PAR_CODE, a.METHOD_CODE
-                            select a).ToList();
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return null;
-                }
-            }
-        }
-
-        public static T_QREST_REF_PAR_METHODS GetT_QREST_REF_PAR_METHODS_ByID(Guid? ParMethodIDX)
+        public static T_QREST_REF_PAR_METHODS GetT_QREST_REF_PAR_METHODS_ByID(Guid? parMethodIdx)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking()
-                            where a.PAR_METHOD_IDX == ParMethodIDX
+                            where a.PAR_METHOD_IDX == parMethodIdx
                             select a).FirstOrDefault();
                 }
                 catch (Exception ex)
@@ -1232,7 +1214,6 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
 
         public static T_QREST_REF_PAR_METHODS GetT_QREST_REF_PAR_METHODS_ByParCdMethodCd(string parCd, string methodCd)
         {
@@ -1249,6 +1230,24 @@ namespace QRESTModel.DAL
                 {
                     logEF.LogEFException(ex);
                     return null;
+                }
+            }
+        }
+
+        public static bool GetT_QREST_REF_PAR_METHODS_CountByPar(string parCd)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() 
+                        where a.PAR_CODE == parCd
+                        select a).Any();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return true;
                 }
             }
         }
@@ -1347,9 +1346,10 @@ namespace QRESTModel.DAL
 
                     return (from a in ctx.T_QREST_REF_PAR_METHODS
                             join p in ctx.T_QREST_REF_PARAMETERS on a.PAR_CODE equals p.PAR_CODE
-                            join u in ctx.T_QREST_REF_UNITS on a.STD_UNIT_CODE equals u.UNIT_CODE
-                            where (strPar.Length > 0 ? (p.PAR_NAME.Contains(strPar) || p.PAR_CODE.Contains(strPar) || a.METHOD_CODE.Contains(strPar)) : true)
-                            && a.RECORDING_MODE == "Continuous"
+                            join u in ctx.T_QREST_REF_UNITS on a.STD_UNIT_CODE equals u.UNIT_CODE into lj
+                            from u in lj.DefaultIfEmpty()   //left join on units
+                            where a.RECORDING_MODE == "Continuous" 
+                                  && (strPar.Length <= 0 || (p.PAR_NAME.Contains(strPar) || p.PAR_CODE.Contains(strPar) || a.METHOD_CODE.Contains(strPar)))
                             orderby a.PAR_CODE, a.METHOD_CODE
                             select new RefParMethodDisplay
                             {
@@ -1388,6 +1388,27 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+        public static bool DeleteT_QREST_REF_PAR_METHODS(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_REF_PAR_METHODS rec = new T_QREST_REF_PAR_METHODS { PAR_METHOD_IDX = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
 
 
 

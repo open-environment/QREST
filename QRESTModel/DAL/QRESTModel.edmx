@@ -1253,6 +1253,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Parameter Name="timetype" Type="varchar" Mode="In" />
         </Function>
         <Function Name="SP_VALIDATE_HOURLY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="SP_VALIDATE_HOURLY_IMPORT" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="import_id" Type="uniqueidentifier" Mode="In" />
+        </Function>
         <EntityContainer Name="QRESTModelStoreContainer">
           <EntitySet Name="T_QREST_APP_SETTINGS" EntityType="Self.T_QREST_APP_SETTINGS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_APP_SETTINGS_CUSTOM" EntityType="Self.T_QREST_APP_SETTINGS_CUSTOM" Schema="dbo" store:Type="Tables" />
@@ -1724,6 +1727,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_DATA_IMPORTS" EntitySet="T_QREST_DATA_IMPORTS" />
             <End Role="T_QREST_DATA_IMPORT_TEMP" EntitySet="T_QREST_DATA_IMPORT_TEMP" />
           </AssociationSet>
+          <FunctionImport Name="SP_VALIDATE_HOURLY_IMPORT">
+            <Parameter Name="import_id" Mode="In" Type="Guid" />
+          </FunctionImport>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -3993,6 +3999,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_VALIDATE_HOURLY_IMPORT" FunctionName="QRESTModel.Store.SP_VALIDATE_HOURLY_IMPORT" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

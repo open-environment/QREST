@@ -239,7 +239,9 @@ namespace QREST.Models
     public class vmAdminRefPar
     {
         public string editPAR_CODE { get; set; }
+        [Required]
         public string editPAR_NAME { get; set; }
+        [Required]
         public string editSTD_UNIT_CODE { get; set; }
 
         public IEnumerable<SelectListItem> ddl_units { get; set; }
@@ -256,6 +258,7 @@ namespace QREST.Models
         public Guid? editPAR_METHOD_IDX { get; set; }
         public double? editCUST_MIN_VALUE { get; set; }
         public double? editCUST_MAX_VALUE { get; set; }
+        public string editCOLLECTION_DESC { get; set; }
 
     }
 

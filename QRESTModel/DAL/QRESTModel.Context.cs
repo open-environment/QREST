@@ -210,5 +210,14 @@ namespace QRESTModel.DAL
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_IMPORT_DATA_FROM_TEMP", import_idxParameter);
         }
+    
+        public virtual int SP_VALIDATE_HOURLY_IMPORT(Nullable<System.Guid> import_id)
+        {
+            var import_idParameter = import_id.HasValue ?
+                new ObjectParameter("import_id", import_id) :
+                new ObjectParameter("import_id", typeof(System.Guid));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_VALIDATE_HOURLY_IMPORT", import_idParameter);
+        }
     }
 }

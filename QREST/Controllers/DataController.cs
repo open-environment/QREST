@@ -133,17 +133,18 @@ namespace QREST.Controllers
 
             if (ModelState.IsValid)
             {
-                //insert/update POLL_CONFIG if H1
+                //insert/update POLL_CONFIG if H1 with default timezone and time type
                 if (model.selImportType == "H1")
                     model.selPollConfig = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(null, model.selSite, "H1", null, "H1", null, null, null, null, null, null, null, null, null, model.selTimeZone, false, UserIDX, null, model.selTimeType, false);
 
+                //create a new import tracking record, storing the import data block and setting status to STARTED
                 Guid? importIDX = db_Air.InsertUpdateT_QREST_DATA_IMPORTS(Guid.NewGuid(), model.selOrgID, model.selSite, "", "STARTED", UserIDX, System.DateTime.Now, model.IMPORT_BLOCK,
                     model.selImportType, model.selMonitor, model.selPollConfig, (model.selImportType == "F" ? (model.selCalc == "Y") : (model.selVal == "Y")) );
 
                 if (importIDX != null)
                 {
                     //if not too many records, import immediately
-                    if (model.IMPORT_BLOCK.Length < 25000)
+                    if (model.IMPORT_BLOCK.Length < 10000000)
                         QRESTModel.BLL.ImportHelper.ImportValidateAndSaveToTemp(importIDX.GetValueOrDefault());
                     else
                     {
@@ -809,7 +810,7 @@ namespace QREST.Controllers
         [HttpPost]
         public ActionResult Raw(vmDataRaw model)
         {
-            string UserIDX = User.Identity.GetUserId();
+            string userIdx = User.Identity.GetUserId();
 
             string[] d = model.selDate.Replace(" - ", "z").Split('z');
             if (d.Length == 2)
@@ -818,13 +819,18 @@ namespace QREST.Controllers
                 DateTime? d2 = (d.Length > 1) ? d[1].ConvertOrDefault<DateTime?>() : null;
 
                 if (model.selType == "H")
-                    model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(model.selOrgID, null, model.selMon.ConvertOrDefault<Guid?>(), d1, d2, 25000, 0, 3, "asc", model.selTimeType);
+                {
+                    if (model.selTimeType == "L")
+                        model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN_RawDataViewLocal(model.selOrgID, model.selMon.ConvertOrDefault<Guid?>(), d1, d2);
+                    else
+                        model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN_RawDataViewUTC(model.selOrgID, model.selMon.ConvertOrDefault<Guid?>(), d1, d2);
+                }
                 else if (model.selType == "1")
                     model.RawData = db_Air.GetT_QREST_DATA_HOURLY(model.selOrgID, model.selMon.ConvertOrDefault<Guid?>(), d1, d2, 25000, 0, 3, "asc", model.selTimeType);
             }
 
             //reinitialize
-            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
+            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(userIdx, true);
             if (model.selOrgID != null)
                 model.ddl_Monitor = ddlHelpers.get_monitors_sampled_by_org(model.selOrgID);
 
@@ -874,9 +880,9 @@ namespace QREST.Controllers
 
         public ActionResult DataReviewSummary(Guid? id, int? month, int? year)
         {
-            string UserIDX = User.Identity.GetUserId();
+            string userIdx = User.Identity.GetUserId();
             var model = new vmDataReviewSummary {
-                ddl_Sites = ddlHelpers.get_ddl_my_sites(null, UserIDX),
+                ddl_Sites = ddlHelpers.get_ddl_my_sites(null, userIdx),
                 selSite = id,
                 selMonth = month ?? System.DateTime.Today.Month,
                 selYear = year ?? System.DateTime.Today.Year

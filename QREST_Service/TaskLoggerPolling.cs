@@ -4,6 +4,7 @@ using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.Entity.Core.Mapping;
 
 namespace QRESTServiceCatalog
 {
@@ -85,7 +86,15 @@ namespace QRESTServiceCatalog
                         General.WriteToFile("End poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);
                     }
                     else
-                        db_Ref.CreateT_QREST_SYS_LOG(_config.SITE_IDX.ToString(),"POLLING", "No column mappings found for polling configuration");
+                    {
+                        db_Ref.CreateT_QREST_SYS_LOG(_config.SITE_IDX.ToString(), "POLLING",
+                            "No column mappings found for polling configuration [" + _config.ORG_ID + "]. Site polling taken offline");
+
+                        db_Air.InsertUpdatetT_QREST_SITES(_config.SITE_IDX, null, null, null, null, null, null, null,
+                            null, null, null, null, null, null, null, false, null, null, 
+                            null, null, null,
+                            null, null, null, null, null, null, null);
+                    }
                 }
             }
             else

@@ -4,7 +4,7 @@
     ViewBag.Title = "Sign in";
 }
 
-@using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "panel-body wrapper-lg", @id = "norepostform", role = "form" }))
+@using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "panel-body wrapper-lg", @id = "norepostform" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -19,10 +19,10 @@
         @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
     </div>
     <div class="form-actions">
-        <label for="remember" class="checkbox-inline hover">
-            @Html.CheckBoxFor(m => m.RememberMe) @Html.LabelFor(m => m.RememberMe)
+        <label for="RememberMe"  class="checkbox-inline hover">
+            @Html.CheckBoxFor(m => m.RememberMe) Remember Me
         </label>
-        <button type="submit" class="btn btn-primary pull-right">Sign in <i class="fa-chevron-right fa"></i></button>
+        <button type="submit" class="btn btn-primary pull-right">Sign in <span class="fa-chevron-right fa"></span></button>
     </div>
     <div class="line line-dashed" style="margin-top:20px;"></div>
 
@@ -35,7 +35,7 @@
 
     <div class="new-account">
         Don't have an account yet?
-        <a href="@Url.Action("QRESTRegister", "Account")" class="register">Create an account</a>
+        <a href="@Url.Action("QRESTRegister", "Account")" class="register" style="background-color:#f7f7f7">Create an account</a>
     </div>
 }
 

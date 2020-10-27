@@ -326,20 +326,30 @@ namespace QRESTModel.COMM
                         string temp1 = (string)rss["observations"][0]["imperial"]["temp"];
                         string windSpeed = (string)rss["observations"][0]["imperial"]["windSpeed"];
                         string pressure = (string)rss["observations"][0]["imperial"]["pressure"];
+                        string dewpt = (string)rss["observations"][0]["imperial"]["dewpt"];
+                        //string windChill = (string)rss["observations"][0]["imperial"]["windChill"];
+                        //string precipRate = (string)rss["observations"][0]["imperial"]["precipRate"];
+                        string precipTotal = (string)rss["observations"][0]["imperial"]["precipTotal"];
+
 
                         List<PollConfigDtlDisplay> _dtls = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(config.POLL_CONFIG_IDX);
                         foreach (PollConfigDtlDisplay _dtl in _dtls)
                         {
-                            if (_dtl.PAR_CODE == "63301")
+                            if (_dtl.PAR_CODE == "63301" && solarRad.Length>0)
                                 db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, solarRad, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                            if (_dtl.PAR_CODE == "61104")
+                            if (_dtl.PAR_CODE == "61104" && windDir.Length>0)
                                 db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, windDir, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                            if (_dtl.PAR_CODE == "62101")
+                            if (_dtl.PAR_CODE == "62101" && temp1.Length>0)
                                 db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, temp1, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                            if (_dtl.PAR_CODE == "61101")
+                            if (_dtl.PAR_CODE == "61101" && windSpeed.Length>0)
                                 db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, windSpeed, _dtl.COLLECT_UNIT_CODE, false, null, null);
-                            if (_dtl.PAR_CODE == "64101")
+                            if (_dtl.PAR_CODE == "64101" && pressure.Length>0)
                                 db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, pressure, _dtl.COLLECT_UNIT_CODE, false, null, null);
+
+                            if (_dtl.PAR_CODE == "62201" && dewpt.Length > 0)
+                                db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, dewpt, _dtl.COLLECT_UNIT_CODE, false, null, null);
+                            if (_dtl.PAR_CODE == "65102" && precipTotal.Length > 0)
+                                db_Air.InsertUpdateT_QREST_DATA_HOURLY(_dtl.MONITOR_IDX.GetValueOrDefault(), localrounded, utcrounded, 0, precipTotal, _dtl.COLLECT_UNIT_CODE, false, null, null);
                         }
 
                     }

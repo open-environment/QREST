@@ -2675,6 +2675,8 @@ fieldset[disabled] .btn-gplus.active {
 }
 .bg-white a:hover {
   color: #1b252e;
+    text-decoration: underline;
+    font-weight: bold;
 }
 .bg-white .text-muted {
   color: #979797 !important;

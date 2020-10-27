@@ -5,7 +5,7 @@
    
 }
 
-@using (Html.BeginForm("QRESTRegister", "Account", FormMethod.Post, new { @id = "norepostform", @class = "panel-body wrapper-md", @style = "padding-top:0; padding-bottom:0", role = "form" }))
+@using (Html.BeginForm("QRESTRegister", "Account", FormMethod.Post, new { @id = "norepostform", @class = "panel-body wrapper-md", @style = "padding-top:0; padding-bottom:0" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary("", new { @class = "text-danger" })
@@ -14,7 +14,7 @@
         @Html.LabelFor(m => m.Email, new { @class = "control-label" })
         @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @maxlength = "150", @autofocus = "autofocus" })
         @Html.ValidationMessageFor(m => m.Email)
-        <span class="help-block"><i class="fa fa-info-circle"></i> This registration link is for tribal agencies on the list below, who already have established an agency in QREST.  If your tribal agency is not yet in QREST, please email christopher.lee@nau.edu, and we will get you established so that you can use the features of QREST for your data.</span>
+        <span class="help-block"><span class="fa fa-info-circle"></span> This registration link is for tribal agencies on the list below, who already have established an agency in QREST.  If your tribal agency is not yet in QREST, please email christopher.lee@nau.edu, and we will get you established so that you can use the features of QREST for your data.</span>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Password, new { @class = "control-label" })
@@ -43,8 +43,8 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label">Which Agency</label>
-        <i class=" m-l-xs fa fa-question-circle" data-toggle="tooltip" data-placement="top" data-original-title="If your agency is not listed, please contact ITEP to onboard your agency to QREST."></i>
+        <label class="control-label" for="selOrgID" >Which Agency</label>
+        <span class=" m-l-xs fa fa-question-circle" data-toggle="tooltip" data-placement="top" data-original-title="If your agency is not listed, please contact ITEP to onboard your agency to QREST."></span>
         @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Agencies, "-Please Select-", new { @class = "form-control" })
         @Html.ValidationMessageFor(m => m.selOrgID)
     </div>
@@ -61,7 +61,7 @@
             <div class="panel-heading">
                 <h4 class="panel-title">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true">
-                        <i class="clip-arrow-down"></i>
+                        <span class="fa fa-arrow-down"></span>
                         Terms and Conditions <span style="font-size:10px">(click to view)</span>
                     </a>
                 </h4>

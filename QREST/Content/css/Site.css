@@ -458,3 +458,29 @@ table.dataTable.no-footer {
     color: transparent;
     text-shadow: 0 0 6px #000;
 }
+
+
+/*** FOOTER LINKS */
+.footer-link {
+    background-color: #304050;
+}
+.footer-link:hover {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/**********ACCESSIBILITY*/
+
+.skip-nav {
+    background: #fdfcf6;
+    height: 30px;
+    left: 50%;
+    padding: 8px;
+    position: absolute;
+    transform: translateY(-100%);
+    transition: transform 0.3s;
+}
+
+    .skip-nav:focus {
+        transform: translateY(0%);
+    }

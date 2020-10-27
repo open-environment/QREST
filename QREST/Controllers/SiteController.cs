@@ -907,6 +907,8 @@ namespace QREST.Controllers
                 bool xxx = await LoggerComm.RetrieveWeatherCompanyPWS(_config);
                 if (xxx == false)
                     TempData["Error"] = "Weather station not returning valid data";
+                else
+                    TempData["Success"] = "Polling successful";
             }
 
             return RedirectToAction("SitePollConfig", new { configid = id });

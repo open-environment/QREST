@@ -10,18 +10,20 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
+    <header id="header" role="heading" aria-level="1">
+        <a class="navbar-brand block" href="@Url.Action("Index", "Home")" data-toggle="tooltip" data-placement="bottom" data-original-title="Quality Review and Exchange System for Tribes">QREST</a>
+    </header>
     <section id="content" class="m-t-lg wrapper-md animated fadeInUp">
         <div class="container @(ViewBag.Wide=="Y" ? "" : "aside-xxl") " style="display: block;">
-            <a class="navbar-brand block" href="@Url.Action("Index", "Home")" data-toggle="tooltip" data-original-title="Quality Review and Exchange System for Tribes">QREST</a>
             <section class="panel panel-default bg-white">
-                <header class="panel-heading text-center">
+                <div class="panel-heading text-center">
                     <strong>@ViewBag.Title</strong>
                     <div class="panel-tools pull-right">
                         <a class="btn btn-xs btn-link btn-danger" href="@Url.Action("SignUp", "Home")">
-                            <i class="fa fa-close"></i>
+                            <span class="fa fa-close"></span>
                         </a>
                     </div>
-                </header>
+                </div>
                 @RenderBody()
             </section>
         </div>
@@ -30,7 +32,7 @@
     <footer id="footer">
         <div class="text-center padder">
             <p>
-                &copy; @DateTime.Now.Year - QREST - <a href="@Url.Action("Index", "Home")">QREST Home</a> | <a href="@Url.Action("Terms", "Home")">Terms &amp; Conditions</a>
+                &copy; @DateTime.Now.Year - QREST - <a href="@Url.Action("Index", "Home")" class="footer-link">QREST Home</a> | <a href="@Url.Action("Terms", "Home")" class="footer-link">Terms &amp; Conditions</a>
             </p>
         </div>
     </footer>

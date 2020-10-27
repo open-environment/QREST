@@ -9,14 +9,14 @@
         Monthly Data
     </header>
     <div class="panel-body">
-        @using (Html.BeginForm("ReportMonthly", "Home", FormMethod.Post, new { @id = "norepostform", role = "form", @class = "form-inline m-b-sm" }))
+        @using (Html.BeginForm("ReportMonthly", "Home", FormMethod.Post, new { @id = "norepostform", @class = "form-inline m-b-sm" }))
         {
             @Html.AntiForgeryToken()
-            @Html.DropDownListFor(model => model.selSite, Model.ddl_Sites, "--Select Site--", new { @class = "form-control", @style = "min-width:80px" })
-            @Html.DropDownListFor(model => model.selMon, Model.ddl_Mons, "--Select Parameter--", new { @class = "form-control", @style = "min-width:80px" })
-            @Html.DropDownListFor(model => model.selMonth, Model.ddl_Month, "", new { @class = "form-control", @style = "min-width:80px" })
-            @Html.DropDownListFor(model => model.selYear, Model.ddl_Year, "", new { @class = "form-control", @style = "min-width:80px" })
-            @Html.DropDownListFor(model => model.selTime, Model.ddl_Time, "", new { @class = "form-control", @style = "min-width:80px" })
+            @Html.DropDownListFor(model => model.selSite, Model.ddl_Sites, "--Select Site--", new { @class = "form-control", @style = "min-width:80px", aria_label = "Site" })
+            @Html.DropDownListFor(model => model.selMon, Model.ddl_Mons, "--Select Parameter--", new { @class = "form-control", @style = "min-width:80px", aria_label = "Monitor" })
+            @Html.DropDownListFor(model => model.selMonth, Model.ddl_Month, "", new { @class = "form-control", @style = "min-width:80px", aria_label = "Month" })
+            @Html.DropDownListFor(model => model.selYear, Model.ddl_Year, "", new { @class = "form-control", @style = "min-width:80px", aria_label = "Year" })
+            @Html.DropDownListFor(model => model.selTime, Model.ddl_Time, "", new { @class = "form-control", @style = "min-width:80px", aria_label = "Time Type" })
             <button id="btnGo" type="submit" class="btn btn-primary">Go</button>
         }
         @if (Model.Results != null && Model.Results.Count > 0 && Model.selSite != null)
@@ -25,7 +25,7 @@
                 <div class="h4 pull-left">
                     Units: @Html.DisplayFor(modelItem => Model.Units)
                 </div>
-                <a href="@Url.Action("ReportMonthlyExport", "Home", new { id=Model.selSite, monid=Model.selMon, month=Model.selMonth, year=Model.selYear, time=Model.selTime })" class="btn btn-rounded btn-sm btn-primary pull-left" style="margin-left:30px; border-bottom-left-radius:0; border-bottom-right-radius:0"><i class="fa fa-download"></i> Export</a>
+                <a href="@Url.Action("ReportMonthlyExport", "Home", new { id=Model.selSite, monid=Model.selMon, month=Model.selMonth, year=Model.selYear, time=Model.selTime })" class="btn btn-rounded btn-sm btn-primary pull-left" style="margin-left:30px; border-bottom-left-radius:0; border-bottom-right-radius:0"><span class="fa fa-download"></span> Export</a>
             </div>
             <div class="row col-md-12">
                 <div class="table-responsive">

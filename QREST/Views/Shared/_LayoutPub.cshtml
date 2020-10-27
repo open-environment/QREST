@@ -12,13 +12,14 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-    <header id="header" class="navbar navbar-fixed-top bg-white box-shadow b-b b-light" data-spy="affix" data-offset-top="1">
+    <header id="header" class="navbar navbar-fixed-top bg-white box-shadow b-b b-light" data-spy="affix" data-offset-top="1" role="heading" aria-level="1">
+        <a id="skip-nav" class="skip-nav screen-reader-text" href="#maincontent" role="navigation">Skip to main content</a>
         <div class="container">
             <div class="navbar-header">
                 <a href='@Url.Action("Index", "Home")' class="navbar-brand"><img src="~/Content/Images/itep_logo_120.png" class="m-r-sm" alt="ITEP Logo">QREST</a>
                 <div class="visible-lg-inline-block navbar-brand" style="color: #9e9e9e; font-size: 15px">Quality Review and Exchange System for Tribes</div>
                 <button class="btn btn-link visible-xs" type="button" data-toggle="collapse" data-target=".navbar-collapse">
-                    <i class="fa fa-bars"></i>
+                    <span class="fa fa-bars"></span>
                 </button>
             </div>
             <div class="collapse navbar-collapse">
@@ -41,7 +42,7 @@
                             @Html.ActionLink("Sign In", "Index", "Dashboard")
                         </li>
                         <li>
-                            <div class="m-t-sm">
+                            <div id="maincontent" role="main" class="m-t-sm">
                                 @Html.ActionLink("Join QREST", "SignUp", "Home", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
                             </div>
                         </li>
@@ -49,7 +50,7 @@
                     else
                     {
                         <li>
-                            <div class="m-t-sm">
+                            <div id="maincontent" role="main" class="m-t-sm">
                                 @Html.ActionLink("Secure Dashboard", "Index", "Dashboard", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
                             </div>
                         </li>

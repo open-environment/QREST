@@ -2430,7 +2430,7 @@ namespace QRESTModel.DAL
                         Double? val = cols[_map.COL - 1 ?? 0].ToString().ConvertOrDefault<Double?>();
                         if (val != null && _map.ALERT_MAX_TYPE == "N" && val > _map.ALERT_MAX_VALUE)
                             valCd = "MAX";
-                        if (val != null && _map.ALERT_MIN_TYPE == "N" && val > _map.ALERT_MIN_VALUE)
+                        if (val != null && _map.ALERT_MIN_TYPE == "N" && val < _map.ALERT_MIN_VALUE)
                             valCd = "MIN";
 
                         db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd, null, _map.ADJUST_FACTOR, null, config.TIME_POLL_TYPE, config.LOCAL_TIMEZONE.ConvertOrDefault<int>());
@@ -3680,7 +3680,7 @@ namespace QRESTModel.DAL
                     //get polling config dtl
                     List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, false);
 
-                    int iCount = 0;
+                    //int iCount = 0;
 
                     var _impList = new List<T_QREST_DATA_IMPORT_TEMP>();
 
@@ -3700,10 +3700,11 @@ namespace QRESTModel.DAL
                         string[] cols = row.Split(delimiter, StringSplitOptions.None);
                         if (cols.Length > 2) //skip blank rows
                         {
+                            string dateTimeString = cols[dateCol].Trim() + " " + cols[timeCol].Trim();
+
                             foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                             {
-                                //****************************** START ******************************************************************************
-                                string dateTimeString = cols[dateCol].Trim() + " " + cols[timeCol].Trim();
+                                //****************************** START COLUMN POLLUTANT READING******************************************************************************
                                 string dATA_VALUE = cols[(_item.COL ?? 1) - 1].Trim();
 
                                 T_QREST_DATA_IMPORT_TEMP f = new T_QREST_DATA_IMPORT_TEMP
@@ -3768,7 +3769,7 @@ namespace QRESTModel.DAL
                                 //    iCount = 0;
                                 //}
 
-                                //****************************** END ******************************************************************************
+                                //****************************** END COLUMN POLLUTANT READING******************************************************************************
                             }
                         }
                     }
@@ -3782,7 +3783,7 @@ namespace QRESTModel.DAL
                     //now update for duplicates
                     ctx.Database.ExecuteSqlCommand("UPDATE T set IMPORT_DUP_IND=1, DATA_ORIG_TABLE_IDX=H.DATA_HOURLY_IDX FROM T_QREST_DATA_IMPORT_TEMP T JOIN T_QREST_DATA_HOURLY H on T.MONITOR_IDX = H.MONITOR_IDX and T.DATA_DTTM_LOCAL = H.DATA_DTTM_LOCAL where T.IMPORT_IDX = '" + iMPORT_IDX + "'");
 
-                    //return whether any dups 
+                    //return whether any dups or errors
                     return GetT_QREST_DATA_IMPORT_TEMP_DupCount(iMPORT_IDX) > 0 || GetT_QREST_DATA_IMPORT_TEMP_ErrorCount(iMPORT_IDX) > 0;
                 }
                 catch (Exception ex)

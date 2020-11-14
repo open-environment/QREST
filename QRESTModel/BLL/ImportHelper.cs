@@ -55,7 +55,7 @@ namespace QRESTModel.BLL
         /// Reads the whole import text block, parses, validates, and writes result to IMPORT_TEMP table
         /// </summary>
         /// <param name="iMPORT_IDX"></param>
-        /// <returns></returns>
+        /// <returns>True if import succeeded, false if exception encountered</returns>
         public static bool ImportValidateAndSaveToTemp(Guid iMPORT_IDX)
         {
             T_QREST_DATA_IMPORTS _import = db_Air.GetT_QREST_DATA_IMPORTS_byID(iMPORT_IDX);
@@ -63,7 +63,6 @@ namespace QRESTModel.BLL
             {
                 //update status to VALIDATING
                 db_Air.InsertUpdateT_QREST_DATA_IMPORTS(_import.IMPORT_IDX, null, null, null, "VALIDATING", null, null, null, null, null, null, null);
-
 
                 //split file into rows
                 string[] allRows = _import.SUBMISSION_FILE.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);

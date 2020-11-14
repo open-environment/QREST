@@ -457,5 +457,12 @@ namespace QREST.Models
             return _list;
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_HOURLY()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "H", Text = "H" });
+            return _list;
+        }
+
     }
 }

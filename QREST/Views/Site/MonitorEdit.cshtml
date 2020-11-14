@@ -162,9 +162,9 @@
                                 <div class="form-group">
                                     <label># Stuck Values</label>
                                     <div class="input-group">
-                                        @Html.DropDownListFor(model => model.ALERT_STUCK_TYPE, Model.ddl_NMIN_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "left", @data_original_title = "Select N to apply alert to n-minute data or H to apply to hourly data" })
+                                        @Html.DropDownListFor(model => model.ALERT_STUCK_TYPE, Model.ddl_HOURLY, "", new { @class = "form-control", @style = "min-width:80px", @data_toggle = "tooltip", @data_placement = "left", @data_original_title = "Select H to apply to hourly data or leave blank to skip this validation" })
                                         <span class="input-group-btn" style="width:100%">
-                                            @Html.TextBoxFor(model => model.ALERT_STUCK_REC_COUNT, new { @class = "form-control", @maxlength = "2" })
+                                            @Html.TextBoxFor(model => model.ALERT_STUCK_REC_COUNT, new { type = "number", @class = "form-control", min = "3", max = "3" })
                                         </span>
                                     </div>
                                     @Html.ValidationMessageFor(model => model.ALERT_STUCK_REC_COUNT)

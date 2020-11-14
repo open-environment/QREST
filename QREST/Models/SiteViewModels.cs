@@ -276,12 +276,14 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_Ref_Coll_Freq { get; set; }
         public IEnumerable<SelectListItem> ddl_Unit { get; set; }
         public IEnumerable<SelectListItem> ddl_NMIN_HOURLY { get; set; }
+        public IEnumerable<SelectListItem> ddl_HOURLY { get; set; }
 
 
         public vmSiteMonitorEdit() {
             ddl_Ref_Duration = ddlHelpers.get_ddl_ref_duration();
             ddl_Ref_Coll_Freq = ddlHelpers.get_ddl_ref_coll_freq();
             ddl_NMIN_HOURLY = ddlHelpers.get_ddl_NMIN_HOURLY();
+            ddl_HOURLY = ddlHelpers.get_ddl_HOURLY();
             //ddl_Unit = ddlHelpers.get_ddl_ref_units();
         }
     }

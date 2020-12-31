@@ -85,7 +85,6 @@ namespace QREST.Controllers
         [HttpPost]
         public ActionResult ManualImport(vmDataImport model) {
 
-
             //**********************************************************************************************
             //*********************** MODEL VALIDATION PRIOR TO IMPORT**************************************
             //**********************************************************************************************
@@ -97,15 +96,12 @@ namespace QREST.Controllers
                 ModelState.AddModelError("selTimeZone", "Local Time Zone required for this import type.");
 
             //*********model validation for H and F *************************
-            T_QREST_SITE_POLL_CONFIG _pollConfig = null;
-            List<SitePollingConfigDetailType> _pollConfigDtl = null;
-
             if (model.selImportType == "H" || model.selImportType == "F")
             {
                 if (model.selPollConfig == null)
                     ModelState.AddModelError("selPollConfig", "Import Template is required.");
 
-                _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
+                T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
 
                 if (_pollConfig != null)
                 {
@@ -116,7 +112,7 @@ namespace QREST.Controllers
                     ModelState.AddModelError("selPollConfig", "Polling configuration cannot be found.");
 
                 //Verify all import config columns have units
-                _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, false);
+                List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, false);
                 foreach (SitePollingConfigDetailType _temp in _pollConfigDtl)
                 {
                     if (_temp.COLLECT_UNIT_CODE == null || _temp.COL == null)
@@ -840,37 +836,7 @@ namespace QREST.Controllers
 
 
 
-        [HttpPost]
-        public JsonResult RawDataChart()
-        {
-            //filters
-            string selOrg = Request.Form.GetValues("selOrg")?.FirstOrDefault();
-            string selType = Request.Form.GetValues("selType")?.FirstOrDefault();
-            string selDate = Request.Form.GetValues("selDate")?.FirstOrDefault().Replace(" - ", "z");
-            string selTimeType = Request.Form.GetValues("selTimeType")?.FirstOrDefault();
-            Guid? selMon = Request.Form.GetValues("selMon")?.FirstOrDefault().ConvertOrDefault<Guid?>();
 
-            if (selDate != null)
-            {
-                string[] d = selDate.Split('z');
-                DateTime? d1 = d[0].ConvertOrDefault<DateTime?>();
-                DateTime? d2 = (d.Length > 1) ? d[1].ConvertOrDefault<DateTime?>() : null;
-
-                if (selType == "F")
-                {
-                    var data = db_Air.GetT_QREST_DATA_FIVE_MIN(selOrg, null, selMon, d1, d2, 25000, 0, 3, "asc", selTimeType);
-                    return Json(data, JsonRequestBehavior.AllowGet);
-                }
-                else
-                {
-                    var data = db_Air.GetT_QREST_DATA_HOURLY(selOrg, selMon, d1, d2, 25000, 0, 3, "asc", selTimeType);
-                    return Json(data, JsonRequestBehavior.AllowGet);
-                }
-            }
-            else
-                return Json("Chart data error");
-
-        }
 
         #endregion
 
@@ -993,6 +959,47 @@ namespace QREST.Controllers
 
             }
             return View(model);
+        }
+
+
+        [HttpGet]
+        public ActionResult DataReviewFillLostData(Guid? monid, int? month, int? year)
+        {
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByMonitorID(monid.GetValueOrDefault());
+            if (_site == null || month == null || year == null)
+            {
+                TempData["Error"] = "Invalid request.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else
+            {
+                string UserIDX = User.Identity.GetUserId();
+
+                //security check
+                if (db_Account.CanAccessThisSite(UserIDX, _site.SITE_IDX, true) == false)
+                {
+                    TempData["Error"] = "Access Denied.";
+                    return RedirectToAction("Index", "Dashboard");
+                }
+
+                DateTime sDate = new DateTime(year.GetValueOrDefault(), month.GetValueOrDefault(), 1);
+                DateTime eDate = sDate.AddMonths(1).AddHours(-1);
+
+                //get active polling config for site
+                T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(_site.SITE_IDX);
+                if (_config == null)
+                {
+                    TempData["Error"] = "No active polling defined for the site.";
+                    return RedirectToAction("DataReviewSummary", "Data", new { id = _site.SITE_IDX, month = month, year = year });
+                }
+
+
+                db_Air.SP_FILL_LOST_DATA(sDate, eDate, monid.GetValueOrDefault(), _config.LOCAL_TIMEZONE);
+
+                TempData["Success"] = "Missing data added.";
+                return RedirectToAction("DataReviewSummary", new { id = _site.SITE_IDX, month = month, year = year });
+            }
+
         }
 
 

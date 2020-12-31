@@ -372,8 +372,6 @@ namespace QREST.Controllers
                 int SuccID = db_Account.DeleteT_QREST_ORG_USER(_guid);
                 if (SuccID == 1)
                     return Json("Success");
-                else if (SuccID == -1)
-                    return Json("Cannot delete Organization that still has site records. Delete sites first.");
                 else
                     return Json("Unable to find user to delete.");
             }
@@ -1123,7 +1121,7 @@ namespace QREST.Controllers
             string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
-            List<T_QREST_REF_PAR_UNITS> data = db_Ref.GetT_QREST_REF_PAR_UNITS_data(pageSize, start, orderColName, orderDir);
+            List<RefParUnitDisplay> data = db_Ref.GetT_QREST_REF_PAR_UNITS_data(pageSize, start, orderColName, orderDir);
             var recordsTotal = db_Ref.GetT_QREST_REF_PAR_UNITS_count();
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }

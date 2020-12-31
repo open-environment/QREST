@@ -133,6 +133,22 @@ namespace QREST.Controllers
         }
 
 
+        [HttpPost]
+        public JsonResult UserOrgDelete(string id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                Guid _guid = new Guid(id);
+                int SuccID = db_Account.DeleteT_QREST_ORG_USER(_guid);
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to find user to delete.");
+            }
+        }
+
 
 
         //**********************SITES **************************************

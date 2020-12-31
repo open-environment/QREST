@@ -187,7 +187,6 @@ GO
 
 
 
-
 CREATE VIEW AIRNOW_LAST_HOUR as 
 select S.AIRNOW_ORG, '840' + S.AIRNOW_SITE as AIRNOW_SITE, case when VAL_IND = 1 then '1' else '0' end as DATA_STATUS
 ,format(DATA_DTTM_UTC, 'yyyyMMddTHHmm') as DT, PM.PAR_CODE, DATA_VALUE, coalesce(H.UNIT_CODE, M.COLLECT_UNIT_CODE) as UNIT_CODE, M.POC
@@ -828,6 +827,7 @@ BEGIN
 	--20200625 created
 	--20200702 fix updating import_idx
 	--20200703 fix table naming
+	--20201117 added forcing hourly data rounded to nearest hour
 
 
 	--get summary type to calculate
@@ -842,8 +842,8 @@ BEGIN
 	BEGIN
 		-- HANDLING HOURLY UPDATED RECORDS
 		UPDATE H SET
-			H.DATA_DTTM_UTC = T.DATA_DTTM_UTC,
-			H.[DATA_DTTM_LOCAL] = T.DATA_DTTM_LOCAL,
+			H.DATA_DTTM_UTC = dateadd(hour, datediff(hour, 0, T.DATA_DTTM_UTC), 0),
+			H.DATA_DTTM_LOCAL = dateadd(hour, datediff(hour, 0, T.DATA_DTTM_LOCAL), 0),
 			H.DATA_VALUE = T.DATA_VALUE,
 			H.DATA_VALUE_NUM = T.DATA_VALUE_NUM,
 			H.UNIT_CODE = T.UNIT_CODE,
@@ -861,8 +861,9 @@ BEGIN
 
 		
 		-- HANDLING HOURLY INSERT RECORDS
-		INSERT INTO T_QREST_DATA_HOURLY ([DATA_HOURLY_IDX], MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND, VAL_CD, MODIFY_DT, AQS_NULL_CODE, IMPORT_IDX, DATA_VALUE_NUM, AQS_QUAL_CODES)
-		SELECT newid(), MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, @recalc_ind ^ 1, VAL_CD, GetDate(), AQS_NULL_CODE, @import_idx, DATA_VALUE_NUM, AQS_QUAL_CODES
+		INSERT INTO T_QREST_DATA_HOURLY (DATA_HOURLY_IDX, MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND, VAL_CD, MODIFY_DT, AQS_NULL_CODE, IMPORT_IDX, DATA_VALUE_NUM, AQS_QUAL_CODES)
+		SELECT newid(), MONITOR_IDX, dateadd(hour, datediff(hour, 0, DATA_DTTM_UTC), 0), dateadd(hour, datediff(hour, 0, DATA_DTTM_LOCAL), 0), DATA_VALUE, UNIT_CODE, @recalc_ind ^ 1, VAL_CD, GetDate(), AQS_NULL_CODE, 
+		@import_idx, DATA_VALUE_NUM, AQS_QUAL_CODES
 		FROM T_QREST_DATA_IMPORT_TEMP
 		WHERE IMPORT_IDX = @import_idx 
 		and DATA_ORIG_TABLE_IDX is null;
@@ -907,8 +908,6 @@ END
 
 
 GO
-
-
 
 
 
@@ -1005,3 +1004,40 @@ BEGIN
 	UPDATE T_QREST_DATA_HOURLY set VAL_IND = 1 where IMPORT_IDX=@import_id and VAL_IND = 0;
 
 END
+
+
+GO
+
+
+
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_FILL_LOST_DATA]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+CREATE PROCEDURE [dbo].[SP_FILL_LOST_DATA] 
+	@sDate datetime,
+	@eDate datetime,
+	@monid uniqueidentifier, 
+	@tz varchar(3)
+AS
+BEGIN
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--1. fills in any data gaps with 'LIST' for hours with no data
+
+	--CHANGE LOG
+	------------------------------
+
+	SET NOCOUNT ON;  
+
+	--DECLARE @sDate datetime = '1/1/2020';
+	--DECLARE @eDate datetime = '1/31/2020 23:00';
+	--DECLARE @monid uniqueidentifier = 'FB0DEC3D-4275-4B89-B124-00E40FA37F8E';
+	--DECLARE @tz varchar(3) = '-8';
+ 
+	INSERT INTO T_QREST_DATA_HOURLY (DATA_HOURLY_IDX, [MONITOR_IDX], [DATA_DTTM_LOCAL], [DATA_DTTM_UTC], VAL_IND, VAL_CD)
+	select NEWID(), @monid, S.HR as HR_LOCAL, DATEADD(HOUR,cast(@tz as int)*-1,S.HR) as HR_UTC, 1, 'LOST'
+	from T_SYS_HR S
+	where S.HR >= @sDate 
+	and S.HR <= @eDate
+	and S.HR not in (select H.DATA_DTTM_LOCAL from T_QREST_DATA_HOURLY H where H.DATA_DTTM_LOCAL >= @sDate and H.DATA_DTTM_LOCAL <= @eDate and H.MONITOR_IDX = @monid);
+
+END;

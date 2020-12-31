@@ -5,7 +5,7 @@ using System.Linq;
 using QRESTModel.BLL;
 using EntityFramework.BulkInsert;
 using EntityFramework.BulkInsert.Extensions;
-
+using System.ComponentModel.DataAnnotations;
 
 namespace QRESTModel.DAL
 {
@@ -160,6 +160,8 @@ namespace QRESTModel.DAL
         public string UNIT_CODE { get; set; }
         public string UNIT_DESC { get; set; }
         public string COLLECTION_DESC { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy HH:mm}", ApplyFormatInEditMode = true)]
         public DateTime? DATA_DTTM { get; set; }
         public string DATA_VALUE { get; set; }
         public bool? VAL_IND { get; set; }
@@ -506,7 +508,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_SITES> GetT_QREST_SITES_Sampling()
+        public static List<T_QREST_SITES> GetT_QREST_SITES_Sampling_Public()
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -515,7 +517,8 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_SITES.AsNoTracking()
                             join b in ctx.T_QREST_MONITORS.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
                             join c in ctx.T_QREST_DATA_HOURLY.AsNoTracking() on b.MONITOR_IDX equals c.MONITOR_IDX
-                            select a).Distinct().ToList();
+                            where a.AIRNOW_IND == true
+                            select a).Distinct().OrderBy(x => x.ORG_ID).ThenBy(x => x.SITE_NAME).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1707,7 +1710,7 @@ namespace QRESTModel.DAL
                                    PAR_NAME = p.PAR_NAME,
                                    SITE_ID = s.SITE_ID,
                                    ORG_ID = u.ORG_ID
-                               }).Distinct().ToList();
+                               }).Distinct().OrderBy(x => x.SITE_ID).ThenBy(x => x.PAR_CODE).ToList();
 
                     return xxx;
                 }
@@ -2722,7 +2725,6 @@ namespace QRESTModel.DAL
                             join s in ctx.T_QREST_SITES.AsNoTracking() on m.SITE_IDX equals s.SITE_IDX
                             join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
                             join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
-
                             join u3 in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals u3.UNIT_CODE
                             into lj3
                             from u3 in lj3.DefaultIfEmpty() //left join on hourly unit
@@ -2787,6 +2789,38 @@ namespace QRESTModel.DAL
             }
         }
 
+
+
+        public static List<RawDataDisplay> GetT_QREST_DATA_HOURLY_Last24Records(Guid? mon)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var TwoDaysAgo = System.DateTime.Now.AddDays(-2);
+                    return (from a in ctx.T_QREST_DATA_HOURLY.AsNoTracking()
+                            join m in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals m.MONITOR_IDX
+                            where a.MONITOR_IDX == mon
+                            && a.DATA_DTTM_UTC>TwoDaysAgo
+                            orderby a.DATA_DTTM_LOCAL descending
+                            select new RawDataDisplay
+                            {
+                                MONITOR_IDX = m.MONITOR_IDX,
+                                DATA_RAW_IDX = a.DATA_HOURLY_IDX,
+                                DATA_DTTM = a.DATA_DTTM_UTC,
+                                DATA_VALUE = a.DATA_VALUE,
+                                POC = m.POC,
+                                VAL_IND = a.VAL_IND,
+                                VAL_CD = a.VAL_CD,
+                            }).Take(24).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
 
         public static int GetT_QREST_DATA_HOURLYcountByMon(Guid? mon)
         {
@@ -3903,7 +3937,7 @@ namespace QRESTModel.DAL
                     //now update for duplicates
                     ctx.Database.ExecuteSqlCommand("UPDATE T set IMPORT_DUP_IND=1, DATA_ORIG_TABLE_IDX=H.DATA_HOURLY_IDX FROM T_QREST_DATA_IMPORT_TEMP T JOIN T_QREST_DATA_HOURLY H on T.MONITOR_IDX = H.MONITOR_IDX and T.DATA_DTTM_LOCAL = H.DATA_DTTM_LOCAL where T.IMPORT_IDX = '" + iMPORT_IDX + "'");
 
-                    //return whether any dups 
+                    //return whether any dups or errors
                     return GetT_QREST_DATA_IMPORT_TEMP_DupCount(iMPORT_IDX) > 0 || GetT_QREST_DATA_IMPORT_TEMP_ErrorCount(iMPORT_IDX) > 0;
 
                 }
@@ -4477,6 +4511,7 @@ namespace QRESTModel.DAL
             {
                 try
                 {
+                    ctx.Database.CommandTimeout = 600;
                     return ctx.SP_VALIDATE_HOURLY();
                 }
                 catch (Exception ex)
@@ -4618,6 +4653,23 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+        public static int SP_FILL_LOST_DATA (DateTime sDate, DateTime eDate, Guid mONITOR_IDX, string tzOffet)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_FILL_LOST_DATA(sDate, eDate, mONITOR_IDX, tzOffet);
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
 
     }
 }

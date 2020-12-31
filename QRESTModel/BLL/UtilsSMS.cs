@@ -39,8 +39,9 @@ namespace QRESTModel.BLL
                 else
                     return false;
             }
-            catch
+            catch (Exception ex)
             {
+                db_Ref.CreateT_QREST_SYS_LOG(userIDX, "SMS ERR", ex.Message);
                 return false;
             }
         }

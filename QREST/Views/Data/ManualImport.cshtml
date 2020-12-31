@@ -50,7 +50,7 @@
                     </div>
                     <div class="row col-md-6 typeh typehAny" style="display:none;">
                         <div class="form-group">
-                            <label class="text-danger">Schedule validation check (min/max/stuck values) on hourly data following import</label>
+                            <label class="text-danger">Run validation check (min/max/jump/stuck values) on hourly data following import</label>
                             @Html.DropDownListFor(model => model.selVal, Model.ddl_Calc, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.selVal)
                         </div>

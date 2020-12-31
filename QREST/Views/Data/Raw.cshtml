@@ -63,13 +63,17 @@
                                 <td>
                                     @Html.DisplayFor(modelItem => item.POC)
                                 </td>
-                                <td data-sort='@item.DATA_DTTM.GetValueOrDefault().ToString("yyyy-M-d HH-mm")'>
+                                <td data-sort='@item.DATA_DTTM.GetValueOrDefault().ToString("yyyy-MM-dd HH-mm")'>
                                     @Html.DisplayFor(modelItem => item.DATA_DTTM)
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.DATA_VALUE)
                                 </td>
                                 <td>
+                                    @if (item.VAL_IND == false)
+                                    {
+                                    <span class="label bg-warning" data-toggle="tooltip" data-original-title="Record has not had Level 0 validation performed yet."><i class="fa fa-warning"></i></span>
+                                    }
                                     @Html.DisplayFor(modelItem => item.VAL_CD)
                                 </td>
                             </tr>
@@ -118,13 +122,15 @@
                 <text>parName = '@Model.RawData[0].PAR_NAME (' + '@Model.RawData[0].UNIT_DESC' + ')';</text>
                 foreach (var item in Model.RawData)
                 {
-                    <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsA);</text>
+                    <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsA);</text>
                 }
             }
 
-            function addPoint(xx, yy, zz, array) {
+            function addPoint(xx, yy, zz, vv, array) {
                 var lcolor = "#67B347";
-                if (yy == "FEW")
+                if (vv == "False")
+                    lcolor = "#A5A5A5";
+                else if (yy == "FEW")
                     lcolor = "#ffee8c";
                 else if (zz == "MIN")
                     lcolor = "#d32d41";

@@ -66,7 +66,7 @@
                             <th>QREST Flags</th>
                             <th>AQS Null Code</th>
                             <th>AQS Qual Codes</th>
-                            <th>AQS Ready</th>
+                            <th>Suitable for AQS </th>
                             <th>Lvl 1</th>
                             <th>Lvl 2</th>
                             <th>Notes</th>
@@ -75,7 +75,7 @@
                     <tbody>
                         @for (int i = 0; i < Model.RawData.Count; i++)
                         {
-                            string dtSortVal = Model.RawData[i].DATA_DTTM.GetValueOrDefault().ToString("yyyy-M-d HH-mm"); 
+                            string dtSortVal = Model.RawData[i].DATA_DTTM.GetValueOrDefault().ToString("yyyy-MM-dd HH-mm");
 
                             <tr class="irow" data-date="@Html.DisplayFor(model => model.RawData[i].DATA_DTTM)">
                                 <td>
@@ -103,6 +103,10 @@
                                     @Html.DisplayFor(model => model.RawData[i].UNIT_DESC)
                                 </td>
                                 <td>
+                                    @if (Model.RawData[i].VAL_IND == false)
+                                    {
+                                        <span class="label bg-warning" data-toggle="tooltip" data-original-title="Record has not had Level 0 validation performed yet."><i class="fa fa-warning"></i></span>
+                                    }
                                     @Html.DisplayFor(model => model.RawData[i].VAL_CD)
                                 </td>
                                 <td>
@@ -402,7 +406,7 @@
 
             foreach (var item in Model.RawData)
             {
-                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsA);
+                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsA);
                 </text>
             }
         }
@@ -414,14 +418,16 @@
 
             foreach (var item in Model.SuppData1)
             {
-                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', dataPointsSupp1);
+                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsSupp1);
                 </text>
             }
         }
 
-        function addPoint(xx, yy, zz, array) {
+        function addPoint(xx, yy, zz, vv, array) {
             var lcolor = "#67B347";
-            if (yy == "FEW")
+            if (vv == "False")
+                lcolor = "#A5A5A5";
+            else if (yy == "FEW")
                 lcolor = "#ffee8c";
             else if (zz == "MIN")
                 lcolor = "#d32d41";
@@ -640,7 +646,7 @@
             $("#norepostform").append('<input id="editRawDataIDX" name="editRawDataIDX" type="hidden" value="' + val + '">');
         });
 
-        $("#norepostform").submit(); 
+        $("#norepostform").submit();
     });
 
 
@@ -652,6 +658,6 @@
         confirmButton.delay(100).fadeIn(300);
     })
 
-    </script>
+</script>
 }
 

@@ -49,15 +49,22 @@ namespace QRESTServiceCatalog
             List<string> NotifyUsers = db_Air.GetT_QREST_DATA_HOURLY_NotificationUsers();
             foreach (string u in NotifyUsers)
             {
-                string msg = "" + Environment.NewLine;
-                List<RawDataDisplay> notifies = db_Air.GetT_QREST_DATA_HOURLY_NotificationsListForUser(u);
-                foreach (RawDataDisplay n in notifies)
+                try
                 {
-                    msg += n.SITE_ID + ": " + n.PAR_NAME + ": " + n.VAL_CD + " alert." + Environment.NewLine;
-                }
+                    string msg = "" + Environment.NewLine;
+                    List<RawDataDisplay> notifies = db_Air.GetT_QREST_DATA_HOURLY_NotificationsListForUser(u);
+                    foreach (RawDataDisplay n in notifies)
+                    {
+                        msg += n.SITE_ID + ": " + n.PAR_NAME + ": " + n.VAL_CD + " alert." + Environment.NewLine;
+                    }
 
-                var emailParams = new Dictionary<string, string> { { "notifyMsg", msg } };
-                UtilsNotify.NotifyUser(u, null, null, null, null, "POLLING_ALERT", emailParams, null);
+                    var emailParams = new Dictionary<string, string> { { "notifyMsg", msg } };
+                    UtilsNotify.NotifyUser(u, null, null, null, null, "POLLING_ALERT", emailParams, null);
+                }
+                catch (Exception exx)
+                {
+                    db_Ref.CreateT_QREST_SYS_LOG("HR VAL TASK", "ERROR", "Failed to notify user " + u + ". " + exx.Message);
+                }
             }
 
             //then update all records to notified

@@ -61,17 +61,22 @@
                                 </a>
                             </div>
                             <footer class="panel-footer bg-default text-center">
-                                <div class="row pull-out">
+                                <div class="row pull-out" style="display:flex">
                                     <div class="aaa col-xs-3 fa-border" data-num="@item.hrs_data" data-denom="@item.hrs">
                                         <div class="padder-v">
                                             <span class="m-b-xs h4 block text-white">@item.hrs_data / @item.hrs</span>
                                             <small class="text-muted">Collected</small>
+                                            @if (item.hrs_data != item.hrs)
+                                            {
+                                                <a class="btn btn-rounded btn-xs btn-dark padder m-xs" style="background-color:#2c66af" href="@Url.Action("DataReviewFillLostData", new { monid = item.MONITOR_IDX, month = Model.selMonth, year = Model.selYear })"
+                                                   data-toggle="tooltip" data-original-title="Add missing hourly records with blank records marked with qualifier 'LOST'">Fill Missing Data</a>
+                                            }
                                         </div>
                                     </div>
                                     <div class="aaa col-xs-3 fa-border" data-num="@item.aqs_ready" data-denom="@item.hrs">
                                         <div class="padder-v">
                                             <span class="m-b-xs h4 block text-white">@item.aqs_ready / @item.hrs</span>
-                                            <small class="text-muted">AQS Ready</small>
+                                            <small class="text-muted">Suitable for AQS</small>
                                         </div>
                                     </div>
                                     <div class="aaa col-xs-3 fa-border" data-num="@item.lvl1_val_ind" data-denom="@item.hrs">

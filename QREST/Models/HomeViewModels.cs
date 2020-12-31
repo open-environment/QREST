@@ -48,7 +48,7 @@ namespace QREST.Models
             ddl_Day = ddlHelpers.get_ddl_days_in_month(null);
             ddl_Month = ddlHelpers.get_ddl_months();
             ddl_Year = ddlHelpers.get_ddl_years(2019);
-            ddl_Sites = ddlHelpers.get_ddl_sites_sampling();
+            ddl_Sites = ddlHelpers.get_ddl_sites_sampling_public();
             ddl_Time = ddlHelpers.get_ddl_time_type();
         }
     }
@@ -73,7 +73,7 @@ namespace QREST.Models
         {
             ddl_Month = ddlHelpers.get_ddl_months();
             ddl_Year = ddlHelpers.get_ddl_years(2019);
-            ddl_Sites = ddlHelpers.get_ddl_sites_sampling();
+            ddl_Sites = ddlHelpers.get_ddl_sites_sampling_public();
             ddl_Time = ddlHelpers.get_ddl_time_type();
         }
     }
@@ -95,7 +95,7 @@ namespace QREST.Models
         public vmHomeReportAnnual()
         {
             ddl_Year = ddlHelpers.get_ddl_years(2019);
-            ddl_Sites = ddlHelpers.get_ddl_sites_sampling();
+            ddl_Sites = ddlHelpers.get_ddl_sites_sampling_public();
             ddl_Time = ddlHelpers.get_ddl_time_type();
         }
     }

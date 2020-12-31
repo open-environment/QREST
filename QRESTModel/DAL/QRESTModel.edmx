@@ -1220,6 +1220,12 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Parameter Name="adate" Type="datetime" Mode="In" />
           <Parameter Name="edate" Type="datetime" Mode="In" />
         </Function>
+        <Function Name="SP_FILL_LOST_DATA" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="sDate" Type="datetime" Mode="In" />
+          <Parameter Name="eDate" Type="datetime" Mode="In" />
+          <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="tz" Type="varchar" Mode="In" />
+        </Function>
         <Function Name="SP_IMPORT_DATA_FROM_TEMP" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="import_idx" Type="uniqueidentifier" Mode="In" />
         </Function>
@@ -1728,7 +1734,13 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_DATA_IMPORT_TEMP" EntitySet="T_QREST_DATA_IMPORT_TEMP" />
           </AssociationSet>
           <FunctionImport Name="SP_VALIDATE_HOURLY_IMPORT">
-            <Parameter Name="import_id" Mode="In" Type="Guid" />
+          <Parameter Name="import_id" Mode="In" Type="Guid" />
+          </FunctionImport>
+          <FunctionImport Name="SP_FILL_LOST_DATA">
+            <Parameter Name="sDate" Mode="In" Type="DateTime" />
+            <Parameter Name="eDate" Mode="In" Type="DateTime" />
+            <Parameter Name="monid" Mode="In" Type="Guid" />
+            <Parameter Name="tz" Mode="In" Type="String" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
@@ -4000,6 +4012,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </EntityTypeMapping>
           </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="SP_VALIDATE_HOURLY_IMPORT" FunctionName="QRESTModel.Store.SP_VALIDATE_HOURLY_IMPORT" />
+          <FunctionImportMapping FunctionImportName="SP_FILL_LOST_DATA" FunctionName="QRESTModel.Store.SP_FILL_LOST_DATA" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

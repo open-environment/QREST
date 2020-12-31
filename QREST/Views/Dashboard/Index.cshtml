@@ -140,11 +140,8 @@
             $.ajax({
                 type: "POST",
                 datatype: "json",
-                url: "@Url.Action("RawDataChart", "Data")",
+                url: "@Url.Action("RawDataTodayChart", "Dashboard")",
                 data: jQuery.param({
-                    selOrg: $('#selOrgID').val(),
-                    selType: '1',
-                    selDate: dat1 + ' - ' + dat2,
                     selMon: $('#selChartMon').val()
                 }),
                 success: function (field) {
@@ -193,7 +190,7 @@
                             }]
                         });
 
-
+                        showDefaultText(chart, "No Data available");
                         chart.render();
                     }
 
@@ -235,6 +232,24 @@
             });
 
         }
+
+
+    function showDefaultText(chart, text) {
+
+        var isEmpty = !(chart.options.data[0].dataPoints && chart.options.data[0].dataPoints.length > 0);
+
+        if (!chart.options.subtitles)
+            (chart.options.subtitles = []);
+
+        if (isEmpty)
+            chart.options.subtitles.push({
+                text: text,
+                verticalAlign: 'center',
+            });
+        else
+            (chart.options.subtitles = []);
+    }
+
 </script>
 
     <link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/themes/light/main.css">

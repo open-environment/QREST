@@ -46,6 +46,14 @@ namespace QRESTModel.DAL
         public string UNIT_DESC { get; set; }
     }
 
+    public class RefParUnitDisplay
+    {
+        public string PAR_CODE { get; set; }
+        public string UNIT_CODE { get; set; }
+        public string PAR_NAME { get; set; }
+        public string UNIT_DESC { get; set; }
+    }
+
 
     public class db_Ref
     {
@@ -1413,14 +1421,21 @@ namespace QRESTModel.DAL
 
 
         //***************** REF_PAR_UNITS ******************************
-        public static List<T_QREST_REF_PAR_UNITS> GetT_QREST_REF_PAR_UNITS_data(int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        public static List<RefParUnitDisplay> GetT_QREST_REF_PAR_UNITS_data(int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    return (from a in ctx.T_QREST_REF_PAR_UNITS
-                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                    return (from a in ctx.T_QREST_REF_PAR_UNITS.AsNoTracking()
+                            join b in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on a.PAR_CODE equals b.PAR_CODE
+                            join c in ctx.T_QREST_REF_UNITS.AsNoTracking() on a.UNIT_CODE equals c.UNIT_CODE
+                            select new RefParUnitDisplay { 
+                                PAR_CODE = a.PAR_CODE,
+                                UNIT_CODE = a.UNIT_CODE,
+                                PAR_NAME = b.PAR_NAME,
+                                UNIT_DESC = c.UNIT_DESC
+                            }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {

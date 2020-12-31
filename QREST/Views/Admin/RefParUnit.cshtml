@@ -18,9 +18,10 @@
                 <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                     <thead>
                         <tr>
-                            <th></th>
-                            <th>Unit Code</th>
                             <th>Par Code</th>
+                            <th>Par Name</th>
+                            <th>Unit Code</th>
+                            <th>Unit Name</th>
                         </tr>
                     </thead>
                 </table>
@@ -53,15 +54,11 @@
                     "type": "POST",
                     "datatype": "json"
                 },
-                "columnDefs":
-                    [{
-                        "targets": [0],
-                        "visible": false,
-                    }],
                 "columns": [
+                    { "data": "PAR_CODE", "name": "PAR_CODE", "autoWidth": true },
+                    { "data": "PAR_NAME", "name": "PAR_NAME", "autoWidth": true },
                     { "data": "UNIT_CODE", "name": "UNIT_CODE", "autoWidth": true },
-                    { "data": "UNIT_CODE", "name": "UNIT_CODE", "autoWidth": true },
-                    { "data": "PAR_CODE", "name": "PAR_CODE", "autoWidth": true }
+                    { "data": "UNIT_DESC", "name": "UNIT_DESC", "autoWidth": true }
                 ],
                 "createdRow": function (row, data, dataIndex) {
                     $('td:eq(0)', row).css('width', '90px');

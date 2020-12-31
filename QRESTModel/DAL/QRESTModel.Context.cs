@@ -219,5 +219,26 @@ namespace QRESTModel.DAL
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_VALIDATE_HOURLY_IMPORT", import_idParameter);
         }
+    
+        public virtual int SP_FILL_LOST_DATA(Nullable<System.DateTime> sDate, Nullable<System.DateTime> eDate, Nullable<System.Guid> monid, string tz)
+        {
+            var sDateParameter = sDate.HasValue ?
+                new ObjectParameter("sDate", sDate) :
+                new ObjectParameter("sDate", typeof(System.DateTime));
+    
+            var eDateParameter = eDate.HasValue ?
+                new ObjectParameter("eDate", eDate) :
+                new ObjectParameter("eDate", typeof(System.DateTime));
+    
+            var monidParameter = monid.HasValue ?
+                new ObjectParameter("monid", monid) :
+                new ObjectParameter("monid", typeof(System.Guid));
+    
+            var tzParameter = tz != null ?
+                new ObjectParameter("tz", tz) :
+                new ObjectParameter("tz", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_FILL_LOST_DATA", sDateParameter, eDateParameter, monidParameter, tzParameter);
+        }
     }
 }

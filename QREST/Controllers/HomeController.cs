@@ -118,6 +118,7 @@ namespace QREST.Controllers
             model.Results = db_Air.SP_RPT_MONTHLY(model.selMon ?? Guid.Empty, model.selMonth, model.selYear, model.selTime);
             model.ResultSums = db_Air.SP_RPT_MONTHLY_SUMS(model.selMon ?? Guid.Empty, model.selMonth, model.selYear, model.selTime);
 
+            //display units
             if (model.selMon != null)
             {
                 SiteMonitorDisplayType xxx = db_Air.GetT_QREST_MONITORS_ByID(model.selMon ?? Guid.Empty);
@@ -126,8 +127,8 @@ namespace QREST.Controllers
                     var yyy = db_Ref.GetT_QREST_REF_UNITS_ByID(xxx.T_QREST_MONITORS.COLLECT_UNIT_CODE);
                     model.Units = yyy?.UNIT_DESC;
                 }
-
             }
+
             return View(model);
         }
 

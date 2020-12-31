@@ -16,7 +16,7 @@ namespace QRESTModel.BLL
         // 1a. Save text block to IMPORT table with status = STARTED, also saving ImportType, pollConfigIDX, recalcInd (for n-min), monitoridx (for H1)
 
 
-        //2. [VALIDATING] 
+        //2. [VALIDATING] (and placement to IMPORT_TEMP) 
         // 2a. Iterate all import records with status of STARTED 
         // 2b. Update status to VALIDATING 
         // 2c. Insert to IMPORT_TEMP

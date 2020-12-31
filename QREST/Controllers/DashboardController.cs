@@ -29,5 +29,17 @@ namespace QREST.Controllers
 
             return View(model);
         }
+
+
+
+
+        [HttpPost]
+        public JsonResult RawDataTodayChart(Guid? selMon)
+        {
+            var data = db_Air.GetT_QREST_DATA_HOURLY_Last24Records(selMon);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+
     }
 }

@@ -366,9 +366,9 @@ namespace QREST.Models
             });
         }
 
-        public static IEnumerable<SelectListItem> get_ddl_sites_sampling()
+        public static IEnumerable<SelectListItem> get_ddl_sites_sampling_public()
         {
-            return db_Air.GetT_QREST_SITES_Sampling().Select(x => new SelectListItem
+            return db_Air.GetT_QREST_SITES_Sampling_Public().Select(x => new SelectListItem
             {
                 Value = x.SITE_IDX.ToString(),
                 Text = x.ORG_ID + ": " + x.SITE_NAME

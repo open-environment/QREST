@@ -1,6 +1,6 @@
 # QREST
 
-QREST (Quality Review and Exchange System for Tribes) is open-source software that provides tools to address the challenges of tribal air quality data access, validation, reporting, and submittal for multiple tribes throughout the US.
+QREST (Quality Review and Exchange System for Tribes) is open-source software that provides tools to address the challenges of tribal air quality data access, validation, reporting, and submittal for multiple tribes throughout the US. This github site hosts the latest source code for QREST. For Tribal Agencies that wish to begin using QREST, please go to www.qrest.net. 
 
 ## Table of Contents
 
@@ -29,6 +29,13 @@ QREST is a set of software tools that includes the following features:
 -	**AQS Integration:** Push raw data (RD) and quality control (QA) data to EPA’s Air Quality Subsystem (AQS) via EPA’s Exchange Network. In addition, AQS reference data and other relevant codes and limits are pushed to QREST users when EPA makes changes 
 -	**AirNow Integration:** tribes can opt to share data from QREST to EPA’s AirNow program
 -	**Data Sharing with Public:** map-based website allowing tribes to share air data with the public, with options to download data reports
+
+## Changelog
+Starting from 1/26/2021, changes to the released version of www.qrest.net are noted here:
+
+### 2017-06-20
+#### Updated
+- AQS Submission module -> AQS/CDX account selection page -> improved ability to choose between local and global CDX account
 
 
 ## Sending Feedback

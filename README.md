@@ -33,14 +33,13 @@ QREST is a set of software tools that includes the following features:
 
 
 ## Changelog
-Starting from 1/26/2021, changes to the released version of www.qrest.net are noted here:
+Starting from 1/25/2021, changes to the released version of www.qrest.net are noted here:
 
-### 2017-06-20
+### 2021-01-25
 - AQS Submission module -> AQS/CDX account selection page -> improved ability to choose between local and global CDX account
 
 
 ## Sending Feedback
-
 We are always open to [your feedback](https://github.com/open-environment/QREST/issues).
 
 

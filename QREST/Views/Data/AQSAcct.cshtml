@@ -1,11 +1,11 @@
 ﻿@model QREST.Models.vmDataAQSAcct
 @{
-    ViewBag.Title = "AQS Accounts";
+    ViewBag.Title = "AQS Submission Accounts";
     ViewBag.HelpLink = "AQS-Submission";
 }
 
 <section class="panel panel-qrest">
-    <header class="panel-heading font-bold">AQS Submission Accounts for @Model.selOrgID</header>
+    <header class="panel-heading font-bold">Submission Accounts for @Model.selOrgID</header>
     <div class="panel-body">
         @using (Html.BeginForm("AQSAcct", "Data", FormMethod.Post, new { @id = "norepostform", role = "form" }))
         {
@@ -14,7 +14,6 @@
             @Html.HiddenFor(model => model.selOrgID)
             if (Model != null)
             {
-                <h3>@Model.selOrgID Submission Accounts</h3>
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
@@ -31,7 +30,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="line line-dashed line-lg pull-in"></div>
                 <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            @Html.CheckBoxFor(x => x.UseGlobalCDXAccount)
+                            <label>Use Global CDX Account (@Html.DisplayFor(model => model.GlobalCDXUser))</label>
+
+                        </div>
+                    </div>
+                </div>
+                <div id="divCDX" class="row">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>CDX User ID (leave blank to use global CDX account)</label>
@@ -43,7 +52,7 @@
                         <div class="form-group">
                             <label>CDX Password</label>
                             <div class="input-group">
-                                @Html.PasswordFor(model => model.CDXPwd, new { @class = "form-control", @maxlength = "50", @placeholder="***********" })
+                                @Html.PasswordFor(model => model.CDXPwd, new { @class = "form-control", @maxlength = "50", @placeholder = "***********" })
                                 <span class="input-group-btn">
                                     <a id="btnTest" class="btn btn-default btn-dark" href="@Url.Action("CDXTest","Data", new { orgid = Model.selOrgID })">Test</a>
                                     <a id="btnTest2" class="btn btn-default btn-dark" href="#" style="display:none;">(save changes before testing</a>
@@ -54,6 +63,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="line line-dashed line-lg pull-in"></div>
                 <p>
                     <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
                     @if (ViewBag.ReturnUrl == "AQSGen")
@@ -73,6 +83,16 @@
     @Scripts.Render("~/bundles/areyousure")
 
     <script type="text/javascript">
+        $(document).ready(function () {
+
+
+            $('#UseGlobalCDXAccount').change(function () {
+                $('#divCDX').toggle(!this.checked);
+            }).change(); //ensure visible state matches initially
+
+
+        });
+
         // Enable dirtyforms
         $('#norepostform').dirtyForms();
         // Enable/disable the submit button when the state transitions between dirty and clean.

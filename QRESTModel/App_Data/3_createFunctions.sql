@@ -376,6 +376,7 @@ BEGIN
 	--20200416 changed from hardcode month to variable date range for documents
 	--20200616 add POC
 	--20200727 made not AQS ready if unit is missing
+	--20210123 only not AQS ready if no unit and no monitor unit
 	DECLARE @totHrs int = 1;
 
 
@@ -399,7 +400,7 @@ BEGIN
 			) as doc_cnt
 	from
 	(select H.MONITOR_IDX, 1 as rec, 
-		case when isnumeric(H.data_value)=0 and H.AQS_NULL_CODE is null then 0 when H.UNIT_CODE is null then 0 else 1 end as aqs_ready, 
+		case when isnumeric(H.data_value)=0 and H.AQS_NULL_CODE is null then 0 when COALESCE(H.UNIT_CODE,M.COLLECT_UNIT_CODE) is null then 0 else 1 end as aqs_ready, 
 		isnull(H.lvl1_val_ind,0) as lvl1_val_ind, 
 		isnull(H.lvl2_val_ind,0) as lvl2_val_ind
 		from T_QREST_DATA_HOURLY H,T_QREST_MONITORS M
@@ -1018,13 +1019,14 @@ CREATE PROCEDURE [dbo].[SP_FILL_LOST_DATA]
 	@monid uniqueidentifier, 
 	@tz varchar(3)
 AS
-BEGIN
+BEGIN   
 	--PROCEDURE DESCRIPTION
 	-------------------------
 	--1. fills in any data gaps with 'LIST' for hours with no data
 
 	--CHANGE LOG
 	------------------------------
+	--1/27/2021 only fill past datetimes
 
 	SET NOCOUNT ON;  
 
@@ -1038,6 +1040,7 @@ BEGIN
 	from T_SYS_HR S
 	where S.HR >= @sDate 
 	and S.HR <= @eDate
+	and S.HR < GetDate()
 	and S.HR not in (select H.DATA_DTTM_LOCAL from T_QREST_DATA_HOURLY H where H.DATA_DTTM_LOCAL >= @sDate and H.DATA_DTTM_LOCAL <= @eDate and H.MONITOR_IDX = @monid);
 
 END;

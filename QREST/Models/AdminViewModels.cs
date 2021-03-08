@@ -275,4 +275,13 @@ namespace QREST.Models
         public List<SitePollingConfigType> PollingConfig { get; set; }
     }
 
+    public class vmAdminCDXTest
+    {
+        public string CDXURL { get; set; }
+        public string TestProdInd { get; set; }
+        public string CDXUsername { get; set; }
+        public string CDXPassword { get; set; }
+    }
+
+
 }

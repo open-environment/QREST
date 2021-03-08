@@ -1008,17 +1008,7 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                int editCount = 0;
-
-                //lvl1
-                bool? lvl1ind = null;
-                if (model.editLvl1 == "Y") lvl1ind = true;
-                else if (model.editLvl1 == "N") lvl1ind = false;
-
-                //lvl2
-                bool? lvl2ind = null;
-                if (model.editLvl2 == "Y") lvl2ind = true;
-                else if (model.editLvl2 == "N") lvl2ind = false;
+                //int editCount = 0;
 
                 string UserIDX = User.Identity.GetUserId();
 
@@ -1026,22 +1016,50 @@ namespace QREST.Controllers
                 {
                     foreach (var item in model.editRawDataIDX)
                     {
-                        int succId = db_Air.DeleteT_QREST_DATA_HOURLY(item);
-                        if (succId == 0)
-                            TempData["Error"] = "Error deleting record";
+                        if (model.selDuration == "1")
+                        {
+                            int succId = db_Air.DeleteT_QREST_DATA_HOURLY(item);
+                            if (succId == 0)
+                                TempData["Error"] = "Error deleting hourly record";
+                        }
+                        else if (model.selDuration == "H")  //five min
+                        {
+                            int succId = db_Air.DeleteT_QREST_DATA_FIVE_MIN(item);
+                            if (succId == 0)
+                                TempData["Error"] = "Error deleting 5-min record";
+                        }
                     }
                 }
                 else if (model.editRawDataIDX != null)
                 {
+                    //lvl1
+                    bool? lvl1ind = null;
+                    if (model.editLvl1 == "Y") lvl1ind = true;
+                    else if (model.editLvl1 == "N") lvl1ind = false;
+
+                    //lvl2
+                    bool? lvl2ind = null;
+                    if (model.editLvl2 == "Y") lvl2ind = true;
+                    else if (model.editLvl2 == "N") lvl2ind = false;
+
                     foreach (var item in model.editRawDataIDX)
                     {
-                        editCount++;
+                        //editCount++;
+                        if (model.selDuration == "1")
+                        {
+                            Guid? succId = db_Air.UpdateT_QREST_DATA_HOURLY(item, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank == true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag), model.editQual);
+                            if (succId == null)
+                                TempData["Error"] = "Error updating hourly record";
+                            else
+                                db_Air.InsertUpdatetT_QREST_DATA_HOURLY_LOG(null, succId, model.editNotes, UserIDX);
+                        }
+                        else if (model.selDuration == "H")
+                        {
+                            Guid? succId = db_Air.UpdateT_QREST_DATA_FIVE_MIN(item, (model.editValueBlank == true ? "-999" : model.editValue), model.editUnitCode, null, null);
+                            if (succId == null)
+                                TempData["Error"] = "Error updating 5-min record";
 
-                        Guid? succId = db_Air.UpdateT_QREST_DATA_HOURLY(item, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank == true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag), model.editQual);
-                        if (succId == null)
-                            TempData["Error"] = "Error updating record";
-                        else
-                            db_Air.InsertUpdatetT_QREST_DATA_HOURLY_LOG(null, succId, model.editNotes, UserIDX);
+                        }
                     }
                 }
                 else
@@ -1429,24 +1447,27 @@ namespace QREST.Controllers
             ViewBag.ReturnUrl = returnUrl ?? "AQSGen";
             ViewBag.ReturnID = returnid;
 
-            var model = new vmDataAQSAcct
-            {
-                selOrgID = id,
-                CDXUsername = db_Ref.GetT_QREST_APP_SETTING("CDX_GLOBAL_USER"),
-                AQSUser = "",
-                AQSScreeningGroup = ""
-            };
-
             var _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(id);
             if (_org != null)
             {
-                model.AQSUser = _org.AQS_AQS_UID;
-                model.AQSScreeningGroup = _org.AQS_AQS_SCREENING_GRP;
-                if (!string.IsNullOrEmpty(_org.AQS_NAAS_UID))
-                    model.CDXUsername = _org.AQS_NAAS_UID;
+                var model = new vmDataAQSAcct
+                {
+                    selOrgID = id,
+                    AQSUser = _org.AQS_AQS_UID,
+                    AQSScreeningGroup = _org.AQS_AQS_SCREENING_GRP,
+                    GlobalCDXUser = db_Ref.GetT_QREST_APP_SETTING("CDX_GLOBAL_USER"),
+                    CDXUsername = string.IsNullOrEmpty(_org.AQS_NAAS_UID) ? null : _org.AQS_NAAS_UID,
+                    UseGlobalCDXAccount = string.IsNullOrEmpty(_org.AQS_NAAS_UID)
+                };
+
+                return View(model);
+            }
+            else
+            {
+                TempData["Error"] = "Organization not found.";
+                return RedirectToAction("AQSList");
             }
 
-            return View(model);
         }
 
 
@@ -1455,7 +1476,10 @@ namespace QREST.Controllers
         {
             string UserIDX = User.Identity.GetUserId();
 
-            int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.selOrgID, null, null, null, model.CDXUsername, model.CDXPwd, null, null, true, UserIDX, model.AQSUser, model.AQSScreeningGroup);
+            string cdxU = model.UseGlobalCDXAccount ? "-999" : model.CDXUsername;
+            string cdxP = model.UseGlobalCDXAccount ? "-999" : model.CDXPwd;
+
+            int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.selOrgID, null, null, null, cdxU, cdxP, null, null, true, UserIDX, model.AQSUser, model.AQSScreeningGroup);
 
             if (SuccID == 0)
                 TempData["Error"] = "Unable to update record";
@@ -1476,14 +1500,17 @@ namespace QREST.Controllers
             {
                 Guid? SuccID = AQSHelper.AQSGeneration_Orchestrator(_site.ORG_ID, _site.SITE_IDX, model.selMons, model.selDtStart.GetValueOrDefault(), model.selDtEnd.GetValueOrDefault(), UserIDX, model.selActionCode, model.selAQSFormat);
                 if (SuccID != null)
-                {
                     TempData["Success"] = "AQS File generated - click to proceed with submission";
-                    return RedirectToAction("AQSList", new { selOrgID=_site.ORG_ID });
-                }
-            }
+                else
+                    TempData["Error"] = "Error generating AQS file. Please contact QREST Admin.";
 
-            TempData["Error"] = "Unable to make submission";
-            return RedirectToAction("AQSGen");
+                return RedirectToAction("AQSList", new { selOrgID = _site.ORG_ID });
+            }
+            else
+            {
+                TempData["Error"] = "Unable to find site for AQS submission - please try again.";
+                return RedirectToAction("AQSGen");
+            }
         }
 
 
@@ -1497,14 +1524,17 @@ namespace QREST.Controllers
             {
                 Guid? SuccID = AQSHelper.AQS_QA_Generation_Orchestrator(_site.ORG_ID, _site.SITE_IDX, model.selQid.GetValueOrDefault(), UserIDX, model.selActionCode, model.selAQSFormat);
                 if (SuccID != null)
-                {
                     TempData["Success"] = "File generated and submission initiated.";
-                    return RedirectToAction("AQSList", new { selOrgID = _site.ORG_ID });
-                }
-            }
+                else
+                    TempData["Error"] = "Error generating AQS QA file. Please contact QREST Admin";
 
-            TempData["Error"] = "Unable to make submission";
-            return RedirectToAction("AQSGenQA", new { qid = model.selQid });
+                return RedirectToAction("AQSList", new { selOrgID = _site.ORG_ID });
+            }
+            else
+            {
+                TempData["Error"] = "Unable to find site for AQS submission - please try again.";
+                return RedirectToAction("AQSGenQA", new { qid = model.selQid });
+            }
         }
 
 
@@ -1522,17 +1552,17 @@ namespace QREST.Controllers
 
                 bool SuccID = AQSHelper.AQSSubmission_Orchestrator(_aqs.ORG_ID, _aqs.AQS_CONTENT, _aqs.AQS_IDX);
                 if (SuccID)
-                {
                     TempData["Success"] = "File submitted.";
-                    return RedirectToAction("AQSList", new { selOrgID = _aqs.ORG_ID });
-                }
+                else
+                    TempData["Error"] = "Unable to submit to EPA (authentication failed).";
 
-                TempData["Error"] = "Unable to make submission";
                 return RedirectToAction("AQSList", new { selOrgID = _aqs.ORG_ID });
             }
-
-            TempData["Error"] = "Unable to make submission";
-            return RedirectToAction("AQSList");
+            else
+            {
+                TempData["Error"] = "Unable to find submission (QREST submission record not found).";
+                return RedirectToAction("AQSList");
+            }
         }
 
 

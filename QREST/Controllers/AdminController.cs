@@ -3,6 +3,7 @@ using Microsoft.AspNet.Identity.Owin;
 using QREST.App_Logic;
 using QREST.App_Logic.BusinessLogicLayer;
 using QREST.Models;
+using QRESTModel.AQSHelper;
 using QRESTModel.DAL;
 using QRESTModel.DataTableGen;
 using System;
@@ -138,6 +139,29 @@ namespace QREST.Controllers
             }
 
             return RedirectToAction("AppSettings");
+        }
+
+        public ActionResult CDXTest()
+        {
+            var model = new vmAdminCDXTest();
+            model.CDXURL = db_Ref.GetT_QREST_APP_SETTING("CDX_URL");
+            model.TestProdInd = model.CDXURL.Contains("test") ? "Test CDX" : "Production CDX";
+            return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult CDXTest(vmAdminCDXTest model)
+        {
+            if (ModelState.IsValid)
+            {
+                string succId = AQSHelper.AuthHelper(model.CDXUsername, model.CDXPassword, db_Ref.GetT_QREST_APP_SETTING("CDX_URL"));
+                if (succId != null)
+                    TempData["Success"] = "CDX Username/password combo correct";
+                else
+                    TempData["Error"] = "CDX Username/password combo failed";
+            }
+
+            return RedirectToAction("CDXTest");
         }
 
 

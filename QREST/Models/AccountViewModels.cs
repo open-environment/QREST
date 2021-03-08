@@ -30,6 +30,9 @@ namespace QREST.Models
         public bool NOTIFY_SMS_IND { get; set; }
         public string PhoneNumber { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
+        public IList<string> ROLES { get; set; }
+        public List<UserOrgDisplayType> user_orgs { get; set; }
+
     }
 
     public class vmAccountNotifications

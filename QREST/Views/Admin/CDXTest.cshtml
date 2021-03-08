@@ -1,0 +1,41 @@
+﻿@model QREST.Models.vmAdminCDXTest
+@{
+    ViewBag.Title = "Test CDX Credentials";
+    ViewBag.SubTitle = "Use this page to test CDX credentials.";
+    ViewBag.HelpLink = "Global-Settings";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">Enter Credentials</header>
+    <div class="panel-body">
+        @using (Html.BeginForm("CDXTest", "Admin", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary("", new { @class = "text-danger" })
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>CDX Username</label>
+                    @Html.TextBoxFor(model => model.CDXUsername, new { @class = "form-control", @maxlength = "50" })
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>CDX Password</label>
+                    @Html.PasswordFor(model => model.CDXPassword, new { @class = "form-control", @maxlength = "50" })
+                </div>
+            </div>
+        </div>
+        <div class="row col-md-12 m-b-md">
+            Will be tested against: @Html.DisplayFor(model => model.CDXURL)
+            <br/>
+            which is <b>@Html.DisplayFor(model => model.TestProdInd)</b>
+        </div>
+        <div class="row col-md-12">
+            <button id="btnSave" type="submit" class="btn btn-primary">Test</button>
+            <a class=" btn btn-default" href="@Url.Action("AppSettings")">Back</a>
+        </div>
+        }
+    </div>
+</section>
+

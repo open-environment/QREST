@@ -2397,18 +2397,37 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static ImportResponse ImportT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT, Guid? iMPORT_IDX, string timeType, int tzOffset)
+        public static Guid? UpdateT_QREST_DATA_FIVE_MIN(Guid dATA_FIVE_IDX, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD)
         {
-            Guid? SuccID = db_Air.InsertT_QREST_DATA_FIVE_MIN(mONITOR_IDX, dATA_DTTM, dATA_VALUE, uNIT_CODE, vAL_IND, vAL_CD, mODIFY_DT, 1, iMPORT_IDX, timeType, tzOffset);
-
-            return new ImportResponse
+            using (QRESTEntities ctx = new QRESTEntities())
             {
-                SuccInd = SuccID != null,
-                DATA_IDX = SuccID,
-                DATA_DTTM = dATA_DTTM,
-                DATA_VALUE = dATA_VALUE
-            };
+                try
+                {
+                    T_QREST_DATA_FIVE_MIN e = (from c in ctx.T_QREST_DATA_FIVE_MIN
+                                               where c.DATA_FIVE_IDX == dATA_FIVE_IDX
+                                               select c).FirstOrDefault();
+
+                    //update case
+                    if (e != null)
+                    {
+                        if (dATA_VALUE != null) e.DATA_VALUE = dATA_VALUE;
+                        if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
+                        if (vAL_CD != null) e.VAL_CD = vAL_CD;
+                        e.MODIFY_DT = System.DateTime.Now;
+                        ctx.SaveChanges();
+                        return e.DATA_FIVE_IDX;
+                    }
+                    else
+                        return null;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
         }
+
 
         public static bool InsertT_QREST_DATA_FIVE_MIN_fromLine(string line, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl)
         {
@@ -2436,7 +2455,7 @@ namespace QRESTModel.DAL
                         if (val != null && _map.ALERT_MIN_TYPE == "N" && val < _map.ALERT_MIN_VALUE)
                             valCd = "MIN";
 
-                        db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, false, valCd, null, _map.ADJUST_FACTOR, null, config.TIME_POLL_TYPE, config.LOCAL_TIMEZONE.ConvertOrDefault<int>());
+                        db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, true, valCd, null, _map.ADJUST_FACTOR, null, config.TIME_POLL_TYPE, config.LOCAL_TIMEZONE.ConvertOrDefault<int>());
                     }
                 }
                 return true;
@@ -2631,6 +2650,7 @@ namespace QRESTModel.DAL
             }
         }
 
+
         public static int GetT_QREST_DATA_FIVE_MINcountByImportIDX(Guid? imp)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -2649,6 +2669,36 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        public static int DeleteT_QREST_DATA_FIVE_MIN(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_DATA_FIVE_MIN rec = new T_QREST_DATA_FIVE_MIN { DATA_FIVE_IDX = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException dbex)
+                {
+                    //if trying to delete record already deleted
+                    foreach (System.Data.Entity.Infrastructure.DbEntityEntry entry in dbex.Entries)
+                    {
+                    }
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+
         public static int DeleteT_QREST_DATA_FIVE_MIN_ByImportIDX(Guid id)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -2666,6 +2716,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
         public static List<RawDataDisplay> GetT_QREST_DATA_FIVE_MIN_ByImportIDX(Guid iMPORT_IDX)
         {
@@ -2741,6 +2792,7 @@ namespace QRESTModel.DAL
                                 ORG_ID = s.ORG_ID,
                                 SITE_ID = s.SITE_ID,
                                 MONITOR_IDX = m.MONITOR_IDX,
+                                METHOD_CODE = pm.METHOD_CODE,
                                 DATA_RAW_IDX = a.DATA_HOURLY_IDX,
                                 DATA_DTTM = (timeType == "U" ? a.DATA_DTTM_UTC : a.DATA_DTTM_LOCAL),
                                 DATA_VALUE = a.DATA_VALUE,
@@ -2750,7 +2802,11 @@ namespace QRESTModel.DAL
                                 VAL_IND = a.VAL_IND,
                                 VAL_CD = a.VAL_CD,
                                 NOTES = a.NOTES,
-                                UNIT_DESC = u3.UNIT_DESC
+                                UNIT_DESC = u3.UNIT_DESC,
+                                AQS_QUAL_CODES = a.AQS_QUAL_CODES,
+                                AQS_NULL_CODE = a.AQS_NULL_CODE,
+                                LVL1_VAL_IND = a.LVL1_VAL_IND,
+                                LVL2_VAL_IND = a.LVL2_VAL_IND
                             }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
@@ -2760,6 +2816,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
         public static int GetT_QREST_DATA_HOURLYcount(string org, Guid? mon, DateTime? DateFrom, DateTime? DateTo, string timeType)
         {
@@ -2788,7 +2845,6 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
 
 
         public static List<RawDataDisplay> GetT_QREST_DATA_HOURLY_Last24Records(Guid? mon)
@@ -2822,6 +2878,7 @@ namespace QRESTModel.DAL
             }
         }
 
+
         public static int GetT_QREST_DATA_HOURLYcountByMon(Guid? mon)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -2839,6 +2896,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+        
 
         public static int GetT_QREST_DATA_HOURLYcountByImportIDX(Guid? imp)
         {
@@ -2857,7 +2915,6 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
 
 
         public static List<RawDataDisplay> GetT_QREST_DATA_HOURLY_ManVal(Guid mon, DateTime dateFrom, DateTime dateTo)
@@ -3035,7 +3092,7 @@ namespace QRESTModel.DAL
                                 DATA_VALUE = a.DATA_VALUE,
                                 PAR_CODE = p.PAR_CODE,
                                 PAR_NAME = p.PAR_NAME,
-                                UNIT_CODE = u3.UNIT_CODE,
+                                UNIT_CODE = u3.UNIT_CODE ?? m.COLLECT_UNIT_CODE,
                                 UNIT_DESC = u3.UNIT_DESC,
                                 POC = m.POC,
                                 METHOD_CODE = pm.METHOD_CODE,
@@ -3734,7 +3791,7 @@ namespace QRESTModel.DAL
                         string[] cols = row.Split(delimiter, StringSplitOptions.None);
                         if (cols.Length > 2) //skip blank rows
                         {
-                            string dateTimeString = cols[dateCol].Trim() + " " + cols[timeCol].Trim();
+                            string dateTimeString = (cols[dateCol].Trim() + " " + cols[timeCol].Trim()).Trim();
 
                             foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                             {

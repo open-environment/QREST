@@ -99,7 +99,7 @@ namespace QRESTModel.DataTableGen
         public static DataTable RawData(string Freq, string orgid, Guid? SiteIDX, Guid? MonIDX, DateTime startDt, DateTime endDt, string tIME_TYPE)
         {
             DataTable dtData = new DataTable("Data");
-            dtData.Columns.AddRange(new DataColumn[14] {
+            dtData.Columns.AddRange(new DataColumn[16] {
                                             new DataColumn("Org ID"),
                                             new DataColumn("Site ID"),
                                             new DataColumn("Par Code"),
@@ -110,7 +110,9 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("Date" + (tIME_TYPE == "U" ? " (UTC)" : " (local)")),
                                             new DataColumn("Time" + (tIME_TYPE == "U" ? " (UTC)" : " (local)")),
                                             new DataColumn("Value"),
+                                            new DataColumn("Unit"),
                                             new DataColumn("QREST Flag"),
+                                            new DataColumn("AQS Qual Code"),
                                             new DataColumn("AQS Null Code"),
                                             new DataColumn("Lvl1 Review"),
                                             new DataColumn("Lvl2 Review")
@@ -121,8 +123,8 @@ namespace QRESTModel.DataTableGen
                 List<RawDataDisplay> _mons = db_Air.GetT_QREST_DATA_FIVE_MIN(orgid, SiteIDX, MonIDX, startDt, endDt, 50000, null, 3, "asc", tIME_TYPE);
                 foreach (var _mon in _mons)
                 {
-                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_DTTM.GetValueOrDefault().Date, _mon.DATA_DTTM.GetValueOrDefault().TimeOfDay, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
-                        _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND);
+                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_DTTM.GetValueOrDefault().Date, _mon.DATA_DTTM.GetValueOrDefault().TimeOfDay, _mon.DATA_VALUE, _mon.UNIT_DESC, _mon.VAL_CD, null, null,
+                        null, null);
                 }
             }
             else if (Freq == "H")
@@ -130,7 +132,7 @@ namespace QRESTModel.DataTableGen
                 List<RawDataDisplay> _mons = db_Air.GetT_QREST_DATA_HOURLY(orgid, MonIDX, startDt, endDt, 50000, null, 3, "asc", tIME_TYPE);
                 foreach (var _mon in _mons)
                 {
-                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_DTTM.GetValueOrDefault().Date, _mon.DATA_DTTM.GetValueOrDefault().TimeOfDay, _mon.DATA_VALUE, _mon.VAL_CD, _mon.AQS_NULL_CODE,
+                    dtData.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.POC, _mon.DATA_DTTM, _mon.DATA_DTTM.GetValueOrDefault().Date, _mon.DATA_DTTM.GetValueOrDefault().TimeOfDay, _mon.DATA_VALUE, _mon.UNIT_DESC, _mon.VAL_CD, _mon.AQS_QUAL_CODES, _mon.AQS_NULL_CODE,
                         _mon.LVL1_VAL_IND, _mon.LVL2_VAL_IND);
                 }
             }

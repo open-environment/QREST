@@ -64,12 +64,15 @@
                             <th>Value</th>
                             <th>Unit</th>
                             <th>QREST Flags</th>
+                            @if (Model.selDuration=="1")
+                            {
                             <th>AQS Null Code</th>
                             <th>AQS Qual Codes</th>
                             <th>Suitable for AQS </th>
                             <th>Lvl 1</th>
                             <th>Lvl 2</th>
                             <th>Notes</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -109,6 +112,8 @@
                                     }
                                     @Html.DisplayFor(model => model.RawData[i].VAL_CD)
                                 </td>
+                                @if(Model.selDuration=="1")
+                                { 
                                 <td>
                                     @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
                                 </td>
@@ -133,7 +138,7 @@
                                     @Html.DisplayFor(model => model.RawData[i].NOTES)
                                     <a href="#modal-hist" data-toggle="modal" data-id="@Model.RawData[i].DATA_RAW_IDX" class="modal-hist" style="display: inline-block;"> <i class="fa fa-comments-o text-muted"></i></a>
                                 </td>
-
+                                }
                             </tr>
                         }
                     </tbody>
@@ -153,7 +158,7 @@
 
 
             <!-- START EDIT MODAL  -->
-            <div class="modal fade" id="modal-form1" style="display: none" aria-hidden="true">
+            <div class="modal " id="modal-form1" style="display: none" aria-hidden="true">
                 <div class="modal-dialog">
                     @Html.AntiForgeryToken()
                     <div class="modal-content" style="min-height:450px;">
@@ -185,6 +190,8 @@
                                     <div class="tab-content">
                                         <div class="tab-pane active" id="basic">
 
+                                            @if (Model.selDuration == "1")
+                                            {
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="form-group">
@@ -203,31 +210,33 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            @if (Model.secLvl1Ind == true)
+                                            }
+                                            @if (Model.secLvl1Ind == true && Model.selDuration == "1")  //only show for hourly data and those with rights
                                             {
-                                                <div class="row col-md-12">
+                                                <div class="row col-md-12" >
                                                     <div class="form-group">
+                                                        <input id="chkLvl1" type="checkbox" value="">
                                                         <label>Update Level 1 Review Status</label>
                                                         <br />
-                                                        <div class="btn-group" data-toggle="buttons">
-                                                            <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl1, "")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
-                                                            <label class="btn btn-sm btn-success"> @Html.RadioButtonFor(x => x.editLvl1, "Y")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Mark Level 1 Complete </label>
-                                                            <label class="btn btn-sm btn-danger"> @Html.RadioButtonFor(x => x.editLvl1, "N")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Rollback Level 1 </label>
+                                                        <div id="divlvl1" class="btn-group" data-toggle="buttons" style="display: none">
+                                                            <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl1, "", new { id = "editLvl1_0" })<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
+                                                            <label class="btn btn-sm btn-success"> @Html.RadioButtonFor(x => x.editLvl1, "Y", new { id = "editLvl1_1" })<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Mark Level 1 Complete </label>
+                                                            <label class="btn btn-sm btn-danger"> @Html.RadioButtonFor(x => x.editLvl1, "N", new { id = "editLvl1_2" })<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Rollback Level 1 </label>
                                                         </div>
                                                     </div>
                                                 </div>
                                             }
-                                            @if (Model.secLvl2Ind == true)
+                                            @if (Model.secLvl2Ind == true && Model.selDuration == "1")  //only show for hourly data and those with rights
                                             {
                                                 <div class="row col-md-12">
                                                     <div class="form-group">
+                                                        <input id="chkLvl2" type="checkbox" value="">
                                                         <label>Update Level 2 Review Status</label>
                                                         <br />
-                                                        <div class="btn-group" data-toggle="buttons">
-                                                            <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl2, "")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
-                                                            <label class="btn btn-sm btn-success"> @Html.RadioButtonFor(x => x.editLvl2, "Y")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Mark Level 2 Complete </label>
-                                                            <label class="btn btn-sm btn-danger"> @Html.RadioButtonFor(x => x.editLvl2, "N")<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Rollback Level 2 </label>
+                                                        <div id="divlvl2" class="btn-group" data-toggle="buttons" style="display: none">
+                                                            <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl2, "", new { id = "editLvl2_0" })<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
+                                                            <label class="btn btn-sm btn-success"> @Html.RadioButtonFor(x => x.editLvl2, "Y", new { id = "editLvl2_1" })<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Mark Level 2 Complete </label>
+                                                            <label class="btn btn-sm btn-danger"> @Html.RadioButtonFor(x => x.editLvl2, "N", new { id = "editLvl2_2" })<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> Rollback Level 2 </label>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -368,6 +377,41 @@
 <script type="text/javascript">
     var table;
     $(document).ready(function () {
+
+        //toggle visibility of LVL1 update
+        $("#chkLvl1").click(function () {
+            if ($(this).is(":checked")) {
+                $("#divlvl1").show();
+                $("#editLvl1_1").prop("checked", true);
+                $("#editLvl1_0").parent().removeClass("active");
+                $("#editLvl1_1").parent().addClass("active");
+                $("#editLvl1_2").parent().removeClass("active");
+
+            } else {
+                $("#divlvl1").hide();
+                $("#editLvl1_0").prop("checked", true);
+                $("#editLvl1_0").parent().addClass("active");
+                $("#editLvl1_1").parent().removeClass("active");
+                $("#editLvl1_2").parent().removeClass("active");
+            }
+        });
+
+        //toggle visibility of LVL2 update
+        $("#chkLvl2").click(function () {
+            if ($(this).is(":checked")) {
+                $("#divlvl2").show();
+                $("#editLvl2_1").prop("checked", true);
+                $("#editLvl2_0").parent().removeClass("active");
+                $("#editLvl2_1").parent().addClass("active");
+                $("#editLvl2_2").parent().removeClass("active");
+            } else {
+                $("#divlvl2").hide();
+                $("#editLvl2_0").prop("checked", true);
+                $("#editLvl2_0").parent().addClass("active");
+                $("#editLvl2_1").parent().removeClass("active");
+                $("#editLvl2_2").parent().removeClass("active");
+            }
+        });
 
 
         //$.fn.table.moment('M/D/YYYY hh:mm:ss A');
@@ -642,7 +686,6 @@
         });
 
         $.each(arrayOfValues, function (index, val) {
-            console.log('hi');
             $("#norepostform").append('<input id="editRawDataIDX" name="editRawDataIDX" type="hidden" value="' + val + '">');
         });
 

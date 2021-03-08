@@ -647,6 +647,7 @@
     <Content Include="Views\Data\AQSGenQA.cshtml" />
     <Content Include="Views\Data\ImportStatus.cshtml" />
     <Content Include="Views\Site\MonitorEditMethod.cshtml" />
+    <Content Include="Views\Admin\CDXTest.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

@@ -91,7 +91,7 @@
                                 }
                                 else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Failed" && item.T_QREST_AQS.DOWNLOAD_FILE == null)
                                 {
-                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-dark download" data-id="@item.T_QREST_AQS.AQS_IDX" style="display: inline-block;">Download Errors</a>
+                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-dark download" data-id="@item.T_QREST_AQS.AQS_IDX" data-dl-url="@Url.Action("AQSResponseDownload", new { id = item.T_QREST_AQS.AQS_IDX })" style="display: inline-block;">Download Errors</a>
                                 }
                                 else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Failed" && item.T_QREST_AQS.DOWNLOAD_FILE != null)
                                 {
@@ -157,6 +157,19 @@
 </div>
 <!-- END EDIT MODAL -->
 
+<!-- PLEASE WAIT MODAL -->
+<div class="modal" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false"  style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1>Processing...</h1>
+            </div>
+            <div class="modal-body">
+                Processing - please wait.
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
@@ -201,18 +214,30 @@
 
         //******************download*******************
         $(document).on('click', '.download', function () {
+            $('#pleaseWaitDialog').modal('show');
+            var btn = $(this);
+
             $.post('@Url.Action("AQSDownload","Data")',
                 AddAntiForgeryToken({
                     id: $(this).attr('data-id')
                 }))
                 .done(function (response) {
-                    if (response.msg == "Success") {
-                        //toastr.success("Updated");
+                    $('#pleaseWaitDialog').modal('hide');
+
+                    console.log(response);
+                    if (response == "Success") {
+                        console.log(btn.attr('data-dl-url'));
+
+                        btn.removeClass("btn").removeClass("btn-sm").removeClass("btn-rounded").removeClass("btn-dark").removeClass("download").addClass("text-info");
+                        btn.get(0).lastChild.nodeValue = "Validation Errors";
+                        btn.attr("href", btn.attr('data-dl-url'));
+                        toastr.success("Error Report Downloaded");
                     }
                     else
-                        toastr.warning(response.msg);
+                        toastr.warning("Unable to download");
                 }).fail(function (data) {
-                    toastr.warning("Unable to Get Status");
+                    $('#pleaseWaitDialog').modal('hide');
+                    toastr.warning("Unable to Download");
                 });
         });
 

@@ -751,11 +751,15 @@ namespace QRESTModel.DAL
                     if (sTATE_CD != null) e.STATE_CD = sTATE_CD;
                     if (ePA_REGION != null) e.EPA_REGION = ePA_REGION;
                     if (aQS_AGENCY_CODE != null) e.AQS_AGENCY_CODE = aQS_AGENCY_CODE;
+
                     if (aQS_NAAS_UID != null) e.AQS_NAAS_UID = aQS_NAAS_UID;
+                    if (aQS_NAAS_UID == "-999") e.AQS_NAAS_UID = null;  //special handling for nulling out
                     if (aQS_NAAS_PWD != null) {
                         var xxx = new SimpleAES().Encrypt(aQS_NAAS_PWD);
                         e.AQS_NAAS_PWD = xxx; 
                     }
+                    if (aQS_NAAS_PWD == "-999") e.AQS_NAAS_PWD = null;  //special handling for nulling out
+
                     if (sELF_REG_IND != null) e.SELF_REG_IND = sELF_REG_IND;
                     if (aCT_IND != null) e.ACT_IND = aCT_IND ?? true;
                     if (aQS_AQS_UID != null) e.AQS_AQS_UID = aQS_AQS_UID;

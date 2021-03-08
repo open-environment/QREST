@@ -489,6 +489,10 @@ namespace QREST.Controllers
                     PhoneNumber = user.PhoneNumber,
                     PhoneNumberConfirmed = user.PhoneNumberConfirmed
                 };
+
+                model.ROLES = UserManager.GetRoles(user.Id);
+                model.user_orgs = db_Account.GetT_QREST_ORG_USERS_byUSER_IDX(user.Id, null);
+
                 return View(model);
             }
             else
@@ -524,6 +528,8 @@ namespace QREST.Controllers
                 UserManager.Update(user);
 
                 TempData["Success"] = "Profile updated";
+                model.ROLES = UserManager.GetRoles(user.Id);
+                model.user_orgs = db_Account.GetT_QREST_ORG_USERS_byUSER_IDX(user.Id, null);
             }
 
             return View(model);

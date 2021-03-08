@@ -395,7 +395,9 @@ namespace QREST.Models
     {
         public string selOrgID { get; set; }
         public Guid? selSite { get; set; }
+
         public bool UseGlobalCDXAccount { get; set; }
+        public string GlobalCDXUser { get; set; }
         public string CDXUsername { get; set; }
         public string CDXPwd { get; set; }
         public string AQSScreeningGroup { get; set; }

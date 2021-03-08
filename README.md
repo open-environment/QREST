@@ -37,6 +37,9 @@ Starting from 1/25/2021, changes to the released version of www.qrest.net are no
 
 ### 2021-01-25
 - AQS Submission module -> AQS/CDX account selection page -> improved ability to choose between local and global CDX account
+### 2021-01-27
+- AQS submission enhancements
+- Data Export -> additional columns included in export
 
 
 ## Sending Feedback

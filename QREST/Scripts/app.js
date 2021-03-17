@@ -109,9 +109,10 @@
         });
     });
 
-    //modal: set focus to first visible, enabled, not readonly textbox 
+    //modal: set focus to first visible, enabled, not readonly textbox (or select)
     $(document).on('shown.bs.modal', function (e) {
-        $('input:visible:enabled:not([readonly]):first', e.target).focus();
+        var ele = $(e.target).find('input[type=text],textarea,select').filter(':visible:first'); // find the first input on the bs modal
+        if (ele) { ele.focus(); } // if we found one then set focus.
     });
 
 

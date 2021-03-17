@@ -29,7 +29,7 @@
                 </table>
             </div>
         </div>
-        <a id="add-it" href="#modal-form" data-toggle="modal" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add Non-AQS Parameter</a>
+        <a id="add-it" href="#modal-form" data-toggle="modal" data-id="@Model.editPAR_CODE" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add Non-AQS Parameter</a>
     </div>
 </section>
 
@@ -53,7 +53,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Parameter Code</label>
-                                @Html.TextBoxFor(model => model.editPAR_CODE, new { @class = "form-control", maxlength = "6", @readonly = "readonly" })
+                                @Html.TextBoxFor(model => model.editPAR_CODE, new { @class = "form-control" })
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -118,9 +118,9 @@
                 "columns": [
                     {
                         "render": function (data, type, row) {
-                            if (row.AQS_IND === false) {
-                                return '<a href="#modal-form" data-toggle="modal" data-id="' + row.PAR_CODE + '" ' +
-                                    'class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
+                            if (row.AQS_IND == false) {
+                                return '<a href="#modal-form" data-toggle="modal" data-id="' + row.PAR_CODE + '" data-nme="' + row.PAR_NAME + '" data-unit="' + row.STD_UNIT_CODE + '" '
+                                    + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
                                     + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
                                     + row.PAR_CODE + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/RefParDelete"><b>Confirm Delete</b></div></div>';
                             }
@@ -143,9 +143,11 @@
             });
 
 
-            //load modal
+            ////load modal
             $(document).on('click', '.modal-it', function () {
                 $("#editPAR_CODE").val($(this).attr('data-id'));
+                $("#editPAR_NAME").val($(this).attr('data-nme'));
+                $("#editSTD_UNIT_CODE").val($(this).attr('data-unit'));
             });
         });
 

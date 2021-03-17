@@ -252,7 +252,7 @@
                                                             <br />
                                                             <div class="input-group m-b">
                                                                 @Html.TextBoxFor(model => model.editValue, new { @class = "form-control", @maxlength = "20" })
-                                                                <span id="spnValChk" class="input-group-addon"> Remove All Values @Html.CheckBoxFor(x => x.editValueBlank) </span>
+                                                                <span id="spnValChk" class="input-group-addon"> Remove Values @Html.CheckBoxFor(x => x.editValueBlank, new { @data_toggle="tooltip", data_placement="top", data_original_title="Will remove value column data for the air records you have selected" }) </span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -277,7 +277,7 @@
                                                         <br />
                                                         <div class="input-group m-b">
                                                             @Html.TextBoxFor(model => model.editFlag, new { @class = "form-control", @maxlength = "5" })
-                                                            <span id="spnValChk" class="input-group-addon"> Remove All Flags @Html.CheckBoxFor(x => x.editFlagBlank) </span>
+                                                            <span id="spnValChk" class="input-group-addon"> Remove QREST Flags @Html.CheckBoxFor(x => x.editFlagBlank, new { @data_toggle = "tooltip", data_placement = "top", data_original_title = "Will remove any QREST flags for the air records you have selected" }) </span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -590,7 +590,6 @@
         //initialize select2
         $('#editQual').select2();
 
-
         //toggles display of Edit button based on whether there are any rows selected
         table.on('select', function (e, dt, type, indexes) {
             $('#divBulk').show();
@@ -600,8 +599,8 @@
                 $('#divBulk').hide();
         });
 
-    });
 
+    });
 
 
     //select/unselect all (mark all visible rows in datatable as selected)
@@ -693,7 +692,7 @@
     });
 
 
-    //make user click confirm when marking records for deletion
+    //make user clicks confirm when marking records for deletion
     $(document).on('click', 'a.confirm-link', function () {
         var deleteLink = $(this);
         deleteLink.hide();

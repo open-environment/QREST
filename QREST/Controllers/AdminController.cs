@@ -558,9 +558,6 @@ namespace QREST.Controllers
 
 
 
-
-
-
         //************************************* TASK MANAGEMENT ************************************************************
         // GET: /Admin/TaskConfig
         public ActionResult TaskConfig(int? id)
@@ -616,13 +613,14 @@ namespace QREST.Controllers
         }
 
 
+
+
         //************************************* LOGGING ************************************************************
 
         // GET: /Admin/LogError
         public ActionResult LogError()
         {
-            var model = new vmAdminLogError();
-            return View(model);
+            return View();
         }
 
         [HttpPost]
@@ -648,8 +646,7 @@ namespace QREST.Controllers
 
         public ActionResult LogEmail()
         {
-            var model = new vmAdminLogEmail();
-            return View(model);
+            return View();
         }
 
         [HttpPost]
@@ -930,269 +927,6 @@ namespace QREST.Controllers
         }
 
 
-
-        //************************************* REF DATA ************************************************************
-        // GET: /Admin/RefData
-        public ActionResult RefCollFreq()
-        {
-            return View();
-        }
-
-
-        [HttpPost]
-        public ActionResult RefCollFreqData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
-
-            List<T_QREST_REF_COLLECT_FREQ> data = db_Ref.GetT_QREST_REF_COLLECT_FREQ_data(pageSize, start, orderColName, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_REF_COLLECT_FREQ().Count();
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
-
-
-        public ActionResult RefDuration()
-        {
-            return View();
-        }
-
-
-        [HttpPost]
-        public ActionResult RefDurationData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
-
-            List<T_QREST_REF_DURATION> data = db_Ref.GetT_QREST_REF_DURATION_data(pageSize, start, orderCol, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_REF_DURATION().Count();
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
-
-
-        public ActionResult RefPar()
-        {
-            var model = new vmAdminRefPar();
-            model.editPAR_CODE = db_Ref.GetT_QREST_REF_PARAMETERS_NextNonAQS();
-            return View(model);
-        }
-
-
-        [HttpPost]
-        public ActionResult RefParData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
-
-            List<T_QREST_REF_PARAMETERS> data = db_Ref.GetT_QREST_REF_PARAMETERS_data(pageSize, start, orderColName, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_REF_PARAMETERS().Count();
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
-
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult RefParEdit(vmAdminRefPar model)
-        {
-            if (ModelState.IsValid)
-            {
-                bool succInd = db_Ref.InsertUpdatetT_QREST_REF_PARAMETERS(model.editPAR_CODE, model.editPAR_NAME, null, null, model.editSTD_UNIT_CODE, false, true, User.Identity.GetUserId());
-
-                if (succInd)
-                    TempData["Success"] = "Record updated";
-                else
-                    TempData["Error"] = "Error updating record.";
-            }
-            else
-                TempData["Error"] = "Error updating record";
-
-            return RedirectToAction("RefPar", "Admin");
-        }
-
-
-        [HttpPost]
-        public JsonResult RefParDelete(string id)
-        {
-            if (id == null)
-                return Json("No record selected to delete");
-            else
-            {
-                if (db_Ref.GetT_QREST_REF_PAR_METHODS_CountByPar(id))
-                    return Json("This record cannot be deleted because a parameter method exists for it, which must be deleted first.");
-
-                int succId = db_Ref.DeleteT_QREST_REF_PARAMETERS(id);
-                if (succId == 1)
-                    return Json("Success");
-                else
-                    return Json("This record cannot be deleted. There may be data or a monitor configure to use it.");
-            }
-        }
-
-
-        public ActionResult RefParMethod()
-        {
-            var model = new vmAdminRefParMethod();
-            return View(model);
-        }
-
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult RefParMethod(vmAdminRefParMethod model)
-        {
-            if (ModelState.IsValid && model.editPAR_METHOD_IDX != null)
-            {
-                Tuple<string, string> SuccInd = db_Ref.InsertUpdateT_QREST_REF_PAR_METHODS(model.editPAR_METHOD_IDX, null, null, null, model.editCOLLECTION_DESC, null, null, null, null, null, null, null,
-                    model.editCUST_MIN_VALUE ?? -9999, model.editCUST_MAX_VALUE ?? -9999, User.Identity.GetUserId());
-
-                if (SuccInd.Item1 == "U")
-                    TempData["Success"] = "Record updated";
-                else
-                    TempData["Error"] = "Error updating record.";
-            }
-            else
-                TempData["Error"] = "Error updating record";
-
-            return RedirectToAction("RefParMethod", "Admin");
-        }
-
-
-        [HttpPost]
-        public ActionResult RefParMethodData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-
-            //data filters
-            string selSearch = Request.Form.GetValues("selSearch")?.FirstOrDefault();
-
-            List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(selSearch, null, pageSize, start);
-            var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(selSearch, null);
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
-
-
-        [HttpPost]
-        public JsonResult RefParMethDelete(string id)
-        {
-            if (id == null)
-                return Json("No record selected to delete");
-            else
-            {
-                Guid idg = Guid.Parse(id);
-                if (db_Air.GetT_QREST_MONITORS_AnyByParMethodIdx(idg))
-                    return Json("This record cannot be deleted because a monitor is currently using it. Delete the site's monitor first.");
-
-                if (db_Ref.DeleteT_QREST_REF_PAR_METHODS(idg))
-                    return Json("Success");
-                else
-                    return Json("This record cannot be deleted. There may be data or a monitor configure to use it.");
-            }
-        }
-
-
-        public ActionResult ExportExcel(string Action)
-        {
-            DataTable dt = null;
-            if (Action == "RefParMethod")
-                dt = DataTableGen.RefParMethod("", "");
-
-            DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dt });
-            if (dsExport.Tables.Count > 0)
-            {
-                MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);
-                Response.Clear();
-                Response.Buffer = true;
-                Response.Charset = "";
-                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                Response.AddHeader("content-disposition", "attachment;filename=QRESTExport.xlsx");
-                ms.WriteTo(Response.OutputStream);
-                Response.Flush();
-                Response.End();
-
-                return null;
-            }
-            else
-            {
-                TempData["Error"] = "No data found to export";
-                return RedirectToAction(Action);
-            }
-        }
-
-
-        public ActionResult RefParUnit()
-        {
-            return View();
-        }
-
-
-        [HttpPost]
-        public ActionResult RefParUnitData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
-
-            List<RefParUnitDisplay> data = db_Ref.GetT_QREST_REF_PAR_UNITS_data(pageSize, start, orderColName, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_REF_PAR_UNITS_count();
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
-
-
-        public ActionResult RefUnit()
-        {
-            return View();
-        }
-
-
-        [HttpPost]
-        public ActionResult RefUnitData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
-
-            List<T_QREST_REF_UNITS> data = db_Ref.GetT_QREST_REF_UNITS_data(pageSize, start, orderColName, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_REF_UNITS(null).Count();
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
-
-
-        public ActionResult RefQualifier()
-        {
-            return View();
-        }
-
-
-        [HttpPost]
-        public ActionResult RefQualifierData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
-
-            List<T_QREST_REF_QUALIFIER> data = db_Ref.GetT_QREST_REF_QUALIFIER_data(pageSize, start, orderColName, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_REF_QUALIFIERCount();
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
 
 
 

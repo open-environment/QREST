@@ -572,7 +572,7 @@
     <Content Include="Views\Account\ForgotPasswordConfirmation.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
     <Content Include="Views\Account\ConfirmEmail.cshtml" />
-    <Content Include="Views\Admin\RefParMethod.cshtml" />
+    <Content Include="Views\Reports\RefParMethod.cshtml" />
     <Content Include="Views\Admin\AppSettings.cshtml" />
     <Content Include="Views\Shared\_LeftMenu.cshtml" />
     <Content Include="Views\Error\AccessDenied.cshtml" />
@@ -616,16 +616,16 @@
     <Content Include="Views\Site\OrgEdit.cshtml" />
     <Content Include="Views\Reports\Index.cshtml" />
     <Content Include="Views\Reports\Export.cshtml" />
-    <Content Include="Views\Admin\_RefDataTopNav.cshtml" />
-    <Content Include="Views\Admin\RefPar.cshtml" />
-    <Content Include="Views\Admin\RefCollFreq.cshtml" />
-    <Content Include="Views\Admin\RefDuration.cshtml" />
-    <Content Include="Views\Admin\RefUnit.cshtml" />
-    <Content Include="Views\Admin\RefParUnit.cshtml" />
+    <Content Include="Views\Reports\_RefDataTopNav.cshtml" />
+    <Content Include="Views\Reports\RefPar.cshtml" />
+    <Content Include="Views\Reports\RefCollFreq.cshtml" />
+    <Content Include="Views\Reports\RefDuration.cshtml" />
+    <Content Include="Views\Reports\RefUnit.cshtml" />
+    <Content Include="Views\Reports\RefParUnit.cshtml" />
     <Content Include="Views\Data\ManualImport.cshtml" />
     <Content Include="Views\Admin\Connectivity.cshtml" />
     <Content Include="Views\Data\DataReview.cshtml" />
-    <Content Include="Views\Admin\RefQualifier.cshtml" />
+    <Content Include="Views\Reports\RefQualifier.cshtml" />
     <Content Include="Views\Site\SitePollPing.cshtml" />
     <Content Include="Views\Home\ReportMonthly.cshtml" />
     <Content Include="Views\Home\ReportAnnual.cshtml" />
@@ -648,6 +648,7 @@
     <Content Include="Views\Data\ImportStatus.cshtml" />
     <Content Include="Views\Site\MonitorEditMethod.cshtml" />
     <Content Include="Views\Admin\CDXTest.cshtml" />
+    <Content Include="Views\Shared\_PartialHeadEnvironment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

@@ -20,7 +20,7 @@
                 <a class="btn btn-link visible-xs" data-toggle="class:nav-off-screen,open" data-target="#nav,html">
                     <i class="fa fa-bars"></i>
                 </a>
-                <a href="@Url.Action("Index", "Dashboard")" class="navbar-brand" data-toggle="tooltip" data-original-title="Quality Review and Exchange System for Tribes" data-placement="bottom" data-container="body"><img src="~/Content/Images/itep_logo_120.png" class="m-r-sm" alt="ITEP Logo">QREST</a>
+                <a href="@Url.Action("Index", "Dashboard")" class="navbar-brand" data-toggle="tooltip" data-original-title="Quality Review and Exchange System for Tribes" data-placement="bottom" data-container="body"><img src="~/Content/Images/itep_logo_120.png" class="m-r-sm" alt="ITEP Logo">QREST @Html.Action("_PartialHeadEnvironment", "Shared")</a>
                 <a class="btn btn-link visible-xs dropdown-toggle" data-toggle="dropdown" data-target=".nav-user">
                     <span class="fa fa-cog"></span>
                 </a>

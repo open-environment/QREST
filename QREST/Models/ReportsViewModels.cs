@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -21,4 +22,38 @@ namespace QREST.Models
             ddl_TimeType = ddlHelpers.get_ddl_time_type();
         }
     }
+
+
+
+
+    // ******************************** REF DATA************************************
+    //****************************************************************************
+    //****************************************************************************
+    public class vmReportsRefPar
+    {
+        public string editPAR_CODE { get; set; }
+        [Required]
+        public string editPAR_NAME { get; set; }
+        [Required]
+        public string editSTD_UNIT_CODE { get; set; }
+
+        public IEnumerable<SelectListItem> ddl_units { get; set; }
+
+        public vmReportsRefPar()
+        {
+            ddl_units = ddlHelpers.get_ddl_ref_units(null);
+        }
+    }
+
+
+    public class vmReportsRefParMethod
+    {
+        public Guid? editPAR_METHOD_IDX { get; set; }
+        public double? editCUST_MIN_VALUE { get; set; }
+        public double? editCUST_MAX_VALUE { get; set; }
+        public string editCOLLECTION_DESC { get; set; }
+
+    }
+
+
 }

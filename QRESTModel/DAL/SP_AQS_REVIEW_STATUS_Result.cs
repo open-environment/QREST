@@ -23,5 +23,6 @@ namespace QRESTModel.DAL
         public Nullable<int> lvl1_val_ind { get; set; }
         public Nullable<int> lvl2_val_ind { get; set; }
         public Nullable<int> doc_cnt { get; set; }
+        public Nullable<double> tot_pct { get; set; }
     }
 }

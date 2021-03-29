@@ -120,10 +120,14 @@
                                 <td>
                                     @Html.DisplayFor(model => model.RawData[i].AQS_QUAL_CODES)
                                 </td>
-                                <td style="@(Model.RawData[i].AQSReadyInd == true ? "background-color:#85c788" : "")">
+                                <td style="@(Model.RawData[i].AQSReadyInd == true ? "background-color:#85c788" : "background-color:#ffa9a9")">
                                     @if (@Model.RawData[i].AQSReadyInd == true)
                                     {
                                         <text>Y</text>
+                                    }
+                                    else
+                                    {
+                                        <text>N</text>
                                     }
                                 </td>
                                 <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">

@@ -1720,11 +1720,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           </AssociationSet>
           <EntitySet Name="T_QREST_REF_QC" EntityType="QRESTModel.T_QREST_REF_QC" />
           <EntitySet Name="T_QREST_REF_QC_AUDIT_LVL" EntityType="QRESTModel.T_QREST_REF_QC_AUDIT_LVL" />
-          <FunctionImport Name="SP_AQS_REVIEW_STATUS" ReturnType="Collection(QRESTModel.SP_AQS_REVIEW_STATUS_Result)">
-            <Parameter Name="siteid" Mode="In" Type="Guid" />
-            <Parameter Name="adate" Mode="In" Type="DateTime" />
-            <Parameter Name="edate" Mode="In" Type="DateTime" />
-          </FunctionImport>
           <FunctionImport Name="SP_IMPORT_DATA_FROM_TEMP">
           <Parameter Name="import_idx" Mode="In" Type="Guid" />
           </FunctionImport>
@@ -1741,6 +1736,11 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <Parameter Name="eDate" Mode="In" Type="DateTime" />
             <Parameter Name="monid" Mode="In" Type="Guid" />
             <Parameter Name="tz" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SP_AQS_REVIEW_STATUS" ReturnType="Collection(QRESTModel.SP_AQS_REVIEW_STATUS_Result)">
+            <Parameter Name="siteid" Mode="In" Type="Guid" />
+            <Parameter Name="adate" Mode="In" Type="DateTime" />
+            <Parameter Name="edate" Mode="In" Type="DateTime" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
@@ -3055,18 +3055,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="MIN_AMT" Type="Double" />
           <Property Name="MAX_AMT" Type="Double" />
         </EntityType>
-        <ComplexType Name="SP_AQS_REVIEW_STATUS_Result">
-          <Property Type="String" Name="PAR_CODE" Nullable="false" MaxLength="6" />
-          <Property Type="String" Name="PAR_NAME" Nullable="false" MaxLength="100" />
-          <Property Type="Guid" Name="MONITOR_IDX" Nullable="false" />
-          <Property Type="Int32" Name="POC" Nullable="false" />
-          <Property Type="Int32" Name="hrs" Nullable="true" />
-          <Property Type="Int32" Name="hrs_data" Nullable="true" />
-          <Property Type="Int32" Name="aqs_ready" Nullable="true" />
-          <Property Type="Int32" Name="lvl1_val_ind" Nullable="true" />
-          <Property Type="Int32" Name="lvl2_val_ind" Nullable="true" />
-          <Property Type="Int32" Name="doc_cnt" Nullable="true" />
-        </ComplexType>
         <EntityType Name="T_QREST_DATA_IMPORT_TEMP">
           <Key>
             <PropertyRef Name="DATA_IMPORT_TEMP_IDX" />
@@ -3104,6 +3092,19 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="SP_AQS_REVIEW_STATUS_Result">
+          <Property Type="String" Name="PAR_CODE" Nullable="false" MaxLength="6" />
+          <Property Type="String" Name="PAR_NAME" Nullable="false" MaxLength="100" />
+          <Property Type="Guid" Name="MONITOR_IDX" Nullable="false" />
+          <Property Type="Int32" Name="POC" Nullable="false" />
+          <Property Type="Int32" Name="hrs" Nullable="true" />
+          <Property Type="Int32" Name="hrs_data" Nullable="true" />
+          <Property Type="Int32" Name="aqs_ready" Nullable="true" />
+          <Property Type="Int32" Name="lvl1_val_ind" Nullable="true" />
+          <Property Type="Int32" Name="lvl2_val_ind" Nullable="true" />
+          <Property Type="Int32" Name="doc_cnt" Nullable="true" />
+          <Property Type="Double" Name="tot_pct" Nullable="true" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3971,22 +3972,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="SP_AQS_REVIEW_STATUS" FunctionName="QRESTModel.Store.SP_AQS_REVIEW_STATUS">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="QRESTModel.SP_AQS_REVIEW_STATUS_Result">
-                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
-                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
-                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
-                <ScalarProperty Name="POC" ColumnName="POC" />
-                <ScalarProperty Name="hrs" ColumnName="hrs" />
-                <ScalarProperty Name="hrs_data" ColumnName="hrs_data" />
-                <ScalarProperty Name="aqs_ready" ColumnName="aqs_ready" />
-                <ScalarProperty Name="lvl1_val_ind" ColumnName="lvl1_val_ind" />
-                <ScalarProperty Name="lvl2_val_ind" ColumnName="lvl2_val_ind" />
-                <ScalarProperty Name="doc_cnt" ColumnName="doc_cnt" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="SP_IMPORT_DATA_FROM_TEMP" FunctionName="QRESTModel.Store.SP_IMPORT_DATA_FROM_TEMP" />
           <EntitySetMapping Name="T_QREST_DATA_IMPORT_TEMP">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_IMPORT_TEMP">
@@ -4013,6 +3998,23 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="SP_VALIDATE_HOURLY_IMPORT" FunctionName="QRESTModel.Store.SP_VALIDATE_HOURLY_IMPORT" />
           <FunctionImportMapping FunctionImportName="SP_FILL_LOST_DATA" FunctionName="QRESTModel.Store.SP_FILL_LOST_DATA" />
+          <FunctionImportMapping FunctionImportName="SP_AQS_REVIEW_STATUS" FunctionName="QRESTModel.Store.SP_AQS_REVIEW_STATUS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_AQS_REVIEW_STATUS_Result">
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="POC" ColumnName="POC" />
+                <ScalarProperty Name="hrs" ColumnName="hrs" />
+                <ScalarProperty Name="hrs_data" ColumnName="hrs_data" />
+                <ScalarProperty Name="aqs_ready" ColumnName="aqs_ready" />
+                <ScalarProperty Name="lvl1_val_ind" ColumnName="lvl1_val_ind" />
+                <ScalarProperty Name="lvl2_val_ind" ColumnName="lvl2_val_ind" />
+                <ScalarProperty Name="doc_cnt" ColumnName="doc_cnt" />
+                <ScalarProperty Name="tot_pct" ColumnName="tot_pct" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

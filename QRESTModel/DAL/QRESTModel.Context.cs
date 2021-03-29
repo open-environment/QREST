@@ -185,23 +185,6 @@ namespace QRESTModel.DAL
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_VALIDATE_HOURLY");
         }
     
-        public virtual ObjectResult<SP_AQS_REVIEW_STATUS_Result> SP_AQS_REVIEW_STATUS(Nullable<System.Guid> siteid, Nullable<System.DateTime> adate, Nullable<System.DateTime> edate)
-        {
-            var siteidParameter = siteid.HasValue ?
-                new ObjectParameter("siteid", siteid) :
-                new ObjectParameter("siteid", typeof(System.Guid));
-    
-            var adateParameter = adate.HasValue ?
-                new ObjectParameter("adate", adate) :
-                new ObjectParameter("adate", typeof(System.DateTime));
-    
-            var edateParameter = edate.HasValue ?
-                new ObjectParameter("edate", edate) :
-                new ObjectParameter("edate", typeof(System.DateTime));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_AQS_REVIEW_STATUS_Result>("SP_AQS_REVIEW_STATUS", siteidParameter, adateParameter, edateParameter);
-        }
-    
         public virtual int SP_IMPORT_DATA_FROM_TEMP(Nullable<System.Guid> import_idx)
         {
             var import_idxParameter = import_idx.HasValue ?
@@ -239,6 +222,23 @@ namespace QRESTModel.DAL
                 new ObjectParameter("tz", typeof(string));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SP_FILL_LOST_DATA", sDateParameter, eDateParameter, monidParameter, tzParameter);
+        }
+    
+        public virtual ObjectResult<SP_AQS_REVIEW_STATUS_Result> SP_AQS_REVIEW_STATUS(Nullable<System.Guid> siteid, Nullable<System.DateTime> adate, Nullable<System.DateTime> edate)
+        {
+            var siteidParameter = siteid.HasValue ?
+                new ObjectParameter("siteid", siteid) :
+                new ObjectParameter("siteid", typeof(System.Guid));
+    
+            var adateParameter = adate.HasValue ?
+                new ObjectParameter("adate", adate) :
+                new ObjectParameter("adate", typeof(System.DateTime));
+    
+            var edateParameter = edate.HasValue ?
+                new ObjectParameter("edate", edate) :
+                new ObjectParameter("edate", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_AQS_REVIEW_STATUS_Result>("SP_AQS_REVIEW_STATUS", siteidParameter, adateParameter, edateParameter);
         }
     }
 }

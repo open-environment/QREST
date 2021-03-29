@@ -7,6 +7,19 @@ namespace QRESTModel.DataTableGen
 {
     public static class DataTableGen
     {
+        //*******************GENERAL SHARED ***********************************
+        public static DataSet DataSetFromDataTables(List<DataTable> dts)
+        {
+            DataSet ds = new DataSet();
+            foreach (DataTable dt in dts)
+            {
+                if (dt != null && dt.Rows.Count > 0)
+                    ds.Tables.Add(dt);
+            }
+            return ds;
+        }
+
+        //*******************QUERY SPECIFIC***********************************
         public static DataTable SitesByUser(string UserIDX, string orgid)
         {
             DataTable dtSites = new DataTable("Sites");
@@ -95,6 +108,27 @@ namespace QRESTModel.DataTableGen
             }
             return dt;
         }
+
+        public static DataTable RefPar()
+        {
+            DataTable dt = new DataTable("Parameters");
+            dt.Columns.AddRange(new DataColumn[5] {
+                                            new DataColumn("Par Code"),
+                                            new DataColumn("Par Name"),
+                                            new DataColumn("CAS Num"),
+                                            new DataColumn("Std Unit Code"),
+                                            new DataColumn("AQS Ind")
+                                           });
+
+            List<T_QREST_REF_PARAMETERS> _datas = db_Ref.GetT_QREST_REF_PARAMETERS();
+            foreach (var _data in _datas)
+            {
+                dt.Rows.Add(_data.PAR_CODE, _data.PAR_NAME, _data.CAS_NUM, _data.STD_UNIT_CODE, _data.AQS_IND);
+
+            }
+            return dt;
+        }
+
 
         public static DataTable RawData(string Freq, string orgid, Guid? SiteIDX, Guid? MonIDX, DateTime startDt, DateTime endDt, string tIME_TYPE)
         {
@@ -283,17 +317,6 @@ namespace QRESTModel.DataTableGen
             return dt;
         }
 
-        public static DataSet DataSetFromDataTables(List<DataTable> dts)
-        {
-            DataSet ds = new DataSet();
-            foreach (DataTable dt in dts)
-            {
-                if (dt.Rows.Count > 0)
-                    ds.Tables.Add(dt);
-            }
-            return ds;
-        }
-
         public static DataTable GetPollingConfig(string UserIDX, string org)
         {
             DataTable pollingConfig = new DataTable("Polling_Config");
@@ -453,7 +476,6 @@ namespace QRESTModel.DataTableGen
 
             return _dt;
         }
-
 
         public static DataTable GetHourlyLogByHourlyIDX(Guid dATA_HOURLY_IDX)
         {

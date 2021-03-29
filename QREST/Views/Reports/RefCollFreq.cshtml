@@ -1,8 +1,7 @@
-﻿@model QREST.Models.vmAdminRefQual
-@{
-    ViewBag.Title = "Reference Parameters";
+﻿@{
+    ViewBag.Title = "Reference Collection Frequency";
     ViewBag.HideTitle = true;
-    ViewBag.selOpt = "Qualifier";
+    ViewBag.selOpt = "CollFreq";
     ViewBag.HelpLink = "Reference-Data";
 }
 
@@ -10,7 +9,7 @@
 
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">
-        Qualifiers
+        Collection Frequency
     </header>
     <div class="panel-body">
         <div class="table-responsive">
@@ -18,9 +17,8 @@
                 <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Qual Code</th>
-                            <th>Qual Description</th>
-                            <th>Qual Type</th>
+                            <th>Code</th>
+                            <th>Description</th>
                         </tr>
                     </thead>
                 </table>
@@ -49,14 +47,13 @@
                 "info": false,
                 "searching": false,
                 "ajax": {
-                    "url": "@Url.Action("RefQualifierData", "Admin")",
+                    "url": "@Url.Action("RefCollFreqData", "Reports")",
                     "type": "POST",
                     "datatype": "json"
                 },
                 "columns": [
-                    { "data": "QUAL_CODE", "name": "QUAL_CODE", "autoWidth": true },
-                    { "data": "QUAL_DESC", "name": "QUAL_DESC", "autoWidth": true },
-                    { "data": "QUAL_TYPE", "name": "QUAL_TYPE", "autoWidth": true }
+                    { "data": "COLLECT_FREQ_CODE", "name": "COLLECT_FREQ_CODE", "autoWidth": true },
+                    { "data": "COLLECT_FEQ_DESC", "name": "COLLECT_FEQ_DESC", "autoWidth": true }
                 ]
             });
 

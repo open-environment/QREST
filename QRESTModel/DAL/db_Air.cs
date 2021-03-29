@@ -2967,7 +2967,7 @@ namespace QRESTModel.DAL
                                 LVL2_VAL_USER = u2.FNAME + " " + u2.LNAME,
                                 LVL2_VAL_DT = a.LVL2_VAL_DT,
                                 NOTES = a.NOTES,
-                                AQSReadyInd = u3.UNIT_CODE != null && (a.DATA_VALUE_NUM != null || a.AQS_NULL_CODE != null)
+                                AQSReadyInd = ((a.DATA_VALUE_NUM != null && u3.UNIT_CODE != null) || a.AQS_NULL_CODE != null)
                             }).ToList();
                 }
                 catch (Exception ex)

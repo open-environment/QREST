@@ -21,6 +21,11 @@
         }
 /*landing end */
 
+.equal {
+    display: flex;
+    display: -webkit-flex;
+    flex-wrap: wrap;
+}
 
 .validation-summary-errors {
     color: darkred;

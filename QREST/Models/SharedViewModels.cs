@@ -11,4 +11,9 @@ namespace QREST.Models
         public int NotifyCount { get; set; }
         public List<T_QREST_USER_NOTIFICATION> Notifications { get; set; }
     }
+
+    public class vmSharedEnvironment {
+        public string environment { get; set; }
+
+    }
 }

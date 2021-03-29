@@ -29,6 +29,7 @@ namespace QREST.Controllers
         public ActionResult SignUp()
         {
             var model = new vmHomeSignUp();
+            model.TestUrl = db_Ref.GetT_QREST_APP_SETTING("TEST_URL");
             return View(model);
         }
 

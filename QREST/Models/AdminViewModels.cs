@@ -188,12 +188,6 @@ namespace QREST.Models
     // ******************************** LOGGING***********************************
     //****************************************************************************
     //****************************************************************************
-    public class vmAdminLogError
-    {}
-
-    public class vmAdminLogEmail
-    {}
-
     public class vmAdminLogActivity
     {
         public string SITE_IDX { get; set; }
@@ -233,39 +227,7 @@ namespace QREST.Models
 
 
 
-    // ******************************** REF DATA************************************
-    //****************************************************************************
-    //****************************************************************************
-    public class vmAdminRefPar
-    {
-        public string editPAR_CODE { get; set; }
-        [Required]
-        public string editPAR_NAME { get; set; }
-        [Required]
-        public string editSTD_UNIT_CODE { get; set; }
 
-        public IEnumerable<SelectListItem> ddl_units { get; set; }
-
-        public vmAdminRefPar()
-        {
-            ddl_units = ddlHelpers.get_ddl_ref_units(null);
-        }
-    }
-
-
-    public class vmAdminRefParMethod
-    {
-        public Guid? editPAR_METHOD_IDX { get; set; }
-        public double? editCUST_MIN_VALUE { get; set; }
-        public double? editCUST_MAX_VALUE { get; set; }
-        public string editCOLLECTION_DESC { get; set; }
-
-    }
-
-    public class vmAdminRefQual
-    {
-        
-    }
 
     // ******************************** CONNECTIVITY******************************
     //****************************************************************************

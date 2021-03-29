@@ -8,6 +8,7 @@ namespace QREST.Models
 {
     public class vmHomeSignUp
     {
+        public string TestUrl { get; set; }
     }
 
     public class vmHomeHelp {

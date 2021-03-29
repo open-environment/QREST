@@ -28,12 +28,12 @@
                 @foreach (var item in Model.Results)
                 {
                     <div class="col-lg-4 col-md-6 col-sm-6">
-                        <section class="panel panel-default" style="border-width:3px;">
+                        <section class="panel panel-default panel-pct" style="border-width:2px;" data-percent="@(item.tot_pct)">
                             <header class="panel-heading bg-default lt no-border">
                                 <div class="clearfix">
-                                    <div class="chart pull-left m-r" data-percent="@((item.hrs_data + item.aqs_ready + item.lvl1_val_ind + item.lvl2_val_ind) * 100 / (4 * item.hrs))" data-scale-color="#ffb400">
+                                    <div class="chart pull-left m-r" data-percent="@(item.tot_pct)" data-scale-color="#ffb400">
                                         <span style="margin-top: 18px; display: block;">
-                                            @((item.hrs_data + item.aqs_ready + item.lvl1_val_ind + item.lvl2_val_ind) * 100 / (4 * item.hrs))%
+                                            @(item.tot_pct)%
                                         </span>
                                     </div>
                                     <div class="clear">
@@ -122,14 +122,24 @@
             $('.aaa').each(function () {
                 if ($(this).data("num") == 0) {
                     $(this).addClass("bg-danger");
-                    $(this).parent().parent().parent().addClass("panel-danger");
                 }
                 else if ($(this).data("num") == $(this).data("denom")) {
                     $(this).addClass("bg-success");
-                    $(this).parent().parent().parent().addClass("panel-warning");
                 }
                 else {
                     $(this).addClass("bg-warning");
+                }
+            });
+
+            $('.panel-pct').each(function () {
+                if ($(this).data("percent") < 25) {
+                    $(this).addClass("panel-danger");
+                }
+                else if ($(this).data("percent") == 100) {
+                    $(this).addClass("panel-success");
+                }
+                else {
+                    $(this).addClass("panel-warning");
                 }
             });
 

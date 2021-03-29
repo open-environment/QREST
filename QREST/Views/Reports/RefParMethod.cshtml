@@ -1,4 +1,4 @@
-﻿@model QREST.Models.vmAdminRefParMethod
+﻿@model QREST.Models.vmReportsRefParMethod
 @{
     ViewBag.Title = "Reference Parameter Methods";
     ViewBag.HideTitle = true;
@@ -11,8 +11,7 @@
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">
         Parameter Methods
-        <a href="@Url.Action("ExportExcel", "Admin", new { Action = "RefParMethod" })" class="btn btn-xs btn-primary pull-right">Export Excel</a>
-
+        <a href="@Url.Action("ExportExcel", "Reports", new { act = "RefParMethod" })" class="btn btn-xs btn-primary pull-right">Export Excel</a>
     </header>
     <div class="panel-body">
         <form class="form-inline m-b-sm" onsubmit="return false">
@@ -49,7 +48,7 @@
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog" style="width:600px">
 
-        @using (Html.BeginForm("RefParMethod", "Admin", FormMethod.Post))
+        @using (Html.BeginForm("RefParMethod", "Reports", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(model => model.editPAR_METHOD_IDX)
@@ -115,7 +114,7 @@
                 "info": false,
                 "searching": false,
                 "ajax": {
-                    "url": "@Url.Action("RefParMethodData", "Admin")",
+                    "url": "@Url.Action("RefParMethodData", "Reports")",
                     "type": "POST",
                     "datatype": "json",
                     "error": function() {},
@@ -142,7 +141,7 @@
                             } else
                                 return '<a href="#modal-form" data-toggle="modal" data-id="' + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX + '" data-desc="' + row.T_QREST_REF_PAR_METHODS.COLLECTION_DESC + '" data-min="' + (row.T_QREST_REF_PAR_METHODS.CUST_MIN_VALUE || "") + '" data-max="' + (row.T_QREST_REF_PAR_METHODS.CUST_MAX_VALUE || "") + '" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;">Edit</a>' +
                                     '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
-                                    + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/RefParMethDelete"><b>Confirm Delete</b></div></div>';
+                                    + row.T_QREST_REF_PAR_METHODS.PAR_METHOD_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Reports/RefParMethDelete"><b>Confirm Delete</b></div></div>';
                         }
                     },
                     { "data": "T_QREST_REF_PAR_METHODS.PAR_CODE", "name": "T_QREST_REF_PAR_METHODS.PAR_CODE", "autoWidth": true },

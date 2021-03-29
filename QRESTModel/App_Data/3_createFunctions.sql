@@ -377,6 +377,8 @@ BEGIN
 	--20200616 add POC
 	--20200727 made not AQS ready if unit is missing
 	--20210123 only not AQS ready if no unit and no monitor unit
+	--20210319 added overall percent complete calculation
+
 	DECLARE @totHrs int = 1;
 
 
@@ -387,7 +389,10 @@ BEGIN
 
 	set @totHrs = DATEDIFF(hh, @adate, @edate) + 1;
 
-
+	select PAR_CODE, PAR_NAME, MONITOR_IDX, POC, hrs, hrs_data, aqs_ready, lvl1_val_ind, lvl2_val_ind, doc_cnt
+	, round(coalesce(cast(hrs_data+aqs_ready+lvl1_val_ind+lvl2_val_ind as float)/(.04*nullif(hrs,0)),0),0) as tot_pct
+	from
+	(
 	select P.PAR_CODE, PP.PAR_NAME, M.MONITOR_IDX, M.POC,
 		@totHrs as hrs,
 		sum(rec) as hrs_data, 
@@ -412,7 +417,7 @@ BEGIN
 	where Z.MONITOR_IDX=M.MONITOR_IDX
 	and M.PAR_METHOD_IDX = P.PAR_METHOD_IDX
 	and P.PAR_CODE = PP.PAR_CODE
-	group by P.PAR_CODE, PP.PAR_NAME, M.MONITOR_IDX, M.POC;
+	group by P.PAR_CODE, PP.PAR_NAME, M.MONITOR_IDX, M.POC) YYY;
 
 END
 

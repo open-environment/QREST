@@ -1,4 +1,4 @@
-﻿@model QREST.Models.vmAdminRefPar
+﻿@model QREST.Models.vmReportsRefPar
 @{
     ViewBag.Title = "Reference Parameters";
     ViewBag.HideTitle = true;
@@ -11,7 +11,7 @@
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">
         Parameters
-        <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
+        <a href="@Url.Action("ExportExcel", "Reports", new { act = "RefPar" })" class="btn btn-xs btn-primary pull-right">Export Excel</a>
     </header>
     <div class="panel-body">
         <div class="table-responsive">
@@ -29,7 +29,10 @@
                 </table>
             </div>
         </div>
-        <a id="add-it" href="#modal-form" data-toggle="modal" data-id="@Model.editPAR_CODE" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add Non-AQS Parameter</a>
+        @if (User.IsInRole("GLOBAL ADMIN"))
+        {
+            <a id="add-it" href="#modal-form" data-toggle="modal" data-id="@Model.editPAR_CODE" class="btn btn-sm btn-primary btn-rounded modal-it"><i class="fa fa-plus"></i> Add Non-AQS Parameter</a>
+        }
     </div>
 </section>
 
@@ -38,7 +41,7 @@
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog" style="width:600px">
 
-        @using (Html.BeginForm("RefParEdit", "Admin", FormMethod.Post))
+        @using (Html.BeginForm("RefParEdit", "Reports", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             <div class="modal-content">
@@ -104,7 +107,7 @@
                 "info": false,
                 "searching": false,
                 "ajax": {
-                    "url": "@Url.Action("RefParData", "Admin")",
+                    "url": "@Url.Action("RefParData", "Reports")",
                     "type": "POST",
                     "datatype": "json"
                 },
@@ -122,7 +125,7 @@
                                 return '<a href="#modal-form" data-toggle="modal" data-id="' + row.PAR_CODE + '" data-nme="' + row.PAR_NAME + '" data-unit="' + row.STD_UNIT_CODE + '" '
                                     + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>'
                                     + '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="'
-                                    + row.PAR_CODE + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Admin/RefParDelete"><b>Confirm Delete</b></div></div>';
+                                    + row.PAR_CODE + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Reports/RefParDelete"><b>Confirm Delete</b></div></div>';
                             }
                             else {
                                 return "";

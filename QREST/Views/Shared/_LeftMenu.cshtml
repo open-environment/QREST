@@ -105,7 +105,12 @@
                                     <span class="title">Data Export</span>
                                 </a>
                             </li>
-
+                            <li class="@Html.ActivePage("Reports", "RefCollFreq,RefDuration,RefPar,RefParMethod,RefParUnit,RefUnit,ImportData")">
+                                <a href="@Url.Action("RefParMethod", "Reports")">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span class="title">Reference Data</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
 
@@ -135,12 +140,7 @@
                                         <span class="title">Users</span>
                                     </a>
                                 </li>
-                                <li class="@Html.ActivePage("Admin", "RefCollFreq,RefDuration,RefPar,RefParMethod,RefParUnit,RefUnit,ImportData")">
-                                    <a href="@Url.Action("RefParMethod", "Admin")">
-                                        <i class="fa fa-angle-right"></i>
-                                        <span class="title">Reference Data</span>
-                                    </a>
-                                </li>
+
                                 <li class="@Html.ActivePage("Admin", "AppSettings")">
                                     <a href="@Url.Action("AppSettings", "Admin")">
                                         <i class="fa fa-angle-right"></i>
@@ -163,6 +163,12 @@
                                     <a href="@Url.Action("HelpConfig", "Admin")">
                                         <i class="fa fa-angle-right"></i>
                                         <span class="title">Help Config</span>
+                                    </a>
+                                </li>
+                                <li class="@Html.ActivePage("Admin", "ImportData")">
+                                    <a href="@Url.Action("ImportData", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Import Ref Data</span>
                                     </a>
                                 </li>
                                 <li class="@Html.ActivePage("Admin", "LogError,LogActivity,LogEmail")">

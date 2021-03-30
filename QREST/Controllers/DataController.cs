@@ -21,11 +21,11 @@ namespace QREST.Controllers
     [Authorize]
     public class DataController : Controller
     {
-        // GET: Data
         public ActionResult Index()
         {
             return RedirectToAction("Raw");
         }
+
 
         #region MANUAL IMPORT
 
@@ -835,9 +835,6 @@ namespace QREST.Controllers
         }
 
 
-
-
-
         #endregion
 
 
@@ -881,8 +878,8 @@ namespace QREST.Controllers
                 ddl_Monitor = new List<SelectListItem>(),
                 ddl_Duration = ddlHelpers.get_ddl_logger_duration(),
                 selMon = monid.ToString(),
-                selDtStart = sdt,
-                selDtEnd = edt
+                selDtStart = sdt ?? new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1),
+                selDtEnd = edt ?? new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddMonths(1).AddHours(-1)
             };
 
             //get org and site from supplied mon
@@ -890,7 +887,12 @@ namespace QREST.Controllers
             {
                 SiteMonitorDisplayType _m = db_Air.GetT_QREST_MONITORS_ByID(new Guid(model.selMon));
                 if (_m != null)
+                {
                     model.selOrgID = _m.ORG_ID;
+                    model.selSiteIDX = _m.T_QREST_MONITORS.SITE_IDX;
+                    model.selDtStartMonth = sdt.GetValueOrDefault().Month;
+                    model.selDtStartYear = sdt.GetValueOrDefault().Year;
+                }
             }
 
             return View(model);
@@ -902,7 +904,7 @@ namespace QREST.Controllers
         {
             if (model.selMon != null)
             {                
-                return RedirectToAction("DataReview2", new { monid = model.selMon, sdt = model.selDtStart, edt = model.selDtEnd, dur = model.selDuration, supp1 = model.selMonSupp?.ElementAtOrDefault(0), supp2 = model.selMonSupp?.ElementAtOrDefault(1), supp3 = model.selMonSupp?.ElementAtOrDefault(2) });
+                return RedirectToAction("DataReview2", new { monid = model.selMon, sdt = model.selDtStart, edt = model.selDtEnd, dur = model.selDuration, supp1 = model.selMonSupp?.ElementAtOrDefault(0), supp2 = model.selMonSupp?.ElementAtOrDefault(1), md = "d" });
             }
             else
             {
@@ -913,7 +915,7 @@ namespace QREST.Controllers
 
         
         [HttpGet]
-        public ActionResult DataReview2(Guid? monid, DateTime? sdt, DateTime? edt, string dur, Guid? supp1, string md)
+        public ActionResult DataReview2(Guid? monid, DateTime? sdt, DateTime? edt, string dur, Guid? supp1, Guid? supp2, string md)
         {
             if (monid == null || sdt == null || edt == null || dur == null)
                 return RedirectToAction("DataReviewSummary");
@@ -956,8 +958,16 @@ namespace QREST.Controllers
                     model.SuppData1 = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, supp1, sdt, edt, 25000, 0, 3, "asc", "L");
                 else if (dur == "1")
                     model.SuppData1 = db_Air.GetT_QREST_DATA_HOURLY_ManVal(supp1.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
-
             }
+
+            if (supp2 != null)
+            {
+                if (dur == "H")
+                    model.SuppData2 = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, supp2, sdt, edt, 25000, 0, 3, "asc", "L");
+                else if (dur == "1")
+                    model.SuppData2 = db_Air.GetT_QREST_DATA_HOURLY_ManVal(supp2.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
+            }
+
             return View(model);
         }
 

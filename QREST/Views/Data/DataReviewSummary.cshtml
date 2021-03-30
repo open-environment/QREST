@@ -51,7 +51,7 @@
                                     <button class="btn btn-rounded btn-xs btn-dark dropdown-toggle padder m-xs" data-toggle="dropdown" style="background-color:#2c66af"><span class="caret"></span></button>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a href="@Url.Action("DataReview", new { monid = item.MONITOR_IDX })">Advanced Selection</a>
+                                            <a href="@Url.Action("DataReview", new { monid = item.MONITOR_IDX, sdt = Model.selsDt, edt = Model.seleDt })">Advanced Selection</a>
                                         </li>
                                     </ul>
                                 </div>

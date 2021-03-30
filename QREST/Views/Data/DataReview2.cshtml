@@ -5,7 +5,7 @@
     ViewBag.HelpLink = "Data-Review";
 }
 <section class="panel panel-qrest">
-    <header class="panel-heading font-bold">Step 2: Manual Validation Data Review</header>
+    <header class="panel-heading font-bold">Data Review</header>
     <div class="panel-body">
 
         <div class="bg-gradient pull-out" style="padding:10px; margin-top:-15px;">
@@ -33,13 +33,21 @@
 
         @if (Model.SuppData1 != null)
         {
-            <div id="chartContainerSupp1" class="collapse in" style="height: 160px; width: 100%;">
-            </div>
+            <div id="chartContainerSupp1" class="collapse in" style="height: 160px; width: 100%;"></div>
+        }
+
+        @if (Model.SuppData2 != null)
+        {
+            <div id="chartContainerSupp2" class="collapse in" style="height: 160px; width: 100%;"></div>
         }
 
         @if (Model.selMode == "a")
         {
             <a class=" btn btn-default" href="@Url.Action("AQSGen", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, sDt = Model.selDtStart, eDt = Model.selDtEnd })">Back</a>
+        }
+        else if (Model.selMode == "d")
+        {
+            <a class=" btn btn-default" href="@Url.Action("DataReview", new { monid = Model.selMon.T_QREST_MONITORS.MONITOR_IDX, sdt = Model.selDtStart, edt = Model.selDtEnd })">Back</a>
         }
         else
         {
@@ -64,14 +72,14 @@
                             <th>Value</th>
                             <th>Unit</th>
                             <th>QREST Flags</th>
-                            @if (Model.selDuration=="1")
+                            @if (Model.selDuration == "1")
                             {
-                            <th>AQS Null Code</th>
-                            <th>AQS Qual Codes</th>
-                            <th>Suitable for AQS </th>
-                            <th>Lvl 1</th>
-                            <th>Lvl 2</th>
-                            <th>Notes</th>
+                                <th>AQS Null Code</th>
+                                <th>AQS Qual Codes</th>
+                                <th>Suitable for AQS </th>
+                                <th>Lvl 1</th>
+                                <th>Lvl 2</th>
+                                <th>Notes</th>
                             }
                         </tr>
                     </thead>
@@ -112,36 +120,36 @@
                                     }
                                     @Html.DisplayFor(model => model.RawData[i].VAL_CD)
                                 </td>
-                                @if(Model.selDuration=="1")
-                                { 
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].AQS_QUAL_CODES)
-                                </td>
-                                <td style="@(Model.RawData[i].AQSReadyInd == true ? "background-color:#85c788" : "background-color:#ffa9a9")">
-                                    @if (@Model.RawData[i].AQSReadyInd == true)
-                                    {
-                                        <text>Y</text>
-                                    }
-                                    else
-                                    {
-                                        <text>N</text>
-                                    }
-                                </td>
-                                <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
-                                    @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
-                                    @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
-                                </td>
-                                <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
-                                    @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
-                                    @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(model => model.RawData[i].NOTES)
-                                    <a href="#modal-hist" data-toggle="modal" data-id="@Model.RawData[i].DATA_RAW_IDX" class="modal-hist" style="display: inline-block;"> <i class="fa fa-comments-o text-muted"></i></a>
-                                </td>
+                                @if (Model.selDuration == "1")
+                                {
+                                    <td>
+                                        @Html.DisplayFor(model => model.RawData[i].AQS_NULL_CODE)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(model => model.RawData[i].AQS_QUAL_CODES)
+                                    </td>
+                                    <td style="@(Model.RawData[i].AQSReadyInd == true ? "background-color:#85c788" : "background-color:#ffa9a9")">
+                                        @if (@Model.RawData[i].AQSReadyInd == true)
+                                        {
+                                            <text>Y</text>
+                                        }
+                                        else
+                                        {
+                                            <text>N</text>
+                                        }
+                                    </td>
+                                    <td style="@(Model.RawData[i].LVL1_VAL_IND == true ? "background-color:#85c788" : "")">
+                                        @Html.DisplayFor(model => model.RawData[i].LVL1_VAL_USER)
+                                        @string.Format("{0:d}", Model.RawData[i].LVL1_VAL_DT)
+                                    </td>
+                                    <td style="@(Model.RawData[i].LVL2_VAL_IND == true ? "background-color:#85c788" : "")">
+                                        @Html.DisplayFor(model => model.RawData[i].LVL2_VAL_USER)
+                                        @string.Format("{0:d}", Model.RawData[i].LVL2_VAL_DT)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(model => model.RawData[i].NOTES)
+                                        <a href="#modal-hist" data-toggle="modal" data-id="@Model.RawData[i].DATA_RAW_IDX" class="modal-hist" style="display: inline-block;"> <i class="fa fa-comments-o text-muted"></i></a>
+                                    </td>
                                 }
                             </tr>
                         }
@@ -196,28 +204,28 @@
 
                                             @if (Model.selDuration == "1")
                                             {
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <label>AQS Null Codes</label>
-                                                        <br />
-                                                        @Html.DropDownListFor(model => model.editNullQual, Model.ddl_NullQual, "", new { @class = "form-control" })
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>AQS Null Codes</label>
+                                                            <br />
+                                                            @Html.DropDownListFor(model => model.editNullQual, Model.ddl_NullQual, "", new { @class = "form-control" })
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <label>AQS Qualifiers</label>
-                                                        <br />
-                                                        @Html.DropDownListFor(model => model.editQual, Model.ddl_Qual, "", new { @class = "form-control", @multiple = "multiple", @style = "min-width:350px", @data_width = "100%" })
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>AQS Qualifiers</label>
+                                                            <br />
+                                                            @Html.DropDownListFor(model => model.editQual, Model.ddl_Qual, "", new { @class = "form-control", @multiple = "multiple", @style = "min-width:350px", @data_width = "100%" })
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
                                             }
                                             @if (Model.secLvl1Ind == true && Model.selDuration == "1")  //only show for hourly data and those with rights
                                             {
-                                                <div class="row col-md-12" >
+                                                <div class="row col-md-12">
                                                     <div class="form-group">
                                                         <input id="chkLvl1" type="checkbox" value="">
                                                         <label>Update Level 1 Review Status</label>
@@ -256,7 +264,7 @@
                                                             <br />
                                                             <div class="input-group m-b">
                                                                 @Html.TextBoxFor(model => model.editValue, new { @class = "form-control", @maxlength = "20" })
-                                                                <span id="spnValChk" class="input-group-addon"> Remove Values @Html.CheckBoxFor(x => x.editValueBlank, new { @data_toggle="tooltip", data_placement="top", data_original_title="Will remove value column data for the air records you have selected" }) </span>
+                                                                <span id="spnValChk" class="input-group-addon"> Remove Values @Html.CheckBoxFor(x => x.editValueBlank, new { @data_toggle = "tooltip", data_placement = "top", data_original_title = "Will remove value column data for the air records you have selected" }) </span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -303,7 +311,7 @@
                                                 <div class="form-group">
                                                     <label>Notes</label>
                                                     <br />
-                                                    @Html.TextAreaFor(model => model.editNotes, new { @class = "form-control", @style = "width:100%", @maxlength="100" })
+                                                    @Html.TextAreaFor(model => model.editNotes, new { @class = "form-control", @style = "width:100%", @maxlength = "100" })
                                                     @Html.ValidationMessageFor(model => model.editNotes)
                                                 </div>
                                             </div>
@@ -443,8 +451,8 @@
             order: [[1, 'asc']]
         });
 
-        var dataPointsA = [], dataPointsSupp1 = [];
-        var parName, parNameSupp1;
+        var dataPointsA = [], dataPointsSupp1 = [], dataPointsSupp2 = [];
+        var parName, parNameSupp1, parNameSupp2;
         var chart, chart1;
 
 
@@ -467,6 +475,18 @@
             foreach (var item in Model.SuppData1)
             {
                 <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsSupp1);
+                </text>
+            }
+        }
+
+
+        @if (Model.SuppData2 != null && Model.SuppData2.Count > 0) {
+
+            <text>parNameSupp2 = '@Model.SuppData2[0].PAR_NAME (' + '@Model.SuppData2[0].UNIT_DESC' + ')';</text>
+
+            foreach (var item in Model.SuppData2)
+            {
+                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsSupp2);
                 </text>
             }
         }
@@ -541,6 +561,20 @@
                     }
                     chart1.render();
                 }
+
+                if (chart2 != null) {
+                    if (!chart2.options.axisX)
+                        chart2.options.axisX = {};
+
+                    if (e.trigger === "reset") {
+                        chart2.options.axisX.viewportMinimum = chart2.options.axisX.viewportMaximum = null;
+                    }
+                    else {
+                        chart2.options.axisX.viewportMinimum = e.axisX[0].viewportMinimum;
+                        chart2.options.axisX.viewportMaximum = e.axisX[0].viewportMaximum;
+                    }
+                    chart2.render();
+                }
             }
         });
 
@@ -589,6 +623,27 @@
             });
 
             chart1.render();
+        }
+
+        if (dataPointsSupp2.length > 0) {
+            chart2 = new CanvasJS.Chart("chartContainerSupp2", {
+                zoomEnabled: false,
+                animationEnabled: true,
+                exportEnabled: true,
+                title: {
+                    text: parNameSupp2
+                },
+                data: [{
+                    type: "column",
+                    connectNullData: true,
+                    xValueType: "dateTime",
+                    xValueFormatString: "MM/DD/YYYY HH:mm",
+                    name: "line2",
+                    dataPoints: dataPointsSupp2
+                }]
+            });
+
+            chart2.render();
         }
 
         //initialize select2

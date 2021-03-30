@@ -238,11 +238,13 @@ namespace QREST.Models
     public class vmDataReview
     {
         public string selOrgID { get; set; }
-
+        public Guid? selSiteIDX { get; set; }
         [Required]
         public string selMon { get; set; }
         public DateTime? selDtStart { get; set; }
         public DateTime? selDtEnd { get; set; }
+        public int? selDtStartMonth { get; set; }
+        public int? selDtStartYear { get; set; }
 
         [Required]
         public string selDuration { get; set; }

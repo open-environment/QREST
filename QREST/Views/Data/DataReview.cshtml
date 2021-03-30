@@ -5,7 +5,7 @@
 }
 
 <section class="panel panel-qrest">
-    <header class="panel-heading font-bold">Step 1: Select Data to Review</header>
+    <header class="panel-heading font-bold">Advanced Selection of Data to Review</header>
     @if (Model.ddl_Organization?.Count() > 0)
     {
         <div class="panel-body">
@@ -41,11 +41,11 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Date Range</label>
                     <div class="col-sm-10">
-                        <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
+                        <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="@Model.selDtStart" data-end="@Model.selDtEnd" />
                     </div>
                 </div>
                 <div class="col-sm-10 col-sm-offset-2">
-                    <a class=" btn btn-default m-l-n-sm" href="@Url.Action("DataReviewSummary")">Back</a>
+                    <a class=" btn btn-default m-l-n-sm" href="@Url.Action("DataReviewSummary", new { id = Model.selSiteIDX, month = Model.selDtStartMonth, year = Model.selDtStartYear })">Back</a>
                     <button id="btnGo" type="submit" class="btn btn-primary ">Continue</button>
                 </div>
 
@@ -72,14 +72,18 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+            var sDateNew = moment(new Date("@Model.selDtStart"));
+            var sEndNew = moment(new Date("@Model.selDtEnd"));
+
             //daterange selector initialization
             $('input[name="selDate"]').daterangepicker({
                 timePicker: true,
                 timePickerIncrement: 60,
                 timePicker24Hour: true,
                 autoUpdateInput: true,
-                startDate: moment().subtract(1, 'month').startOf('month'),
-                endDate: moment().subtract(1, 'month').endOf('month'),
+                startDate: sDateNew,
+                endDate: sEndNew,
                 ranges: {
                     'Today': [moment().startOf('day'), moment().endOf('day')],
                     'Yesterday': [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')],
@@ -92,6 +96,7 @@
                 }
             }
                 , function (start, end, label) {
+                    //callback, setting values to viewmodel
                     $('#selDtStart').val(start.format('YYYY-MM-DD HH:mm'));
                     $('#selDtEnd').val(end.format('YYYY-MM-DD HH:mm'));
                 }
@@ -100,19 +105,15 @@
             //initialize monitor dropdown on page load
             fetchMonitors('@Model.selMon');
 
-            //update monitor dropdown
+            //update monitor dropdown when organization is changed
             $('#selOrgID').change(function () {
                 fetchMonitors(null);
             });
 
             $('#selMonSupp').select2({
-                placeholder: "Select up to 3 support parameters"
+                placeholder: "Select up to 2 support parameters"
             });
-
-            //initialize values of date range
-            $('#selDtStart').val(moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD HH:mm'));
-            $('#selDtEnd').val(moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD HH:mm'));
-
+ 
         });
 
         function fetchMonitors(mon) {
@@ -126,7 +127,7 @@
                 $('#selMon').append($('<option></option>').val('').text('Please select'));
                 $.each(data, function (index, item) {
                     $('#selMon').append($('<option></option>').val(item.Value).text(item.Text));
-                    $('#selMonSupp').append($('<option></option>').val(item.Value).text(item.Text));    
+                    $('#selMonSupp').append($('<option></option>').val(item.Value).text(item.Text));
                 });
                 $('#selMon').val(mon);
             });

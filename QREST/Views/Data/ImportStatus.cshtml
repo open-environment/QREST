@@ -57,12 +57,12 @@
                         using (Html.BeginForm("ImportManualOverride", "Data", FormMethod.Post, new { @class = "form-horizontal" }))
                         {
                             @Html.HiddenFor(model => model.T_QREST_DATA_IMPORTS.IMPORT_IDX)
-                            <button type="submit" class="btn btn-primary">Import Data</button>
+                            <button type="submit" class="btn btn-primary m-b-xs" style="min-width:200px;">Import Data</button>
                         }
                     }
                     <div class="delete-section" style="display:inline-block;">
-                        <a class="btn btn-danger delete-link">Cancel Import</a>
-                        <div class="btn btn-warning delete-confirm" style="display:none" data-delete-id="@Model.T_QREST_DATA_IMPORTS.IMPORT_IDX" data-success-url="/Data/ManualImport" data-delete-p="/Data/ImportStatusDelete">
+                        <a class="btn btn-danger delete-link" style="min-width:200px;">Cancel Import</a>
+                        <div class="btn btn-warning delete-confirm" style="display:none; width:200px" data-delete-id="@Model.T_QREST_DATA_IMPORTS.IMPORT_IDX" data-success-url="/Data/ManualImport" data-delete-p="/Data/ImportStatusDelete">
                             <b>Confirm Cancellation</b>
                         </div>
                     </div>
@@ -108,6 +108,7 @@
                 <table id="gridDataError" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                     <thead>
                         <tr>
+                            <th>Parameter</th>
                             <th>Datetime (Local)</th>
                             <th>Datetime (UTC)</th>
                             <th>Value</th>
@@ -129,7 +130,7 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
     <section class="panel panel-danger">
         <header class="panel-heading font-bold">Existing Data Found</header>
         <div class="panel-body">
-            <div class="alert alert-warning alert-block">
+            <div class="alert alert-danger alert-block">
                 <button type="button" class="close" data-dismiss="alert">×</button>
                 <h4>
                     <i class="fa fa-bell-alt"></i>Warning!
@@ -145,6 +146,7 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
                 <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                     <thead>
                         <tr>
+                            <th>Parameter</th>
                             <th>Datetime (Local)</th>
                             <th>Datetime (UTC)</th>
                             <th>Value</th>
@@ -196,9 +198,13 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
                 "order": [[1, "asc"]],
                 "columns": [
                     {
+                        render: function (data, type, row) {
+                            return row.PAR_CODE + ' - ' + row.PAR_NAME;
+                        }
+                    },
+                    {
                         "data": "DATA_DTTM_LOCAL",
                         "name": "DATA_DTTM_LOCAL",
-                        "autoWidth": true,
                         render: function (d) {
                             return moment(d).format("MM/DD/YYYY HH:mm A");
                         }
@@ -206,16 +212,15 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
                     {
                         "data": "DATA_DTTM_UTC",
                         "name": "DATA_DTTM_UTC",
-                        "autoWidth": true,
                         render: function (d) {
                             return moment(d).format("MM/DD/YYYY HH:mm");
                         }
                     },
-                    { "data": "DATA_VALUE", "name": "DATA_VALUE", "autoWidth": true },
-                    { "data": "UNIT_CODE", "name": "UNIT_CODE", "autoWidth": true },
-                    { "data": "VAL_CD", "name": "VAL_CD", "autoWidth": true },
-                    { "data": "AQS_QUAL_CODES", "name": "AQS_QUAL_CODES", "autoWidth": true },
-                    { "data": "AQS_NULL_CODE", "name": "AQS_NULL_CODE", "autoWidth": true }
+                    { "data": "DATA_VALUE", "name": "DATA_VALUE" },
+                    { "data": "UNIT_CODE", "name": "UNIT_CODE"},
+                    { "data": "VAL_CD", "name": "VAL_CD" },
+                    { "data": "AQS_QUAL_CODES", "name": "AQS_QUAL_CODES" },
+                    { "data": "AQS_NULL_CODE", "name": "AQS_NULL_CODE"}
                 ],
                 fnDrawCallback: function (oSettings) {
                     var totalPages = this.api().page.info().pages;
@@ -254,9 +259,13 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
                 "order": [[1, "asc"]],
                 "columns": [
                     {
+                        render: function (data, type, row) {
+                            return row.PAR_CODE + ' - ' + row.PAR_NAME;
+                        }
+                    },
+                    {
                         "data": "DATA_DTTM_LOCAL",
                         "name": "DATA_DTTM_LOCAL",
-                        "autoWidth": true,
                         render: function (d) {
                             return moment(d).format("MM/DD/YYYY HH:mm A");
                         }
@@ -264,17 +273,16 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
                     {
                         "data": "DATA_DTTM_UTC",
                         "name": "DATA_DTTM_UTC",
-                        "autoWidth": true,
                         render: function (d) {
                             return moment(d).format("MM/DD/YYYY HH:mm");
                         }
                     },
-                    { "data": "DATA_VALUE", "name": "DATA_VALUE", "autoWidth": true },
-                    { "data": "UNIT_CODE", "name": "UNIT_CODE", "autoWidth": true },
-                    { "data": "VAL_CD", "name": "VAL_CD", "autoWidth": true },
-                    { "data": "AQS_QUAL_CODES", "name": "AQS_QUAL_CODES", "autoWidth": true },
-                    { "data": "AQS_NULL_CODE", "name": "AQS_NULL_CODE", "autoWidth": true },
-                    { "data": "IMPORT_MSG", "name": "IMPORT_MSG", "autoWidth": true }
+                    { "data": "DATA_VALUE", "name": "DATA_VALUE"},
+                    { "data": "UNIT_CODE", "name": "UNIT_CODE"},
+                    { "data": "VAL_CD", "name": "VAL_CD"},
+                    { "data": "AQS_QUAL_CODES", "name": "AQS_QUAL_CODES"},
+                    { "data": "AQS_NULL_CODE", "name": "AQS_NULL_CODE"},
+                    { "data": "IMPORT_MSG", "name": "IMPORT_MSG"}
                 ],
                 fnDrawCallback: function (oSettings) {
                     var totalPages = this.api().page.info().pages;

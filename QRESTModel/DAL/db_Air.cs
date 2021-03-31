@@ -82,8 +82,8 @@ namespace QRESTModel.DAL
         }
         public string SUM_TYPE { get; set; }
         public int? ROUNDING { get; set; }
-        public String ORG_ID { get; set; }
-        public String SITE_ID { get; set; }
+        public string ORG_ID { get; set; }
+        public string SITE_ID { get; set; }
     }
 
     public class SiteMonitorDisplayType
@@ -204,6 +204,16 @@ namespace QRESTModel.DAL
         public DateTime? DATA_DTTM { get; set; }
         public string DATA_VALUE { get; set; }
         public string ERROR_MSG { get; set; }
+    }
+
+
+    public class T_QREST_DATA_IMPORT_TEMPDisplay : T_QREST_DATA_IMPORT_TEMP
+    {
+        public T_QREST_DATA_IMPORT_TEMPDisplay()
+        {}
+
+        public string PAR_CODE { get; set; }
+        public string PAR_NAME { get; set; }
     }
 
 
@@ -4010,16 +4020,30 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_DATA_IMPORT_TEMP> GetT_QREST_DATA_IMPORT_TEMP_Dup(Guid iMPORT_IDX, int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        public static List<T_QREST_DATA_IMPORT_TEMPDisplay> GetT_QREST_DATA_IMPORT_TEMP_Dup(Guid iMPORT_IDX, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
+                            join m in ctx.T_QREST_MONITORS on a.MONITOR_IDX equals m.MONITOR_IDX
+                            join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                            join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
                             where a.IMPORT_IDX == iMPORT_IDX
                             && a.IMPORT_DUP_IND == true
-                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            select new T_QREST_DATA_IMPORT_TEMPDisplay
+                            {
+                                DATA_DTTM_LOCAL = a.DATA_DTTM_LOCAL,
+                                DATA_DTTM_UTC = a.DATA_DTTM_UTC,
+                                DATA_VALUE= a.DATA_VALUE,
+                                UNIT_CODE = a.UNIT_CODE,
+                                VAL_CD = a.VAL_CD,
+                                AQS_NULL_CODE = a.AQS_NULL_CODE,
+                                AQS_QUAL_CODES = a.AQS_QUAL_CODES,
+                                PAR_CODE = p.PAR_CODE,
+                                PAR_NAME = p.PAR_NAME
+                            }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -4030,16 +4054,31 @@ namespace QRESTModel.DAL
         }
 
 
-        public static List<T_QREST_DATA_IMPORT_TEMP> GetT_QREST_DATA_IMPORT_TEMP_Error(Guid iMPORT_IDX, int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        public static List<T_QREST_DATA_IMPORT_TEMPDisplay> GetT_QREST_DATA_IMPORT_TEMP_Error(Guid iMPORT_IDX, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
+                            join m in ctx.T_QREST_MONITORS on a.MONITOR_IDX equals m.MONITOR_IDX
+                            join pm in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                            join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on pm.PAR_CODE equals p.PAR_CODE
                             where a.IMPORT_IDX == iMPORT_IDX
                             && a.IMPORT_VAL_IND == false
-                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            select new T_QREST_DATA_IMPORT_TEMPDisplay
+                            {
+                                DATA_DTTM_LOCAL = a.DATA_DTTM_LOCAL,
+                                DATA_DTTM_UTC = a.DATA_DTTM_UTC,
+                                DATA_VALUE = a.DATA_VALUE,
+                                UNIT_CODE = a.UNIT_CODE,
+                                VAL_CD = a.VAL_CD,
+                                AQS_NULL_CODE = a.AQS_NULL_CODE,
+                                AQS_QUAL_CODES = a.AQS_QUAL_CODES,
+                                PAR_CODE = p.PAR_CODE,
+                                PAR_NAME = p.PAR_NAME,
+                                IMPORT_MSG = a.IMPORT_MSG
+                            }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
                 {

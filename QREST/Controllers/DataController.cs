@@ -973,7 +973,7 @@ namespace QREST.Controllers
 
 
         [HttpGet]
-        public ActionResult DataReviewFillLostData(Guid? monid, int? month, int? year)
+        public ActionResult DataFillLostData(Guid? monid, int? month, int? year)
         {
             T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByMonitorID(monid.GetValueOrDefault());
             if (_site == null || month == null || year == null)
@@ -994,20 +994,57 @@ namespace QREST.Controllers
 
                 DateTime sDate = new DateTime(year.GetValueOrDefault(), month.GetValueOrDefault(), 1);
                 DateTime eDate = sDate.AddMonths(1).AddHours(-1);
+                var model = new vmDataReviewFillDataSummary
+                {
+                    monitor = db_Air.GetT_QREST_MONITORS_ByID(monid ?? Guid.Empty),
+                    lost_data = db_Air.SP_COUNT_LOST_DATA(sDate, eDate, monid.GetValueOrDefault()),
+                    selMonth = month.GetValueOrDefault(),
+                    selYear = year.GetValueOrDefault(),
+                    selSite = _site.SITE_IDX
+                };
+
+                return View(model);
+            }
+
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult DataFillLostData(vmDataReviewFillDataSummary model)
+        {
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(model.selSite);
+            if (_site == null || model.monitor == null || model.monitor.T_QREST_MONITORS == null)
+            {
+                TempData["Error"] = "Invalid request.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else
+            {
+                string UserIDX = User.Identity.GetUserId();
+
+                //security check
+                if (db_Account.CanAccessThisSite(UserIDX, _site.SITE_IDX, true) == false)
+                {
+                    TempData["Error"] = "Access Denied.";
+                    return RedirectToAction("Index", "Dashboard");
+                }
+
+                DateTime sDate = new DateTime(model.selYear, model.selMonth, 1);
+                DateTime eDate = sDate.AddMonths(1).AddHours(-1);
 
                 //get active polling config for site
                 T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(_site.SITE_IDX);
                 if (_config == null)
                 {
                     TempData["Error"] = "No active polling defined for the site.";
-                    return RedirectToAction("DataReviewSummary", "Data", new { id = _site.SITE_IDX, month = month, year = year });
+                    return RedirectToAction("DataReviewSummary", "Data", new { id = _site.SITE_IDX, month = model.selMonth, year = model.selYear });
                 }
 
 
-                db_Air.SP_FILL_LOST_DATA(sDate, eDate, monid.GetValueOrDefault(), _config.LOCAL_TIMEZONE);
+                db_Air.SP_FILL_LOST_DATA(sDate, eDate, model.monitor.T_QREST_MONITORS.MONITOR_IDX, _config.LOCAL_TIMEZONE);
 
                 TempData["Success"] = "Missing data added.";
-                return RedirectToAction("DataReviewSummary", new { id = _site.SITE_IDX, month = month, year = year });
+                return RedirectToAction("DataReviewSummary", new { id = _site.SITE_IDX, month = model.selMonth, year = model.selYear });
             }
 
         }
@@ -1022,6 +1059,8 @@ namespace QREST.Controllers
 
                 string UserIDX = User.Identity.GetUserId();
 
+
+                //case: deleting the records
                 if (model.editDeleteRecords == true)
                 {
                     foreach (var item in model.editRawDataIDX)
@@ -1040,6 +1079,7 @@ namespace QREST.Controllers
                         }
                     }
                 }
+                //case: updating records
                 else if (model.editRawDataIDX != null)
                 {
                     //lvl1
@@ -1057,11 +1097,11 @@ namespace QREST.Controllers
                         //editCount++;
                         if (model.selDuration == "1")
                         {
-                            Guid? succId = db_Air.UpdateT_QREST_DATA_HOURLY(item, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank == true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag), model.editQual);
-                            if (succId == null)
-                                TempData["Error"] = "Error updating hourly record";
+                            Tuple<Guid?, string> succId = db_Air.UpdateT_QREST_DATA_HOURLY(item, model.editNullQual, lvl1ind, lvl2ind, UserIDX, model.editUnitCode, model.editNotes, (model.editValueBlank == true ? "-999" : model.editValue), (model.editFlagBlank == true ? "-999" : model.editFlag), model.editQual);
+                            if (succId.Item1 == null)
+                                TempData["Error"] = succId.Item2;
                             else
-                                db_Air.InsertUpdatetT_QREST_DATA_HOURLY_LOG(null, succId, model.editNotes, UserIDX);
+                                db_Air.InsertUpdatetT_QREST_DATA_HOURLY_LOG(null, succId.Item1, model.editNotes, UserIDX);
                         }
                         else if (model.selDuration == "H")
                         {

@@ -68,7 +68,7 @@
                                             <small class="text-muted">Collected</small>
                                             @if (item.hrs_data != item.hrs)
                                             {
-                                                <a class="btn btn-rounded btn-xs btn-dark padder m-xs" style="background-color:#2c66af" href="@Url.Action("DataReviewFillLostData", new { monid = item.MONITOR_IDX, month = Model.selMonth, year = Model.selYear })"
+                                                <a class="btn btn-rounded btn-xs btn-dark padder m-xs" style="background-color:#2c66af" href="@Url.Action("DataFillLostData", new { monid = item.MONITOR_IDX, month = Model.selMonth, year = Model.selYear })"
                                                    data-toggle="tooltip" data-original-title="Add missing hourly records with blank records marked with qualifier 'LOST'">Fill Missing Data</a>
                                             }
                                         </div>

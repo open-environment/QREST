@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutPub.cshtml";
     ViewBag.Title = "Welcome to QREST";
+    var env = System.Web.Configuration.WebConfigurationManager.AppSettings["q-env"];
 }
 
 <section id="content">
@@ -29,8 +30,16 @@
                     </div>
                 </div>
             </div>
+            @if (env == "TEST")
+            {
+                <p class="text-center alert alert-danger" style="width:50%; margin: auto">
+                    This is the <b>testing</b> QREST application used for <b>evaluation</b> and <b>training</b> purposes only. 
+                    <br/><br/>
+                    No live data is polled in this test environment.
+                </p>
+            }
             <p class="text-center m-b-lg">
-                <a class="btn btn-lg btn-rounded btn-dark m-sm btn-warning-hover" href="@(Url.Action("QRESTRegister","Account"))">Create an Account</a>
+                <a class="btn btn-lg btn-rounded btn-dark m-sm btn-warning-hover" href="@(Url.Action("QRESTRegister","Account"))">Create @(env=="TEST" ? "a Test " : " an ") Account</a>
                 <a href="@(Url.Action("Index","Home"))" class="btn btn-lg btn-rounded btn-warning b-white bg-empty m-sm">View Public Data</a>
             </p>
             <p class="h4 ">
@@ -139,12 +148,22 @@
                 </div>
                 <div class="col-sm-6 dker">
                     <div class="text-center m-t-lg m-b-lg fadeIn animated" data-ride="animated" data-animation="fadeIn">
-                        <h2>Want to Test Drive QREST?</h2>
-                        <p>Create an account in the QREST Test environment to tour its features without using real data.</p>
-                        <div class="form-inline m-t-xl m-b-xl">
-
-                            <a class="btn btn-lg btn-primary m-sm" href="@Model.TestUrl" target="_blank">Go to Test Site</a>
-                        </div>
+                        @if (env == "TEST")
+                        {
+                            <h2>Ready for Production?</h2>
+                            <p>Create an account in the QREST Production environment to begin managing your air quality data.</p>
+                            <div class="form-inline m-t-xl m-b-xl">
+                                <a class="btn btn-lg btn-primary m-sm" href="http://www.qrest.net" target="_blank">Go to Production QREST</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <h2>Want to Test Drive QREST?</h2>
+                            <p>Create an account in the QREST Test environment to tour its features without using real data.</p>
+                            <div class="form-inline m-t-xl m-b-xl">
+                                <a class="btn btn-lg btn-primary m-sm" href="@Model.TestUrl" target="_blank">Go to Test Site</a>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

@@ -14,6 +14,10 @@
                 <label id="btnChartToggle" class="btn btn-default btn-rounded active" data-target="#chartContainer" data-toggle="collapse">
                     <input type="checkbox" name="option1" id="option1"><i class="fa fa-check text-active"></i> <span><i class="fa fa-line-chart"></i></span>
                 </label>
+                <label id="btnFilterToggle" class="btn btn-default btn-rounded" data-target="#filterContainer" data-toggle="collapse">
+                    <input type="checkbox" name="option3" id="option3"><i class="fa fa-check text-active"></i> <span><i class="fa fa-filter"></i></span>
+                </label>
+
                 <label id="btnGridToggle" class="btn btn-default btn-rounded active" data-target="#gridContainer" data-toggle="collapse">
                     <input type="checkbox" name="option2" id="option2"><i class="fa fa-check text-active"></i> <span><i class="fa fa-table"></i></span>
                 </label>
@@ -28,6 +32,12 @@
         </div>
         <div class="line line-dashed  pull-in"></div>
 
+        <div id="filterContainer" class="pull-out padder collapse" style="background-color:#d3d3d3">
+            <strong class="text-danger">Filters: </strong>
+            <br/>
+            <div class="line line-dashed pull-in"></div>
+        </div>
+        
         <div id="chartContainer" class="collapse in" style="height: 1px; width: 100%;">
         </div>
 
@@ -425,10 +435,7 @@
             }
         });
 
-
-        //$.fn.table.moment('M/D/YYYY hh:mm:ss A');
         moment.updateLocale(moment.locale(), { invalidDate: "" });
-
 
         table = $('#gridData').DataTable({
             "scrollY": "400px",
@@ -452,8 +459,9 @@
         });
 
         var dataPointsA = [], dataPointsSupp1 = [], dataPointsSupp2 = [];
+        var stripLinesA = [];  //used for shading AQS Null
         var parName, parNameSupp1, parNameSupp2;
-        var chart, chart1;
+        var chart, chart1, chart2;
 
 
         @if (Model.RawData != null && Model.RawData.Count > 0)
@@ -462,7 +470,7 @@
 
             foreach (var item in Model.RawData)
             {
-                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsA);
+                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', '@item.AQS_NULL_CODE', dataPointsA, stripLinesA);
                 </text>
             }
         }
@@ -474,7 +482,7 @@
 
             foreach (var item in Model.SuppData1)
             {
-                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsSupp1);
+                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', null, dataPointsSupp1, null);
                 </text>
             }
         }
@@ -486,12 +494,12 @@
 
             foreach (var item in Model.SuppData2)
             {
-                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsSupp2);
+                <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', null, dataPointsSupp2, null);
                 </text>
             }
         }
 
-        function addPoint(xx, yy, zz, vv, array) {
+        function addPoint(xx, yy, zz, vv, aqsnull, array, stripLineArray) {
             var lcolor = "#67B347";
             if (vv == "False")
                 lcolor = "#A5A5A5";
@@ -512,6 +520,15 @@
                 lineColor: lcolor,
                 color: lcolor
             });
+
+            console.log(aqsnull);
+            if (aqsnull) {
+                stripLineArray.push({
+                    startValue: new Date(moment(xx).add(-30,'minutes')),
+                    endValue: new Date(moment(xx).add(30, 'minutes')),
+                    color: "#ffcfcf"
+                });
+            }
         }
 
         chart = new CanvasJS.Chart("chartContainer", {
@@ -521,6 +538,12 @@
             title: {
                 text: parName
             },
+
+            axisX: {
+                stripLines: stripLinesA
+            },
+
+
             data: [{
                 type: "column",
                 connectNullData: true,

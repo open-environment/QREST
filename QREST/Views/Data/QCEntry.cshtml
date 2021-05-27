@@ -68,7 +68,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             @Html.LabelForRequired(m => m.MONITOR_IDX, "Assessment Date", new { @class = "control-label" })
-                            @Html.TextBoxFor(model => model.ASSESSMENT_DT, new { @class = "form-control date-cleave", @maxlength = "10", @autocomplete = "off", @placeholder = "mm/dd/yyyy" })
+                            @Html.TextBoxFor(model => model.ASSESSMENT_DT, "{0:MM/dd/yyyy}", new { @class = "form-control ", @autocomplete = "off", @placeholder="mm/dd/yyyy" })
                             @Html.ValidationMessageFor(model => model.ASSESSMENT_DT)
                         </div>
                     </div>
@@ -112,7 +112,7 @@
                                         <th>% Difference</th>
                                         @if (Model.ASSESSMENT_TYPE != "Flow Rate Verification" && Model.ASSESSMENT_TYPE != "Semi-Annual Flow Rate Audit")
                                         {
-                                        <th>Concentration Range</th>
+                                            <th>Concentration Range</th>
                                         }
                                         <th>Comments</th>
                                     </tr>
@@ -152,11 +152,11 @@
 
                                         @if (Model.ASSESSMENT_TYPE != "Flow Rate Verification" && Model.ASSESSMENT_TYPE != "Semi-Annual Flow Rate Audit")
                                         {
-                                        <td class="lert @(Model.AssessmentDetails[i].audit_level_int == 0 ? "bg-danger" : "bg-success")">
-                                            @Html.DisplayFor(model => model.AssessmentDetails[i].audit_level_disp)
-                                        </td>
+                                            <td class="lert @(Model.AssessmentDetails[i].audit_level_int == 0 ? "bg-danger" : "bg-success")">
+                                                @Html.DisplayFor(model => model.AssessmentDetails[i].audit_level_disp)
+                                            </td>
                                         }
-                                        
+
                                         <td style="padding:0">
                                             @Html.TextBoxFor(model => model.AssessmentDetails[i].COMMENTS, new { @class = "form-control input", @autocomplete = "off" })
                                         </td>
@@ -185,7 +185,6 @@
                         </div>
                     }
 
-                    @*<a href="@(Url.Action("MonitorEdit", "Site", new { siteIDX = Model.SITE_IDX }))" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add</a>*@
                 </div>
             </section>
 
@@ -210,6 +209,10 @@
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/cleave")
     @Scripts.Render("~/bundles/areyousure")
+    @Scripts.Render("~/bundles/moment")
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
     <script type="text/javascript">
         // Enable dirtyforms
@@ -229,6 +232,24 @@
 
         $(document).ready(function () {
 
+            //daterange selector initialization
+            $('input[name="ASSESSMENT_DT"]').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                autoUpdateInput: false,
+                autoApply: true,
+                locale: {
+                    format: 'M/DD/YYYY'
+                }
+            }
+                , function (start, end, label) {
+                    //callback, gets fired when date range is selected, setting values to viewmodel
+                    $('#ASSESSMENT_DT').val(start.format('MM/DD/YYYY'));
+                    //    $('#selDate').data('start', start.format('YYYY-MM-DD'));
+                //    $('#selDate').data('end', end.format('YYYY-MM-DD'));
+                }
+            );
+
 
             //assessment type dropdown change
             $('#ASSESSMENT_TYPE').change(function () {
@@ -238,13 +259,6 @@
                 else
                     $("#divUnit").hide();
             });
-
-
-
-            //initialize monitor dropdown on page load
-            //if ($('#selMon option').length == 0)
-            //    fetchMonitors();
-
 
             //update monitor dropdown
             $('#ASSESSMENT_TYPE').change(function () {
@@ -264,12 +278,6 @@
                     $.each(data, function (index, item) {
                         $('#MONITOR_IDX').append($('<option></option>').val(item.Value).text(item.Text));
                     });
-
-                    //if (data.length == 1) {
-                    //    console.log('setting first');
-                    //    $("#MONITOR_IDX option:first").attr('selected', 'selected');
-                    //    //$("#MONITOR_IDX").val($("#MONITOR_IDX option:first").val());
-                    //}
                 });
             };
 

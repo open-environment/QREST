@@ -43,7 +43,14 @@
                         </li>
                         <li>
                             <div id="maincontent" role="main" class="m-t-sm">
-                                @Html.ActionLink("Join QREST", "SignUp", "Home", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
+                                @if (System.Web.Configuration.WebConfigurationManager.AppSettings["q-env"] == "TEST")
+                                {
+                                    @Html.ActionLink("Join QREST Test", "SignUp", "Home", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
+                                }
+                                else
+                                {
+                                    @Html.ActionLink("Join QREST", "SignUp", "Home", null, new { @class = "btn btn-sm btn-rounded btn-dark m-l" })
+                                }
                             </div>
                         </li>
                     }

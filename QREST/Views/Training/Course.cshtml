@@ -1,0 +1,67 @@
+﻿@model QREST.Models.vmTrainingCourse
+@{
+    ViewBag.Title = "Course Details";
+    ViewBag.HideTitle = true;
+}
+
+<div class="row">
+    <div class="col-md-3 m-b-md" style="width:160px">
+        <img src="~/Content/Images/training-lesson.png" />
+    </div>
+    <div class="col-md-9">
+        <h2 class="m-t-xs font-bold"><span class="text-success">Course: </span>@Model.course.COURSE_NAME</h2>
+        <h4 class="m-t-md text-success page-header m-b-none">Course Description</h4>
+        <h4 class="font-thin">@Model.course.COURSE_DESC</h4>
+    </div>
+</div>
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">Lessons in this Course</header>
+    <div class="panel-body">
+        @if (Model.lessons != null)
+        {
+        <div class="table-responsive">
+            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Lesson</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                @foreach (var item in Model.lessons)
+                {
+                    <tr>
+                        <td>
+                            <h4 class="font-bsold m-t-sm">@item.LESSON_SEQ</h4>
+                        </td>
+                        <td>
+                            <h4 class="font-bold m-t-sm">@Html.DisplayFor(modelItem => item.LESSON_TITLE)</h4>
+                            @Html.DisplayFor(modelItem => item.LESSON_DESC)
+                        </td>
+                        <td>
+                            @if (item.LESSON_COMP_IND == 1)
+                            {
+                                <a class="fa fa-check-square fa-3x text-success m-r-sm m-t-sm pull-left" href="@Url.Action("Course", new { id = item.COURSE_IDX })"></a>
+                                <a class="clear" style="padding-right:30px;" href="@Url.Action("Course", new { id = item.COURSE_IDX })"> <span class="h3 block m-t-sm font-bold m-r-md">Complete</span> <small class="text-muted">on @item.CREATE_DT</small> </a>
+                            }
+                            else if (item.LESSON_STEPS_COMP > 0)
+                            {
+                                <a href="@(Url.Action("Lesson", "Training", new { id = item.LESSON_IDX }))" class="btn m-t-sm m-b-sm btn-lg btn-success">Continue <i class="fa fa-play-circle"></i></a>
+                                <small class="text-muted clear">(@item.LESSON_STEPS_COMP steps completed)</small>
+                            }
+                            else
+                            {
+                                <a href="@(Url.Action("Lesson", "Training", new { id = item.LESSON_IDX }))" class="btn m-t-sm m-b-sm btn-lg btn-success">Begin <i class="fa fa-play-circle"></i></a>
+                            }
+                        </td>
+
+                    </tr>
+                }
+            </table>
+            <a href="@(Url.Action("Index", "Training"))" class="btn btn-rounsded btn-default">Back</a>
+
+        </div>
+        }
+
+    </div>
+</section>

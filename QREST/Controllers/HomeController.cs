@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace QREST.Controllers
@@ -49,7 +50,7 @@ namespace QREST.Controllers
 
 
         [HttpGet]
-        public ActionResult ReportDaily(Guid? id, int? month, int? year, int? day, string time)
+        public async Task<ActionResult> ReportDaily(Guid? id, int? month, int? year, int? day, string time)
         {
             var model = new vmHomeReportDaily
             {
@@ -61,7 +62,8 @@ namespace QREST.Controllers
                 currServerDateTime = System.DateTime.Now
             };
 
-            model.Results = db_Air.SP_RPT_DAILY(id ?? Guid.Empty, model.selMonth, model.selYear, model.selDay, model.selTime);
+            if (model.selSite != Guid.Empty && month != null && year != null && day != null)
+                model.Results = await db_Air.SP_RPT_DAILY(id ?? Guid.Empty, model.selMonth, model.selYear, model.selDay, model.selTime);
 
             return View(model);
         }
@@ -75,9 +77,9 @@ namespace QREST.Controllers
 
 
         [HttpGet]
-        public ActionResult ReportDailyExport(Guid? id, int? month, int? year, int? day, string time)
+        public async Task<ActionResult> ReportDailyExport(Guid? id, int? month, int? year, int? day, string time)
         {
-            DataTable dt = DataTableGen.ReportDaily(id ?? Guid.Empty, month ?? 1, year ?? System.DateTime.Now.Year, day ?? 1, time);
+            DataTable dt = await DataTableGen.ReportDaily(id ?? Guid.Empty, month ?? 1, year ?? System.DateTime.Now.Year, day ?? 1, time);
             if (dt.Rows.Count > 0)
             {
                 MemoryStream ms = ExcelGen.GenExcelFromDataTables(new List<DataTable> { dt });

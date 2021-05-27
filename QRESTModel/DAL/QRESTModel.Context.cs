@@ -78,6 +78,13 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_REF_QC> T_QREST_REF_QC { get; set; }
         public virtual DbSet<T_QREST_REF_QC_AUDIT_LVL> T_QREST_REF_QC_AUDIT_LVL { get; set; }
         public virtual DbSet<T_QREST_DATA_IMPORT_TEMP> T_QREST_DATA_IMPORT_TEMP { get; set; }
+        public virtual DbSet<T_QREST_TRAIN_COURSE> T_QREST_TRAIN_COURSE { get; set; }
+        public virtual DbSet<T_QREST_TRAIN_COURSE_LESSON> T_QREST_TRAIN_COURSE_LESSON { get; set; }
+        public virtual DbSet<T_QREST_TRAIN_COURSE_USER> T_QREST_TRAIN_COURSE_USER { get; set; }
+        public virtual DbSet<T_QREST_TRAIN_LESSON> T_QREST_TRAIN_LESSON { get; set; }
+        public virtual DbSet<T_QREST_TRAIN_LESSON_STEP> T_QREST_TRAIN_LESSON_STEP { get; set; }
+        public virtual DbSet<T_QREST_TRAIN_LESSON_STEP_USER> T_QREST_TRAIN_LESSON_STEP_USER { get; set; }
+        public virtual DbSet<T_QREST_TRAIN_LESSON_USER> T_QREST_TRAIN_LESSON_USER { get; set; }
     
         public virtual ObjectResult<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)
         {
@@ -239,6 +246,75 @@ namespace QRESTModel.DAL
                 new ObjectParameter("edate", typeof(System.DateTime));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_AQS_REVIEW_STATUS_Result>("SP_AQS_REVIEW_STATUS", siteidParameter, adateParameter, edateParameter);
+        }
+    
+        public virtual ObjectResult<SP_COUNT_LOST_DATA_Result> SP_COUNT_LOST_DATA(Nullable<System.Guid> monid, Nullable<System.DateTime> sdate, Nullable<System.DateTime> edate)
+        {
+            var monidParameter = monid.HasValue ?
+                new ObjectParameter("monid", monid) :
+                new ObjectParameter("monid", typeof(System.Guid));
+    
+            var sdateParameter = sdate.HasValue ?
+                new ObjectParameter("sdate", sdate) :
+                new ObjectParameter("sdate", typeof(System.DateTime));
+    
+            var edateParameter = edate.HasValue ?
+                new ObjectParameter("edate", edate) :
+                new ObjectParameter("edate", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_COUNT_LOST_DATA_Result>("SP_COUNT_LOST_DATA", monidParameter, sdateParameter, edateParameter);
+        }
+    
+        public virtual ObjectResult<SP_TRAIN_LESSON_USER_PROGRESS_Result> SP_TRAIN_LESSON_USER_PROGRESS(string useridx, Nullable<System.Guid> courseidx)
+        {
+            var useridxParameter = useridx != null ?
+                new ObjectParameter("useridx", useridx) :
+                new ObjectParameter("useridx", typeof(string));
+    
+            var courseidxParameter = courseidx.HasValue ?
+                new ObjectParameter("courseidx", courseidx) :
+                new ObjectParameter("courseidx", typeof(System.Guid));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_TRAIN_LESSON_USER_PROGRESS_Result>("SP_TRAIN_LESSON_USER_PROGRESS", useridxParameter, courseidxParameter);
+        }
+    
+        public virtual ObjectResult<SP_MONTHLY_STATS_Result> SP_MONTHLY_STATS(Nullable<System.DateTime> sDate, Nullable<System.DateTime> eDate, Nullable<System.Guid> monid)
+        {
+            var sDateParameter = sDate.HasValue ?
+                new ObjectParameter("sDate", sDate) :
+                new ObjectParameter("sDate", typeof(System.DateTime));
+    
+            var eDateParameter = eDate.HasValue ?
+                new ObjectParameter("eDate", eDate) :
+                new ObjectParameter("eDate", typeof(System.DateTime));
+    
+            var monidParameter = monid.HasValue ?
+                new ObjectParameter("monid", monid) :
+                new ObjectParameter("monid", typeof(System.Guid));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_MONTHLY_STATS_Result>("SP_MONTHLY_STATS", sDateParameter, eDateParameter, monidParameter);
+        }
+    
+        public virtual ObjectResult<SP_TRAIN_STEP_USER_PROGRESS_Result> SP_TRAIN_STEP_USER_PROGRESS(string useridx, Nullable<System.Guid> lessonidx)
+        {
+            var useridxParameter = useridx != null ?
+                new ObjectParameter("useridx", useridx) :
+                new ObjectParameter("useridx", typeof(string));
+    
+            var lessonidxParameter = lessonidx.HasValue ?
+                new ObjectParameter("lessonidx", lessonidx) :
+                new ObjectParameter("lessonidx", typeof(System.Guid));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_TRAIN_STEP_USER_PROGRESS_Result>("SP_TRAIN_STEP_USER_PROGRESS", useridxParameter, lessonidxParameter);
+        }
+    
+        public virtual ObjectResult<SP_TRAIN_COURSE_USER_PROGRESS_Result> SP_TRAIN_COURSE_USER_PROGRESS(string useridx)
+        {
+            var useridxParameter = useridx != null ?
+                new ObjectParameter("useridx", useridx) :
+                new ObjectParameter("useridx", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_TRAIN_COURSE_USER_PROGRESS_Result>("SP_TRAIN_COURSE_USER_PROGRESS", useridxParameter);
         }
     }
 }

@@ -580,6 +580,22 @@ namespace QREST.Controllers
 
 
         [HttpPost]
+        public JsonResult NotificationDeleteAll(string id)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            int succId = db_Account.DeleteT_QREST_USER_NOTIFICATION_All_ByUserID(UserIDX);
+            if (succId == 1)
+            {
+                TempData["Success"] = "Success";
+                return Json("Success");
+            }
+            else
+                return Json("Unable to delete.");
+        }
+
+
+        [HttpPost]
         public JsonResult NotificationRead(Guid? id)
         {
             string UserIDX = User.Identity.GetUserId();

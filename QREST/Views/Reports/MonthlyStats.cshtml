@@ -1,0 +1,257 @@
+﻿@model QREST.Models.vmReportsMonthlyStats
+@{
+    ViewBag.Title = "Monthly Stats";
+    ViewBag.HideTitle = true;
+    ViewBag.HelpLink = "Monthly-Stats";
+}
+<style>
+    .table-condensed tbody {
+        display: none;
+    }
+
+    .daterangepicker.monthly .drp-calendar,
+    .daterangepicker.yearly .drp-calendar {
+        width: 1000px !important;
+    }
+
+    .yearly table.table-condensed .yearselect {
+        width: 100%;
+    }
+</style>
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">Monthly Statistics</header>
+    @if (Model.ddl_Organization.Any())
+    {
+<div class="panel-body">
+    @using (Html.BeginForm("MonthlyStats", "Reports", FormMethod.Post, new { @class = "form-inline m-b-sm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
+        @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, new { @class = "form-control" })
+        <span>from</span> @Html.TextBoxFor(model => model.selDate, new { @class = "form-control", @style = "width:100px;" })
+        @Html.ValidationMessageFor(model => model.selDate)
+
+        <span>to</span> @Html.TextBoxFor(model => model.endDate, new { @class = "form-control" })
+        <button id="btnGo" type="submit" class="btn btn-primary">Go</button>
+    }
+
+    @if (Model.stats != null && Model.stats.Count > 0)
+    {
+        <div id="gridContainer" class="table-responsive collapse in">
+            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>Min</th>
+                        <th>Mean</th>
+                        <th>% annual hours below monthly mean</th>
+                        <th>Median</th>
+                        <th>Max</th>
+                        <th>DateTime of Max</th>
+                        <th>2nd Max</th>
+                        <th>Max - 2nd Max Difference</th>
+                        <th>Std Dev</th>
+                        <th>25th Ntile</th>
+                        <th>75th Ntile</th>
+                        <th>Completeness</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.stats)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.yr)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.mn)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.min1)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.avg1)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.pct_yr_hrs_below_mn_mean)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.median1)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.max1)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.max_dt)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.scnd_max)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.max2diff)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.stddev1)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.twen_fifth)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.sevn_fifth)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.hrs_data) / @Html.DisplayFor(modelItem => item.tot_hrs)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+        <div id="chartContainer" class="collapse in" style="height: 400px; width: 100%;">
+        </div>
+    }
+</div>
+    }
+    else
+    {
+        <div class="panel-body">You can view data after you have been associated with a tribal organization.</div>
+    }
+</section>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/moment")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/canvasjs")
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <script type="text/javascript">
+
+
+        $(document).ready(function () {
+
+            moment.updateLocale(moment.locale(), { invalidDate: "" });
+            var sDateNew = moment(new Date("@Model.selDate"));
+            var sEndNew = moment(new Date("@Model.endDate"));
+
+            //daterange selector initialization
+            $('input[name="selDate"]').daterangepicker({
+                showDropdowns: true,
+                singleDatePicker: true,
+                autoUpdateInput: true,
+                startDate: sDateNew,
+                endDate: sDateNew,
+                locale: {
+                    format: "M/YYYY",
+                    cancelLabel: 'Clear'
+                }
+            }).on('hide.daterangepicker', function (ev, picker) {
+                var td = $(picker.container).find('.table-condensed tbody tr:nth-child(3) td:first-child');
+                setTimeout(function () {
+                    td.trigger('mousedown');
+                    picker.setStartDate(picker.startDate.date(1));
+                }, 1);
+            });
+
+
+            //daterange selector initialization
+            $('input[name="endDate"]').daterangepicker({
+                showDropdowns: true,
+                singleDatePicker: true,
+                autoUpdateInput: true,
+                startDate: sEndNew,
+                endDate: sEndNew,
+                locale: {
+                    format: "M/YYYY",
+                    cancelLabel: 'Clear'
+                }
+            }).on('hide.daterangepicker', function (ev, picker) {
+                var td = $(picker.container).find('.table-condensed tbody tr:nth-child(3) td:first-child');
+                setTimeout(function () {
+                    td.trigger('mousedown');
+                    picker.setStartDate(picker.startDate.date(1));
+                }, 1);
+            });
+
+            //initialize monitor dropdown on page load (if none supplied by controller)
+            if ($('#selMon option').length === 0) {
+                fetchMonitors();
+            }
+
+            //update monitor dropdown on sel org change
+            $('#selOrgID').change(function () {
+                fetchMonitors();
+            });
+
+            //update monitor dropdown
+            function fetchMonitors() {
+                $('#selMon').empty();
+                $.getJSON('@Url.Action("FetchMonitorsWithData", "Data" )', { ID: $("#selOrgID").val() }, function (data) {
+                    if (!data) { return; }
+                    $('#selMon').append($('<option></option>').val('').text('Please select'));
+                    $.each(data, function (index, item) {
+                        $('#selMon').append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+                });
+            };
+
+            //fix limitation of jqueryval to handle non-standard datetime format
+            $(function () {
+                $.validator.methods.date = function (value, element) {
+                    return this.optional(element) || moment(value, "M/YYYY", true).isValid();
+                }
+            });
+
+
+            var dataPointsA = [];
+            var chart;
+
+            @if (Model.stats != null && Model.stats.Count > 0)
+            {
+                foreach (var item in Model.stats)
+                {
+                <text>
+                dataPointsA.push({
+                    label: @item.mn,
+                    y: [@item.min1,@item.twen_fifth,@item.sevn_fifth,@item.max1,@item.median1]
+                });
+                </text>
+                }
+            }
+
+            //hide chart if no data
+            if (dataPointsA.length > 0) {
+                chart = new CanvasJS.Chart("chartContainer", {
+                    animationEnabled: true,
+                    exportEnabled: true,
+                    title: {
+                        text: "Monthly Results" 
+                    },
+                    axisY: {
+                        includeZero: false //try changing it to true
+                    },
+                    data: [{
+                        type: "boxAndWhisker",
+                        dataPoints: dataPointsA
+                    }]
+                });
+
+                chart.render();
+
+                $("#chartContainer").show();
+                $("#chartContainer").css("height", "400px");
+            }
+            else
+                $("#chartContainer").hide();
+
+
+        });
+
+    </script>
+}

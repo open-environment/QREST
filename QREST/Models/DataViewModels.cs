@@ -30,7 +30,9 @@ namespace QREST.Models
         public Guid? QC_ASSESS_IDX { get; set; }
         [Required]
         public Guid? MONITOR_IDX { get; set; }
+
         [Required]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime? ASSESSMENT_DT { get; set; }
 
         public string ASSESSMENT_TM { get; set; }
@@ -234,6 +236,14 @@ namespace QREST.Models
         }
     }
 
+    public class vmDataReviewFillDataSummary {
+        public int selMonth { get; set; }
+        public int selYear { get; set; }
+        public Guid selSite { get; set; }
+
+        public SiteMonitorDisplayType monitor  { get; set; }
+        public SP_COUNT_LOST_DATA_Result lost_data { get; set; }
+    }
 
     public class vmDataReview
     {

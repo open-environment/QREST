@@ -158,7 +158,7 @@ namespace QRESTModel.COMM
                     System.Threading.Thread.Sleep(250);
                     client.Close();
 
-                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping Socket Exception 2", CommResponse = ex.Message };
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping General Exception 2", CommResponse = ex.Message };
                 }
             }
 

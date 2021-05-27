@@ -154,6 +154,7 @@ namespace QREST.Controllers
         //**********************SITES **************************************
         //**********************SITES **************************************
         //**********************SITES **************************************
+        [HttpGet]
         public ActionResult SiteList(string selOrgID)
         {
             string UserIDX = User.Identity.GetUserId();
@@ -172,6 +173,7 @@ namespace QREST.Controllers
         }
 
 
+        [HttpGet]
         public ActionResult SiteEdit(Guid? id)
         {
             string UserIDX = User.Identity.GetUserId();
@@ -330,6 +332,7 @@ namespace QREST.Controllers
         }
 
 
+        [HttpGet]
         public ActionResult SiteImport(string selOrgID)
         {
             string UserIDX = User.Identity.GetUserId();
@@ -532,7 +535,7 @@ namespace QREST.Controllers
         //**********************SITE POLLING **************************************
         //**********************SITE POLLING **************************************
         //**********************SITE POLLING **************************************
-
+        [HttpGet]
         public ActionResult SitePollConfig(Guid? id, Guid? configid, int? n)
         {
             //*********if config id supplied and site id not supplied, then grab site id
@@ -561,22 +564,24 @@ namespace QREST.Controllers
                     POLLING_NEXT_RUN_DT = _site.POLLING_NEXT_RUN_DT,
                 };
 
-                //get config to display
+                //get config to edit
                 if (n == 1) //new case
                 {
                     model.editPOLL_CONFIG_IDX = Guid.NewGuid();
                     model.editACT_IND = false;
                 }
-                else
+                else  //update case
                 {
-                    T_QREST_SITE_POLL_CONFIG e = null;
-
-                    //get config by supplied
-                    e = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(configid.ConvertOrDefault<Guid>());
+                    //get config if supplied
+                    T_QREST_SITE_POLL_CONFIG e = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(configid.ConvertOrDefault<Guid>());
 
                     //if none, then display active
                     if (e == null)
                         e = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(_site.SITE_IDX);
+
+                    //if still none, then display first in config list
+                    if (e == null && model.ConfigList.Count > 0)
+                        e = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.ConfigList[0].POLL_CONFIG_IDX);
 
                     if (e != null)
                     {

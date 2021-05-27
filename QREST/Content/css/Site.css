@@ -422,8 +422,8 @@ table.dataTable.no-footer {
     #leftHelp:after {
         content: '  Help';
         opacity: 0;
-        -webkit-transition: all 1s;
-        transition: all 1s;
+        -webkit-transition: all 0.3s;
+        transition: all 0.3s;
     }
 
     #leftHelp:hover {
@@ -443,8 +443,8 @@ table.dataTable.no-footer {
     #leftMap:after {
         content: '  Public Site';
         opacity: 0;
-        -webkit-transition: all 1s;
-        transition: all 1s;
+        -webkit-transition: all 0.3s;
+        transition: all 0.3s;
     }
 
     #leftMap:hover {

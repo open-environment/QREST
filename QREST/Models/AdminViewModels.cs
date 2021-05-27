@@ -246,4 +246,35 @@ namespace QREST.Models
     }
 
 
+
+
+    public class vmAdminTraining
+    {
+        public List<T_QREST_TRAIN_COURSE> courses { get; set; }
+
+    }
+
+
+    public class vmAdminTrainingCourseEdit
+    {
+        public T_QREST_TRAIN_COURSE course { get; set; }
+        public List<CourseLessonDisplay> lessons { get; set; }
+
+    }
+
+
+    public class vmAdminTrainingLessonEdit
+    {
+        public Guid? COURSE_IDX { get; set; }
+        public CourseLessonDisplay lesson { get; set; }
+        public List<T_QREST_TRAIN_LESSON_STEP> steps { get; set; }
+
+    }
+
+
+    public class vmAdminTrainingStepEdit
+    {
+        public T_QREST_TRAIN_LESSON_STEP step { get; set; }
+
+    }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace QRESTModel.DataTableGen
 {
@@ -275,7 +276,7 @@ namespace QRESTModel.DataTableGen
             return dt;
         }
 
-        public static DataTable ReportDaily(Guid monIDX, int mnth, int yr, int day, string time)
+        public static async Task<DataTable> ReportDaily(Guid monIDX, int mnth, int yr, int day, string time)
         {
             DataTable dt = new DataTable("Daily Data");
             dt.Columns.AddRange(new DataColumn[26] {
@@ -307,7 +308,7 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("23:00")
                                            });
 
-            List<SP_RPT_DAILY_Result> _datas = db_Air.SP_RPT_DAILY(monIDX, mnth, yr, day, time);
+            List<SP_RPT_DAILY_Result> _datas = await db_Air.SP_RPT_DAILY(monIDX, mnth, yr, day, time);
             foreach (var _data in _datas)
             {
                 dt.Rows.Add(_data.PAR_CODE, _data.PAR_NAME, _data.C0, _data.C1, _data.C2, _data.C3, _data.C4, _data.C5, _data.C6, _data.C7, _data.C8, _data.C9, _data.C10, _data.C11, _data.C12, _data.C13, _data.C14,

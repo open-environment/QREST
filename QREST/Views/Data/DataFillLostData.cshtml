@@ -1,0 +1,48 @@
+﻿@model QREST.Models.vmDataReviewFillDataSummary
+@{
+    ViewBag.Title = "Review Missing Data";
+    ViewBag.HelpLink = "Data-Review";
+}
+
+
+@using (Html.BeginForm("DataFillLostData", "Data", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.selSite)
+    @Html.HiddenFor(model => model.selMonth)
+    @Html.HiddenFor(model => model.selYear)
+    @Html.HiddenFor(model => model.monitor.T_QREST_MONITORS.MONITOR_IDX)
+
+    <div class="row col-md-12">
+        <section class="panel panel-qrest">
+            <header class="panel-heading font-bold">Review Filling Missing Data</header>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <p>
+                                You are about to populate <span class="h4 text-success">@Model.lost_data.CNT</span> missing hourly records
+                            </p>
+                            <p>
+                                for <span class="h4 text-success">@Model.monitor.PAR_NAME</span>
+                            </p>
+                            <p>
+                                between <span class="h4 text-success">@Model.lost_data.MIN_DT</span> and <span class="h4 text-success">@Model.lost_data.MAX_DT</span>
+                            </p>
+                            <p>
+                                with the value of <span class="h4 text-danger">LOST</span>
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="btnSave" type="submit" class="btn btn-primary">Click to Confirm</button>
+                        <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selSite, month = Model.selMonth, year = Model.selYear})">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+}

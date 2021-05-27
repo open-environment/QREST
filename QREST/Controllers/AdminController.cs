@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
-using QREST.App_Logic;
 using QREST.App_Logic.BusinessLogicLayer;
 using QREST.Models;
 using QRESTModel.AQSHelper;
@@ -15,7 +14,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Windows.Forms;
 
 namespace QREST.Controllers
 {
@@ -568,6 +566,7 @@ namespace QREST.Controllers
             return View(model);
         }
 
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult TaskConfig(vmAdminTaskConfig model)
         {
@@ -942,21 +941,182 @@ namespace QREST.Controllers
 
 
 
+        //************************************* TRAINING ************************************************************
+        // GET: /Admin/TrainingConfig
+        public ActionResult TrainingConfig()
+        {
+            var model = new vmAdminTraining { 
+                courses = db_Train.GetT_QREST_TRAIN_COURSE()
+            };
+            return View(model);
+        }
+
+
+        public ActionResult TrainingCourse(Guid? id)
+        {
+            var model = new vmAdminTrainingCourseEdit { 
+                course = db_Train.GetT_QREST_TRAIN_COURSE_byID(id.GetValueOrDefault()),
+                lessons = db_Train.GetT_QREST_TRAIN_LESSONS_byCourse(id.GetValueOrDefault())
+            };
+            return View(model);
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult TrainingCourse(vmAdminTrainingCourseEdit model)
+        {
+            Guid? c = model.course.COURSE_IDX;
+            if (c == Guid.Empty)
+                c = null;
+
+            Guid? succID = db_Train.InsertUpdateT_QREST_TRAIN_COURSE(c, model.course.COURSE_NAME, model.course.COURSE_DESC, model.course.COURSE_SEQ, model.course.ACT_IND);
+            if (succID != null) {
+                TempData["Success"] = "Data saved";
+                return RedirectToAction("TrainingCourse", new { id = succID });
+            }
+            else
+            {
+                TempData["Error"] = "Error saving data";
+                return View(model);
+            }
+        }
+
+
+        [HttpPost]
+        public JsonResult TrainingCourseDelete(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int succId = db_Train.DeleteT_QREST_TRAIN_COURSE(id ?? Guid.Empty);
+                if (succId == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete course.");
+            }
+        }
+
+
+        public ActionResult TrainingLesson(Guid? id, Guid? courseid)
+        {
+            var model = new vmAdminTrainingLessonEdit();
+            if (id != null)
+            {
+                model.lesson = db_Train.GetT_QREST_TRAIN_LESSON_byLesson(id.GetValueOrDefault());
+                model.steps = db_Train.GetT_QREST_TRAIN_LESSON_STEPS_byLessonID(model.lesson.LESSON_IDX);
+            }
+            else if (courseid != null)
+            {
+                model.lesson = new CourseLessonDisplay
+                {
+                    COURSE_IDX = courseid.GetValueOrDefault()
+                };
+            }
+
+            return View(model);
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult TrainingLesson(vmAdminTrainingLessonEdit model)
+        {
+            //***************** VALIDATION ***************************
+            if (model.lesson.COURSE_IDX == null)
+            {
+                TempData["Error"] = "Error saving data";
+                return View(model);
+            }
+            //***************** END VALIDATION ***************************
+
+            Guid? c = model.lesson.LESSON_IDX;
+            if (c == Guid.Empty)
+                c = null;
+
+            Guid? succID = db_Train.InsertUpdateT_QREST_TRAIN_LESSON(c, model.lesson.LESSON_TITLE, model.lesson.LESSON_DESC, model.lesson.COURSE_IDX, model.lesson.LESSON_SEQ);
+            if (succID != null)
+            {
+                TempData["Success"] = "Data saved";
+                return RedirectToAction("TrainingLesson", new { id = succID });
+            }
+            else
+            {
+                TempData["Error"] = "Error saving data";
+                return View(model);
+            }
+        }
+
+
+        public ActionResult TrainingLessonStep(Guid? id, Guid? lessonid)
+        {
+            var model = new vmAdminTrainingStepEdit();
+
+            //update case
+            if (id != null)
+            {
+                model.step = db_Train.GetT_QREST_TRAIN_LESSON_STEP_byID(id.GetValueOrDefault());
+            }
+            else if (lessonid != null) //insert case
+            {
+                model.step = new T_QREST_TRAIN_LESSON_STEP
+                {
+                    LESSON_IDX = lessonid.GetValueOrDefault()
+                };
+            }
+            else if (lessonid == null && id == null)
+            {
+                TempData["Error"] = "Unable to find lesson to edit";
+                return RedirectToAction("TrainingConfig");
+            }
+
+            return View(model);
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult TrainingLessonStep(vmAdminTrainingStepEdit model)
+        {
+            //***************** VALIDATION ***************************
+            if (model.step.LESSON_IDX == null)
+            {
+                TempData["Error"] = "Error saving data";
+                return View(model);
+            }
+            //***************** END VALIDATION ***************************
+
+            Guid? c = model.step.LESSON_STEP_IDX;
+            if (c == Guid.Empty)
+                c = null;
+
+            Guid? succID = db_Train.InsertUpdateT_QREST_TRAIN_LESSON_STEP(c, model.step.LESSON_IDX, model.step.LESSON_STEP_SEQ, model.step.LESSON_STEP_DESC,
+                model.step.REQUIRED_URL, model.step.REQ_CONFIRM, model.step.REQUIRED_YT_VID);
+            if (succID != null)
+            {
+                TempData["Success"] = "Data saved";
+                return RedirectToAction("TrainingLessonStep", new { id = succID });
+            }
+            else
+            {
+                TempData["Error"] = "Error saving data";
+                return View(model);
+            }
+        }
+
+
         //************************************* TEST METHODS ************************************************************
-        //public ActionResult Testing()
-        //{
+        public ActionResult Testing()
+        {
 
-        //    List<AIRNOW_LAST_HOUR> _recs = db_Air.GetAIRNOW_LAST_HOUR();
-        //    if (_recs != null)
-        //    {
-        //        foreach (AIRNOW_LAST_HOUR _rec in _recs)
-        //        {
-                    
-        //        }
-        //    }
+            //List<AIRNOW_LAST_HOUR> _recs = db_Air.GetAIRNOW_LAST_HOUR();
+            //if (_recs != null)
+            //{
+            //    foreach (AIRNOW_LAST_HOUR _rec in _recs)
+            //    {
 
-        //    return View();
-        //}
+            //    }
+            //}
+            return View();
+        }
 
 
         //public ActionResult HourlyPollValidation()

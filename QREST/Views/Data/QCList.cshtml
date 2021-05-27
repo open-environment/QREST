@@ -98,7 +98,8 @@
                         "name": "ASSESSMENT_DT",
                         "autoWidth": true,
                         render: function (d) {
-                            return moment(d).format("MM/DD/YYYY");
+                           // console.log(d);
+                            return moment.utc(d).format("MM/DD/YYYY");
                         }
                     }
                 ],

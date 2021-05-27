@@ -902,6 +902,25 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        public static int DeleteT_QREST_USER_NOTIFICATION_All_ByUserID(string id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    ctx.Database.ExecuteSqlCommand("DELETE FROM T_QREST_USER_NOTIFICATION WHERE USER_IDX = {0}", id);
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
         //***************** T_QREST_HELP_DOCS ***************************************        
 
 

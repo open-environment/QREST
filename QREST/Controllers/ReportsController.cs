@@ -1,12 +1,10 @@
-﻿using ClosedXML.Excel;
-using Microsoft.AspNet.Identity;
+﻿using Microsoft.AspNet.Identity;
 using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using QRESTModel.DataTableGen;
 using QREST.App_Logic;
@@ -109,8 +107,47 @@ namespace QREST.Controllers
 
 
 
+        public ActionResult MonthlyStats(string org, Guid? mon, DateTime? sDate, DateTime? eDate)
+        {
+            string UserIDX = User.Identity.GetUserId();
 
-        
+            var model = new vmReportsMonthlyStats {
+                selOrgID = org,
+                selMon = mon.GetValueOrDefault(),
+                selDate = sDate ?? new DateTime(System.DateTime.Now.Year,1,1),
+                endDate = eDate != null ? (eDate.GetValueOrDefault().Day == 1 ? eDate.GetValueOrDefault().AddMonths(1).AddHours(-1) : eDate.GetValueOrDefault()) : new DateTime(System.DateTime.Now.Year, 1, 1).AddYears(1).AddHours(-1),
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true),
+                ddl_Monitor = new List<SelectListItem>()
+            };
+
+            //get org and site from supplied mon
+            if (model.selMon != Guid.Empty)
+            {
+                SiteMonitorDisplayType _m = db_Air.GetT_QREST_MONITORS_ByID(model.selMon);
+                if (_m != null)
+                {
+                    model.selOrgID = _m.ORG_ID;
+                    model.ddl_Monitor = ddlHelpers.get_monitors_sampled_by_org(model.selOrgID);
+                }
+            }
+
+            //supply dates
+            if (mon != null && sDate != null && eDate != null)
+                model.stats = db_Air.SP_MONTHLY_STATS(model.selDate, model.endDate, model.selMon);
+
+            return View(model);
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult MonthlyStats(vmReportsMonthlyStats model)
+        {
+            
+            return RedirectToAction("MonthlyStats", "Reports", new { org = model.selOrgID, mon = model.selMon, sDate = model.selDate, eDate = model.endDate });
+        }
+
+
+
         //************************************* REF DATA ************************************************************
         public ActionResult RefCollFreq()
         {
@@ -218,6 +255,7 @@ namespace QREST.Controllers
         }
 
 
+        [HttpGet]
         public ActionResult RefParMethod()
         {
             var model = new vmReportsRefParMethod();

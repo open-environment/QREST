@@ -16,6 +16,7 @@ BEGIN
 	--1/20/2020 DOUG TIMMS prevent update if HOURLY RECORD IS LVL1 or LVL2 VAL
 	--                     prevent upate if modify date = 8/8/1888 (used to flag no hourly calc)
 	--2/23/2020 DOUG TIMMS add calculation of TOT
+	--6/4/2020 DOUG TIMMS add numeric data value storage
 
 	DECLARE @SumType varchar(4);
 	DECLARE @SumTemp float;
@@ -137,10 +138,14 @@ BEGIN
 			ON mySource.MONITOR_IDX = myTarget.MONITOR_IDX and mySource.DATA_DTTM_UTC = myTarget.DATA_DTTM_UTC 
 			WHEN MATCHED and ISNULL(myTarget.LVL1_VAL_IND,0) = 0 and ISNULL(myTarget.LVL2_VAL_IND,0) = 0 and @calcIndYr<>1888 
 			THEN 
-				UPDATE SET DATA_VALUE = mySource.DATA_VALUE, VAL_IND=0  
+				UPDATE SET DATA_VALUE = mySource.DATA_VALUE, VAL_IND=0, DATA_VALUE_NUM = TRY_CAST(mySource.DATA_VALUE AS DECIMAL(18, 9)), UNIT_CODE= @unit
 			WHEN NOT MATCHED and @calcIndYr<>1888 
 			THEN 
-				INSERT (DATA_HOURLY_IDX, MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND) VALUES (newid(), @mon, @dttm, DATEADD(HOUR,cast(@tz as int),@dttm), @sumVal, @unit, 0);
+				INSERT (DATA_HOURLY_IDX, MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND
+				, DATA_VALUE_NUM
+				) VALUES (newid(), @mon, @dttm, DATEADD(HOUR,cast(@tz as int),@dttm), @sumVal, @unit, 0
+				, TRY_CAST(mySource.DATA_VALUE AS DECIMAL(18, 9)) 
+				);
 
 		END
 
@@ -153,8 +158,6 @@ BEGIN
 END
 
 GO
-
-
 
 
 
@@ -205,15 +208,15 @@ where M1.MONITOR_IDX = H1.MONITOR_IDX
 and M1.site_IDX=M.SITE_IDX
 and DATA_VALUE <> 'FEW');
 
-
 GO
 
 
 
+
 --STORED PROCEDURES *******************************************************************************************************
 --STORED PROCEDURES *******************************************************************************************************
 --STORED PROCEDURES *******************************************************************************************************
-CREATE   PROCEDURE [dbo].[SP_VALIDATE_HOURLY] 
+CREATE PROCEDURE [dbo].[SP_VALIDATE_HOURLY] 
 AS
 BEGIN
 	--PROCEDURE DESCRIPTION
@@ -350,13 +353,11 @@ BEGIN
 
 END
 
-
 GO
 
 
 
 --&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_AQS_REVIEW_STATUS]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
 CREATE PROCEDURE [dbo].[SP_AQS_REVIEW_STATUS] 
 	@siteid uniqueidentifier, 
 	@adate datetime,
@@ -421,12 +422,11 @@ BEGIN
 
 END
 
-
 GO
 
 
---&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[SP_RPT_DAILY]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-CREATE     PROCEDURE [dbo].[SP_RPT_DAILY] 
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_RPT_DAILY]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+CREATE PROCEDURE [dbo].[SP_RPT_DAILY] 
 	@siteid uniqueidentifier, 
 	@mn int,
 	@yr int,
@@ -508,13 +508,10 @@ BEGIN
 
 END
 
-
-
-
 GO
 
 
---&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[[SP_RPT_MONTHLY]]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_RPT_MONTHLY]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 CREATE   PROCEDURE [dbo].[SP_RPT_MONTHLY] 
 	@monid uniqueidentifier, 
 	@mn int,
@@ -576,10 +573,10 @@ BEGIN
 		END
 END
 
-
 GO
 
---&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[[[SP_RPT_MONTHLY_SUMS]]]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_RPT_MONTHLY_SUMS]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 CREATE PROCEDURE [dbo].[SP_RPT_MONTHLY_SUMS] 
 	@monid uniqueidentifier, 
 	@mn int,
@@ -656,13 +653,11 @@ BEGIN
 		END
 END;
 
-
 GO
 
 
 
-
---&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[SP_RPT_ANNUAL]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_RPT_ANNUAL]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 CREATE     PROCEDURE [dbo].[SP_RPT_ANNUAL] 
 	@monid uniqueidentifier, 
 	@yr int,
@@ -724,7 +719,6 @@ BEGIN
 			order by SearchMonth, SearchDay;
 		END
 END
-
 
 GO
 
@@ -808,10 +802,9 @@ BEGIN
 		END
 END;
 
-
-
-
 GO
+
+
 
 --&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_IMPORT_DATA_FROM_TEMP]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 CREATE   PROCEDURE [dbo].[SP_IMPORT_DATA_FROM_TEMP] 
@@ -910,11 +903,7 @@ BEGIN
 
 END
 
-
-
-
 GO
-
 
 
 
@@ -1011,9 +1000,7 @@ BEGIN
 
 END
 
-
 GO
-
 
 
 
@@ -1049,3 +1036,226 @@ BEGIN
 	and S.HR not in (select H.DATA_DTTM_LOCAL from T_QREST_DATA_HOURLY H where H.DATA_DTTM_LOCAL >= @sDate and H.DATA_DTTM_LOCAL <= @eDate and H.MONITOR_IDX = @monid);
 
 END;
+
+GO
+
+
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[SP_COUNT_LOST_DATA]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+CREATE PROCEDURE [dbo].[SP_COUNT_LOST_DATA] 
+	@monid uniqueidentifier, 
+	@sdate datetime,
+	@edate datetime
+AS
+BEGIN
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--for a given monitor and date range, counts the number of records that will be filled in with LOST
+
+	--set @adate = '10/12/2019';
+	--set @edate = '10/12/2019';
+	--set @monid = '563C2DE0-5323-4601-ABC4-6EEA894AF6BC';
+
+	--CHANGE LOG
+	---------------------------
+
+	select count(*) as CNT, min(HR) as MIN_DT, max(HR) as MAX_DT 
+	from T_SYS_HR S 
+	left join T_QREST_DATA_HOURLY H on S.HR = H.DATA_DTTM_LOCAL and H.MONITOR_IDX = @monid
+	where S.HR >= @sDate 
+	and S.HR <= @eDate
+	and S.HR < GetDate()
+	and DATA_HOURLY_IDX is null;
+
+END;
+	
+GO
+
+
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[SP_MONTHLY_STATS]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+CREATE PROCEDURE [dbo].[SP_MONTHLY_STATS] 
+	@sDate datetime,
+	@eDate datetime,
+	@monid uniqueidentifier
+AS
+BEGIN   
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--Returns statistics broken down by month for a particualr monitor
+	--CTE ranks all records by value, to find the highest and it's corresponding date (and the second highest and corresponding date
+	--CTE2 groups all data by year/month and gives min/avg/stddev and record count for the month 
+
+	--declare @sdate datetime;
+	--declare @edate datetime;
+	--declare @monid uniqueidentifier;
+	--set @sdate = '1/1/2021';
+	--set @edate = '12/31/2021 23:00';
+	--set @monid = '45902582-a82f-4ec1-be85-3124065b744c';
+
+	--CHANGE LOG
+	------------------------------
+	--4/29/2021  add proper rounding
+
+	--***************** ROUNDING PRECISION DETERMINATION *********************
+	declare @roundDec int;
+	declare @roundDecLater int;
+
+	select @roundDec=charindex('.',reverse(min(data_value)))-1 from T_QREST_DATA_HOURLY 
+	where MONITOR_IDX=@monid
+	and DATA_DTTM_LOCAL between @sdate and @edate
+	and data_value_num is not null
+	and data_value_num <> 0
+	and NULLIF(aqs_null_code, '') is null;
+	--select @roundDec = ROUNDING from T_QREST_SITE_POLL_CONFIG_DTL D, T_QREST_SITE_POLL_CONFIG C 
+	--where D.POLL_CONFIG_IDX=C.POLL_CONFIG_IDX
+	--and D.MONITOR_IDX = @monid 
+	--and C.ACT_IND = 1;
+
+	if (@roundDec = null)
+		set @roundDec = 2;
+	else if (@roundDec = -1)
+		set @roundDec = 0;
+
+	if (@roundDec = 0)
+		set @roundDecLater = -1;
+	else
+		set @roundDecLater = @roundDec;
+	--***************** END ROUNDING PRECISION DETERMINATION *********************
+
+	WITH 
+	CTE as (
+		SELECT month(DATA_DTTM_LOCAL) mn, year(DATA_DTTM_LOCAL) yr
+		, max_dt = DATA_DTTM_LOCAL
+		, max1 = data_value
+		, max1num = data_value_num
+		, RN = ROW_NUMBER() OVER(PARTITION BY  month(DATA_DTTM_LOCAL),year(DATA_DTTM_LOCAL) ORDER BY data_value_num DESC)
+		, PctRank = 100 - round(100. * PERCENT_RANK() OVER (PARTITION BY year(DATA_DTTM_LOCAL) ORDER BY data_value_num desc ),0)
+		, Median1 = round(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY data_value_num) OVER (PARTITION BY month(DATA_DTTM_LOCAL),year(DATA_DTTM_LOCAL)),@roundDec)
+		, twen_fifth = round(PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY data_value_num) OVER (PARTITION BY month(DATA_DTTM_LOCAL),year(DATA_DTTM_LOCAL)),@roundDec)
+		, sevn_fifth = round(PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY data_value_num) OVER (PARTITION BY month(DATA_DTTM_LOCAL),year(DATA_DTTM_LOCAL)),@roundDec)
+	  FROM T_QREST_DATA_HOURLY
+	  where DATA_DTTM_LOCAL between @sdate and @edate
+	  and monitor_IDX=@monid	
+	  and data_value_num is not null
+	  and NULLIF(aqs_null_code, '') is null 
+	 )
+	,CTEQ as 
+	 (select mn,yr,max(Median1) as median1, max(twen_fifth) as twen_fifth, max(sevn_fifth) as sevn_fifth from cte group by mn,yr)
+	,CTE2 as (
+		select month(hh.HR) as mn, year(hh.HR) as yr, 
+		min(H.data_value_num) as min1, avg(H.data_value_num) as avg1, round(stdev(H.data_value_num),@roundDec) as stddev1
+		,count(*) as tot_hrs
+		,count(distinct case when NULLIF(aqs_null_code, '') is null AND data_value_num IS NOT NULL then [DATA_HOURLY_IDX] end) as hrs_data
+		from T_SYS_HR hh left join T_QREST_DATA_HOURLY H on hh.HR = h.DATA_DTTM_LOCAL and monitor_IDX=@monid and NULLIF(aqs_null_code, '') is null 
+		where hh.HR between @sdate and @edate	
+		group by month(hh.HR), year(hh.HR)
+	)
+	select @monid as monid, CTE2.mn, CTE2.yr, 
+	left(cast(cte2.min1 as varchar(20)), charindex('.',cast(cte2.min1 as varchar(20))) + @roundDecLater) as min1, 
+	left(cast(cte2.avg1 as varchar(20)), charindex('.',cast(cte2.avg1 as varchar(20))) + @roundDecLater) as avg1, 
+	stddev1, cte.max1, cte.max_dt, ctez.max1 as scnd_max, left(cast(cte.max1num-ctez.max1 as varchar(20)), charindex('.',cast(cte.max1num-ctez.max1 as varchar(20)))+@roundDecLater) as max2diff,  tot_hrs, hrs_data 
+	,(select min(zzz.PctRank) from CTE zzz where zzz.max1>=cte2.avg1) as pct_yr_hrs_below_mn_mean
+	,cteq.median1, cteq.twen_fifth, cteq.sevn_fifth
+	from CTE2 
+	left JOIN CTE on CTE2.MN=CTE.MN and CTE2.YR=CTE.YR and CTE.RN=1
+	left JOIN CTE ctez on CTE2.MN=CTEz.MN and CTE2.YR=CTEz.YR and CTEz.RN=2
+	left JOIN CTEQ on CTE2.MN=CTEQ.MN and CTE2.YR=CTEQ.YR
+	order by CTE2.yr,CTE2.mn;
+
+END;
+
+
+
+GO
+
+
+
+
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   TRAINING     &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   TRAINING     &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   TRAINING     &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
+
+CREATE PROCEDURE [dbo].[SP_TRAIN_COURSE_USER_PROGRESS] 
+	@useridx varchar(128) 
+AS
+BEGIN
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--for a given user lists all available courses and the user's progress 
+
+	--set @useridx = '8e4df1f8-0072-48d3-9bd5-bafd03c7ecfb';
+
+	--CHANGE LOG
+	---------------------------
+	--5/14/2021 add course complete date
+
+	select C.COURSE_IDX, C.COURSE_NAME, C.COURSE_DESC, case when CU.COURSE_IDX is not null then 1 else 0 end as COURSE_COMP_IND, CU.CREATE_DT
+	,(select count(*) from T_QREST_TRAIN_COURSE_LESSON TCL where TCL.COURSE_IDX = C.COURSE_IDX) as COURSE_LESSON_TOT
+	,(select count(*) from [T_QREST_TRAIN_LESSON_USER] TLU, T_QREST_TRAIN_COURSE_LESSON TCL where TCL.COURSE_IDX = C.COURSE_IDX and TLU.LESSON_IDX = TCL.LESSON_IDX and TLU.USER_IDX = @useridx) as COURSE_LESSON_COMP
+	 from T_QREST_TRAIN_COURSE C
+	 left join T_QREST_TRAIN_COURSE_USER CU on C.COURSE_IDX=CU.COURSE_IDX and CU.USER_IDX = @useridx
+	where C.ACT_IND=1
+	order by C.COURSE_SEQ;
+
+END
+
+
+GO
+
+
+
+
+CREATE PROCEDURE [dbo].[SP_TRAIN_LESSON_USER_PROGRESS] 
+	@useridx varchar(128),
+	@courseidx uniqueidentifier 
+AS
+BEGIN
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--for a given user and course, lists all of the course's lessons and the user's progress 
+
+	--set @useridx = '8e4df1f8-0072-48d3-9bd5-bafd03c7ecfb';
+	--set @courseidx = 'fd677055-1a43-4993-a9e7-ce5e5ba9805e';
+
+	--CHANGE LOG
+	---------------------------
+	select TCL.COURSE_IDX, TCL.LESSON_IDX, TCL.LESSON_SEQ, L.LESSON_TITLE, L.LESSON_DESC, case when TLU.LESSON_IDX is not null then 1 else 0 end as LESSON_COMP_IND, TLU.CREATE_DT
+	,(select count(*) from T_QREST_TRAIN_LESSON_STEP_USER LSU, T_QREST_TRAIN_LESSON_STEP LS where LS.LESSON_STEP_IDX= LSU.LESSON_STEP_IDX and LS.LESSON_IDX=TCL.LESSON_IDX and LSU.USER_IDX = @useridx) as LESSON_STEPS_COMP
+	from T_QREST_TRAIN_COURSE_LESSON TCL, T_QREST_TRAIN_LESSON L
+	left join T_QREST_TRAIN_LESSON_USER TLU on L.LESSON_IDX = TLU.LESSON_IDX and TLU.USER_IDX = @useridx
+	where TCL.LESSON_IDX = L.LESSON_IDX
+	and TCL.COURSE_IDX = @courseidx
+	order by TCL.LESSON_SEQ;
+END
+
+GO
+
+
+CREATE PROCEDURE [dbo].[SP_TRAIN_STEP_USER_PROGRESS] 
+	@useridx varchar(128),
+	@lessonidx uniqueidentifier 
+AS
+BEGIN
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--for a given user and lesson, lists all of the lesson's steps and the user's progress 
+	--declare @useridx varchar(128);
+	--declare @lessonidx uniqueidentifier;
+	--set @useridx = '8e4df1f8-0072-48d3-9bd5-bafd03c7ecfb';
+	--set @lessonidx = '4D325449-CE1D-4E56-BA36-41C6442AEFCE';
+
+	--CHANGE LOG
+	---------------------------
+	select TLS.*, case when TLSU.LESSON_STEP_IDX is not null then 1 else 0 end as STEP_COMP_IND, TLSU.CREATE_DT
+	from T_QREST_TRAIN_LESSON_STEP TLS
+	left join T_QREST_TRAIN_LESSON_STEP_USER TLSU on TLS.LESSON_STEP_IDX = TLSU.LESSON_STEP_IDX and TLSU.USER_IDX = @useridx
+	where TLS.LESSON_IDX = @lessonidx
+	order by TLS.LESSON_STEP_SEQ;
+END
+
+
+GO

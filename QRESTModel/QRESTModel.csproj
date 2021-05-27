@@ -33,6 +33,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseTest|AnyCPU'">
+    <OutputPath>bin\ReleaseTest\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
@@ -129,6 +138,7 @@
   <ItemGroup>
     <Compile Include="BLL\AQSHelper.cs" />
     <Compile Include="BLL\DataTableGen.cs" />
+    <Compile Include="BLL\EFHelperAsync.cs" />
     <Compile Include="BLL\ImportHelper.cs" />
     <Compile Include="BLL\UtilCrypto.cs" />
     <Compile Include="BLL\UtilsZip.cs" />
@@ -144,6 +154,7 @@
     </Compile>
     <Compile Include="DAL\db_Account.cs" />
     <Compile Include="DAL\db_Air.cs" />
+    <Compile Include="DAL\db_Train.cs" />
     <Compile Include="DAL\db_Ref.cs" />
     <Compile Include="DAL\LinqExtensions.cs" />
     <Compile Include="DAL\logEF.cs" />
@@ -168,6 +179,12 @@
     <Compile Include="DAL\SP_AQS_REVIEW_STATUS_Result.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\SP_COUNT_LOST_DATA_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\SP_MONTHLY_STATS_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\SP_RPT_ANNUAL_Result.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
@@ -181,6 +198,15 @@
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\SP_RPT_MONTHLY_SUMS_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\SP_TRAIN_COURSE_USER_PROGRESS_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\SP_TRAIN_LESSON_USER_PROGRESS_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\SP_TRAIN_STEP_USER_PROGRESS_Result.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
     <Compile Include="DAL\T_QREST_APP_SETTINGS.cs">
@@ -312,6 +338,27 @@
     <Compile Include="DAL\T_QREST_SYS_LOG_EMAIL.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\T_QREST_TRAIN_COURSE.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_TRAIN_COURSE_LESSON.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_TRAIN_COURSE_USER.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_TRAIN_LESSON.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_TRAIN_LESSON_STEP.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_TRAIN_LESSON_STEP_USER.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\T_QREST_TRAIN_LESSON_USER.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\T_QREST_USERS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
@@ -341,8 +388,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\1_createDatabase.sql" />
-    <Content Include="App_Data\20200603_changes.sql" />
-    <Content Include="App_Data\20200619_changes.sql" />
     <Content Include="App_Data\2_createTables.sql" />
     <Content Include="App_Data\3_createFunctions.sql" />
     <Content Include="App_Data\4_populateData.sql" />

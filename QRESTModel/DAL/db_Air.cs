@@ -6,6 +6,9 @@ using QRESTModel.BLL;
 using EntityFramework.BulkInsert;
 using EntityFramework.BulkInsert.Extensions;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using System.Data.Entity;
+using System.Data.SqlClient;
 
 namespace QRESTModel.DAL
 {
@@ -281,6 +284,7 @@ namespace QRESTModel.DAL
 
     public class db_Air
     {
+
         //*****************SITES**********************************
 
         /// <summary>
@@ -3357,7 +3361,7 @@ namespace QRESTModel.DAL
         }
 
 
-        public static Guid? UpdateT_QREST_DATA_HOURLY(Guid dATA_HOURLY_IDX, string aQS_NULL_CODE, bool? lVL1_VAL_IND, bool? lVL2_VAL_IND, string lVL_VAL_USERIDX, string uNIT_CODE, string nOTES, string dATA_VALUE, string vAL_CD, List<string> aQS_QUAL_CODES)
+        public static Tuple<Guid?, string> UpdateT_QREST_DATA_HOURLY(Guid dATA_HOURLY_IDX, string aQS_NULL_CODE, bool? lVL1_VAL_IND, bool? lVL2_VAL_IND, string lVL_VAL_USERIDX, string uNIT_CODE, string nOTES, string dATA_VALUE, string vAL_CD, List<string> aQS_QUAL_CODES)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -3375,28 +3379,48 @@ namespace QRESTModel.DAL
                         if (aQS_QUAL_CODES != null && aQS_QUAL_CODES.Count>0 && aQS_QUAL_CODES[0] != "-1") e.AQS_QUAL_CODES = String.Join("|", aQS_QUAL_CODES);  
                         else if (aQS_QUAL_CODES != null && aQS_QUAL_CODES.Count > 0 && aQS_QUAL_CODES[0] == "-1") e.AQS_QUAL_CODES = null;  //if "-1" then set to null
 
-                        if (lVL1_VAL_IND != null) e.LVL1_VAL_IND = lVL1_VAL_IND;
-                        if (lVL1_VAL_IND == true)
+                        //perform Lvl1 validation 
+                        if (lVL1_VAL_IND != null)
                         {
-                            e.LVL1_VAL_USERIDX = lVL_VAL_USERIDX;
-                            e.LVL1_VAL_DT = System.DateTime.Now;
+                            //prevent Lvl1 validation if date in future
+                            if (e.DATA_DTTM_LOCAL > System.DateTime.Now.AddHours(24))
+                                return new Tuple<Guid?,string>(null, "Cannot Lvl1 validate future data.");
+                            
+                            e.LVL1_VAL_IND = lVL1_VAL_IND;
+
+                            if (lVL1_VAL_IND == true)
+                            {
+                                e.LVL1_VAL_USERIDX = lVL_VAL_USERIDX;
+                                e.LVL1_VAL_DT = System.DateTime.Now;
+                            }
+                            else if (lVL1_VAL_IND == false)
+                            {
+                                e.LVL1_VAL_USERIDX = null;
+                                e.LVL1_VAL_DT = null;
+                            }
                         }
-                        else if (lVL1_VAL_IND == false)
-                        {
-                            e.LVL1_VAL_USERIDX = null;
-                            e.LVL1_VAL_DT = null;
+
+                        //perform Lvl2 validation
+                        if (lVL2_VAL_IND != null)
+                        {   
+                            //prevent Lvl2 validation if date in future
+                            if (e.DATA_DTTM_LOCAL > System.DateTime.Now.AddHours(24))
+                                return new Tuple<Guid?, string>(null, "Cannot Lvl2 validate future data.");
+
+                            e.LVL2_VAL_IND = lVL2_VAL_IND;
+
+                            if (lVL2_VAL_IND == true)
+                            {
+                                e.LVL2_VAL_USERIDX = lVL_VAL_USERIDX;
+                                e.LVL2_VAL_DT = System.DateTime.Now;
+                            }
+                            else if (lVL2_VAL_IND == false)
+                            {
+                                e.LVL2_VAL_USERIDX = null;
+                                e.LVL2_VAL_DT = null;
+                            }
                         }
-                        if (lVL2_VAL_IND != null) e.LVL2_VAL_IND = lVL2_VAL_IND;
-                        if (lVL2_VAL_IND == true)
-                        {
-                            e.LVL2_VAL_USERIDX = lVL_VAL_USERIDX;
-                            e.LVL2_VAL_DT = System.DateTime.Now;
-                        }
-                        else if (lVL2_VAL_IND == false)
-                        {
-                            e.LVL2_VAL_USERIDX = null;
-                            e.LVL2_VAL_DT = null;
-                        }
+
 
                         if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
                         if (nOTES != null) e.NOTES = nOTES;
@@ -3416,15 +3440,17 @@ namespace QRESTModel.DAL
                         else if (vAL_CD == "-999") e.VAL_CD = null;
 
                         ctx.SaveChanges();
-                        return e.DATA_HOURLY_IDX;
+                        return new Tuple<Guid?, string>(e.DATA_HOURLY_IDX, null);
                     }
-                    return null;
+
+                    return new Tuple<Guid?, string>(null, "Cannot find record to update.");
 
                 }
                 catch (Exception ex)
                 {
                     logEF.LogEFException(ex);
-                    return null;
+                    return new Tuple<Guid?, string>(null, "Error updating hourly record.");
+
                 }
             }
         }
@@ -3788,7 +3814,13 @@ namespace QRESTModel.DAL
                     ctx.Configuration.AutoDetectChangesEnabled = false;
 
                     //initial stuff from config
-                    char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
+                    int delComma = bulkImportRows[0].Split(new char[] { ',' }, StringSplitOptions.None).Count();
+                    int delTab = bulkImportRows[0].Split(new char[] { '\t' }, StringSplitOptions.None).Count();
+                    char[] delimiter = delComma > delTab ? new char[] { ',' } : new char[] { '\t' };
+
+                    //char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
+
+
                     int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
                     int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
                     int timeZoneOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
@@ -3823,8 +3855,16 @@ namespace QRESTModel.DAL
 
                                 if (DateTime.TryParseExact(dateTimeString, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtRaw))
                                 {
-                                    f.DATA_DTTM_UTC = (timePollType == "U" ? dtRaw : dtRaw.AddHours(timeZoneOffset * (-1)));
-                                    f.DATA_DTTM_LOCAL = (timePollType == "L" ? dtRaw : dtRaw.AddHours(timeZoneOffset));
+                                    if (dtRaw.Second != 0)
+                                    {
+                                        f.IMPORT_VAL_IND = false;
+                                        f.IMPORT_MSG = "Seconds must be 0 for import";
+                                    }
+                                    else
+                                    {
+                                        f.DATA_DTTM_UTC = (timePollType == "U" ? dtRaw : dtRaw.AddHours(timeZoneOffset * (-1)));
+                                        f.DATA_DTTM_LOCAL = (timePollType == "L" ? dtRaw : dtRaw.AddHours(timeZoneOffset));
+                                    }
                                 }
                                 else
                                 {
@@ -4618,13 +4658,13 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<SP_RPT_DAILY_Result> SP_RPT_DAILY(Guid siteIDX, int mn, int yr, int dy, string time)
+        public static async Task<List<SP_RPT_DAILY_Result>> SP_RPT_DAILY(Guid siteIDX, int mn, int yr, int dy, string time)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    return ctx.SP_RPT_DAILY(siteIDX, mn, yr, dy, time).ToList();
+                    return await ctx.SP_RPT_DAILY(siteIDX, mn, yr, dy, time).ToListAsync();
                 }
                 catch (Exception ex)
                 {
@@ -4766,6 +4806,38 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static SP_COUNT_LOST_DATA_Result SP_COUNT_LOST_DATA(DateTime sDate, DateTime eDate, Guid mONITOR_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_COUNT_LOST_DATA(mONITOR_IDX, sDate, eDate).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static List<SP_MONTHLY_STATS_Result> SP_MONTHLY_STATS(DateTime sDate, DateTime eDate, Guid mONITOR_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_MONTHLY_STATS(sDate, eDate, mONITOR_IDX).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
 
     }
 }

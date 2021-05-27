@@ -1,0 +1,130 @@
+﻿@model QREST.Models.vmTrainingLesson
+@{
+    ViewBag.Title = "Lesson Details";
+    ViewBag.HideTitle = true;
+    var showUndone = true;
+}
+
+<div class="row">
+    <div class="col-md-3 m-b-md" style="width:160px">
+        <img src="~/Content/Images/training-lesson.png" />
+    </div>
+    <div class="col-md-9">
+        <h4 class="m-t-md page-header m-b-none"><span class="text-success">Course: </span>@Model.course.COURSE_NAME</h4>
+        <h4 class="font-thin"></h4>
+        <h2 class="m-t-xs font-bold"><span class="text-success">Lesson: </span>@Model.lesson.LESSON_TITLE</h2>
+    </div>
+</div>
+
+@foreach (var _step in Model.steps)
+{
+    <div class="container m-t-sm bg-white">
+        <div class="row">
+            <div class="col-sm-1">
+                <span class="fa-stack fa-2x pull-left m-t-xs"> <i class="fa fa-circle fa-stack-2x text-info"></i> <i class="fa fa-stack-1x fa-inverse" style="font-family:inherit; font-weight:bold">@_step.LESSON_STEP_SEQ</i></span>
+            </div>
+            <div class="col-sm-6">
+                <div class="wrapper-md">@_step.LESSON_STEP_DESC</div>
+                
+                @*<h2 class="font-thin m-b-lg">Step 1: Establishing a Site and Importing Monitoring Locations</h2>
+                <p class="h4 m-b-lg l-h-1x">Here's a description of this step. </p>
+                <p class="m-b-xl">
+                    <a href="index.html" class="btn btn-sm btn-primary font-bold">Mark Completed</a>
+                </p>*@
+            </div>
+            <div class="col-sm-5 wrapper-md ">
+                @if (_step.STEP_COMP_IND == 1)
+                {
+                    <label class="label label-lg bg-success"><i class="fa fa-check"></i> Step Completed</label>
+                }
+                @if (_step.STEP_COMP_IND == 0 && showUndone == true)
+                {
+                    if (_step.REQUIRED_YT_VID != null)
+                    {
+                        <section class="panel bg-black m-r-n-lg m-b-n-lg no-border device">
+                            <iframe id="player" width="470" height="315" class="m-t-xs"
+                                    src="https://www.youtube.com/embed/@_step.REQUIRED_YT_VID?enablejsapi=1"
+                                    frameborder="0" allowfullscreen>
+                            </iframe>
+                            <span class="text-danger italic">You must watch the video to the end to receive credit.</span>
+                        </section>
+                    }
+                    else if (_step.REQUIRED_URL != null)
+                    {
+                        <a class="reqdoc" href="@_step.REQUIRED_URL" target="_blank">Review this document</a>
+                    }
+                    else if (_step.REQ_CONFIRM == true)
+                    {
+                        using (Html.BeginForm("StepComp", "Training", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.Hidden("compLessonStepIDX", _step.LESSON_STEP_IDX)
+                            <button id="btnSave" type="submit" class="btn btn-primary m-t-md">Click After You've Read</button>
+                        }
+                    }
+
+                    showUndone = false;
+                }
+            </div>
+
+
+        </div>
+    </div>
+
+
+}
+<a href="@(Url.Action("Course", "Training", new { id = Model.course.COURSE_IDX }))" class="btn btn-rounsded btn-default m-t-lg">Return to Course</a>
+
+<!-- START SUCCESS MODAL  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="width:600px">
+
+        @using (Html.BeginForm("StepComp", "Training", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.compLessonStepIDX)
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 style="float: left" class="modal-title">Step Completed!</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            You have completed this step.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnSave" type="submit" class="btn btn-primary">Click to Continue</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- END NOTIFY MODAL -->
+
+
+@section Scripts{
+    <script type='text/javascript' src='https://www.youtube.com/player_api'></script>
+    <script type="text/javascript">
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: 'VIDEO_ID',
+                events: {
+                    'onStateChange': function (evt) {
+                        if (evt.data == 0) {                            
+                            $("#modal-form").modal({ show: true });
+                        }
+                    }
+                }
+            });
+        }
+
+
+        $(".reqdoc").click(function (e) {
+            $("#modal-form").modal({ show: true });
+        });
+
+    </script>
+}

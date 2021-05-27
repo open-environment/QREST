@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QRESTModel.DAL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -24,7 +25,28 @@ namespace QREST.Models
     }
 
 
+    public class vmReportsMonthlyStats
+    {
+        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+        public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
 
+        public string selOrgID { get; set; }
+
+        [Required]
+        public Guid selMon { get; set; }
+
+        [Required]
+        [DataType(DataType.DateTime, ErrorMessage = "Date must be in MM/YYYY")]
+        [DisplayFormat(DataFormatString = "{0:MM/yyyy}", ApplyFormatInEditMode = true)]
+        public DateTime selDate { get; set; }
+
+        [Required]
+        [DataType(DataType.DateTime, ErrorMessage = "Date must be in MM/YYYY")]
+        [DisplayFormat(DataFormatString = "{0:MM/yyyy}", ApplyFormatInEditMode = true)]
+        public DateTime endDate { get; set; }
+
+        public List<SP_MONTHLY_STATS_Result> stats { get; set; }
+    }
 
     // ******************************** REF DATA************************************
     //****************************************************************************

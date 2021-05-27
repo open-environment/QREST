@@ -1,5 +1,7 @@
 ﻿@using QREST.App_Logic.BusinessLogicLayer
-
+@{
+    var env = System.Web.Configuration.WebConfigurationManager.AppSettings["q-env"];
+}
 <aside class="bg-dark lter aside-md hidden-print hidden-xs" id="nav">
     <section class="vbox">
         <header class="header bg-vcco text-center clearfix">
@@ -105,6 +107,12 @@
                                     <span class="title">Data Export</span>
                                 </a>
                             </li>
+                            <li class="@Html.ActivePage("Reports", "MonthlyStats")">
+                                <a href="@Url.Action("MonthlyStats", "Reports")">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span class="title">Monthly Stats</span>
+                                </a>
+                            </li>
                             <li class="@Html.ActivePage("Reports", "RefCollFreq,RefDuration,RefPar,RefParMethod,RefParUnit,RefUnit,ImportData")">
                                 <a href="@Url.Action("RefParMethod", "Reports")">
                                     <i class="fa fa-angle-right"></i>
@@ -165,6 +173,15 @@
                                         <span class="title">Help Config</span>
                                     </a>
                                 </li>
+                                @if (env == "TEST")
+                                {
+                                <li class="@Html.ActivePage("Admin", "TrainingConfig,TrainingCourse,TrainingLesson,TrainingLessonStep")">
+                                    <a href="@Url.Action("TrainingConfig", "Admin")">
+                                        <i class="fa fa-angle-right"></i>
+                                        <span class="title">Training Config</span>
+                                    </a>
+                                </li>
+                                }
                                 <li class="@Html.ActivePage("Admin", "ImportData")">
                                     <a href="@Url.Action("ImportData", "Admin")">
                                         <i class="fa fa-angle-right"></i>
@@ -198,11 +215,17 @@
             <!-- / nav -->
         </section>
 
-        <footer class="footer lt hidden-xs b-t b-dark">
-            <a href="#nav" data-toggle="class:nav-xs" class="pull-right btn btn-sm btn-dark btn-icon">
+        <footer class="footer lt b-t b-dark">
+            <a href="#nav" data-toggle="class:nav-xs" class="pull-right btn btn-sm btn-dark btn-icon hidden-xs">
                 <i class="fa fa-angle-left text"></i>
                 <i class="fa fa-angle-right text-active"></i>
             </a>
+            @if (env == "TEST")
+            {
+            <div class="hidden-nav-xs">
+                <a href="@Url.Action("Index", "Training")" id="leftTrain" class="btn btn-sm btn-rounded btn-danger m-t-sm font-bold" ><i class="fa fa-trophy"></i> Training</a>
+            </div>
+            }
             <div class="btn-group hidden-nav-xs">
                 <a href="@Url.Action("Help", "Home")/#@ViewBag.HelpLink" id="leftHelp" class="btn btn-rounded btn-sm btn-info" target="_blank"><i class="fa fa-question"></i></a>
                 <a href="@Url.Action("Index", "Home")" id="leftMap" class="btn btn-rounded btn-sm btn-icon btn-warning"><i class="fa fa-globe" style="margin-left:8px;"></i></a>

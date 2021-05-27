@@ -1,0 +1,130 @@
+﻿@model QREST.Models.vmAdminTrainingLessonEdit
+@{
+    ViewBag.Title = "Training Lesson Details";
+}
+
+
+<div class="row">
+
+    @using (Html.BeginForm("TrainingLesson", "Admin", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.lesson.LESSON_IDX)
+        @Html.HiddenFor(model => model.lesson.COURSE_IDX)
+
+        <div class="col-md-6">
+            <section class="panel panel-qrest">
+                <header class="panel-heading font-bold">Lesson General Info</header>
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Lesson Name</label>
+                                @Html.TextBoxFor(model => model.lesson.LESSON_TITLE, new { @class = "form-control", @maxlength = "100" })
+                                @Html.ValidationMessageFor(model => model.lesson.LESSON_TITLE)
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Lesson Description</label>
+                                @Html.TextAreaFor(model => model.lesson.LESSON_DESC, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.lesson.LESSON_DESC)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Lesson Sequence in Course</label>
+                                @Html.TextBoxFor(model => model.lesson.LESSON_SEQ, new { @class = "form-control cleave-num-no-comma", @maxlength = "2" })
+                                @Html.ValidationMessageFor(model => model.lesson.LESSON_SEQ)
+                            </div>
+                        </div>
+                    </div>
+                    <p>
+                        <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
+                        <a class="btn btn-default" href="@Url.Action("TrainingCourse", new { id = Model.lesson.COURSE_IDX })">Back to Course</a>
+                    </p>
+                </div>
+            </section>
+        </div>
+    }
+
+    @if (Model.lesson != null)
+    {
+        <div class="col-md-6">
+            <section class="panel panel-qrest">
+                <header class="panel-heading font-bold">Lesson Steps</header>
+                <div class="panel-body">
+
+                    @if (Model.steps != null)
+                    {
+
+                        <div class="table-responsive">
+                            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 120px;"></th>
+                                        <th>Seq</th>
+                                        <th>Lesson Name</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var item in Model.steps)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@(Url.Action("TrainingLessonStep", "Admin", new { id = item.LESSON_STEP_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
+                                            <div class="delete-section" style="display:inline-block">
+                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.LESSON_STEP_IDX" data-delete-p="/Admin/TrainingLessonStepDelete">
+                                                    <b>Confirm Delete</b>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.LESSON_STEP_SEQ)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.LESSON_STEP_DESC)
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    }
+
+                    <a href="@(Url.Action("TrainingLessonStep", "Admin", new { lessonid = Model.lesson.LESSON_IDX }))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
+                </div>
+            </section>
+
+        </div>
+    }
+
+</div>
+
+
+@section scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
+    @Scripts.Render("~/bundles/areyousure")
+    @Scripts.Render("~/bundles/cleave")
+
+    <script type="text/javascript">
+    // Enable dirtyforms
+    $('#norepostform').dirtyForms();
+    // Enable/disable the submit button when the state transitions between dirty and clean.
+    $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
+        if (ev.type === 'dirty') {
+            $("#btnSave").prop("disabled", false);
+        } else {
+            $("#btnSave").prop("disabled", true);
+        }
+    });
+
+    $(document).ready(function () {
+
+    });
+
+    </script>
+}
+

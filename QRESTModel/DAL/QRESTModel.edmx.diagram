@@ -91,6 +91,18 @@
         <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_QC_AUDIT_LVL" Width="1.5" PointX="0.75" PointY="22.75" />
         <EntityTypeShape EntityType="QRESTModel.T_QREST_DATA_IMPORT_TEMP" Width="1.5" PointX="12.75" PointY="27.25" />
         <AssociationConnector Association="QRESTModel.FK_QREST_DATA_IMPORT_TEMP" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_TRAIN_COURSE" Width="1.5" PointX="23.375" PointY="13.375" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_TRAIN_COURSE_LESSON" Width="1.5" PointX="25.625" PointY="5.375" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_TRAIN_COURSE_USER" Width="1.5" PointX="25.625" PointY="13.5" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_TRAIN_LESSON" Width="1.5" PointX="23.375" PointY="5.375" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_TRAIN_LESSON_STEP" Width="1.5" PointX="3.375" PointY="24" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_TRAIN_LESSON_STEP_USER" Width="1.5" PointX="5.625" PointY="24.25" />
+        <EntityTypeShape EntityType="QRESTModel.T_QREST_TRAIN_LESSON_USER" Width="1.5" PointX="25.625" PointY="8.5" />
+        <AssociationConnector Association="QRESTModel.FK_QREST_TRAIN_C_LESSON_C" />
+        <AssociationConnector Association="QRESTModel.FK_QREST_TRAIN_COURSE_USER_C" />
+        <AssociationConnector Association="QRESTModel.FK_QREST_TRAIN_C_LESSON_L" />
+        <AssociationConnector Association="QRESTModel.FK_QREST_TRAIN_LESSON_USER_L" />
+        <AssociationConnector Association="QRESTModel.FK_QREST_TRAIN_LESSON_STEP_USER_LS" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

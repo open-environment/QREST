@@ -1,0 +1,62 @@
+﻿@model QREST.Models.vmAdminTraining
+@{
+    ViewBag.Title = "Training Courses";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">Training Courses</header>
+    <div class="panel-body">
+        @if (Model.courses != null)
+        {
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;"></th>
+                            <th>Course Name</th>
+                            <th>Description</th>
+                            <th>Sequence</th>
+                            <th>Active</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.courses)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@(Url.Action("TrainingCourse", "Admin", new { id = item.COURSE_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
+                                <div class="delete-section" style="display:inline-block">
+                                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.COURSE_IDX" data-delete-p="/Admin/TrainingCourseDelete">
+                                        <b>Confirm Delete</b>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.COURSE_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.COURSE_DESC)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.COURSE_SEQ)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ACT_IND)
+                            </td>
+
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+        <a href="@Url.Action("TrainingCourse", "Admin")" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
+
+    </div>
+</section>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
+
+}
+

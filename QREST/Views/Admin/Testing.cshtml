@@ -3,7 +3,16 @@
     ViewBag.Title = "Test Functions";
 }
 
+@*@if (@System.Web.Configuration.WebConfigurationManager.AppSettings["q-env"] == "TEST")
+{
+    <div>test</div>
+}
+else if (@System.Web.Configuration.WebConfigurationManager.AppSettings["q-env"] == "PROD")
+{
+<div>@System.Web.Configuration.WebConfigurationManager.AppSettings["q-env"]</div>
+}*@
 
+<div>@System.Web.Configuration.WebConfigurationManager.AppSettings["q-env"]</div>
 
 <div class="form-group">
     @Html.ActionLink("Run Hourly Data Validation and Alerting", "HourlyPollValidation", new object { }, new { @class = "btn btn-primary" })

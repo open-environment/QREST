@@ -1,0 +1,59 @@
+﻿@model QREST.Models.vmTrainingIndex
+@{
+    ViewBag.Title = "QREST Training Courses";
+    int i = 1;
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">List of Available Training Courses</header>
+    <div class="panel-body">
+        @if (Model.courses != null)
+        {
+        <div class="table-responsive">
+            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Course</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                @foreach (var item in Model.courses)
+                {
+                    <tr>
+                        <td>
+                            <h3 class="font-bold m-t-sm">@i</h3>
+                        </td>
+                        <td>
+                            <h3 class="font-bold m-t-sm">@Html.DisplayFor(modelItem => item.COURSE_NAME)</h3>
+                            @Html.DisplayFor(modelItem => item.COURSE_DESC)
+                        </td>
+                        <td>
+                            @if (item.COURSE_COMP_IND == 1)
+                            {
+                                <a class="fa fa-check-square fa-3x text-success m-r-sm m-t-sm pull-left" href="@Url.Action("Course", new { id = item.COURSE_IDX })"></a>
+                                <a class="clear" style="padding-right:30px;" href="@Url.Action("Course", new { id = item.COURSE_IDX })"> <span class="h3 block m-t-sm font-bold m-r-md">Complete</span> <small class="text-muted">@item.COURSE_LESSON_COMP / @item.COURSE_LESSON_TOT Lessons</small> </a>
+                                <a href="@Url.Action("Certificate", new { id = item.COURSE_IDX })" class="btn btn-rounded btn-xs btn-primary">View Certificate</a>
+
+                            }
+                            else if (item.COURSE_LESSON_COMP > 0)
+                            {
+                                <a class="fa fa-play-circle fa-3x text-warning m-r-sm m-t-sm pull-left" href="@Url.Action("Course", new { id = item.COURSE_IDX })"></a>
+                                <a class="clear text-warning" style="padding-right:30px;" href="@Url.Action("Course", new { id = item.COURSE_IDX })"> <span class="h3 block m-t-sm font-bold m-r-md">Continue</span> <small class="text-muted">@item.COURSE_LESSON_COMP / @item.COURSE_LESSON_TOT Lessons</small> </a>
+                            }
+                            else
+                            {
+                                <a class="fa fa-play-circle fa-3x text-danger m-r-sm m-t-sm pull-left" href="@Url.Action("Course", new { id = item.COURSE_IDX })"></a>
+                                <a class="clear text-danger" style="padding-right:30px;" href="@Url.Action("Course", new { id = item.COURSE_IDX })"> <span class="h3 block m-t-sm font-bold m-r-md">Get Started</span> <small class="text-muted">@item.COURSE_LESSON_TOT Lessons</small> </a>
+                            }
+                        </td>
+
+                    </tr>
+                    i = i + 1;
+                }
+            </table>
+        </div>
+        }
+
+    </div>
+</section>

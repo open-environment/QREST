@@ -86,7 +86,7 @@
                                             @Html.DisplayFor(modelItem => item.LESSON_STEP_SEQ)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.LESSON_STEP_DESC)
+                                            @Html.Raw(item.LESSON_STEP_DESC)
                                         </td>
                                     </tr>
                                 }

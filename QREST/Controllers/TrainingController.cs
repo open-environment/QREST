@@ -103,6 +103,25 @@ namespace QREST.Controllers
 
         }
 
+
+        [HttpPost]
+        public JsonResult LessonReset(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                string UserIDX = User.Identity.GetUserId();
+
+                int succId = db_Train.DeleteT_QREST_TRAIN_COURSE(id ?? Guid.Empty);
+                if (succId == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete course.");
+            }
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult StepComp(Guid? compLessonStepIDX)

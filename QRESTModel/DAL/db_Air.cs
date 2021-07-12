@@ -8,7 +8,6 @@ using EntityFramework.BulkInsert.Extensions;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using System.Data.Entity;
-using System.Data.SqlClient;
 
 namespace QRESTModel.DAL
 {
@@ -282,7 +281,7 @@ namespace QRESTModel.DAL
         public string FLOW_UNIT_CODE { get; set; }
     }
 
-    public class db_Air
+    public static class db_Air
     {
 
         //*****************SITES**********************************

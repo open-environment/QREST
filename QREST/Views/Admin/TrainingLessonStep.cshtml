@@ -21,7 +21,8 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Step Description</label>
-                                @Html.TextAreaFor(model => model.step.LESSON_STEP_DESC, new { @class = "form-control" })
+                                @Html.EditorFor(model => model.stepDesc)
+                                @*@Html.TextAreaFor(model => model.step.LESSON_STEP_DESC, new { @class = "form-control" })*@
                                 @Html.ValidationMessageFor(model => model.step.LESSON_STEP_DESC)
                             </div>
                         </div>

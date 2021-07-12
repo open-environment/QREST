@@ -463,6 +463,49 @@ namespace QRESTModel.DAL
         }
 
 
+        public static int DeleteT_QREST_TRAIN_LESSON(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_TRAIN_LESSON rec = new T_QREST_TRAIN_LESSON { LESSON_IDX = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        //public static int DeleteT_QREST_TRAIN_LESSON_USER(Guid id)
+        //{
+        //    using (QRESTEntities ctx = new QRESTEntities())
+        //    {
+        //        try
+        //        {
+        //            var lessons = (from a in ctx.T_QREST_TRAIN_LESSON.AsNoTracking()
+        //                    where a.LESSON_IDX == lESSON_IDX
+        //                    select a).FirstOrDefault();
+
+        //            T_QREST_TRAIN_LESSON rec = new T_QREST_TRAIN_LESSON { LESSON_IDX = id };
+        //            ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+        //            ctx.SaveChanges();
+
+        //            return 1;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            logEF.LogEFException(ex);
+        //            return 0;
+        //        }
+        //    }
+        //}
 
 
         //************** LESSON STEPS **********************************
@@ -502,6 +545,27 @@ namespace QRESTModel.DAL
                 {
                     logEF.LogEFException(ex);
                     return null;
+                }
+            }
+        }
+
+
+        public static int DeleteT_QREST_TRAIN_LESSON_STEP(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_TRAIN_LESSON_STEP rec = new T_QREST_TRAIN_LESSON_STEP { LESSON_STEP_IDX = id };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
                 }
             }
         }
@@ -654,6 +718,8 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
 
 
     }

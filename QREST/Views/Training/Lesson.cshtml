@@ -24,13 +24,9 @@
                 <span class="fa-stack fa-2x pull-left m-t-xs"> <i class="fa fa-circle fa-stack-2x text-info"></i> <i class="fa fa-stack-1x fa-inverse" style="font-family:inherit; font-weight:bold">@_step.LESSON_STEP_SEQ</i></span>
             </div>
             <div class="col-sm-6">
-                <div class="wrapper-md">@_step.LESSON_STEP_DESC</div>
-                
-                @*<h2 class="font-thin m-b-lg">Step 1: Establishing a Site and Importing Monitoring Locations</h2>
-                <p class="h4 m-b-lg l-h-1x">Here's a description of this step. </p>
-                <p class="m-b-xl">
-                    <a href="index.html" class="btn btn-sm btn-primary font-bold">Mark Completed</a>
-                </p>*@
+                <div class="wrapper-md">
+                    @Html.Raw(_step.LESSON_STEP_DESC)
+                </div>
             </div>
             <div class="col-sm-5 wrapper-md ">
                 @if (_step.STEP_COMP_IND == 1)
@@ -39,7 +35,7 @@
                 }
                 @if (_step.STEP_COMP_IND == 0 && showUndone == true)
                 {
-                    if (_step.REQUIRED_YT_VID != null)
+                    if (!string.IsNullOrEmpty(_step.REQUIRED_YT_VID))
                     {
                         <section class="panel bg-black m-r-n-lg m-b-n-lg no-border device">
                             <iframe id="player" width="470" height="315" class="m-t-xs"
@@ -49,7 +45,7 @@
                             <span class="text-danger italic">You must watch the video to the end to receive credit.</span>
                         </section>
                     }
-                    else if (_step.REQUIRED_URL != null)
+                    else if (!string.IsNullOrEmpty(_step.REQUIRED_URL))
                     {
                         <a class="reqdoc" href="@_step.REQUIRED_URL" target="_blank">Review this document</a>
                     }

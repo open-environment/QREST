@@ -276,5 +276,10 @@ namespace QREST.Models
     {
         public T_QREST_TRAIN_LESSON_STEP step { get; set; }
 
+        [DisplayName("Step Description")]
+        [UIHint("wsywigeditor"), AllowHtml]
+        [StringLength(12000)]
+        public string stepDesc { get; set; }
+
     }
 }

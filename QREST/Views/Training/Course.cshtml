@@ -42,7 +42,12 @@
                             @if (item.LESSON_COMP_IND == 1)
                             {
                                 <a class="fa fa-check-square fa-3x text-success m-r-sm m-t-sm pull-left" href="@Url.Action("Course", new { id = item.COURSE_IDX })"></a>
-                                <a class="clear" style="padding-right:30px;" href="@Url.Action("Course", new { id = item.COURSE_IDX })"> <span class="h3 block m-t-sm font-bold m-r-md">Complete</span> <small class="text-muted">on @item.CREATE_DT</small> </a>
+                                <a class="clear" style="padding-right:30px;" href="@Url.Action("Lesson", new { id = item.LESSON_IDX })"> <span class="h3 block m-t-sm font-bold m-r-md">Complete</span> <small class="text-muted">on @item.CREATE_DT</small> </a>
+
+                                <div class="delete-section" style="display:inline-block">
+                                    <a class=" btn btn-rounded btn-sm btn-danger delete-link"><i class="fa fa-times"></i> Reset Progress</a>
+                                    <div class="btn btn-rounded btn-sm btn-warning delete-confirm" style="display:none" data-delete-id="@item.LESSON_IDX" data-delete-p="/Training/LessonReset" data-success-url="/Admin/HelpConfig"><b>Confirm</b></div>
+                                </div>
                             }
                             else if (item.LESSON_STEPS_COMP > 0)
                             {

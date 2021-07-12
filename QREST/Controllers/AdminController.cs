@@ -1055,6 +1055,7 @@ namespace QREST.Controllers
             if (id != null)
             {
                 model.step = db_Train.GetT_QREST_TRAIN_LESSON_STEP_byID(id.GetValueOrDefault());
+                model.stepDesc = model.step.LESSON_STEP_DESC;
             }
             else if (lessonid != null) //insert case
             {
@@ -1088,8 +1089,8 @@ namespace QREST.Controllers
             if (c == Guid.Empty)
                 c = null;
 
-            Guid? succID = db_Train.InsertUpdateT_QREST_TRAIN_LESSON_STEP(c, model.step.LESSON_IDX, model.step.LESSON_STEP_SEQ, model.step.LESSON_STEP_DESC,
-                model.step.REQUIRED_URL, model.step.REQ_CONFIRM, model.step.REQUIRED_YT_VID);
+            Guid? succID = db_Train.InsertUpdateT_QREST_TRAIN_LESSON_STEP(c, model.step.LESSON_IDX, model.step.LESSON_STEP_SEQ, model.stepDesc,
+                model.step.REQUIRED_URL ?? "", model.step.REQ_CONFIRM, model.step.REQUIRED_YT_VID ?? "");
             if (succID != null)
             {
                 TempData["Success"] = "Data saved";
@@ -1101,6 +1102,38 @@ namespace QREST.Controllers
                 return View(model);
             }
         }
+
+
+        [HttpPost]
+        public JsonResult TrainingLessonDelete(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int succId = db_Train.DeleteT_QREST_TRAIN_LESSON(id ?? Guid.Empty);
+                if (succId == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete step.");
+            }
+        }
+
+        [HttpPost]
+        public JsonResult TrainingLessonStepDelete(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int succId = db_Train.DeleteT_QREST_TRAIN_LESSON_STEP(id ?? Guid.Empty);
+                if (succId == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete step.");
+            }
+        }
+
 
 
         //************************************* TEST METHODS ************************************************************

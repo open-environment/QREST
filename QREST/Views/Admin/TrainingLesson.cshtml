@@ -110,21 +110,17 @@
     @Scripts.Render("~/bundles/cleave")
 
     <script type="text/javascript">
-    // Enable dirtyforms
-    $('#norepostform').dirtyForms();
-    // Enable/disable the submit button when the state transitions between dirty and clean.
-    $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
-        if (ev.type === 'dirty') {
-            $("#btnSave").prop("disabled", false);
-        } else {
-            $("#btnSave").prop("disabled", true);
-        }
-    });
+        // Enable dirtyforms
+        $('#norepostform').dirtyForms();
+        // Enable/disable the submit button when the state transitions between dirty and clean.
+        $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
 
-    $(document).ready(function () {
-
-    });
-
+            if (ev.type === 'dirty') {
+                $("#btnSave").prop("disabled", false);
+            } else {
+                $("#btnSave").prop("disabled", true);
+            }
+        });
     </script>
 }
 

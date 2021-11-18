@@ -18,6 +18,7 @@ namespace QRESTModel.DAL
         public string STATUS_IND { get; set; }
         public string STATUS_IND_DESC { get; set; }
         public DateTime? CREATE_DT { get; set; }
+        public string API_KEY { get; set; }
     }
     public class UserListDisplayType
     {
@@ -264,6 +265,34 @@ namespace QRESTModel.DAL
                 {
                     logEF.LogEFException(ex);
                     return null;
+                }
+            }
+        }
+
+        public static bool SetT_QREST_ORG_USERS_APIKEY(string uSER_IDX, string oRG_ID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_ORG_USERS e = (from c in ctx.T_QREST_ORG_USERS
+                                           where c.USER_IDX == uSER_IDX
+                                           && c.ORG_ID == oRG_ID
+                                           select c).FirstOrDefault();
+
+                    if (e == null)
+                        return false;
+                    else
+                    {
+                        e.API_KEY = UtilsText.RandomString(12);
+                        ctx.SaveChanges();
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
                 }
             }
         }
@@ -645,7 +674,8 @@ namespace QRESTModel.DAL
                                  STATUS_IND = uo.STATUS_IND,
                                  STATUS_IND_DESC = s.STATUS_IND_DESC,
                                  CREATE_DT = uo.CREATE_DT,
-                                 USER_NAME = u.FNAME + " " + u.LNAME
+                                 USER_NAME = u.FNAME + " " + u.LNAME,
+                                 API_KEY = uo.API_KEY
                              }).ToList();
 
                     return x;
@@ -748,6 +778,28 @@ namespace QRESTModel.DAL
                 {
                     logEF.LogEFException(ex);
                     return false;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Will return true if the supplied user belongs to the org
+        /// </summary>
+        public static T_QREST_ORG_USERS GetT_QREST_ORG_USERS_ByAPIKey(string API_Key)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_ORG_USERS
+                             where a.API_KEY == API_Key
+                             select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
                 }
             }
         }

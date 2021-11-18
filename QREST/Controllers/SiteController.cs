@@ -252,12 +252,19 @@ namespace QREST.Controllers
         {
             string UserIDX = User.Identity.GetUserId();
 
+            //*************** VALIDATION BEGIN *********************************
+            int SiteIDcheckCnt = db_Air.GetT_QREST_SITES_ByOrgandSiteID(model.ORG_ID, model.SITE_ID, model.SITE_IDX ?? Guid.Empty);
+            if (SiteIDcheckCnt > 0) 
+                ModelState.AddModelError("SITE_ID", "Site ID must be unique.");
+
+            //reject if user doesn't have access to org
+            RedirectToRouteResult r = CanAccessThisOrg(UserIDX, model.ORG_ID, true);
+            if (r != null) return r;
+            //*************** VALIDATION END *********************************
+
+
             if (ModelState.IsValid)
             {
-                //reject if user doesn't have access to org
-                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, model.ORG_ID, true);
-                if (r != null) return r;
-
                 Guid? succId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
                     model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
                     model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR, model.AIRNOW_PWD, 

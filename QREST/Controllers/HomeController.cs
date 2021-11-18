@@ -254,5 +254,12 @@ namespace QREST.Controllers
             var data = ddlHelpers.get_monitors_sampled_by_site(ID ?? Guid.Empty);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult PushDataToQREST()
+        {
+            return View();            
+        }
     }
 }

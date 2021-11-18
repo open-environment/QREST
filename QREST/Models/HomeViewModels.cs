@@ -100,4 +100,12 @@ namespace QREST.Models
             ddl_Time = ddlHelpers.get_ddl_time_type();
         }
     }
+
+    public class vmHomeSendData {
+        public string API_KEY { get; set; }
+        public string SiteID { get; set; }
+        public string ImportTemplate { get; set; }
+        public string DataBlock { get; set; }
+        public string APIName { get; set; }
+    }
 }

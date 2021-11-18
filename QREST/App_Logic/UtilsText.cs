@@ -107,6 +107,7 @@ namespace QREST.App_Logic.BusinessLogicLayer
             return s;
         }
 
+
         /// <summary>
         /// Better implementation of split when parsing CSV files - this handles situations where there are commas inside of quotes
         /// </summary>

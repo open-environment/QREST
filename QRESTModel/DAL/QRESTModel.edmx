@@ -244,6 +244,7 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="API_KEY" Type="varchar" MaxLength="32" />
         </EntityType>
         <EntityType Name="T_QREST_ORGANIZATIONS">
           <Key>
@@ -1973,7 +1974,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <Parameter Name="lessonidx" Mode="In" Type="Guid" />
           </FunctionImport>
           <FunctionImport Name="SP_TRAIN_COURSE_USER_PROGRESS" ReturnType="Collection(QRESTModel.SP_TRAIN_COURSE_USER_PROGRESS_Result)">
-            <Parameter Name="useridx" Mode="In" Type="String" />
+          <Parameter Name="useridx" Mode="In" Type="String" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
@@ -2060,6 +2061,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
           <NavigationProperty Name="T_QREST_ORGANIZATIONS" Relationship="QRESTModel.FK_T_QREST_ORG_USERS_T" FromRole="T_QREST_ORG_USERS" ToRole="T_QREST_ORGANIZATIONS" />
           <NavigationProperty Name="T_QREST_USERS" Relationship="QRESTModel.FK_T_QREST_ORG_USERS_U" FromRole="T_QREST_ORG_USERS" ToRole="T_QREST_USERS" />
+          <Property Name="API_KEY" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="T_QREST_ORGANIZATIONS">
           <Key>
@@ -3620,6 +3622,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_ORG_USERS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_ORG_USERS">
               <MappingFragment StoreEntitySet="T_QREST_ORG_USERS">
+                <ScalarProperty Name="API_KEY" ColumnName="API_KEY" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />

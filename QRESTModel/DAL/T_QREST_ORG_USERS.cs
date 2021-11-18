@@ -23,6 +23,7 @@ namespace QRESTModel.DAL
         public Nullable<System.DateTime> CREATE_DT { get; set; }
         public string MODIFY_USER_IDX { get; set; }
         public Nullable<System.DateTime> MODIFY_DT { get; set; }
+        public string API_KEY { get; set; }
     
         public virtual T_QREST_ORGANIZATIONS T_QREST_ORGANIZATIONS { get; set; }
         public virtual T_QREST_USERS T_QREST_USERS { get; set; }

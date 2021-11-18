@@ -77,7 +77,6 @@
                     <footer class="panel-footer">
                         <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
                         <a class=" btn btn-default" href="@Url.Action("Index","Dashboard")">Back to Dashboard</a>
-
                     </footer>
                 </section>
 
@@ -110,6 +109,7 @@
                                                     <th>Organization</th>
                                                     <th>Access Level</th>
                                                     <th>Status</th>
+                                                    <th>API Key</th>
                                                 </tr>
                                             </thead>
                                             @foreach (var item in Model.user_orgs)
@@ -148,6 +148,16 @@
                                                         else
                                                         {
                                                             <span class="badge bg-danger"> Rejected</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (item.API_KEY != null && item.API_KEY.Length > 1)
+                                                        {
+                                                            @item.API_KEY
+                                                        }
+                                                        else
+                                                        {
+                                                        <a class=" btn btn-xs btn-info" href="@Url.Action("GetAPIKey","Account", new { org = item.ORG_ID })">Get Key</a>
                                                         }
                                                     </td>
                                                 </tr>

@@ -259,11 +259,12 @@ namespace QRESTModel.COMM
         /// <param name="config"></param>
         /// <param name="updateNextRunTime"></param>
         /// <returns>True only if ran successfully.</returns>
-        public static bool ParseFlatFile(string loggerData, SitePollingConfigType config, List<SitePollingConfigDetailType> _config_dtl, bool updateNextRunTime)
+        public static bool ParseFlatFile(string loggerData, SitePollingConfigType config, List<SitePollingConfigDetailType> _config_dtl, bool updateNextRunTime, bool? overrideConfigDuration = false)
         {
             try
             {
                 string line;
+                bool SuccInd = true;
                 using (System.IO.StringReader sr = new System.IO.StringReader(loggerData))
                 {
                     while ((line = sr.ReadLine()) != null)
@@ -271,8 +272,10 @@ namespace QRESTModel.COMM
                         if (line.Length > 0)
                         {
                             //FIVE MINUTE RAW DATA
-                            if (config.RAW_DURATION_CODE == "H")
-                                db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, _config_dtl);
+                            if (config.RAW_DURATION_CODE == "H" || overrideConfigDuration == true)
+                            {
+                                SuccInd = db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, _config_dtl);
+                            }
                             //ONE MINUTE RAW DATA
                             //if (config.RAW_DURATION_CODE == "G")
                             //    db_Air.InsertT_QREST_DATA_ONE_MIN_fromLine(line, config, config_dtl);
@@ -291,7 +294,7 @@ namespace QRESTModel.COMM
                         System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null);
                 }
 
-                return true;
+                return SuccInd;
             }
             catch (Exception ex)
             {

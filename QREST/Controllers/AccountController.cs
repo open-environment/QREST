@@ -501,6 +501,14 @@ namespace QREST.Controllers
         }
 
 
+        public ActionResult GetAPIKey(string org)
+        {
+            string UserIDX = User.Identity.GetUserId();
+            db_Account.SetT_QREST_ORG_USERS_APIKEY(UserIDX, org);
+
+            return RedirectToAction("MyProfile");
+        }
+
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]

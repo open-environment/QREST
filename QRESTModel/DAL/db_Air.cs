@@ -456,7 +456,6 @@ namespace QRESTModel.DAL
             }
         }
 
-
         public static T_QREST_SITES GetT_QREST_SITES_ByOrgandAQSID(string OrgID, string aqsSiteID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -466,6 +465,49 @@ namespace QRESTModel.DAL
                     var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
                                where a.ORG_ID == OrgID
                                && a.AQS_SITE_ID == aqsSiteID
+                               select a).FirstOrDefault();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static int GetT_QREST_SITES_ByOrgandSiteID(string OrgID, string SiteID, Guid SiteIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
+                               where a.ORG_ID == OrgID
+                               && a.SITE_ID == SiteID
+                               && a.SITE_IDX != SiteIDX
+                               select a).Count();
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static T_QREST_SITES GetT_QREST_SITES_ByOrgandSiteID(string OrgID, string SiteID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
+                               where a.ORG_ID == OrgID
+                               && a.SITE_ID == SiteID
                                select a).FirstOrDefault();
 
                     return xxx;
@@ -822,6 +864,26 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static T_QREST_SITE_POLL_CONFIG GetT_QREST_SITE_POLL_CONFIG_ByNameAndSite(Guid SiteIDX, string ConfigName)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking()
+                            where a.SITE_IDX == SiteIDX
+                            && a.CONFIG_NAME == ConfigName
+                            select a).FirstOrDefault();
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static T_QREST_SITE_POLL_CONFIG GetT_QREST_SITE_POLL_CONFIG_H1_BySite(Guid SiteIDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())
@@ -989,6 +1051,47 @@ namespace QRESTModel.DAL
                     xxx.Where(w => w.DELIMITER == "").ToList().ForEach(i => i.ConnectivityStatus = "No delimiter");
                     xxx.Where(w => w.DATE_COL == null).ToList().ForEach(i => i.ConnectivityStatus = "No date column");
                     xxx.Where(w => w.TIME_COL == null).ToList().ForEach(i => i.ConnectivityStatus = "No time column");
+
+                    return xxx;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static SitePollingConfigType GetT_QREST_SITES_POLLING_CONFIG_Single(Guid? ConfigIDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
+                               join b in ctx.T_QREST_SITE_POLL_CONFIG.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
+                               where b.POLL_CONFIG_IDX == ConfigIDX
+                               select new SitePollingConfigType
+                               {
+                                   SITE_IDX = a.SITE_IDX,
+                                   SITE_ID = a.SITE_ID,
+                                   ORG_ID = a.ORG_ID,
+                                   POLLING_FREQ_TYPE = a.POLLING_FREQ_TYPE,
+                                   POLLING_FREQ_NUM = a.POLLING_FREQ_NUM,
+                                   POLL_CONFIG_IDX = b.POLL_CONFIG_IDX,
+                                   LOGGER_TYPE = b.LOGGER_TYPE,
+                                   RAW_DURATION_CODE = b.RAW_DURATION_CODE,
+                                   LOGGER_SOURCE = b.LOGGER_SOURCE,
+                                   LOGGER_PORT = b.LOGGER_PORT,
+                                   LOGGER_PASSWORD = b.LOGGER_PASSWORD,
+                                   DELIMITER = b.DELIMITER,
+                                   DATE_COL = b.DATE_COL,
+                                   DATE_FORMAT = b.DATE_FORMAT,
+                                   TIME_COL = b.TIME_COL,
+                                   TIME_FORMAT = b.TIME_FORMAT,
+                                   LOCAL_TIMEZONE = b.LOCAL_TIMEZONE,
+                                   TIME_POLL_TYPE = b.TIME_POLL_TYPE
+                               }).FirstOrDefault();
 
                     return xxx;
                 }
@@ -2446,8 +2549,13 @@ namespace QRESTModel.DAL
         {
             try
             {
-                string delimiter = config.DELIMITER == "C" ? "," : @"\t";
-                string[] cols = line.Split(delimiter.ToCharArray());
+                //initial stuff from config
+                int delComma = line.Split(new char[] { ',' }, StringSplitOptions.None).Count();
+                int delTab = line.Split(new char[] { '\t' }, StringSplitOptions.None).Count();
+                char[] delimiter = delComma > delTab ? new char[] { ',' } : new char[] { '\t' };
+
+                //string delimiter = config.DELIMITER == "C" ? "," : @"\t";
+                string[] cols = line.Split(delimiter);
 
                 if (cols.Length > 1)  //skip blank row
                 {
@@ -2456,7 +2564,10 @@ namespace QRESTModel.DAL
                     string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].ToString();
 
                     //raw date time coming from logger
-                    DateTime dt = DateTime.ParseExact(sDate + " " + sTime, config.DATE_FORMAT + " " + config.TIME_FORMAT, CultureInfo.InvariantCulture);
+                    //get allowed date/time formats
+                    string[] allowedFormats = UtilsText.GetDateTimeAllowedFormats(config.DATE_FORMAT, config.TIME_FORMAT);
+
+                    DateTime dt = DateTime.ParseExact(sDate + " " + sTime, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
 
                     foreach (SitePollingConfigDetailType _map in config_dtl)
                     {

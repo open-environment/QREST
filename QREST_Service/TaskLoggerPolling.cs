@@ -74,6 +74,9 @@ namespace QRESTServiceCatalog
                                 General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
 
                         }
+                        //****************** WEATHER.COM WEATHER STATION *********************************************************
+                        //****************** WEATHER.COM WEATHER STATION *********************************************************
+                        //****************** WEATHER.COM WEATHER STATION *********************************************************
                         else if (_config.LOGGER_TYPE == "WEATHER_PWS")
                         {
                             T_QREST_SITE_POLL_CONFIG _c = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(_config.POLL_CONFIG_IDX);
@@ -81,6 +84,36 @@ namespace QRESTServiceCatalog
                             if (xxx == false)
                                 General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###Unreadable weather station format");
 
+                        }
+                        //****************** CAMPBELL SCIENTIFIC DATA LOGGER *********************************************************
+                        //****************** CAMPBELL SCIENTIFIC DATA LOGGER *********************************************************
+                        //****************** CAMPBELL SCIENTIFIC DATA LOGGER *********************************************************
+                        else if (_config.LOGGER_TYPE == "CAMPBELL")
+                        {
+                            General.WriteToFile("Campbell logging happening for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "");
+
+                            //retrieve the file from the poll directory
+                            string _file = LoggerComm.RetrieveCampbell(_config);
+
+                            if (_file == null)
+                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###NO FILE");
+                            else if (_file.Length > 10)
+                            {                            
+                                //send the entire text response to the file parser routine
+                                General.WriteToFile("Campbell data found for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "###" + _file.Substring(1,10));
+
+                                bool ParseSuccessInd = LoggerComm.ParseFlatFile(_file, _config, _config_dtl, true);
+                                if (ParseSuccessInd)
+                                {
+                                    //move file to archive folder
+                                    General.ArchiveCampbellPollingFile(_config.SITE_ID);
+                                }
+                                else
+                                    General.WriteToFile("Campbell data parse failed:" + _config.ORG_ID + " site: " + _config.SITE_ID + "###" + _file.Substring(1, 10));
+
+                            }
+                            else
+                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###NO DATA");
                         }
 
                         General.WriteToFile("End poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);
@@ -93,7 +126,7 @@ namespace QRESTServiceCatalog
                         db_Air.InsertUpdatetT_QREST_SITES(_config.SITE_IDX, null, null, null, null, null, null, null,
                             null, null, null, null, null, null, null, false, null, null, 
                             null, null, null,
-                            null, null, null, null, null, null, null);
+                            null, null, null, null, null, null, null, null);
                     }
                 }
             }

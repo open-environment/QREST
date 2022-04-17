@@ -108,6 +108,8 @@ namespace QRESTModel.DAL
         public string SITE_ID { get; set; }
         public string PAR_CODE { get; set; }
         public string PAR_NAME { get; set; }
+        public string ORG_ID { get; set; }
+        public string UNIT_DESC { get; set; }
     }
 
     public class QcAssessmentDisplay
@@ -611,7 +613,7 @@ namespace QRESTModel.DAL
         public static Guid? InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, string sTATE, string cOUNTY,
             decimal? lATITUDE, decimal? lONGITUDE, string eLEVATION, string aDDRESS, string cITY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT,
             bool? pOLLING_ONLINE_IND, string pOLLING_FREQ_TYPE, int? pOLLING_FREQ_NUM, DateTime? pOLLING_LAST_RUN_DT, DateTime? pOLLING_NEXT_RUN_DT, bool? aIRNOW_IND, bool? aQS_IND,
-            string aIRNOW_USR, string aIRNOW_PWD, string aIRNOW_ORG, string aIRNOW_SITE, string sITE_COMMENTS, string cREATE_USER)
+            string aIRNOW_USR, string aIRNOW_PWD, string aIRNOW_ORG, string aIRNOW_SITE, string sITE_COMMENTS, string cREATE_USER, string lOCAL_TIME_ZONE)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -666,6 +668,7 @@ namespace QRESTModel.DAL
                     if (aIRNOW_ORG != null) e.AIRNOW_ORG = aIRNOW_ORG;
                     if (aIRNOW_SITE != null) e.AIRNOW_SITE = aIRNOW_SITE;
                     if (sITE_COMMENTS != null) e.SITE_COMMENTS = sITE_COMMENTS;
+                    if (lOCAL_TIME_ZONE != null) e.LOCAL_TIMEZONE = lOCAL_TIME_ZONE;
 
                     if (insInd)
                         ctx.T_QREST_SITES.Add(e);
@@ -976,7 +979,7 @@ namespace QRESTModel.DAL
                                    DATE_FORMAT = b.DATE_FORMAT,
                                    TIME_COL = b.TIME_COL,
                                    TIME_FORMAT = b.TIME_FORMAT,
-                                   LOCAL_TIMEZONE = b.LOCAL_TIMEZONE,
+                                   LOCAL_TIMEZONE = a.LOCAL_TIMEZONE,
                                    TIME_POLL_TYPE = b.TIME_POLL_TYPE
                                }).ToList();
 
@@ -1089,7 +1092,7 @@ namespace QRESTModel.DAL
                                    DATE_FORMAT = b.DATE_FORMAT,
                                    TIME_COL = b.TIME_COL,
                                    TIME_FORMAT = b.TIME_FORMAT,
-                                   LOCAL_TIMEZONE = b.LOCAL_TIMEZONE,
+                                   LOCAL_TIMEZONE = a.LOCAL_TIMEZONE,
                                    TIME_POLL_TYPE = b.TIME_POLL_TYPE
                                }).FirstOrDefault();
 
@@ -1204,7 +1207,7 @@ namespace QRESTModel.DAL
                             if (lOGGER_USERNAME != null && lOGGER_USERNAME != e.LOGGER_USERNAME) logMsg += Environment.NewLine + "Logger Username changed from [" + e.LOGGER_USERNAME + "] to [" + lOGGER_USERNAME + "]";
                             if (lOGGER_PASSWORD != null && lOGGER_PASSWORD != e.LOGGER_PASSWORD) logMsg += Environment.NewLine + "Logger Password changed";
                             if (dELIMITER != null && dELIMITER != e.DELIMITER) logMsg += Environment.NewLine + "Delimiter changed from [" + e.DELIMITER + "] to [" + dELIMITER + "]";
-                            if (lOCAL_TIMEZONE != null && lOCAL_TIMEZONE != e.LOCAL_TIMEZONE) logMsg += Environment.NewLine + "Time Zone changed from [" + e.LOCAL_TIMEZONE + "] to [" + lOCAL_TIMEZONE + "]";
+                            //if (lOCAL_TIMEZONE != null && lOCAL_TIMEZONE != e.LOCAL_TIMEZONE) logMsg += Environment.NewLine + "Time Zone changed from [" + e.LOCAL_TIMEZONE + "] to [" + lOCAL_TIMEZONE + "]";
 
                             db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", cREATE_USER, null, logMsg, null, e.POLL_CONFIG_IDX.ToString());
                         }
@@ -1224,7 +1227,7 @@ namespace QRESTModel.DAL
                     if (dATE_FORMAT != null) e.DATE_FORMAT = dATE_FORMAT;
                     if (tIME_COL != null) e.TIME_COL = tIME_COL;
                     if (tIME_FORMAT != null) e.TIME_FORMAT = tIME_FORMAT;
-                    if (lOCAL_TIMEZONE != null) e.LOCAL_TIMEZONE = lOCAL_TIMEZONE;
+                    //if (lOCAL_TIMEZONE != null) e.LOCAL_TIMEZONE = lOCAL_TIMEZONE;
                     if (tIME_POLL_TYPE != null) e.TIME_POLL_TYPE = tIME_POLL_TYPE;
 
                     if (cREATE_USER != null) e.MODIFY_USER_IDX = cREATE_USER;
@@ -1424,7 +1427,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(Guid? pOLL_CONFIG_DTL_IDX, Guid? pOLL_CONFIG_IDX, Guid? mONITOR_IDX, int? cOL, string sUM_TYPE, int? rOUNDING, double? aDJUST_FACTOR)
+        public static Guid? InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(Guid? pOLL_CONFIG_DTL_IDX, Guid? pOLL_CONFIG_IDX, Guid? mONITOR_IDX, int? cOL, string sUM_TYPE, int? rOUNDING, double? aDJUST_FACTOR, string cREATE_USER_IDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1451,7 +1454,7 @@ namespace QRESTModel.DAL
 
                         SiteMonitorDisplayType _mon = db_Air.GetT_QREST_MONITORS_ByID(mONITOR_IDX ?? Guid.Empty);
                         if (_mon != null)
-                            db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", null, null, "Column mapping added [" + _mon.PAR_CODE + "]", null, pOLL_CONFIG_IDX.ToString());
+                            db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", cREATE_USER_IDX, null, "Column mapping added [" + _mon.PAR_CODE + "]", null, pOLL_CONFIG_IDX.ToString());
                     }
 
                     if (pOLL_CONFIG_IDX != null) e.POLL_CONFIG_IDX = pOLL_CONFIG_IDX.ConvertOrDefault<Guid>();
@@ -1793,6 +1796,7 @@ namespace QRESTModel.DAL
                             PAR_NAME = p.PAR_NAME,
                             SITE_ID = s.SITE_ID
                         }).Distinct().ToList();
+                    xxx = xxx.OrderBy(x => x.PAR_CODE).ToList();
                     return xxx;
                 }
                 catch (Exception ex)
@@ -1803,7 +1807,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<SiteMonitorDisplayType> GetT_QREST_MONITORS_Display_SampledByUser(string UserIDX)
+        public static List<SiteMonitorDisplayTypeSmall> GetT_QREST_MONITORS_Display_Sampled_FIVE_MIN_ByOrgID_ForDdl(string orgId)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1813,21 +1817,17 @@ namespace QRESTModel.DAL
                                join s in ctx.T_QREST_SITES.AsNoTracking() on a.SITE_IDX equals s.SITE_IDX
                                join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on a.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
                                join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on r.PAR_CODE equals p.PAR_CODE
-                               join h in ctx.T_QREST_DATA_HOURLY.AsNoTracking() on a.MONITOR_IDX equals h.MONITOR_IDX
-                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on s.ORG_ID equals u.ORG_ID
-                               where u.USER_IDX == UserIDX
-                               && u.STATUS_IND == "A"
-                               select new SiteMonitorDisplayType
+                               join h in ctx.T_QREST_DATA_FIVE_MIN.AsNoTracking() on a.MONITOR_IDX equals h.MONITOR_IDX
+                               where s.ORG_ID == orgId
+                               select new SiteMonitorDisplayTypeSmall
                                {
-                                   T_QREST_MONITORS = a,
-                                   METHOD_CODE = r.METHOD_CODE,
-                                   COLLECTION_DESC = r.COLLECTION_DESC,
+                                   MONITOR_IDX = a.MONITOR_IDX,
+                                   POC = a.POC,
                                    PAR_CODE = p.PAR_CODE,
                                    PAR_NAME = p.PAR_NAME,
-                                   SITE_ID = s.SITE_ID,
-                                   ORG_ID = u.ORG_ID
-                               }).Distinct().OrderBy(x => x.SITE_ID).ThenBy(x => x.PAR_CODE).ToList();
-
+                                   SITE_ID = s.SITE_ID
+                               }).Distinct().ToList();
+                    xxx = xxx.OrderBy(x => x.PAR_CODE).ToList();
                     return xxx;
                 }
                 catch (Exception ex)
@@ -1838,7 +1838,43 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<SiteMonitorDisplayType> GetT_QREST_MONITORS_Display_ByUser_QCType(string UserIDX, string QCType)
+        public static List<SiteMonitorDisplayTypeSmall> GetT_QREST_MONITORS_Display_SampledByUser(string UserIDX, int? LastNumDays)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    int subtractDays = (LastNumDays ?? 365) * -1;
+                    DateTime sinceDate = System.DateTime.Today.AddDays(subtractDays);
+                    var xxx = (from a in ctx.T_QREST_MONITORS.AsNoTracking()
+                               join s in ctx.T_QREST_SITES.AsNoTracking() on a.SITE_IDX equals s.SITE_IDX
+                               join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on a.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
+                               join p in ctx.T_QREST_REF_PARAMETERS.AsNoTracking() on r.PAR_CODE equals p.PAR_CODE
+                               join h in ctx.T_QREST_DATA_HOURLY.AsNoTracking() on a.MONITOR_IDX equals h.MONITOR_IDX
+                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on s.ORG_ID equals u.ORG_ID
+                               where u.USER_IDX == UserIDX
+                               && u.STATUS_IND == "A"
+                               && h.DATA_DTTM_LOCAL > sinceDate
+                               select new SiteMonitorDisplayTypeSmall
+                               {
+                                   MONITOR_IDX = a.MONITOR_IDX,
+                                   POC = a.POC,
+                                   SITE_ID = s.SITE_ID,
+                                   PAR_CODE = p.PAR_CODE,
+                                   PAR_NAME = p.PAR_NAME
+                               }).Distinct().OrderBy(x => x.SITE_ID).ThenBy(x => x.PAR_CODE);
+
+                    return xxx.ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<SiteMonitorDisplayTypeSmall> GetT_QREST_MONITORS_Display_ByUser_QCType(string UserIDX, string QCType)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1855,11 +1891,10 @@ namespace QRESTModel.DAL
                                where u.USER_IDX == UserIDX
                                && u.STATUS_IND == "A"
                                && q.ASSESSMENT_TYPE == QCType
-                               select new SiteMonitorDisplayType
+                               select new SiteMonitorDisplayTypeSmall
                                {
-                                   T_QREST_MONITORS = a,
-                                   METHOD_CODE = r.METHOD_CODE,
-                                   COLLECTION_DESC = r.COLLECTION_DESC,
+                                   MONITOR_IDX = a.MONITOR_IDX,
+                                   POC = a.POC,
                                    PAR_CODE = p.PAR_CODE,
                                    PAR_NAME = p.PAR_NAME,
                                    SITE_ID = s.SITE_ID,
@@ -1947,7 +1982,7 @@ namespace QRESTModel.DAL
 
         public static Guid? InsertUpdatetT_QREST_MONITORS(Guid? mONITOR_IDX, Guid? sITE_IDX, Guid? pAR_METHOD_IDX, int? pOC, string dURATION_CODE, string cOLLECT_FREQ_CODE,
             string cOLLECT_UNIT_CODE, double? aLERT_MIN_VALUE, double? aLERT_MAX_VALUE, double? aLERT_AMT_CHANGE, int? aLERT_STUCK_REC_COUNT,
-            string aLERT_MIN_TYPE, string aLERT_MAX_TYPE, string aLERT_AMT_CHANGE_TYPE, string aLERT_STUCK_TYPE, string cREATE_USER)
+            string aLERT_MIN_TYPE, string aLERT_MAX_TYPE, string aLERT_AMT_CHANGE_TYPE, string aLERT_STUCK_TYPE, string cREATE_USER, string _loggingPAR_NAME)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1972,6 +2007,17 @@ namespace QRESTModel.DAL
                     {
                         e.MODIFY_DT = System.DateTime.Now;
                         e.MODIFY_USER_IDX = cREATE_USER;
+
+                        //activity logging
+                        var _site = db_Air.GetT_QREST_SITES_ByID(e.SITE_IDX);
+                        if (_site != null)
+                        {
+                            string modTxt = "Changed monitor settings for " + _loggingPAR_NAME + " at " + _site.ORG_ID;
+                            if (aLERT_MIN_VALUE != null && aLERT_MIN_VALUE != -9999 && e.ALERT_MIN_VALUE != aLERT_MIN_VALUE) modTxt += " [MinAlert changed to " + aLERT_MIN_VALUE + "]";
+                            if (aLERT_MAX_VALUE != null && aLERT_MAX_VALUE != -9999 && e.ALERT_MAX_VALUE != aLERT_MAX_VALUE) modTxt += " [MaxAlert changed to " + aLERT_MAX_VALUE + "]";
+                            if (aLERT_AMT_CHANGE != null && aLERT_AMT_CHANGE != -9999 && e.ALERT_AMT_CHANGE != aLERT_AMT_CHANGE) modTxt += " [AmtChanged changed to " + aLERT_AMT_CHANGE + "]";
+                            db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("MON EDIT", cREATE_USER, null, modTxt, null, _site.ORG_ID);
+                        }
                     }
 
                     if (pAR_METHOD_IDX != null) e.PAR_METHOD_IDX = pAR_METHOD_IDX.ConvertOrDefault<Guid>();
@@ -2453,7 +2499,7 @@ namespace QRESTModel.DAL
 
 
         //*****************FIVE MIN**********************************
-        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT, double? aDJUST_FACTOR, Guid? iMPORT_IDX, string timeType, int tzOffset)
+        public static Guid? InsertT_QREST_DATA_FIVE_MIN(Guid mONITOR_IDX, DateTime dATA_DTTM, string dATA_VALUE, string uNIT_CODE, bool? vAL_IND, string vAL_CD, DateTime? mODIFY_DT, double? aDJUST_FACTOR, Guid? iMPORT_IDX, string timeType, int tzOffset, bool insertOnly = false)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -2489,7 +2535,7 @@ namespace QRESTModel.DAL
                         ctx.T_QREST_DATA_FIVE_MIN.Add(e);
                         ctx.SaveChanges();
                     }
-                    else if (e.DATA_VALUE != dATA_VALUE)
+                    else if (e.DATA_VALUE != dATA_VALUE && insertOnly)    // only update the record if the insertOnly flag is set and the data value has changed
                     {
                         e.DATA_VALUE = dATA_VALUE;
 
@@ -2545,16 +2591,15 @@ namespace QRESTModel.DAL
         }
 
 
-        public static bool InsertT_QREST_DATA_FIVE_MIN_fromLine(string line, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl)
+        public static bool InsertT_QREST_DATA_FIVE_MIN_fromLine(string line, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl, bool insertOnly = false)
         {
             try
             {
-                //initial stuff from config
+                //preview file to determine if tab or comma separated
                 int delComma = line.Split(new char[] { ',' }, StringSplitOptions.None).Count();
                 int delTab = line.Split(new char[] { '\t' }, StringSplitOptions.None).Count();
                 char[] delimiter = delComma > delTab ? new char[] { ',' } : new char[] { '\t' };
 
-                //string delimiter = config.DELIMITER == "C" ? "," : @"\t";
                 string[] cols = line.Split(delimiter);
 
                 if (cols.Length > 1)  //skip blank row
@@ -2562,12 +2607,15 @@ namespace QRESTModel.DAL
                     //date
                     string sDate = cols[config.DATE_COL.GetValueOrDefault() - 1].ToString();
                     string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].ToString();
+                    string dateTimeString = config.DATE_COL.GetValueOrDefault() != config.TIME_COL.GetValueOrDefault()
+                        ? (sDate + " " + sTime).Trim()
+                        : sDate;
 
                     //raw date time coming from logger
                     //get allowed date/time formats
                     string[] allowedFormats = UtilsText.GetDateTimeAllowedFormats(config.DATE_FORMAT, config.TIME_FORMAT);
 
-                    DateTime dt = DateTime.ParseExact(sDate + " " + sTime, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
+                    DateTime dt = DateTime.ParseExact(dateTimeString.Trim(), allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
 
                     foreach (SitePollingConfigDetailType _map in config_dtl)
                     {
@@ -2579,7 +2627,7 @@ namespace QRESTModel.DAL
                         if (val != null && _map.ALERT_MIN_TYPE == "N" && val < _map.ALERT_MIN_VALUE)
                             valCd = "MIN";
 
-                        db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, true, valCd, null, _map.ADJUST_FACTOR, null, config.TIME_POLL_TYPE, config.LOCAL_TIMEZONE.ConvertOrDefault<int>());
+                        db_Air.InsertT_QREST_DATA_FIVE_MIN(_map.MONITOR_IDX, dt, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, true, valCd, null, _map.ADJUST_FACTOR, null, config.TIME_POLL_TYPE, config.LOCAL_TIMEZONE.ConvertOrDefault<int>(), insertOnly);
                     }
                 }
                 return true;
@@ -2591,6 +2639,7 @@ namespace QRESTModel.DAL
             }
 
         }
+
 
         public static List<RawDataDisplay> GetT_QREST_DATA_FIVE_MIN(string org, Guid? site, Guid? mon, DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, int orderBy, string orderDir = "desc", string timeType = "L")
         {
@@ -3337,109 +3386,56 @@ namespace QRESTModel.DAL
         }
 
 
-        public static List<ImportResponse> BulkInsertUpdateT_QREST_DATA_HOURLY(string iMPORT_BLOCK, char[] delimiter, int dateCol, int timeCol, Guid pOLL_CONFIG_IDX, string tIME_POLL_TYPE, int tzOffset, Guid importID)
+
+        public static bool InsertT_QREST_DATA_HOURLY_fromLine(string line, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl, int timeZoneOffset)
         {
-            using (QRESTEntities ctx = new QRESTEntities())
+            try
             {
-                List<ImportResponse> respAll = new List<ImportResponse>();
+                //preview file to determine if tab or comma separated
+                int delComma = line.Split(new char[] { ',' }, StringSplitOptions.None).Count();
+                int delTab = line.Split(new char[] { '\t' }, StringSplitOptions.None).Count();
+                char[] delimiter = delComma > delTab ? new char[] { ',' } : new char[] { '\t' };
 
-                try
+                string[] cols = line.Split(delimiter);
+
+                if (cols.Length > 1)  //skip blank row
                 {
-                    ctx.Configuration.AutoDetectChangesEnabled = false;
+                    //date
+                    string sDate = cols[config.DATE_COL.GetValueOrDefault() - 1].ToString().Replace("\"", "").Trim();
+                    string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].ToString().Replace("\"", "").Trim();
+                    //int timeZoneOffset = config.LOCAL_TIMEZONE.ConvertOrDefault<int>();
+                    string timePollType = config.TIME_POLL_TYPE;
 
-                    //one time initial setup stuff ******************************************
-                    string[] allowedFormats = new[] { "MM/dd/yyyy HH:mm", "M/dd/yyyy HH:mm", "MM/d/yyyy HH:mm", "M/d/yyyy HH:mm", "MM/dd/yyyy H:mm", "M/dd/yyyy H:mm", "MM/d/yyyy H:mm", "M/d/yyyy H:mm" };
+                    //raw date time coming from logger
+                    //get allowed date/time formats
+                    string[] allowedFormats = UtilsText.GetDateTimeAllowedFormats(config.DATE_FORMAT, config.TIME_FORMAT);
 
-                    //get polling config dtl
-                    List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(pOLL_CONFIG_IDX, true);
+                    string dateTimeString = config.DATE_COL.GetValueOrDefault() != config.TIME_COL.GetValueOrDefault()
+                        ? (sDate + " " + sTime).Trim()
+                        : sDate;
+                    DateTime dt = DateTime.ParseExact(dateTimeString, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
 
-                    int currRow = 1;
-                    //loop through each row
-                    foreach (string row in iMPORT_BLOCK.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (SitePollingConfigDetailType _map in config_dtl)
                     {
-                        //split row's columns into string array
-                        string[] cols = row.Split(delimiter, StringSplitOptions.None);
-                        if (cols.Length > 2) //skip blank rows
-                        {
-                            DateTime dt;
+                        //apply N-minute alerts if available
+                        string valCd = "";
+                        Double? val = cols[_map.COL - 1 ?? 0].ToString().ConvertOrDefault<Double?>();
+                        if (val != null && _map.ALERT_MAX_TYPE == "N" && val > _map.ALERT_MAX_VALUE)
+                            valCd = "MAX";
+                        if (val != null && _map.ALERT_MIN_TYPE == "N" && val < _map.ALERT_MIN_VALUE)
+                            valCd = "MIN";
 
-                            if (DateTime.TryParseExact(cols[dateCol] + " " + cols[timeCol], allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-                            {
-                                //***********************************************************************************************
-                                //***********************************************************************************************
-                                //***********************************************************************************************
-                                foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
-                                {
-                                    if (_item.COLLECT_UNIT_CODE != null && !string.IsNullOrEmpty(cols[(_item.COL ?? 1) - 1].ToString()))
-                                    {
-
-                                        bool insInd = false;
-                                        string val = cols[(_item.COL ?? 1) - 1].ToString();
-                                        DateTime dtlocal = tIME_POLL_TYPE == "L" ? dt : dt.AddHours(tzOffset);
-                                        DateTime dtutc = tIME_POLL_TYPE == "U" ? dt : dt.AddHours(tzOffset * (-1));
-
-                                        T_QREST_DATA_HOURLY e = (from c in ctx.T_QREST_DATA_HOURLY
-                                                                 where c.MONITOR_IDX == _item.MONITOR_IDX
-                                                                 && c.DATA_DTTM_LOCAL == dtlocal
-                                                                 select c).FirstOrDefault();
-
-                                        if (e == null)
-                                        {
-                                            insInd = true;
-                                            e = new T_QREST_DATA_HOURLY();
-                                            e.DATA_HOURLY_IDX = Guid.NewGuid();
-                                            e.MONITOR_IDX = _item.MONITOR_IDX;
-                                            e.DATA_DTTM_LOCAL = dtlocal;
-                                            e.DATA_DTTM_UTC = dtutc;
-                                        }
-
-                                        e.DATA_VALUE = double.TryParse(val, out _) ? val : null;
-                                        e.DATA_VALUE_NUM = val.ConvertOrDefault<decimal?>();
-                                        e.UNIT_CODE = _item.COLLECT_UNIT_CODE;
-                                        e.VAL_IND = true;
-                                        e.VAL_CD = double.TryParse(val, out _) ? null : val.SubStringPlus(0, 5);
-                                        if (importID != null) e.IMPORT_IDX = importID;
-                                        e.MODIFY_DT = System.DateTime.Now;
-
-                                        if (insInd)
-                                            ctx.T_QREST_DATA_HOURLY.Add(e);
-
-                                        respAll.Add(new ImportResponse { ROW_NUM = currRow, SuccInd = true, DATA_DTTM = dtlocal, DATA_VALUE = val });
-                                    }
-                                    else
-                                        respAll.Add(new ImportResponse { ROW_NUM = currRow, SuccInd = false, ERROR_MSG = "No collection unit defined for " + _item.PAR_CODE + ". Record not imported." });
-                                    //***********************************************************************************************
-                                    //*********************************END LOOP COLUMNS  **********************************************
-                                    //***********************************************************************************************
-                                }
-
-                            }
-                            else
-                                respAll.Add(new ImportResponse { ROW_NUM = currRow, SuccInd = false, ERROR_MSG = "Date and/or time format cannot be read." });
-
-                            currRow++;
-                        }
-
-                        //***********************************************************************************************
-                        //*********************************END LOOP ROW  **********************************************
-                        //***********************************************************************************************
+                        db_Air.InsertUpdateT_QREST_DATA_HOURLY(_map.MONITOR_IDX, timePollType == "L" ? dt.ConvertOrDefault<DateTime?>() : null, timePollType == "U" ? dt.ConvertOrDefault<DateTime?>() : null, timeZoneOffset, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, true, valCd);
                     }
-
-                    ctx.SaveChanges();
-                    ctx.Configuration.AutoDetectChangesEnabled = true;
-
                 }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    respAll.Add(new ImportResponse { ROW_NUM = 1, SuccInd = false, ERROR_MSG = "Unknown import error." });
-                }
-                finally {
-                    ctx.Configuration.AutoDetectChangesEnabled = true;
-                }
-                return respAll;
-
+                return true;
             }
+            catch (Exception ex)
+            {
+                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", "Site " + config.SITE_ID + " " + ex.Message ?? ex.InnerException?.ToString());
+                return false;
+            }
+
         }
 
 
@@ -3729,7 +3725,7 @@ namespace QRESTModel.DAL
                                 SITE_ID = b.SITE_ID,
                                 SITE_NAME = b.SITE_NAME,
                                 SUBMITTER = u.FNAME + " " + u.LNAME,
-                                COUNT = (a.IMPORT_TYPE == "H" || a.IMPORT_TYPE == "H1") ? (from h in ctx.T_QREST_DATA_HOURLY where h.IMPORT_IDX == a.IMPORT_IDX select h).Count() : 
+                                COUNT = (a.IMPORT_TYPE == "H" || a.IMPORT_TYPE == "H1" || a.IMPORT_TYPE=="A") ? (from h in ctx.T_QREST_DATA_HOURLY where h.IMPORT_IDX == a.IMPORT_IDX select h).Count() : 
                                 a.IMPORT_TYPE == "F" ? (from h in ctx.T_QREST_DATA_FIVE_MIN where h.IMPORT_IDX == a.IMPORT_IDX select h).Count() : 0
                             }).ToList();
                 }
@@ -3833,7 +3829,7 @@ namespace QRESTModel.DAL
 
 
                     DateTime dtRaw;
-                    if (DateTime.TryParseExact(dateTimeString.Trim(), allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dtRaw))
+                    if (DateTime.TryParseExact(dateTimeString.Replace("\"", "").Trim(), allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dtRaw))
                     {
                         f.DATA_DTTM_UTC = (timePollType == "U" ? dtRaw : dtRaw.AddHours(timeZoneOffset * (-1)));
                         f.DATA_DTTM_LOCAL = (timePollType == "L" ? dtRaw : dtRaw.AddHours(timeZoneOffset));
@@ -3908,7 +3904,7 @@ namespace QRESTModel.DAL
         }
 
 
-        public static bool BulkInsertT_QREST_DATA_IMPORT_TEMP_H(string[] bulkImportRows, T_QREST_SITE_POLL_CONFIG _pollConfig, string UserIDX, Guid iMPORT_IDX, string[] allowedFormats)
+        public static bool BulkInsertT_QREST_DATA_IMPORT_TEMP_H(string[] bulkImportRows, T_QREST_SITE_POLL_CONFIG _pollConfig, string UserIDX, Guid iMPORT_IDX, string[] allowedFormats, int timeZoneOffset)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -3928,12 +3924,10 @@ namespace QRESTModel.DAL
                     int delTab = bulkImportRows[0].Split(new char[] { '\t' }, StringSplitOptions.None).Count();
                     char[] delimiter = delComma > delTab ? new char[] { ',' } : new char[] { '\t' };
 
-                    //char[] delimiter = _pollConfig.DELIMITER == "C" ? new char[] { ',' } : new char[] { '\t' };
-
 
                     int dateCol = (_pollConfig.DATE_COL ?? 2) - 1;
                     int timeCol = (_pollConfig.TIME_COL ?? 3) - 1;
-                    int timeZoneOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
+                    //int timeZoneOffset = _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>();
                     string timePollType = _pollConfig.TIME_POLL_TYPE;
 
 
@@ -3941,9 +3935,11 @@ namespace QRESTModel.DAL
                     {
                         //split row's columns into string array
                         string[] cols = row.Split(delimiter, StringSplitOptions.None);
-                        if (cols.Length > 2) //skip blank rows
+                        if (cols.Length > 1) //skip blank rows
                         {
-                            string dateTimeString = (cols[dateCol].Trim() + " " + cols[timeCol].Trim()).Trim();
+                            string dateTimeString = dateCol != timeCol 
+                                ? (cols[dateCol].Replace("\"", "").Trim() + " " + cols[timeCol].Replace("\"", "").Trim()).Trim() 
+                                : cols[dateCol].Replace("\"", "").Trim();
 
                             foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                             {
@@ -3961,8 +3957,7 @@ namespace QRESTModel.DAL
                                     IMPORT_DUP_IND = false,
                                     IMPORT_IDX = iMPORT_IDX
                                 };
-
-
+                                
                                 if (DateTime.TryParseExact(dateTimeString, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtRaw))
                                 {
                                     if (dtRaw.Second != 0)
@@ -4029,6 +4024,114 @@ namespace QRESTModel.DAL
 
                     //if (iCount > 0)
 
+                    ctx.SaveChanges();
+
+                    //now update for duplicates
+                    ctx.Database.ExecuteSqlCommand("UPDATE T set IMPORT_DUP_IND=1, DATA_ORIG_TABLE_IDX=H.DATA_HOURLY_IDX FROM T_QREST_DATA_IMPORT_TEMP T JOIN T_QREST_DATA_HOURLY H on T.MONITOR_IDX = H.MONITOR_IDX and T.DATA_DTTM_LOCAL = H.DATA_DTTM_LOCAL where T.IMPORT_IDX = '" + iMPORT_IDX + "'");
+
+                    //return whether any dups or errors
+                    return GetT_QREST_DATA_IMPORT_TEMP_DupCount(iMPORT_IDX) > 0 || GetT_QREST_DATA_IMPORT_TEMP_ErrorCount(iMPORT_IDX) > 0;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return true;
+                }
+                finally
+                {
+                    ctx.Configuration.AutoDetectChangesEnabled = true;
+                }
+            }
+        }
+
+
+        public static bool BulkInsertT_QREST_DATA_IMPORT_TEMP_AQS_RD(string[] bulkImportRows, string UserIDX, Guid iMPORT_IDX, Guid mONITOR_IDX, int timeZoneOffset)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var _impList = new List<T_QREST_DATA_IMPORT_TEMP>();
+
+                    ctx.Configuration.AutoDetectChangesEnabled = false;
+
+                    char[] delimiter = new char[] { '|' };                    
+
+                    foreach (string row in bulkImportRows)
+                    {
+                        //split row's columns into string array
+                        string[] cols = row.Split(delimiter, StringSplitOptions.None);
+                        if (cols.Length > 1 && cols[0].SubStringPlus(0,1) != "#") //skip blank rows
+                        {
+                            T_QREST_DATA_IMPORT_TEMP f = new T_QREST_DATA_IMPORT_TEMP
+                            {
+                                DATA_IMPORT_TEMP_IDX = Guid.NewGuid(),
+                                IMPORT_USER_IDX = UserIDX,
+                                MONITOR_IDX = mONITOR_IDX,
+                                UNIT_CODE = cols[8].Trim(),
+                                IMPORT_DT = System.DateTime.Now,
+                                IMPORT_VAL_IND = true,
+                                IMPORT_DUP_IND = false,
+                                IMPORT_IDX = iMPORT_IDX
+                            };
+
+                            string dateTimeString = cols[10].Trim() + " " + cols[11].Trim();
+
+
+                            //storing/validating date and time
+                            if (DateTime.TryParseExact(dateTimeString, "yyyyMMdd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtRaw))
+                            {
+                                f.DATA_DTTM_UTC = dtRaw.AddHours(timeZoneOffset * (-1));
+                                f.DATA_DTTM_LOCAL = dtRaw;
+                            }
+                            else
+                            {
+                                f.IMPORT_VAL_IND = false;
+                                f.IMPORT_MSG = "Datetime cannot be read";
+                            }
+
+                            //storing data value and numeric version
+                            string dATA_VALUE = cols[12].Trim();
+                            if (Decimal.TryParse(dATA_VALUE, out decimal val_num))
+                            {
+                                f.DATA_VALUE = dATA_VALUE;
+                                f.DATA_VALUE_NUM = val_num;
+                            }
+                            else  //non-numeric
+                            {
+                                dATA_VALUE = dATA_VALUE.Replace("*", "");
+
+                                //fail if non-numeric too long
+                                if (dATA_VALUE.Length > 5)
+                                {
+                                    f.IMPORT_VAL_IND = false;
+                                    f.IMPORT_MSG = "Non-numeric and string length > 5";
+                                }
+                                //save as AQS Null Code if matched
+                                else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNull(dATA_VALUE))
+                                    f.AQS_NULL_CODE = dATA_VALUE;
+                                //lookup AQS Qual Codes
+                                else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNotNull(dATA_VALUE))
+                                    f.AQS_QUAL_CODES = dATA_VALUE;
+                                else
+                                    f.VAL_CD = dATA_VALUE;
+                            }
+
+                            //special AQS handling of storing AQS NULL CODE
+                            if (cols[13].Trim() != "")
+                                f.AQS_NULL_CODE = cols[13].Trim();
+
+                            //special AQS handling of storing AQS QUALIFIER CODE
+                            if (cols[16].Trim() != "")
+                                f.AQS_QUAL_CODES = cols[16].Trim();
+
+
+                            _impList.Add(f);
+
+                        }
+                    }
+
+                    ctx.BulkInsert<T_QREST_DATA_IMPORT_TEMP>(_impList);
                     ctx.SaveChanges();
 
                     //now update for duplicates

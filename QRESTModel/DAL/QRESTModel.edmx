@@ -521,7 +521,7 @@
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
           <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
-          <Property Name="CONFIG_NAME" Type="varchar" MaxLength="20" />
+          <Property Name="CONFIG_NAME" Type="varchar" MaxLength="40" />
           <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="CONFIG_DESC" Type="varchar" MaxLength="200" />
         </EntityType>
@@ -572,6 +572,7 @@
           <Property Name="AIRNOW_PWD" Type="varchar" MaxLength="50" />
           <Property Name="AIRNOW_ORG" Type="varchar" MaxLength="3" />
           <Property Name="AIRNOW_SITE" Type="varchar" MaxLength="10" />
+          <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG">
           <Key>
@@ -2852,7 +2853,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="LOCAL_TIMEZONE" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="T_QREST_REF_DURATION" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_D" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_REF_DURATION" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG_DTL" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_DTL_P" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITE_POLL_CONFIG_DTL" />
-          <Property Name="CONFIG_NAME" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CONFIG_NAME" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="TIME_POLL_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
           <Property Name="CONFIG_DESC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
@@ -3084,6 +3085,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_REF_COUNTY" Relationship="QRESTModel.FK_T_QREST_SITES_C" FromRole="T_QREST_SITES" ToRole="T_QREST_REF_COUNTY" />
           <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_NOTIFY" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_POLL_CONFIG" />
+          <Property Name="LOCAL_TIMEZONE" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_T_QREST_AQS_S">
           <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
@@ -4307,6 +4309,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_SITES">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITES">
               <MappingFragment StoreEntitySet="T_QREST_SITES">
+                <ScalarProperty Name="LOCAL_TIMEZONE" ColumnName="LOCAL_TIMEZONE" />
                 <ScalarProperty Name="AIRNOW_SITE" ColumnName="AIRNOW_SITE" />
                 <ScalarProperty Name="AIRNOW_ORG" ColumnName="AIRNOW_ORG" />
                 <ScalarProperty Name="AIRNOW_PWD" ColumnName="AIRNOW_PWD" />

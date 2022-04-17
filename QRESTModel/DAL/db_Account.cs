@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using QRESTModel.BLL;
 
 namespace QRESTModel.DAL
@@ -214,6 +215,124 @@ namespace QRESTModel.DAL
                 {
                     logEF.LogEFException(ex);
                     return null;
+                }
+            }
+        }
+
+
+
+        //***************** T_QREST_ORG_EMAIL_RULE ***************************************        
+        /// <summary>
+        /// Returns all allowable email partial strings for an organization
+        /// </summary>
+        /// <param name="oRG_ID"></param>
+        /// <returns></returns>
+        public static List<T_QREST_ORG_EMAIL_RULE> GetT_QREST_ORG_EMAIL_RULE(string oRG_ID)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from e in ctx.T_QREST_ORG_EMAIL_RULE.AsNoTracking()
+                            where e.ORG_ID == oRG_ID
+                            orderby e.EMAIL_STRING
+                            select e).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static bool IsValidT_QREST_ORG_EMAIL(string email, string orgid)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var domain = Regex.Match(email, "@(.*)").Groups[1].Value;
+
+                    return (from a in ctx.T_QREST_ORG_EMAIL_RULE
+                            where a.ORG_ID == orgid
+                            && a.EMAIL_STRING.ToUpper() == domain.ToUpper()
+                            select a).Any();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    throw ex;
+                }
+            }
+        }
+
+        public static bool InsertUpdateT_QREST_ORG_EMAIL_RULE(string oRG_ID, string eMAIL_RULE, string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    bool insInd = false;
+
+                    T_QREST_ORG_EMAIL_RULE e = (from c in ctx.T_QREST_ORG_EMAIL_RULE
+                                                where c.ORG_ID == oRG_ID
+                                                && c.EMAIL_STRING == eMAIL_RULE
+                                                select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_QREST_ORG_EMAIL_RULE
+                        {
+                            ORG_ID = oRG_ID,
+                            EMAIL_STRING = eMAIL_RULE,
+                            MODIFY_DT = System.DateTime.Now,
+                            MODIFY_USER_IDX = cREATE_USER
+                        };
+                    }
+                    else
+                    {
+                        e.MODIFY_DT = System.DateTime.Now;
+                        e.MODIFY_USER_IDX = cREATE_USER;
+                    }
+
+                    if (insInd)
+                        ctx.T_QREST_ORG_EMAIL_RULE.Add(e);
+
+                    ctx.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+        public static int DeleteT_QREST_ORG_EMAIL_RULE(string orgid, string email_rule)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    ctx.Database.ExecuteSqlCommand("DELETE FROM T_QREST_ORG_EMAIL_RULE WHERE ORG_ID = {0} and EMAIL_STRING = {1}", orgid, email_rule);
+                    //T_QREST_ORG_EMAIL_RULE rec = (from u in ctx.T_QREST_ORG_EMAIL_RULE.AsNoTracking()
+                    //                         where u.ORG_ID == orgid
+                    //                         && u.EMAIL_STRING == email_rule
+                    //                         select u).FirstOrDefault();
+
+                    //ctx.T_QREST_ORG_EMAIL_RULE.Remove(rec);
+                    //ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
                 }
             }
         }
@@ -803,6 +922,7 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
 
 
 

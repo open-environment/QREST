@@ -5,6 +5,7 @@ GO
 --TRIGGERS *******************************************************************************************************
 --TRIGGERS *******************************************************************************************************
 --TRIGGERS *******************************************************************************************************
+/****** Object:  Trigger [dbo].[TRG_UPDATE_HOURLY]    Script Date: 4/1/2022 6:30:05 PM ******/
 CREATE OR ALTER   TRIGGER [dbo].[TRG_UPDATE_HOURLY] ON [dbo].[T_QREST_DATA_FIVE_MIN]
 AFTER INSERT, UPDATE 
 AS
@@ -17,10 +18,12 @@ BEGIN
 	--                     prevent upate if modify date = 8/8/1888 (used to flag no hourly calc)
 	--2/23/2020 DOUG TIMMS add calculation of TOT
 	--6/4/2020 DOUG TIMMS add numeric data value storage
+	--4/1/2022 DOUG TIMMS change storage of timezone from poll config to site
 
 	DECLARE @SumType varchar(4);
 	DECLARE @SumTemp float;
 	DECLARE @mon uniqueidentifier;
+	DECLARE @sit uniqueidentifier;
 	DECLARE @dttm datetime; --UTC
 	DECLARE @sumVal varchar(20);
 	DECLARE @unit varchar(3);
@@ -40,11 +43,13 @@ BEGIN
 
 
 		--get summary type to calculate
-		select @SumType=D.SUM_TYPE, @tz=C.LOCAL_TIMEZONE, @precision=D.ROUNDING
+		select @SumType=D.SUM_TYPE, @sit=C.SITE_IDX, @precision=D.ROUNDING
 		from T_QREST_SITE_POLL_CONFIG C, T_QREST_SITE_POLL_CONFIG_DTL D 
 		where C.POLL_CONFIG_IDX = D.POLL_CONFIG_IDX
 		and C.ACT_IND=1
 		and D.MONITOR_IDX = @mon;
+
+		select @tz=S.LOCAL_TIMEZONE from T_QREST_SITES S where S.SITE_IDX=@sit;
 
 		if (@SumType IS NOT NULL and @tz IS NOT NULL)
 		BEGIN
@@ -157,11 +162,9 @@ BEGIN
 
 END
 
+
+
 GO
-
-
-
-
 
 --VIEWS *******************************************************************************************************
 --VIEWS *******************************************************************************************************
@@ -232,6 +235,7 @@ BEGIN
 	--11/19/2019 fix sql for JUMP
 	--12/16/2019 blank out LOST if subsequent data comes in
 	--6/4/2020 tweak LOST to only happen if data is missing for more than 2 hours
+	--4/1/2022 change location of time zone to site table
 
 	SET NOCOUNT ON;  
   
@@ -253,7 +257,7 @@ BEGIN
 	--, M.PAR_METHOD_IDX, M.POC, M.DURATION_CODE, M.COLLECT_UNIT_CODE, M.ALERT_MIN_TYPE, M.ALERT_MAX_VALUE, M.ALERT_AMT_CHANGE, 
 	--M.ALERT_STUCK_REC_COUNT, M.ALERT_MIN_TYPE, M.ALERT_MAX_TYPE, M.ALERT_AMT_CHANGE_TYPE, M.ALERT_STUCK_TYPE, P.RAW_DURATION_CODE, P.LOCAL_TIMEZONE, PD.SUM_TYPE, PD.ROUNDING
 	, (select min(DATA_DTTM_UTC) from T_QREST_DATA_HOURLY where MONITOR_IDX=M.MONITOR_IDX)
-	, P.LOCAL_TIMEZONE
+	, S.LOCAL_TIMEZONE
 	, M.ALERT_MIN_TYPE, M.ALERT_MIN_VALUE
 	, M.ALERT_MAX_TYPE, M.ALERT_MAX_VALUE
 	, M.ALERT_AMT_CHANGE_TYPE, M.ALERT_AMT_CHANGE
@@ -827,7 +831,7 @@ BEGIN
 	--20200702 fix updating import_idx
 	--20200703 fix table naming
 	--20201117 added forcing hourly data rounded to nearest hour
-
+	--20220404 added AQS "A" import type
 
 	--get summary type to calculate
 	select @import_typ=T.IMPORT_TYPE, @recalc_ind=T.RECALC_IND
@@ -837,7 +841,7 @@ BEGIN
 	--initialize importing status
 	UPDATE T_QREST_DATA_IMPORTS set SUBMISSION_STATUS='IMPORTING' where IMPORT_IDX = @import_idx;
 
-	if (@import_typ = 'H' or @import_typ = 'H1')
+	if (@import_typ = 'H' or @import_typ = 'H1' or @import_typ = 'A')
 	BEGIN
 		-- HANDLING HOURLY UPDATED RECORDS
 		UPDATE H SET

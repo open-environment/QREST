@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using QRESTModel.COMM;
 
 namespace QREST.Controllers
 {
@@ -315,6 +316,7 @@ namespace QREST.Controllers
                 model.edit_typ = "org";
 
                 model.org_users = db_Account.GetT_QREST_ORG_USERS_ByOrgID(model.ORG_ID, null, null);
+                model.org_emails = db_Account.GetT_QREST_ORG_EMAIL_RULE(model.ORG_ID);
             }
 
             return View(model);
@@ -369,7 +371,14 @@ namespace QREST.Controllers
                 Guid? succId = db_Account.InsertUpdateT_QREST_ORG_USERS(model.edit_user_idx, model.edit_org_id, model.edit_org_user_access_level, model.edit_org_user_status, "");
 
                 if (succId != null)
+                {
+                    //also update user activity log
+                    string UserIDX = User.Identity.GetUserId();  //lookup user
+                    var user = db_Account.GetT_QREST_USERS_ByID(UserIDX);
+                    db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("ORG EDIT", UserIDX, null, "Edit org access for " + (user != null ? user.Email : "unknown") + " at " + model.edit_org_id, GetIP.GetLocalIPAddress(System.Web.HttpContext.Current), model.edit_org_id);
+
                     TempData["Success"] = "Record updated";
+                }
                 else
                     TempData["Error"] = "Error updating record.";
             }
@@ -382,6 +391,27 @@ namespace QREST.Controllers
             else
                 return RedirectToAction("UserEdit", "Admin", new { id = model.edit_user_idx });
         }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult OrgEditEmail(vmAdminOrgEditEmail model)
+        {
+            if (ModelState.IsValid)
+            {
+                string userId = User.Identity.GetUserId();
+                bool succInd = db_Account.InsertUpdateT_QREST_ORG_EMAIL_RULE(model.edit_org_id, model.edit_email_rule, userId);
+
+                if (succInd)
+                    TempData["Success"] = "Record updated";
+                else
+                    TempData["Error"] = "Error updating record.";
+            }
+            else
+                TempData["Error"] = "Error updating record.";
+            
+            return RedirectToAction("OrgEdit", "Admin", new { id = model.edit_org_id });
+        }
+
 
         [HttpPost]
         public JsonResult UserOrgDelete(string id)
@@ -399,6 +429,26 @@ namespace QREST.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">id is org id</param>
+        /// <param name="id2">id2 is email rule</param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult OrgEmailDelete(string id, string id2)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int SuccID = db_Account.DeleteT_QREST_ORG_EMAIL_RULE(id, id2);
+                if (SuccID == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to find record to delete.");
+            }
+        }
 
 
         //************************************* USERS ************************************************************
@@ -642,6 +692,11 @@ namespace QREST.Controllers
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
 
+        public ActionResult LogActivity()
+        {
+            var model = new vmSharedLogActivity();
+            return View(model);
+        }
 
         public ActionResult LogEmail()
         {
@@ -668,37 +723,6 @@ namespace QREST.Controllers
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
 
-
-        public ActionResult LogActivity()
-        {
-            var model = new vmAdminLogActivity();
-            return View(model);
-        }
-        /// <summary>
-        /// Ajax call from Admin/LogActivity view
-        /// and Site/ViewChangeLog view
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        public ActionResult LogActivityData()
-        {
-            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
-            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
-            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
-            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
-            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
-
-            //date filters
-            DateTime? minDate = Request.Form.GetValues("mini")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
-            DateTime? maxDate = Request.Form.GetValues("maxi")?.FirstOrDefault().ConvertOrDefault<DateTime?>();
-            String supportid = Request.Form.GetValues("supportid")?.FirstOrDefault().ConvertOrDefault<String>();
-
-            var data = db_Ref.GetT_QREST_SYS_LOG_ACTIVITY(supportid, minDate, maxDate, pageSize, start, orderColName, orderDir);
-            var recordsTotal = db_Ref.GetT_QREST_SYS_LOG_ACTIVITYcount(supportid, minDate, maxDate);
-
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
-        }
 
 
 
@@ -1140,61 +1164,11 @@ namespace QREST.Controllers
         public ActionResult Testing()
         {
 
-            //List<AIRNOW_LAST_HOUR> _recs = db_Air.GetAIRNOW_LAST_HOUR();
-            //if (_recs != null)
-            //{
-            //    foreach (AIRNOW_LAST_HOUR _rec in _recs)
-            //    {
 
-            //    }
-            //}
             return View();
         }
 
 
-        //public ActionResult HourlyPollValidation()
-        //{
-        //    //this is where logic for the task goes
-        //    db_Air.SP_VALIDATE_HOURLY();
-
-        //    //then send out notifications
-        //    List<string> NotifyUsers = db_Air.GetT_QREST_DATA_HOURLY_NotificationUsers();
-        //    foreach (string u in NotifyUsers)
-        //    {
-        //        string msg = "" + Environment.NewLine;
-        //        List<RawDataDisplay> notifies = db_Air.GetT_QREST_DATA_HOURLY_NotificationsListForUser(u);
-        //        foreach (RawDataDisplay n in notifies)
-        //        {
-        //            msg += n.SITE_ID + ": " + n.PAR_NAME + ": " + n.VAL_CD + " alert." + Environment.NewLine;
-        //        }
-
-        //        var emailParams = new Dictionary<string, string> {{"notifyMsg", msg}};
-        //        QRESTModel.BLL.UtilsNotify.NotifyUser(u, null, null, null, null, "POLLING_ALERT", emailParams, null);
-        //    }
-
-        //    //then update all records to notified
-        //    List<T_QREST_DATA_HOURLY> xxx = db_Air.GetT_QREST_DATA_HOURLY_NotNotified();
-        //    foreach (T_QREST_DATA_HOURLY xx in xxx)
-        //    {
-        //        db_Air.UpdateT_QREST_DATA_HOURLY_Notified(xx.DATA_HOURLY_IDX);
-        //    }
-
-        //    return View("Testing");
-        //}
-
-        //public ActionResult AirNow()
-        //{
-        //    using (var client = new WebClient())
-        //    {
-        //        string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
-        //        string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
-
-        //        client.Credentials = new System.Net.NetworkCredential(ftpUser, ftpPwd);
-        //        client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/202002261403_840.TRX", WebRequestMethods.Ftp.UploadFile, @"C:\temp\202002261403_840.TRX");
-        //    }
-
-        //    return View("Testing");
-        //}
 
     }
 }

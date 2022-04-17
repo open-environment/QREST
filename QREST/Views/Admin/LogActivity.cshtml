@@ -1,4 +1,4 @@
-﻿@model QREST.Models.vmAdminLogActivity
+﻿@model QREST.Models.vmSharedLogActivity
 @{
     ViewBag.Title = "Activity Log";
     ViewBag.SubTitle = "View a log of user activity in QREST.";
@@ -58,7 +58,7 @@
                 "info": false,
                 "searching": false,
                 "ajax": {
-                    "url": "@Url.Action("LogActivityData", "Admin")",
+                    "url": "@Url.Action("LogActivityData", "Shared")",
                     "type": "POST",
                     "datatype": "json",
                     "data": function (d) {

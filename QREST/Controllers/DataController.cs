@@ -51,7 +51,6 @@ namespace QREST.Controllers
                 ddl_PollConfig = new List<SelectListItem>(),
                 ddl_ImportType = ddlHelpers.get_ddl_import_type(),
                 ddl_Time = ddlHelpers.get_ddl_time_type(),
-                ddl_TimeZone = ddlHelpers.get_ddl_time_zone(),
                 ddl_Calc = ddlHelpers.get_ddl_yes_no(),
                 selTimeType = "L"
             };
@@ -92,8 +91,8 @@ namespace QREST.Controllers
             //*********model validation for H1 *************************
             if (model.selImportType == "H1" && model.selMonitor==null)
                 ModelState.AddModelError("selMonitor", "Parameter required for this import type.");
-            if (model.selImportType == "H1" && string.IsNullOrEmpty(model.selTimeZone))
-                ModelState.AddModelError("selTimeZone", "Local Time Zone required for this import type.");
+
+
 
             //*********model validation for H and F *************************
             if (model.selImportType == "H" || model.selImportType == "F")
@@ -119,6 +118,10 @@ namespace QREST.Controllers
                         ModelState.AddModelError("selPollConfig", "One or more parameters in your import configuration do not have a unit or column specified.");
                 }
             }
+
+            //*********model validation for A (AQS) *************************
+            if (model.selImportType == "A" && model.selMonitor == null)
+                ModelState.AddModelError("selMonitor", "Parameter required for this import type.");
             //**********************************************************************************************
             //*********************** END MODEL VALIDATION *************************************************
             //**********************************************************************************************
@@ -129,9 +132,9 @@ namespace QREST.Controllers
 
             if (ModelState.IsValid)
             {
-                //insert/update POLL_CONFIG if H1 with default timezone and time type
+                //insert/update POLL_CONFIG if H1 with default time type (local/UTC)
                 if (model.selImportType == "H1")
-                    model.selPollConfig = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(null, model.selSite, "H1", null, "H1", null, null, null, null, null, null, null, null, null, model.selTimeZone, false, UserIDX, null, model.selTimeType, false);
+                    model.selPollConfig = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(null, model.selSite, "H1", null, "H1", null, null, null, null, null, null, null, null, null, null, false, UserIDX, null, model.selTimeType, false);
 
                 //create a new import tracking record, storing the import data block and setting status to STARTED
                 Guid? importIDX = db_Air.InsertUpdateT_QREST_DATA_IMPORTS(Guid.NewGuid(), model.selOrgID, model.selSite, "", "STARTED", UserIDX, System.DateTime.Now, model.IMPORT_BLOCK,
@@ -160,7 +163,6 @@ namespace QREST.Controllers
             //if got this far, import errors occurred; reinitialize model
             model.ddl_ImportType = ddlHelpers.get_ddl_import_type();
             model.ddl_Time = ddlHelpers.get_ddl_time_type();
-            model.ddl_TimeZone = ddlHelpers.get_ddl_time_zone();
             model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
             model.ddl_Sites = model.selOrgID == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_my_sites(model.selOrgID, UserIDX);
             model.ddl_Monitors = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_monitors_by_site(model.selSite, true, false);
@@ -216,8 +218,10 @@ namespace QREST.Controllers
                     model.editDATE_FORMAT = _config.DATE_FORMAT;
                     model.editTIME_COL = _config.TIME_COL;
                     model.editTIME_FORMAT = _config.TIME_FORMAT;
-                    model.editLOCAL_TIMEZONE = _config.LOCAL_TIMEZONE;
                     model.editTIME_POLL_TYPE = _config.TIME_POLL_TYPE;
+                    T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(_config.SITE_IDX);
+                    if (_site != null)
+                        model.LOCAL_TIMEZONE = _site.LOCAL_TIMEZONE;
                 }
                 else
                 {
@@ -258,7 +262,7 @@ namespace QREST.Controllers
 
                 Guid? SuccID = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, null, "NONE",
                     null, null, null, null, model.editDELIMITER, model.editDATE_COL, model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, 
-                    model.editLOCAL_TIMEZONE, false, UserIDX, null, model.editTIME_POLL_TYPE, false, null, model.editCONFIG_DESC);
+                    null, false, UserIDX, null, model.editTIME_POLL_TYPE, false, null, model.editCONFIG_DESC);
 
                 if (SuccID != null)
                 {
@@ -813,6 +817,8 @@ namespace QREST.Controllers
             {
                 DateTime? d1 = d[0].ConvertOrDefault<DateTime?>();
                 DateTime? d2 = (d.Length > 1) ? d[1].ConvertOrDefault<DateTime?>() : null;
+                TimeSpan? span = d2 - d1;
+                //model.totHoursDuration = span.GetValueOrDefault().TotalHours;
 
                 if (model.selType == "H")
                 {
@@ -1041,7 +1047,7 @@ namespace QREST.Controllers
                 }
 
 
-                db_Air.SP_FILL_LOST_DATA(sDate, eDate, model.monitor.T_QREST_MONITORS.MONITOR_IDX, _config.LOCAL_TIMEZONE);
+                db_Air.SP_FILL_LOST_DATA(sDate, eDate, model.monitor.T_QREST_MONITORS.MONITOR_IDX, _site.LOCAL_TIMEZONE);
 
                 TempData["Success"] = "Missing data added.";
                 return RedirectToAction("DataReviewSummary", new { id = _site.SITE_IDX, month = model.selMonth, year = model.selYear });
@@ -1755,6 +1761,22 @@ namespace QREST.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public JsonResult FetchMonitorsWithDatabyPollFreq(string ID, string pollFreq)
+        {
+            if (pollFreq == "H")  //5 min data
+            {
+                var data = ddlHelpers.get_monitors_sampled_five_min_by_org(ID);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                var data = ddlHelpers.get_monitors_sampled_by_org(ID);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
 
         [HttpGet]
         public JsonResult FetchMonitorsQC(string qctyp)
@@ -1763,7 +1785,7 @@ namespace QREST.Controllers
             var data = ddlHelpers.get_monitors_sampled_by_user_qc_type(UserIDX, qctyp);
 
             if (data.Count() == 0)
-                data = ddlHelpers.get_monitors_sampled_by_user(UserIDX);
+                data = ddlHelpers.get_monitors_sampled_by_user(UserIDX, null);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 

@@ -91,7 +91,9 @@ namespace QREST.Models
 
 
         public List<UserOrgDisplayType> org_users { get; set; }
+        public List<T_QREST_ORG_EMAIL_RULE> org_emails { get; set; }
 
+        //dropdownlist lookups
         public IEnumerable<SelectListItem> ddl_State { get; set; }
         public IEnumerable<SelectListItem> ddl_Region { get; set; }
         public IEnumerable<SelectListItem> ddl_AqsAgency { get; set; }
@@ -99,12 +101,15 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_user_status { get; set; }
         public IEnumerable<SelectListItem> ddl_user_role { get; set; }
 
-        //org user
+        //org user editing
         public string edit_typ { get; set; }
         public string edit_org_id { get; set; }
         public string edit_user_idx { get; set; }
         public string edit_org_user_status { get; set; }
         public string edit_org_user_access_level { get; set; }
+
+        //email rule editing
+        public string edit_email_rule { get; set; }
 
         public vmAdminOrgEdit()
         {
@@ -129,6 +134,13 @@ namespace QREST.Models
         public string edit_org_user_status { get; set; }
         [Required]
         public string edit_org_user_access_level { get; set; }
+    }
+
+    public class vmAdminOrgEditEmail {
+        [Required]
+        public string edit_org_id { get; set; }
+        [Required]
+        public string edit_email_rule { get; set; }
     }
 
     // ******************************** USERS ************************************
@@ -185,14 +197,7 @@ namespace QREST.Models
     }
 
 
-    // ******************************** LOGGING***********************************
-    //****************************************************************************
-    //****************************************************************************
-    public class vmAdminLogActivity
-    {
-        public string SITE_IDX { get; set; }
-        public string POLL_CONFIG_IDX { get; set; }
-    }
+
 
 
     // ******************************** IMPORT************************************

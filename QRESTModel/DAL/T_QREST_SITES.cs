@@ -56,6 +56,7 @@ namespace QRESTModel.DAL
         public string AIRNOW_PWD { get; set; }
         public string AIRNOW_ORG { get; set; }
         public string AIRNOW_SITE { get; set; }
+        public string LOCAL_TIMEZONE { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_AQS> T_QREST_AQS { get; set; }

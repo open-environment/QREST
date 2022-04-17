@@ -2195,47 +2195,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<LogDisplayType> GetT_QREST_SYS_LOG_ACTIVITY(string supportingID, DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    if (String.IsNullOrEmpty(supportingID)) supportingID = "";
-                    DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
-                    DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
-
-                    var query = from a in ctx.T_QREST_SYS_LOG_ACTIVITY
-                                 join d in ctx.T_QREST_USERS on a.ACTIVITY_USER equals d.USER_IDX into lj
-                                 from d in lj.DefaultIfEmpty() //left join on user
-                                 where a.ACTIVITY_DT >= DateFromDt
-                                 && a.ACTIVITY_DT <= DateToDt
-                                 select new LogDisplayType
-                                 {
-                                     LOG_ID = a.LOG_ACTIVITY_IDX,
-                                     LOG_DT = a.ACTIVITY_DT,
-                                     LOG_TYP = a.ACTIVITY_TYPE,
-                                     LOG_USERID = a.ACTIVITY_USER,
-                                     LOG_MSG = a.ACTIVITY_DESC,
-                                     LOG_USER_NAME = d.Email,
-                                     LOG_IP_ADDRESS = a.IP_ADDRESS,
-                                     SUPPORTING_ID = a.SUPPORTING_ID
-                                 };
-                    if(supportingID != "")
-                        query = query.Where(x => x.SUPPORTING_ID == supportingID);
-
-                    var result = query.Select(p => p).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    throw ex;
-                }
-            }
-        }
-
-        public static int GetT_QREST_SYS_LOG_ACTIVITYcount(string supportingID, DateTime? DateFrom, DateTime? DateTo)
+        public static List<LogDisplayType> GetT_QREST_SYS_LOG_ACTIVITY(string supportingID, string orgID, DateTime? DateFrom, DateTime? DateTo, int pageSize, int? skip, string orderBy, string orderDir = "asc")
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -2261,18 +2221,84 @@ namespace QRESTModel.DAL
                                     LOG_IP_ADDRESS = a.IP_ADDRESS,
                                     SUPPORTING_ID = a.SUPPORTING_ID
                                 };
-                    if (supportingID != "")
+
+                    if (!string.IsNullOrEmpty(supportingID))
                         query = query.Where(x => x.SUPPORTING_ID == supportingID);
 
-                    return query.Select(p => p).Count();
-                   
+                    if (!string.IsNullOrEmpty(orgID))
+                    {
+                        //get listing of all poll_config_id for this org
+                        var poll_configs = (from spc in ctx.T_QREST_SITE_POLL_CONFIG
+                                            join s in ctx.T_QREST_SITES on spc.SITE_IDX equals s.SITE_IDX
+                                            where s.ORG_ID == orgID
+                                            select spc.POLL_CONFIG_IDX.ToString()).ToList();
+
+                        query = query.Where(x => poll_configs.Contains(x.SUPPORTING_ID) || x.SUPPORTING_ID == orgID);
+                    }
+
+                    return query.Select(p => p).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+
                 }
                 catch (Exception ex)
                 {
+                    logEF.LogEFException(ex);
                     throw ex;
                 }
             }
         }
+
+        public static int GetT_QREST_SYS_LOG_ACTIVITYcount(string supportingID, string orgID, DateTime? DateFrom, DateTime? DateTo)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    if (String.IsNullOrEmpty(supportingID)) supportingID = "";
+                    DateTime DateFromDt = (DateFrom == null ? System.DateTime.Today.AddYears(-10) : new DateTime(DateFrom.ConvertOrDefault<DateTime>().Year, DateFrom.ConvertOrDefault<DateTime>().Month, DateFrom.ConvertOrDefault<DateTime>().Day, 0, 0, 0));
+                    DateTime DateToDt = (DateTo == null ? System.DateTime.Today.AddYears(1) : new DateTime(DateTo.ConvertOrDefault<DateTime>().Year, DateTo.ConvertOrDefault<DateTime>().Month, DateTo.ConvertOrDefault<DateTime>().Day, 23, 59, 59));
+
+                    var query = from a in ctx.T_QREST_SYS_LOG_ACTIVITY
+                                join d in ctx.T_QREST_USERS on a.ACTIVITY_USER equals d.USER_IDX into lj
+                                from d in lj.DefaultIfEmpty() //left join on user
+                                where a.ACTIVITY_DT >= DateFromDt
+                                && a.ACTIVITY_DT <= DateToDt
+                                select new LogDisplayType
+                                {
+                                    LOG_ID = a.LOG_ACTIVITY_IDX,
+                                    LOG_DT = a.ACTIVITY_DT,
+                                    LOG_TYP = a.ACTIVITY_TYPE,
+                                    LOG_USERID = a.ACTIVITY_USER,
+                                    LOG_MSG = a.ACTIVITY_DESC,
+                                    LOG_USER_NAME = d.Email,
+                                    LOG_IP_ADDRESS = a.IP_ADDRESS,
+                                    SUPPORTING_ID = a.SUPPORTING_ID
+                                };
+
+                    if (!string.IsNullOrEmpty(supportingID))
+                        query = query.Where(x => x.SUPPORTING_ID == supportingID);
+
+                    if (!string.IsNullOrEmpty(orgID))
+                    {
+                        //get listing of all poll_config_id for this org
+                        var poll_configs = (from spc in ctx.T_QREST_SITE_POLL_CONFIG
+                                            join s in ctx.T_QREST_SITES on spc.SITE_IDX equals s.SITE_IDX
+                                            where s.ORG_ID == orgID
+                                            select spc.POLL_CONFIG_IDX.ToString()).ToList();
+
+                        query = query.Where(x => poll_configs.Contains(x.SUPPORTING_ID) || x.SUPPORTING_ID == orgID);
+                    }
+
+                    return query.Count();
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    throw ex;
+                }
+            }
+        }
+
 
 
 

@@ -182,15 +182,27 @@ namespace QREST.Controllers
 
                 //********************* SPAM CHECK *******************************
                 var tld = model.Email.Substring(model.Email.LastIndexOf('.') + 1).ToLower();
-                if (tld == "ru" || tld == "xyz" || tld == "de" || tld == "tst" || tld == "fr")
+                if (tld == "ru" || tld == "xyz" || tld == "de" || tld == "tst" || tld == "fr" || tld == "top")
                 {
-                    TempData["Error"] = "Blacklisted email provider";
+                    TempData["Error"] = "QREST is intended for tribal users only. Please contact ITEP to obtain an account.";
                     return RedirectToAction("QRESTRegister", "Account");
                 }
 
                 // ******************** AGENCY VALIDATION ******************************
                 if (model.selOrgID != null)
                 {
+                    //see if the agency filters registration by email rule 
+                    List<T_QREST_ORG_EMAIL_RULE> emails = db_Account.GetT_QREST_ORG_EMAIL_RULE(model.selOrgID);
+                    if (emails != null && emails.Count > 0)
+                    {
+                        if (db_Account.IsValidT_QREST_ORG_EMAIL(model.Email, model.selOrgID) == false)
+                        {
+                            TempData["Error"] = "Registration for this organization is restricted by email. Please contact ITEP or the tribal representative to obtain an account.";
+                            return RedirectToAction("QRESTRegister", "Account");
+                        }
+                    }
+
+
                 }
                 // ****************** END AGENCY VALIDATION ******************************
 

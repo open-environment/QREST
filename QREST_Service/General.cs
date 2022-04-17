@@ -43,6 +43,22 @@ namespace QREST_Service
             }
         }
 
+        public static void ArchiveCampbellPollingFile(string SiteID)
+        {
+            //create archive directory if needed
+            string path = AppDomain.CurrentDomain.BaseDirectory + "\\Polls\\Archive";
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            //see if file exists that needs to be moved
+            string sourceFilepath = AppDomain.CurrentDomain.BaseDirectory + "\\Polls\\Poll_" + SiteID + ".dat";
+            if (File.Exists(sourceFilepath))
+                File.Move(sourceFilepath, AppDomain.CurrentDomain.BaseDirectory + "\\Polls\\Archive\\" + SiteID + DateTime.Now.ToString("yyyy-dd-M--HH-mm") + ".dat");
+            else
+                WriteToFile("No file found to archive");
+
+        }
+
 
         public static void WriteToAirNowFile(string Message)
         {
@@ -51,12 +67,9 @@ namespace QREST_Service
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-
             string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\AirNow\\" + System.DateTime.Now.ToString("yyyyMMddHHmm") + "_840.TRX";
             if (!File.Exists(filepath))
             {
-
-
                 using (StreamWriter sw = File.CreateText(filepath))
                 {
                     sw.WriteLine(Message);

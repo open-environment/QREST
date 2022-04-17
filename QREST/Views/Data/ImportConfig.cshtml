@@ -1,7 +1,7 @@
 ﻿@using QREST.App_Logic.BusinessLogicLayer
 @model QREST.Models.vmDataImportConfig
 @{
-    ViewBag.Title = "Import Config";
+    ViewBag.Title = "Manual Import Config";
     ViewBag.HelpLink = "Manual-Import";
 }
 
@@ -37,7 +37,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     @Html.LabelForRequired(m => m.editCONFIG_NAME, "Config Name", new { @class = "control-label" })
-                                    @Html.TextBoxFor(model => model.editCONFIG_NAME, new { @class = "form-control", @maxlength = "20" })
+                                    @Html.TextBoxFor(model => model.editCONFIG_NAME, new { @class = "form-control", @maxlength = "40" })
                                     @Html.ValidationMessageFor(model => model.editCONFIG_NAME)
                                 </div>
                             </div>
@@ -52,12 +52,12 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-12 hideWeather">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     Delimiter
                                     @Html.DropDownListFor(model => model.editDELIMITER, Model.ddl_LoggerDelimiter, "", new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.editDELIMITER)
-                                    <span class="help-block">How columns of data are separated in the logger output file</span>
+                                    <span class="help-block">How columns of data are separated in the import data file</span>
                                 </div>
                             </div>
                         </div>
@@ -65,9 +65,9 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     Local Time Zone
-                                    @Html.DropDownListFor(model => model.editLOCAL_TIMEZONE, Model.ddl_TimeZone, "", new { @class = "form-control" })
-                                    @Html.ValidationMessageFor(model => model.editLOCAL_TIMEZONE)
-                                    <span class="help-block">What time zone is site located?</span>
+                                    @Html.DropDownListFor(model => model.LOCAL_TIMEZONE, Model.ddl_TimeZone, "", new { @class = "form-control", @readonly = "readonly" })
+                                    @Html.ValidationMessageFor(model => model.LOCAL_TIMEZONE)
+                                    <span class="help-block">Site's local time zone (set at site page)</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -75,12 +75,12 @@
                                     Date/Time Output Type
                                     @Html.DropDownListFor(model => model.editTIME_POLL_TYPE, Model.ddl_LoggerTimeType, "", new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.editTIME_POLL_TYPE)
-                                    <span class="help-block">How is date/time output from logger?</span>
+                                    <span class="help-block">How is date/time output on the data file?</span>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 hideWeather">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     Date Column
                                     @Html.TextBoxFor(model => model.editDATE_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
@@ -88,7 +88,7 @@
                                     <span class="help-block">Column number in which date is stored.</span>
                                 </div>
                             </div>
-                            <div class="col-md-6 hideWeather">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     Date Format
                                     @Html.DropDownListFor(model => model.editDATE_FORMAT, Model.ddl_LoggerDate, "", new { @class = "form-control" })
@@ -96,15 +96,21 @@
                                     <span class="help-block">Format of DATE field on data logger file.</span>
                                 </div>
                             </div>
-                            <div class="col-md-6 hideWeather">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    Time in Separate Column?
+                                    <input type="checkbox" id="chkDateTimeSame" name="chkDateTimeSameName" class = "form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     Time Column
                                     @Html.TextBoxFor(model => model.editTIME_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
                                     @Html.ValidationMessageFor(model => model.editTIME_COL)
-                                    <span class="help-block">Column number in which time is stored.</span>
+                                    <span class="help-block">Col # in which time is stored.</span>
                                 </div>
                             </div>
-                            <div class="col-md-6 hideWeather">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     Time Format
                                     @Html.DropDownListFor(model => model.editTIME_FORMAT, Model.ddl_LoggerTime, "", new { @class = "form-control" })
@@ -116,15 +122,15 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h4 style="margin-top:0">Column Mapping</h4>
+                        <h4 style="margin-top:0">Parameter Column Mapping</h4>
                         <div class="table-responsive">
                             <div class="table-responsive">
                                 <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th></th>
-                                            <th>Col</th>
-                                            <th>Par / Method</th>
+                                            <th>Column</th>
+                                            <th>Parameter / Method</th>
                                             <th>Sum</th>
                                             <th>Prec</th>
                                         </tr>
@@ -298,7 +304,26 @@
                     $("#editADJUST_FACTOR").val('');
             });
 
+            //******************datetime same col*******************
+            $('#chkDateTimeSame').prop('checked', $('#editDATE_COL').val() !== $('#editTIME_COL').val());   //init val on page load
+            $('#editTIME_COL').attr('readonly', $('#editDATE_COL').val() === $('#editTIME_COL').val());
 
+            $('#chkDateTimeSame').on('click', function () {
+                if (this.checked) {
+                    $('#editTIME_COL').attr('readonly', false);
+                } else {
+                    $('#editTIME_COL').val($('#editDATE_COL').val());
+                    $('#norepostform').data("dirty", true);
+                    $("#norepostform").find("input").change();
+                    $('#editTIME_COL').attr('readonly', true);
+                }
+            });
+
+            $("#editDATE_COL").keyup(function () {
+                if ($('#chkDateTimeSame').is(":checked") == false) {
+                    $("#editTIME_COL").val($(this).val());
+                }
+            });
 
             //******************submit modal*******************
             $("#modal-form").submit(function (e) {

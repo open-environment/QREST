@@ -2,7 +2,7 @@
 @{
     Layout = "~/Views/Shared/_LayoutPub.cshtml";
     ViewBag.Title = "Submit Data to QREST";
-    ViewBag.SubTitle = "Submits data to QRESTs API";
+    ViewBag.SubTitle = "Submits data to QREST API";
 }
 <p></p>
 <section id="content">
@@ -71,15 +71,33 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Request</label>
-                                        <textarea id="txtRequest" class="form-control" cols="20" rows="8" readonly="readonly"></textarea>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>API</label>
+                                                <input id="txtAPI" class="form-control" readonly="readonly" value="/api/QRESTAPI/SendFiveMin">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>API Type</label>
+                                                <input id="txtAPIType" class="form-control" readonly="readonly" value="POST">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Request</label>
+                                                <textarea id="txtRequest" class="form-control" cols="20" rows="6" readonly="readonly"></textarea>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Response</label>
-                                        <textarea id="txtResponse" class="form-control" cols="20" rows="8" readonly="readonly"></textarea>
+                                        <textarea id="txtResponse" class="form-control" cols="20" rows="9" readonly="readonly"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -92,9 +110,6 @@
     </section>
 </section>
 
-
-@*@Html.Partial("_PleaseWait", "Shared")*@
-
 @section Scripts{
     <script>
         $(document).ready(function () {
@@ -102,14 +117,24 @@
             $('input[type=radio][name=APIName]').change(function () {
                 if (this.value == 'GetDataFormat') {
                     $("#DataBlock").hide();
+                    $("#txtAPI").val("/api/QRESTAPI/GetDataFormat");
                 }
                 else if (this.value == 'SendFiveMin') {
                     $("#DataBlock").show();
+                    $("#txtAPI").val("/api/QRESTAPI/SendFiveMin");
                 }
             });
 
             $("#btnSubmit").click(function () {
+                var api = $('input[name="APIName"]:checked').val();
+                if (api == "SendFiveMin")
+                    SendFiveMin();
+                else if (api == "GetDataFormat")
+                    GetDataFormat();
+            });
 
+
+            function SendFiveMin() {
                 var lines = [];
                 $.each($('#DataBlock').val().split(/\n/), function (i, line) {
                     if (line) {
@@ -120,10 +145,6 @@
                 });
 
                 var xxx = JSON.stringify(lines);
-                console.log(xxx);
-
-                //var dataRows = '"12/12/2021,11:00,3.33", "12/12/2021,12:00,3.44"';
-                //console.log(dataRows);
                 var sendJson = '{ APIKey : "' + $("#API_KEY").val() + '", SiteID : "' + $("#SiteID").val() + '", ImportTemplateName : "' + $("#ImportTemplate").val() + '", rawRow : ' + xxx + ' }';
 
                 //display json of request 
@@ -137,13 +158,7 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
-                        //alert("Success: " + response.SuccessInd);
-                        //console.log(response);
                         var textedJson = JSON.stringify(response, undefined, 2);
-                        //console.log(textedJson);
-
-                        //var pretty = JSON.stringify(response, undefined, 4);
-
                         $("#txtResponse").val(textedJson);
                     },
                     failure: function (response) {
@@ -153,8 +168,37 @@
                         alert(response.ErrorMessage);
                     }
                 });
-            });
+            }
 
+            function GetDataFormat() {
+                var sendJson = '{ APIKey : "' + $("#API_KEY").val() + '", SiteID : "' + $("#SiteID").val() + '", ImportTemplateName : "' + $("#ImportTemplate").val() + '" }';
+
+                //display json of request 
+                $("#txtRequest").val(sendJson);
+
+                //request to QREST
+                $.ajax({
+                    type: "GET",
+                    url: "/api/QRESTAPI/GetDataFormat",
+                    data: {
+                        APIKey: $("#API_KEY").val(),
+                        SiteID: $("#SiteID").val(),
+                        ImportTemplateName: $("#ImportTemplate").val()
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        var textedJson = JSON.stringify(response, undefined, 2);
+                        $("#txtResponse").val(textedJson);
+                    },
+                    failure: function (response) {
+                        alert(response.ErrorMessage);
+                    },
+                    error: function (response) {
+                        alert(response.ErrorMessage);
+                    }
+                });
+            }
 
         });
     </script>

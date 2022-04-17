@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using QRESTModel.BLL;
 using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;
@@ -216,6 +216,8 @@ namespace QRESTModel.COMM
                 do
                 {
                     respPrev = resp;
+
+                    stream.ReadTimeout = 5000;   // UPDATE INCREASE TIMEOUT
                     numBytesRead = stream.Read(data, 0, data.Length);
                     ms.Write(data, 0, numBytesRead);
                     resp = Encoding.ASCII.GetString(ms.ToArray());
@@ -252,17 +254,19 @@ namespace QRESTModel.COMM
 
 
         /// <summary>
-        /// Parses an entire polling file (either tab separated or comma separated) into the raw FIVE_MINUTE table, based on a provided polling configuration. 
-        /// Can optionally update the time polling should run.
+        /// Parses an entire polling file (either tab separated or comma separated) into the raw FIVE_MINUTE or HOURLY table, based on a provided polling configuration. 
+        /// Can optionally update the next time polling should run.
         /// </summary>
         /// <param name="loggerData"></param>
         /// <param name="config"></param>
         /// <param name="updateNextRunTime"></param>
         /// <returns>True only if ran successfully.</returns>
-        public static bool ParseFlatFile(string loggerData, SitePollingConfigType config, List<SitePollingConfigDetailType> _config_dtl, bool updateNextRunTime, bool? overrideConfigDuration = false)
+        public static bool ParseFlatFile(string loggerData, SitePollingConfigType config, List<SitePollingConfigDetailType> _config_dtl, bool updateNextRunTime, bool? overrideConfigDuration = false, bool insertsOnly = false)
         {
             try
             {
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(config.SITE_IDX);
+
                 string line;
                 bool SuccInd = true;
                 using (System.IO.StringReader sr = new System.IO.StringReader(loggerData))
@@ -274,7 +278,12 @@ namespace QRESTModel.COMM
                             //FIVE MINUTE RAW DATA
                             if (config.RAW_DURATION_CODE == "H" || overrideConfigDuration == true)
                             {
-                                SuccInd = db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, _config_dtl);
+                                SuccInd = db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, _config_dtl, insertsOnly);
+                            }
+                            //HOURLY RAW DATA
+                            else if (config.RAW_DURATION_CODE == "1")
+                            {
+                                SuccInd = db_Air.InsertT_QREST_DATA_HOURLY_fromLine(line, config, _config_dtl, _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
                             }
                             //ONE MINUTE RAW DATA
                             //if (config.RAW_DURATION_CODE == "G")
@@ -282,6 +291,7 @@ namespace QRESTModel.COMM
                         }
                     }
                 }
+                
 
                 if (updateNextRunTime)
                 {
@@ -291,7 +301,7 @@ namespace QRESTModel.COMM
                         nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
 
                     db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null);
+                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null);
                 }
 
                 return SuccInd;
@@ -367,5 +377,19 @@ namespace QRESTModel.COMM
             return true;
         }
 
+
+        public static string RetrieveCampbell(SitePollingConfigType _config)
+        {
+            //retrieve file from 
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\Polls\\Poll_" + _config.SITE_ID + ".dat";
+            bool fileExist = File.Exists(filepath);
+            if (fileExist)
+                return File.ReadAllText(filepath, Encoding.UTF8);
+            else
+            {
+                //db_Ref.CreateT_QREST_SYS_LOG("SYSTEM", "POLLING ERROR2", filepath);
+                return null;
+            }
+        }
     }
 }

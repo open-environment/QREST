@@ -70,7 +70,7 @@
                     <div class="line line-dashed line-lg pull-in"></div>
                     <h4 class="font-bold">LOCATION</h4>
                     <div class="row ">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Latitude / Longitude</label>
                                 <div class="input-group">
@@ -85,11 +85,18 @@
                                 @Html.ValidationMessageFor(model => model.LONGITUDE)
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Elevation (m)</label>
                                 @Html.TextBoxFor(model => model.ELEVATION, new { @class = "form-control cleave-num", @maxlength = "10" })
                                 @Html.ValidationMessageFor(model => model.ELEVATION)
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                @Html.LabelForRequired(m => m.LOCAL_TIMEZONE, "Local Time Zone", new { @class = "control-label" })                                
+                                @Html.DropDownListFor(model => model.LOCAL_TIMEZONE, Model.ddl_TimeZone, "", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.LOCAL_TIMEZONE)
                             </div>
                         </div>
                     </div>

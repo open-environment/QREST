@@ -70,8 +70,11 @@ namespace QRESTModel.BLL
                 //get poll config
                 T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(_import.POLL_CONFIG_IDX.GetValueOrDefault());
 
+                //get site
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(_import.SITE_IDX);
+
                 //get allowed date/time formats
-                string[] dtTmFormats = UtilsText.GetDateTimeAllowedFormats(_pollConfig.DATE_FORMAT, _pollConfig.TIME_FORMAT);
+                string[] dtTmFormats = _pollConfig !=null ? UtilsText.GetDateTimeAllowedFormats(_pollConfig.DATE_FORMAT, _pollConfig.TIME_FORMAT) : null;
 
                 //keep track if there are any dups or errors necessitating a stoppage
                 bool AnyDupsOrErrors = false;
@@ -82,7 +85,7 @@ namespace QRESTModel.BLL
                 //**************************************************************************************
                 if (_import.IMPORT_TYPE == "F" || _import.IMPORT_TYPE == "H")
                 {
-                    AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H(allRows, _pollConfig, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
+                    AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H(allRows, _pollConfig, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats, _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
                 }
 
                 //**************************************************************************************
@@ -93,7 +96,18 @@ namespace QRESTModel.BLL
                     T_QREST_MONITORS _monitor = db_Air.GetT_QREST_MONITORS_ByID_Simple(_import.MONITOR_IDX ?? Guid.Empty);
                     if (_monitor != null)
                     {
-                        AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H1(allRows, new char[] { ',' }, _import.MONITOR_IDX.GetValueOrDefault(), _pollConfig.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, _monitor.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
+                        AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H1(allRows, new char[] { ',' }, _import.MONITOR_IDX.GetValueOrDefault(), _site.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _pollConfig.TIME_POLL_TYPE, _monitor.COLLECT_UNIT_CODE, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats);
+                    }
+                }
+                //**************************************************************************************
+                //    A                 AQS RD pipe delimited format
+                //**************************************************************************************
+                else if (_import.IMPORT_TYPE == "A")
+                {
+                    T_QREST_MONITORS _monitor = db_Air.GetT_QREST_MONITORS_ByID_Simple(_import.MONITOR_IDX ?? Guid.Empty);
+                    if (_monitor != null)
+                    {
+                        AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_AQS_RD(allRows, _import.IMPORT_USERIDX, _import.IMPORT_IDX, _import.MONITOR_IDX.GetValueOrDefault(), _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
                     }
                 }
 

@@ -137,6 +137,48 @@
             </section>
         </div>
         <!-- end: USER ROLE ASSIGNMENT -->
+
+        <!-- start: ORG EMAIL RULES -->
+        <div class="col-md-6">
+            <section class="panel panel-qrest">
+                <div class="panel-heading font-bold">User Registration Email Rules</div>
+                <div class="panel-body">
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-sign"></i>
+                        Only allow individuals with certain email domains to register QREST accounts for your organization.
+                    </div>
+                    @if (Model.org_emails != null)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered" data-ride="datatables">
+                                <thead>
+                                    <tr>
+                                        <th style="min-width: 70px;">Edit</th>
+                                        <th>Email Rule</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var item in Model.org_emails)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="delete-section" style="display:inline-block">
+                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_ID" data-delete-id2="@item.EMAIL_STRING" data-delete-p="/Admin/OrgEmailDelete"><b>Confirm Delete</b></div>
+                                            </div>
+                                        </td>
+                                        <td>@Html.DisplayFor(modelItem => item.EMAIL_STRING)</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    }
+                    <div class="m-t-sm">
+                        <a id="add-it-email" href="#modal-form-email" data-toggle="modal" class="btn btn-sm btn-primary modal-it-email"><i class="fa fa-plus"></i> Add Email Rule</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <!-- end: ORG EMAIL RULES -->
     </div>
 }
 
@@ -190,6 +232,45 @@
 </div>
 <!-- END MODAL FORM -->
 
+
+<!-- START MODAL EMAIL FORM  -->
+<div class="modal fade" id="modal-form-email" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        @using (Html.BeginForm("OrgEditEmail", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.edit_org_id)
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 style="float: left" class="modal-title">Add Email Rule</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <span class="float-left">(For example if email is JohnDoe@abc.com, email rule will be abc.com)</span>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Email Rule</label>
+                                @Html.TextBoxFor(model => model.edit_email_rule, new { @class = "form-control", @maxlength = "100" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- END MODAL EMAIL FORM -->
+
+
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/areyousure")
@@ -214,6 +295,14 @@
                 $('#edit_org_user_access_level').val($(this).data('accesslevel'));
                 $('#edit_org_user_status').val($(this).data('status'));
             });
+
+            //create an event when button is clicked to display modal
+            $(".modal-it-email").click(function () {
+                $('#edit_user_idx').val($(this).data('userid'));
+                $('#edit_org_user_access_level').val($(this).data('accesslevel'));
+                $('#edit_org_user_status').val($(this).data('status'));
+            });
+
         });
     </script>
 }

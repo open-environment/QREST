@@ -38,15 +38,11 @@
                         <a id="tempUrl" class="btn btn-dark m-l-none m-r-none" data-root="@Url.Action("DownloadTemplate")" style="display:none;" data-toggle="tooltip" data-original-title="Download this selected Import Template" href=""><i class="fa fa-download"></i></a>
                         <a id="tempUrl3" class="btn btn-success m-l-none m-r-none" data-root="@Url.Action("ImportConfig")" style="display:none;" data-toggle="tooltip" data-original-title="Add a new Import Template for this site" href=""><i class="fa fa-plus"></i></a>
 
-                        <!-- H1 only -->
-                        @Html.DropDownListFor(model => model.selMonitor, Model.ddl_Monitors, "--Select Parameter--", new { @class = "form-control typeh1", @style = "display:none" })
+                        <!-- H1 and AQSRD only -->
+                        @Html.DropDownListFor(model => model.selMonitor, Model.ddl_Monitors, "--Select Parameter--", new { @class = "form-control typeh1_a", @style = "display:none" })
 
                         @Html.DropDownListFor(model => model.selTimeType, Model.ddl_Time, new { @class = "form-control typeh1", @style = "display:none" })
                         @Html.ValidationMessageFor(model => model.selTimeType)
-
-                        @Html.DropDownListFor(model => model.selTimeZone, Model.ddl_TimeZone, "--Site Local Time Zone--", new { @class = "form-control typeh1", @style = "display:none" })
-                        @Html.ValidationMessageFor(model => model.selTimeZone)
-
                     </div>
                     <div class="row col-md-6 typeh typehAny" style="display:none;">
                         <div class="form-group">
@@ -104,11 +100,12 @@
 
                 $(".typeh").toggle(impTyp == "H");
                 $(".typeh1").toggle(impTyp == "H1");
+                $(".typeh1_a").toggle(impTyp == "H1" || impTyp == "A");
                 $(".typehAny").toggle(impTyp == "H" || impTyp == "H1");
                 $(".typen").toggle(impTyp == "F");
-                $("#tempUrl").toggle(site != "" && site != null && pollConfig != "" && pollConfig != null && impTyp != "H1");
-                $("#tempUrl2").toggle(site != "" && site != null && pollConfig != "" && pollConfig != null && impTyp != "H1");
-                $("#tempUrl3").toggle(site != "" && site != null && impTyp != "H1");
+                $("#tempUrl").toggle(site != "" && site != null && pollConfig != "" && pollConfig != null && (impTyp == "H" || impTyp == "F"));
+                $("#tempUrl2").toggle(site != "" && site != null && pollConfig != "" && pollConfig != null && (impTyp == "H" || impTyp == "F"));
+                $("#tempUrl3").toggle(site != "" && site != null && (impTyp == "H" || impTyp == "F"));
                 $("#selPollConfig").toggle(site != '' && (impTyp == "H" || impTyp == "F"));
 
 
@@ -138,7 +135,7 @@
 
                 var impTyp = $("#selImportType").val();
 
-                if (impTyp == "H1") {
+                if (impTyp == "H1" || impTyp == "A") {
 
                     //fetch parameters related to the selected site
                     var mons = $('#selMonitor');
@@ -160,7 +157,6 @@
                         }
                         if (data != "null") {
                             $("#selTimeType").val(data.TIME_POLL_TYPE);
-                            $("#selTimeZone").val(data.LOCAL_TIMEZONE);
                         }
                     });
 

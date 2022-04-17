@@ -103,12 +103,16 @@ namespace QREST.Models
         public string AIRNOW_ORG { get; set; }
         public string AIRNOW_SITE { get; set; }
         public string SITE_COMMENTS { get; set; }
+        [Required]
+        public string LOCAL_TIMEZONE { get; set; }
 
 
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_State { get; set; }
         public IEnumerable<SelectListItem> ddl_County { get; set; }
         public IEnumerable<SelectListItem> ddl_User { get; set; } //list of users to possibly notify
+        public IEnumerable<SelectListItem> ddl_TimeZone { get; set; }
+
 
 
         //monitors

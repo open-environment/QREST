@@ -1,24 +1,32 @@
 ﻿@model QREST.Models.vmSharedLogActivity
 @{
-    ViewBag.Title = "Change Log";
-    ViewBag.SubTitle = "View Poll Config Change Log.";
+    ViewBag.Title = "Activity Log";
+    ViewBag.SubTitle = "View a log of user activity in QREST.";
+    ViewBag.HelpLink = "QREST-Logging";
 }
 
 <section class="panel panel-qrest">
     <header class="panel-heading font-bold">
-        Change Log History
+        Log History
+        <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
     </header>
     <div class="panel-body">
+        <form class="form-inline m-b-sm" onsubmit="return false">
+            @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
+            <input id="mini" class="form-control date-cleave" placeholder="Date From" />
+            <input id="maxi" class="form-control date-cleave" placeholder="Date To" />
+            <button id="btnGo" class="btn btn-sm btn-primary">Go</button>
+        </form>
         <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
             <thead>
                 <tr>
                     <th>Activity Date</th>
+                    <th>Type</th>
                     <th>User</th>
                     <th>Description</th>
                 </tr>
             </thead>
         </table>
-        <a class=" btn btn-default m-t-md" href="@Url.Action("SitePollConfig", new { configid = Model.POLL_CONFIG_IDX })">Back to Polling Config</a>
     </div>
 </section>
 
@@ -31,8 +39,7 @@
         $(document).ready(function () {
 
             moment.updateLocale(moment.locale(), { invalidDate: "" });
-            var supportid = @Html.Raw(Json.Encode(Model.POLL_CONFIG_IDX));
-            
+
             // datatable initialization
             var table = $("#gridData").DataTable({
                 "responsive": true,
@@ -53,24 +60,23 @@
                         return $.extend({}, d, {
                             "mini": $('#mini').val(),
                             "maxi": $('#maxi').val(),
-                            "supportid": supportid
+                            "orgi": $('#selOrgID').val()
                         });
                     }
                 },
                 "order": [[0, "desc"]],
                 "columns": [
-                    { "data": "LOG_DT", "name": "LOG_DT", "autoWidth": true,
+                    {
+                        "data": "LOG_DT",
+                        "name": "LOG_DT",
+                        "autoWidth": true,
                         render: function (d) {
                             return moment(d).format("MM/DD/YYYY hh:mm A ");
                         }
                     },
+                    { "data": "LOG_TYP", "name": "LOG_TYP", "autoWidth": true },
                     { "data": "LOG_USER_NAME", "name": "LOG_USER_NAME", "autoWidth": true },
-                    {
-                        "data": "LOG_MSG", "name": "LOG_MSG", "autoWidth": true,
-                        render: function (d) {
-                            return d.split("\n").join("<br/>")
-                        }
-                    },
+                    { "data": "LOG_MSG", "name": "LOG_MSG", "autoWidth": true }
                 ],
                 fnDrawCallback: function (oSettings) {
                     var totalPages = this.api().page.info().pages;

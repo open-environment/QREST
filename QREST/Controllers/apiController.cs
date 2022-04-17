@@ -42,47 +42,11 @@ namespace QREST.Controllers
         public bool SuccessInd { get; set; }
         public int? ErrorCode { get; set; }
         public string ErrorMessage { get; set; }
+        public string[] rawRowFormat { get; set; }
     }
 
     public class QRESTapiController : ApiController
     {
-        //RawData[] _testdata = new RawData[]
-        //{
-        //    new RawData{TransactionType="RD", ActionCode="I", QRESTMonitorID="cb4929be-3233-46a9-a114-28dd746ea8f1", SampleDuration="5", Date="10/1/2021", Time="4:25", SampleValue="0.03", NullDataCode="" },
-        //    new RawData{TransactionType="RD", ActionCode="I", QRESTMonitorID="cb4929be-3233-46a9-a114-28dd746ea8f1", SampleDuration="5", Date="10/1/2021", Time="4:25", SampleValue="0.03", NullDataCode="" },
-        //    new RawData{TransactionType="RD", ActionCode="I", QRESTMonitorID="cb4929be-3233-46a9-a114-28dd746ea8f1", SampleDuration="5", Date="10/1/2021", Time="4:25", SampleValue="0.03", NullDataCode="" },
-        //    new RawData{TransactionType="RD", ActionCode="I", QRESTMonitorID="cb4929be-3233-46a9-a114-28dd746ea8f1", SampleDuration="5", Date="10/1/2021", Time="4:25", SampleValue="0.03", NullDataCode="" }
-        //};
-
-
-        RawPackage _testPackage = new RawPackage
-        {
-            APIKey = "EHRNTI2GN3M2443KDPLFDJ",
-            rawData = new RawData[]
-            {
-                new RawData{TransactionType="RD", ActionCode="I", QRESTMonitorID="cb4929be-3233-46a9-a114-28dd746ea8f1", SampleDuration="5", Date="10/1/2021", Time="4:25", SampleValue="0.03", NullDataCode="" },
-                new RawData{TransactionType="RD", ActionCode="I", QRESTMonitorID="cb4929be-3233-46a9-a114-28dd746ea8f1", SampleDuration="5", Date="10/1/2021", Time="4:25", SampleValue="0.03", NullDataCode="" },
-                new RawData{TransactionType="RD", ActionCode="I", QRESTMonitorID="cb4929be-3233-46a9-a114-28dd746ea8f1", SampleDuration="5", Date="10/1/2021", Time="4:25", SampleValue="0.03", NullDataCode="" },
-                new RawData{TransactionType="RD", ActionCode="I", QRESTMonitorID="cb4929be-3233-46a9-a114-28dd746ea8f1", SampleDuration="5", Date="10/1/2021", Time="4:25", SampleValue="0.03", NullDataCode="" }
-
-            }
-        };
-
-        public RawPackage GetAllTestData()
-        {
-            return _testPackage;
-        }
-
-        [Route("api/QRESTAPI/GetTestData")]
-        public IHttpActionResult GetTestData()
-        {
-            var product = GetAllTestData();
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return Ok(product);
-        }
 
         [Route("api/QRESTAPI/SendFiveMin")]
         [HttpPost]
@@ -145,5 +109,61 @@ namespace QREST.Controllers
                 resp.ErrorMessage = OverallErrorMsg;
             return resp;
         }
+
+
+
+
+        [Route("api/QRESTAPI/GetDataFormat")]
+        [HttpGet]
+        public RawPackageResponse GetDataFormat(string APIKey, string SiteID, string ImportTemplateName)
+        {
+            //step 1: find user and org based on API Key
+            T_QREST_ORG_USERS _uo = db_Account.GetT_QREST_ORG_USERS_ByAPIKey(APIKey);
+            if (APIKey == null || _uo == null)
+                return new RawPackageResponse { SuccessInd = false, ErrorCode = 101, ErrorMessage = "Invalid API Key" };
+
+            //step 2: verify the Site ID is correct for the API Key
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByOrgandSiteID(_uo.ORG_ID, SiteID);
+            if (_site == null)
+                return new RawPackageResponse { SuccessInd = false, ErrorCode = 102, ErrorMessage = "Site ID is invalid or does not match API Key" };
+
+            //step 3: verify the Import Config
+            T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByNameAndSite(_site.SITE_IDX, ImportTemplateName);
+            if (_pollConfig == null)
+                return new RawPackageResponse { SuccessInd = false, ErrorCode = 103, ErrorMessage = "Import configuration with that name is not found" };
+
+            //step 4: examine if selected import config is properly set up
+            if (_pollConfig.DATE_COL == null && _pollConfig.TIME_COL == null)
+                return new RawPackageResponse { SuccessInd = false, ErrorCode = 104, ErrorMessage = "Selected polling config does not define date and/or time column" };
+
+
+            //prepare parse (get required info)
+            SitePollingConfigType _config = db_Air.GetT_QREST_SITES_POLLING_CONFIG_Single(_pollConfig.POLL_CONFIG_IDX);
+            List<PollConfigDtlDisplay> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID(_config.POLL_CONFIG_IDX);
+            if (_config != null && _config_dtl != null)
+            {
+                List<string> fields = new List<string>();
+                fields.Add("Field " + _config.DATE_COL + ": Date Column in " + _config.DATE_FORMAT + " format");
+                fields.Add("Field " + _config.TIME_COL + ": Time Column in " + _config.TIME_FORMAT + " format");
+
+                foreach (PollConfigDtlDisplay _dtl in _config_dtl)
+                {
+                    if (_dtl.COL != null)
+                        fields.Add("Field " + _dtl.COL + ": " + _dtl.PAR_NAME + " (" + _dtl.PAR_CODE + ") with expected AQS unit of " + _dtl.COLLECT_UNIT_CODE);
+                }
+
+                return new RawPackageResponse
+                {
+                    SuccessInd = true,
+                    rawRowFormat = fields.ToArray()
+                };
+            }
+            else
+                return new RawPackageResponse { SuccessInd = false, ErrorCode = 106, ErrorMessage = "Polling confiuration is not complete (parameter field order not specified)" };
+
+
+        }
+
+
     }
 }

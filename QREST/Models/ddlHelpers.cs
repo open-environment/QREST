@@ -72,6 +72,7 @@ namespace QREST.Models
             _list.Add(new SelectListItem() { Value = "H1", Text = "Hourly: 1-Param, Hours are 24 Columns" });
             _list.Add(new SelectListItem() { Value = "H", Text = "Hourly" });
             _list.Add(new SelectListItem() { Value = "F", Text = "5-Minute" });
+            _list.Add(new SelectListItem() { Value = "A", Text = "AQS RD Pipe File (AMP501)" });
             return _list;
         }
 
@@ -80,6 +81,7 @@ namespace QREST.Models
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "yy/MM/dd", Text = "yy/MM/dd" });
             _list.Add(new SelectListItem() { Value = "MM/dd/yyyy", Text = "MM/dd/yyyy" });
+            _list.Add(new SelectListItem() { Value = "yyyy-MM-dd", Text = "yyyy-MM-dd" });
             return _list;
         }
         
@@ -113,6 +115,7 @@ namespace QREST.Models
         public static IEnumerable<SelectListItem> get_ddl_logger_type()
         {
             List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "CAMPBELL", Text = "Campbell Scientific" });
             _list.Add(new SelectListItem() { Value = "ZENO", Text = "Zeno 3200 - TCP Connection" });
             _list.Add(new SelectListItem() { Value = "SUTRON", Text = "Sutron - TCP Connection" });
             _list.Add(new SelectListItem() { Value = "WEATHER_PWS", Text = "Weather.com Personal Weather Station" });
@@ -220,12 +223,21 @@ namespace QREST.Models
             });
         }
 
-        public static IEnumerable<SelectListItem> get_monitors_sampled_by_user(string userIdx)
+        public static IEnumerable<SelectListItem> get_monitors_sampled_five_min_by_org(string orgId)
         {
-            return db_Air.GetT_QREST_MONITORS_Display_SampledByUser(userIdx).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_MONITORS_Display_Sampled_FIVE_MIN_ByOrgID_ForDdl(orgId).Select(x => new SelectListItem
             {
-                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
-                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
+                Value = x.MONITOR_IDX.ToString(),
+                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.POC
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_monitors_sampled_by_user(string userIdx, int? LastNumDays)
+        {
+            return db_Air.GetT_QREST_MONITORS_Display_SampledByUser(userIdx, LastNumDays).Select(x => new SelectListItem
+            {
+                Value = x.MONITOR_IDX.ToString(),
+                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.POC
             });
         }
 
@@ -234,9 +246,8 @@ namespace QREST.Models
         {
             return db_Air.GetT_QREST_MONITORS_Display_ByUser_QCType(userIdx, QCtype).Select(x => new SelectListItem
             {
-                Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
-                Text = "Org: " + x.ORG_ID + " | Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC + " | " + x.UNIT_DESC
-//                Text = "Site: " + x.SITE_ID + " | Par: (" + x.PAR_CODE + ") " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC
+                Value = x.MONITOR_IDX.ToString(),
+                Text = "Org: " + x.ORG_ID + " | Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.POC + " | " + x.UNIT_DESC
             });
         }
 

@@ -253,6 +253,7 @@
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Images\GettingDataIntoQREST.png" />
     <Content Include="Content\Images\itep_logo_120.png" />
     <Content Include="Content\Images\main.png" />
     <Content Include="Content\Images\phone-1.png" />
@@ -674,6 +675,7 @@
     <Content Include="Views\Admin\TrainingLessonStep.cshtml" />
     <Content Include="Views\Training\Certificate.cshtml" />
     <Content Include="Views\Home\PushDataToQREST.cshtml" />
+    <Content Include="Views\Reports\LogActivity.cshtml" />
     <None Include="Web.ReleaseTest.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

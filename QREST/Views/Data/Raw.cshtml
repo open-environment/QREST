@@ -12,9 +12,10 @@
         <div class="panel-body">
             @using (Html.BeginForm("Raw", "Data", FormMethod.Post, new { @class = "form-inline m-b-sm" }))
             { 
+                @Html.HiddenFor(model => model.totHoursDuration)
                 @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
-                @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, new { @class = "form-control" })
                 @Html.DropDownListFor(model => model.selType, Model.ddl_DurationType, new { @class = "form-control" })
+                @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, new { @class = "form-control" })
                 @Html.DropDownListFor(model => model.selTimeType, Model.ddl_TimeType, new { @class = "form-control" })
                 @Html.TextBoxFor(model => model.selDate, new { @data_start="", @data_end="", @class = "form-control", @style ="width:300px"  })
                 <button id="btnGo" type="submit" class="btn btn-primary">Go</button>
@@ -196,15 +197,20 @@
                 fetchMonitors();
 
 
-            //update monitor dropdown
+            //update monitor dropdown when org changed
             $('#selOrgID').change(function () {
+                fetchMonitors();
+            });
+
+            //update monitor dropdown when data frequency changed
+            $('#selType').change(function () {
                 fetchMonitors();
             });
 
             //update monitor dropdown
             function fetchMonitors() {
                 $('#selMon').empty();
-                $.getJSON('@Url.Action("FetchMonitorsWithData")', { ID: $("#selOrgID").val() }, function (data) {
+                $.getJSON('@Url.Action("FetchMonitorsWithDatabyPollFreq")', { ID: $("#selOrgID").val(), pollFreq: $("#selType").val() }, function (data) {
                     if (!data) {
                         return;
                     }
@@ -218,6 +224,8 @@
 
             //hide chart if no data
             if (dataPointsA.length > 0) {
+
+
                 chart = new CanvasJS.Chart("chartContainer", {
                     zoomEnabled: true,
                     animationEnabled: true,
@@ -229,12 +237,19 @@
                         type: "column",
                         connectNullData: true,
                         xValueType: "dateTime",
-                        xValueFormatString: "MM/DD/YYYY HH:mm",
                         name: "line1",
                         dataPoints: dataPointsA
                     }],
+                    axisX: {
+                        valueFormatString: "MM/DD HH:mm",
+                    },
                     rangeChanged: function (e) {
 
+                        //set custom axis formatter
+                        var totHr = $("#totHoursDuration").val();
+                        console.log(totHr);
+
+                        //hide grid rows based on chart zoom
                         var x1 = moment(e.axisX[0].viewportMinimum).format('MM-DD-YYYY HH:mm');
                         var x2 = moment(e.axisX[0].viewportMaximum).format('MM-DD-YYYY HH:mm');
 

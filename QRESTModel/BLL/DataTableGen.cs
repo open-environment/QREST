@@ -24,7 +24,7 @@ namespace QRESTModel.DataTableGen
         public static DataTable SitesByUser(string UserIDX, string orgid)
         {
             DataTable dtSites = new DataTable("Sites");
-            dtSites.Columns.AddRange(new DataColumn[20] {
+            dtSites.Columns.AddRange(new DataColumn[21] {
                                             new DataColumn("Org ID"),
                                             new DataColumn("Site ID"),
                                             new DataColumn("Site Name"),
@@ -37,6 +37,7 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("Address"),
                                             new DataColumn("City"),
                                             new DataColumn("ZIP Code"),
+                                            new DataColumn("Time Zone"),
                                             new DataColumn("Telemetry Start Date"),
                                             new DataColumn("Telemetry End Date"),
                                             new DataColumn("Polling Online"),
@@ -51,7 +52,7 @@ namespace QRESTModel.DataTableGen
             foreach (var _site in _sites)
             {
                 dtSites.Rows.Add(_site.ORG_ID, _site.SITE_ID, _site.SITE_NAME, _site.AQS_SITE_ID, _site.STATE_CD, _site.COUNTY_CD, _site.LATITUDE, _site.LONGITUDE,
-                    _site.ELEVATION, _site.ADDRESS, _site.CITY, _site.ZIP_CODE, _site.START_DT, _site.END_DT, _site.POLLING_ONLINE_IND, _site.POLLING_FREQ_TYPE,
+                    _site.ELEVATION, _site.ADDRESS, _site.CITY, _site.ZIP_CODE, _site.LOCAL_TIMEZONE, _site.START_DT, _site.END_DT, _site.POLLING_ONLINE_IND, _site.POLLING_FREQ_TYPE,
                     _site.POLLING_FREQ_NUM, _site.AIRNOW_IND, _site.AQS_IND, _site.SITE_COMMENTS);
             }
             return dtSites;
@@ -129,7 +130,6 @@ namespace QRESTModel.DataTableGen
             }
             return dt;
         }
-
 
         public static DataTable RawData(string Freq, string orgid, Guid? SiteIDX, Guid? MonIDX, DateTime startDt, DateTime endDt, string tIME_TYPE)
         {
@@ -321,7 +321,7 @@ namespace QRESTModel.DataTableGen
         public static DataTable GetPollingConfig(string UserIDX, string org)
         {
             DataTable pollingConfig = new DataTable("Polling_Config");
-            pollingConfig.Columns.AddRange(new DataColumn[18] {
+            pollingConfig.Columns.AddRange(new DataColumn[17] {
                 new DataColumn("Org ID"),
                 new DataColumn("Site ID"),
                 new DataColumn("POLL_CONFIG_IDX"),
@@ -337,7 +337,6 @@ namespace QRESTModel.DataTableGen
                 new DataColumn("DATE_FORMAT"),
                 new DataColumn("TIME_COL"),
                 new DataColumn("TIME_FORMAT"),
-                new DataColumn("LOCAL_TIMEZONE"),
                 new DataColumn("TIME_POLL_TYPE"),
                 new DataColumn("ACT_IND")
                 });
@@ -363,7 +362,6 @@ namespace QRESTModel.DataTableGen
                         _sitePollingConfigType.DATE_FORMAT,
                         _sitePollingConfigType.TIME_COL,
                         _sitePollingConfigType.TIME_FORMAT,
-                        _sitePollingConfigType.LOCAL_TIMEZONE,
                         _sitePollingConfigType.TIME_POLL_TYPE,
                         _sitePollingConfigType.ACT_IND);
                 }

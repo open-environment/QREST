@@ -67,6 +67,7 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_TimeType { get; set; }
         public IEnumerable<SelectListItem> ddl_DurationType { get; set; }
         public List<RawDataDisplay> RawData { get; set; }
+        public int totHoursDuration { get; set; }
 
         public vmDataRaw()
         {
@@ -74,6 +75,7 @@ namespace QREST.Models
             ddl_TimeType = ddlHelpers.get_ddl_time_type();
             selType = "1";
             selTimeType = "L";
+            totHoursDuration = 24;
         }
 
 
@@ -102,7 +104,6 @@ namespace QREST.Models
         public string selCalc { get; set; }
         public string selVal { get; set; }
 
-        public string selTimeZone { get; set; }
 
 
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
@@ -111,7 +112,6 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_ImportType { get; set; }
         public IEnumerable<SelectListItem> ddl_PollConfig { get; set; }
         public IEnumerable<SelectListItem> ddl_Time { get; set; }
-        public IEnumerable<SelectListItem> ddl_TimeZone { get; set; }
         public IEnumerable<SelectListItem> ddl_Calc { get; set; }
 
 
@@ -148,7 +148,7 @@ namespace QREST.Models
 
         [Required]
         [Display(Name = "Timezone")]
-        public string editLOCAL_TIMEZONE { get; set; }
+        public string LOCAL_TIMEZONE { get; set; }
 
         [Required]
         [Display(Name = "Time Output Type")]
@@ -179,7 +179,7 @@ namespace QREST.Models
         public double? editADJUST_FACTOR { get; set; }
 
         public IEnumerable<SelectListItem> ddl_LoggerDelimiter { get; set; }
-        public IEnumerable<SelectListItem> ddl_TimeZone { get; set; }
+        public IEnumerable<SelectListItem> ddl_TimeZone { get; set; }  //read only
         public IEnumerable<SelectListItem> ddl_LoggerTimeType { get; set; }
         public IEnumerable<SelectListItem> ddl_LoggerDate { get; set; }
         public IEnumerable<SelectListItem> ddl_LoggerTime { get; set; }

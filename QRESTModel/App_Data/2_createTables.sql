@@ -484,6 +484,7 @@ GO
 
 
 
+
 /******************************************************************************************/
 /*******************  SITE/MONITOR TABLES ***********************************************/
 /******************************************************************************************/
@@ -509,6 +510,7 @@ CREATE TABLE [T_QREST_SITES] (
 	[POLLING_FREQ_NUM] [int],
 	[POLLING_LAST_RUN_DT] [datetime2](7),
 	[POLLING_NEXT_RUN_DT] [datetime2](7),
+	[LOCAL_TIMEZONE] varchar(4),
 
 	[AIRNOW_IND] bit,
 	[AIRNOW_USR] varchar(50),
@@ -580,7 +582,7 @@ GO
 CREATE TABLE [T_QREST_SITE_POLL_CONFIG] (
 	[POLL_CONFIG_IDX] UNIQUEIDENTIFIER NOT NULL,
 	[SITE_IDX] UNIQUEIDENTIFIER NOT NULL,
-	[CONFIG_NAME] varchar(20) NULL,
+	[CONFIG_NAME] varchar(40) NULL,
 	[CONFIG_DESC] varchar(200) NULL,
 	[RAW_DURATION_CODE] varchar(1) NULL,
 	[LOGGER_TYPE] varchar(20),
@@ -593,7 +595,7 @@ CREATE TABLE [T_QREST_SITE_POLL_CONFIG] (
 	[DATE_FORMAT] varchar(10),
 	[TIME_COL] int,
 	[TIME_FORMAT] varchar(10),
-	[LOCAL_TIMEZONE] varchar(4),
+	--[LOCAL_TIMEZONE] varchar(4),
 	[TIME_POLL_TYPE] varchar(1),
     [ACT_IND] bit NOT NULL,
 	[CREATE_USER_IDX] nvarchar(128),

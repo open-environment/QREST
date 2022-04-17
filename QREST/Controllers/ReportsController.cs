@@ -147,6 +147,17 @@ namespace QREST.Controllers
         }
 
 
+        //************************************* LOGGING************************************************************
+        public ActionResult LogActivity()
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            var model = new vmSharedLogActivity {
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false)
+            };
+            return View(model);
+        }
+
 
         //************************************* REF DATA ************************************************************
         public ActionResult RefCollFreq()

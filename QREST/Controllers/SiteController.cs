@@ -122,7 +122,15 @@ namespace QREST.Controllers
                 Guid? succId = db_Account.InsertUpdateT_QREST_ORG_USERS(model.edit_user_idx, model.edit_org_id, model.edit_org_user_access_level, model.edit_org_user_status, "");
 
                 if (succId != null)
+                {
+                    //also update user activity log
+                    string UserIDX = User.Identity.GetUserId();  //lookup user
+                    var user = db_Account.GetT_QREST_USERS_ByID(UserIDX);
+                    db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("ORG EDIT", UserIDX, null, "Edit org access for " + (user != null ? user.Email : "unknown") + " at " + model.edit_org_id, GetIP.GetLocalIPAddress(System.Web.HttpContext.Current), model.edit_org_id);
+
+
                     TempData["Success"] = "Record updated";
+                }
                 else
                     TempData["Error"] = "Error updating record.";
             }
@@ -211,6 +219,7 @@ namespace QREST.Controllers
                 model.AIRNOW_ORG = _site.AIRNOW_ORG;
                 model.AIRNOW_SITE = _site.AIRNOW_SITE;
                 model.SITE_COMMENTS = _site.SITE_COMMENTS;
+                model.LOCAL_TIMEZONE = _site.LOCAL_TIMEZONE;
             }
             else if (id != null)
             {
@@ -231,6 +240,7 @@ namespace QREST.Controllers
             model.monitors = db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(model.SITE_IDX);
             model.notifiees = db_Air.GetT_QREST_SITE_NOTIFY_BySiteID(model.SITE_IDX);
             model.ddl_User = ddlHelpers.get_ddl_users(true);
+            model.ddl_TimeZone = ddlHelpers.get_ddl_time_zone();
 
             //county
             if (model.STATE_CD != null)
@@ -268,7 +278,7 @@ namespace QREST.Controllers
                 Guid? succId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
                     model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
                     model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR, model.AIRNOW_PWD, 
-                    model.AIRNOW_ORG, model.AIRNOW_SITE, model.SITE_COMMENTS ?? "", UserIDX);
+                    model.AIRNOW_ORG, model.AIRNOW_SITE, model.SITE_COMMENTS ?? "", UserIDX, model.LOCAL_TIMEZONE);
 
                 if (succId != null)
                 {
@@ -488,7 +498,7 @@ namespace QREST.Controllers
                             T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
                             if (_existSite == null)
                                 db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null,
-                                    null, null, null, false, null, null, null, null, false, false, null, null, null, null, null, UserIDX);
+                                    null, null, null, false, null, null, null, null, false, false, null, null, null, null, null, UserIDX, null);
                         }
 
                     }
@@ -605,14 +615,14 @@ namespace QREST.Controllers
                         model.editDATE_FORMAT = e.DATE_FORMAT;
                         model.editTIME_COL = e.TIME_COL;
                         model.editTIME_FORMAT = e.TIME_FORMAT;
-                        model.editLOCAL_TIMEZONE = e.LOCAL_TIMEZONE;
+                        model.editLOCAL_TIMEZONE = _site.LOCAL_TIMEZONE;
                         model.editTIME_POLL_TYPE = e.TIME_POLL_TYPE;
                         model.editACT_IND = e.ACT_IND;
 
                         //display polling warning message
-                        if ((e.LOGGER_TYPE== "ZENO" || e.LOGGER_TYPE == "SUTRON") && (e.RAW_DURATION_CODE == null || e.DELIMITER == null || e.LOCAL_TIMEZONE == null || e.DATE_COL == null || e.TIME_COL == null))
+                        if ((e.LOGGER_TYPE== "ZENO" || e.LOGGER_TYPE == "SUTRON") && (e.RAW_DURATION_CODE == null || e.DELIMITER == null || _site.LOCAL_TIMEZONE == null || e.DATE_COL == null || e.TIME_COL == null))
                             ViewBag.PollError = true;
-                        else if (e.LOGGER_TYPE == "WEATHER_PWS" && (e.RAW_DURATION_CODE == null || e.LOCAL_TIMEZONE == null))
+                        else if (e.LOGGER_TYPE == "WEATHER_PWS" && (e.RAW_DURATION_CODE == null || _site.LOCAL_TIMEZONE == null))
                             ViewBag.PollError = true;
                     }
 
@@ -675,7 +685,7 @@ namespace QREST.Controllers
 
                     Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
                         model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
-                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, model.editLOCAL_TIMEZONE, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE, true, model.editPOLL_LOG_DESC, null);
+                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, null, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE, true, model.editPOLL_LOG_DESC, null);
 
                     if (succId != null)
                     {
@@ -747,7 +757,7 @@ namespace QREST.Controllers
                         RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _site.ORG_ID, true);
                         if (r != null) return Json(new { msg = "Access Denied" });
 
-                        Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(configdtlid, configid, monid, col, sumtype, rounding, adjustfactor);
+                        Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(configdtlid, configid, monid, col, sumtype, rounding, adjustfactor, UserIDX);
                         if (succId != null)
                             return Json(new { msg = "Success" });
 
@@ -906,7 +916,8 @@ namespace QREST.Controllers
             if (r != null) return r;
 
             //initialize model
-            var model = new vmAdminLogActivity { 
+            var model = new vmSharedLogActivity
+            { 
                 SITE_IDX = _config.SITE_IDX.ToString(),
                 POLL_CONFIG_IDX = _config.POLL_CONFIG_IDX.ToString()
             };
@@ -1079,14 +1090,10 @@ namespace QREST.Controllers
                             model.ALERT_AMT_CHANGE = Math.Abs((UnitConvert.ConvertUnit(_parMeth.CUST_MIN_VALUE ?? _parMeth.MIN_VALUE ?? 0, _parMeth.STD_UNIT_CODE, model.COLLECT_UNIT_CODE) ?? 0) * (double)3);
                     }
                 }
-                else
-                {
-                    db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("MON EDIT", UserIDX, null, "Changed monitor for " + model.PAR_NAME, GetIP.GetLocalIPAddress(System.Web.HttpContext.Current), model.MONITOR_IDX.ToString());
-                }
 
                 Guid? SuccInd = db_Air.InsertUpdatetT_QREST_MONITORS(model.MONITOR_IDX, model.SITE_IDX, model.PAR_METHOD_IDX, model.POC, model.DURATION_CODE, model.COLLECT_FREQ_CODE, 
                     model.COLLECT_UNIT_CODE, model.ALERT_MIN_VALUE ?? -9999, model.ALERT_MAX_VALUE ?? -9999, model.ALERT_AMT_CHANGE ?? -9999, model.ALERT_STUCK_REC_COUNT ?? -9999, 
-                    model.ALERT_MIN_TYPE, model.ALERT_MAX_TYPE, model.ALERT_AMT_CHANGE_TYPE, model.ALERT_STUCK_TYPE, UserIDX);
+                    model.ALERT_MIN_TYPE, model.ALERT_MAX_TYPE, model.ALERT_AMT_CHANGE_TYPE, model.ALERT_STUCK_TYPE, UserIDX, model.PAR_NAME);
 
                 if (SuccInd != null)
                 {
@@ -1160,7 +1167,7 @@ namespace QREST.Controllers
             {
                 string UserIDX = User.Identity.GetUserId();
 
-                Guid? succId = db_Air.InsertUpdatetT_QREST_MONITORS(id2.GetValueOrDefault(), null, id.GetValueOrDefault(), null, null, null, null, null, null, null, null, null, null, null, null, UserIDX);
+                Guid? succId = db_Air.InsertUpdatetT_QREST_MONITORS(id2.GetValueOrDefault(), null, id.GetValueOrDefault(), null, null, null, null, null, null, null, null, null, null, null, null, UserIDX, null);
                 if (succId != null)
                     return Json("Success");
                 else
@@ -1304,7 +1311,7 @@ namespace QREST.Controllers
                 {
                     i++;
                     db_Air.InsertUpdatetT_QREST_MONITORS(null, model.siteIDX, item.T_QREST_MONITORS.PAR_METHOD_IDX, item.T_QREST_MONITORS.POC,
-                        "1", "1", null, null, null, null, null, null, null, null, null, UserIDX);
+                        "1", "1", null, null, null, null, null, null, null, null, null, UserIDX, null);
                 }
             }
 

@@ -1,7 +1,7 @@
 ﻿@using QREST.App_Logic.BusinessLogicLayer
 @model QREST.Models.vmSiteSitePollConfig
 @{
-    ViewBag.Title = "Site Poll Config";
+    ViewBag.Title = "Site Automated Polling Config";
     ViewBag.HelpLink = "Polling-Configuration";
 }
 
@@ -107,7 +107,7 @@
                                         </div>
                                     </div>
                                     <div class="row loggerOnly">
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 hideCampbell">
                                             <div class="form-group">
                                                 @Html.LabelForRequired(m => m.editLOGGER_SOURCE, "Logger Source", new { @class = "control-label" })
                                                 @Html.TextBoxFor(model => model.editLOGGER_SOURCE, new { @class = "form-control", @maxlength = "150" })
@@ -115,7 +115,7 @@
                                                 <span id="hlpIP" class="help-block">The TCP/IP address (X.X.X.X) of the instrument.</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 hideWeather">
+                                        <div class="col-md-6 hideWeather hideCampbell">
                                             <div class="form-group ">
                                                 @Html.LabelForRequired(m => m.editLOGGER_PORT, "Port", new { @class = "control-label" })
                                                 @Html.TextBoxFor(model => model.editLOGGER_PORT, new { @class = "form-control", @maxlength = "5" })
@@ -125,7 +125,7 @@
                                         </div>
                                     </div>
                                     <div class="row loggerOnly">
-                                        <div class="col-md-6 hideWeather">
+                                        <div class="col-md-6 hideWeather hideCampbell">
                                             <div class="form-group ">
                                                 Username
                                                 @Html.TextBoxFor(model => model.editLOGGER_USERNAME, new { @class = "form-control", @maxlength = "150" })
@@ -133,7 +133,7 @@
                                                 <span class="help-block">If your instrument only requires a password, then leave this blank.</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 hideCampbell">
                                             <div class="form-group">
                                                 Password
                                                 @Html.PasswordFor(model => model.editLOGGER_PASSWORD, new { @class = "form-control", @maxlength = "150", @placeholder = "***************" })
@@ -196,9 +196,9 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group">
                                                             Local Time Zone
-                                                            @Html.DropDownListFor(model => model.editLOCAL_TIMEZONE, Model.ddl_TimeZone, "", new { @class = "form-control" })
+                                                            @Html.DropDownListFor(model => model.editLOCAL_TIMEZONE, Model.ddl_TimeZone, "", new { @class = "form-control", @readonly="readonly" })
                                                             @Html.ValidationMessageFor(model => model.editLOCAL_TIMEZONE)
-                                                            <span class="help-block">What time zone is site located?</span>
+                                                            <span class="help-block">Site's local time zone (set at site page)</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
@@ -227,12 +227,18 @@
                                                             <span class="help-block">Format of DATE field on data logger file.</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6 hideWeather">
+                                                    <div class="col-md-3 hideWeather">
+                                                        <div class="form-group">
+                                                            Time in Separate Column?
+                                                            <input type="checkbox" id="chkDateTimeSame" name="chkDateTimeSameName" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 hideWeather">
                                                         <div class="form-group">
                                                             Time Column
                                                             @Html.TextBoxFor(model => model.editTIME_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
                                                             @Html.ValidationMessageFor(model => model.editTIME_COL)
-                                                            <span class="help-block">Column number in which time is stored.</span>
+                                                            <span class="help-block">Column # in which time is stored.</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 hideWeather">
@@ -469,6 +475,29 @@
             //hide fields if no logger
             loggerSpecificShowHide();
 
+
+            //******************datetime same col*******************
+            $('#chkDateTimeSame').prop('checked', $('#editDATE_COL').val() !== $('#editTIME_COL').val());   //init val on page load
+            $('#editTIME_COL').attr('readonly', $('#editDATE_COL').val() === $('#editTIME_COL').val());
+
+            $('#chkDateTimeSame').on('click', function () {
+                if (this.checked) {
+                    $('#editTIME_COL').attr('readonly', false);
+                } else {
+                    $('#editTIME_COL').val($('#editDATE_COL').val());
+                    $('#norepostform').data("dirty", true);
+                    $("#norepostform").find("input").change();
+                    $('#editTIME_COL').attr('readonly', true);
+                }
+            });
+
+            $("#editDATE_COL").keyup(function () {
+                if ($('#chkDateTimeSame').is(":checked") == false) {
+                    $("#editTIME_COL").val($(this).val());
+                }
+            });
+
+
             //logger type value change
             $('#editLOGGER_TYPE').change(function () {
                 loggerSpecificShowHide();
@@ -487,9 +516,15 @@
                     $("#hlpIP").text("Weather Company station ID.");
                     $("#hlpPWD").text("API Key for Weather Company web service.");
                 }
+                else if (xxx == "CAMPBELL")
+                {
+                    $('.hideWeather').show();
+                    $('.hideCampbell').hide();
+                }
                 else {
                     $('.loggerOnly').show();
                     $('.hideWeather').show();
+                    $('.hideCampbell').show();
                 }
 
                 if (!$('#editLOGGER_PORT').val()) {

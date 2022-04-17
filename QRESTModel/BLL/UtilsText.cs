@@ -81,6 +81,8 @@ namespace QRESTModel.BLL
             string[] dts = new[] { "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy", "M/d/yyyy" };
             if (dtFormat == "yy/MM/dd")
                 dts = new[] { "yy/MM/dd", "yy/M/dd", "yy/M/d", "yy/MM/d" };
+            else if (dtFormat == "yyyy-MM-dd")
+                dts = new[] { "yyyy-MM-dd", "yyyy-M-dd", "yyyy-MM-d", "yyyy-M-d" };
 
             string[] tms = new[] { "HH:mm", "H:mm" };
             if (tmFormat == "HH:mm:ss")

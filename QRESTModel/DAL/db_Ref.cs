@@ -1692,16 +1692,23 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_REF_QUALIFIER> GetT_QREST_REF_QUALIFIER_NonNull()
+        public static List<T_QREST_REF_QUALIFIER> GetT_QREST_REF_QUALIFIER_NonNull(string parCode)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    return (from a in ctx.T_QREST_REF_QUALIFIER
-                            where (a.QUAL_TYPE == "INFORM" || a.QUAL_TYPE == "QA" || a.QUAL_CODE == "-1")
-                            orderby a.QUAL_CODE
-                            select a).ToList();
+                    var xxx = (from a in ctx.T_QREST_REF_QUALIFIER
+                               where (a.QUAL_TYPE == "INFORM" || a.QUAL_TYPE == "QA" || a.QUAL_CODE == "-1")
+                               orderby a.QUAL_CODE
+                               select a);
+
+                    var yyy = (from a in ctx.T_QREST_REF_QUALIFIER
+                               join b in ctx.T_QREST_REF_QUAL_DISALLOW on a.QUAL_CODE equals b.QUAL_CODE
+                               where b.PAR_CODE == parCode
+                               select a);
+
+                    return xxx.Except(yyy).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1819,6 +1826,111 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
+        //******************REF_QUAL_DISALLOW*******************************************
+        public static T_QREST_REF_QUAL_DISALLOW GetT_QREST_REF_QUAL_DISALLOW_ByIDs(string qUAL_CODE, string pAR_CODE)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QUAL_DISALLOW
+                            where a.QUAL_CODE == qUAL_CODE
+                            && a.PAR_CODE == pAR_CODE
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static bool IsDisallowedQualifier(string pAR_CODE, string qUAL_CODE)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.T_QREST_REF_QUAL_DISALLOW.AsNoTracking().Any(x => x.PAR_CODE == pAR_CODE && x.QUAL_CODE == qUAL_CODE);
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+        public static bool InsertUpdatetT_QREST_REF_QUAL_DISALLOW(string qUAL_CODE, string pAR_CODE, string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_REF_QUAL_DISALLOW e = (from c in ctx.T_QREST_REF_QUAL_DISALLOW
+                                                   where c.QUAL_CODE == qUAL_CODE
+                                                   && c.PAR_CODE == pAR_CODE
+                                                   select c).FirstOrDefault();
+
+                    //this table only handles insert case
+                    if (e == null)
+                    {
+                        e = new T_QREST_REF_QUAL_DISALLOW();
+                        e.QUAL_CODE = qUAL_CODE;
+                        e.PAR_CODE = pAR_CODE;
+                        e.CREATE_DT = System.DateTime.Now;
+                        e.CREATE_USER_IDX = cREATE_USER;
+                        ctx.T_QREST_REF_QUAL_DISALLOW.Add(e);
+                        ctx.SaveChanges();
+                    }
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+        public static int GetT_QREST_REF_QUAL_DISALLOWCount()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QUAL_DISALLOW.AsNoTracking()
+                            select a).Count();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+        public static List<T_QREST_REF_QUAL_DISALLOW> GetT_QREST_REF_QUAL_DISALLOW_data(int pageSize, int? skip, string orderBy, string orderDir = "asc")
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_REF_QUAL_DISALLOW
+                            select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
 
         //***************** REF_REGION ******************************

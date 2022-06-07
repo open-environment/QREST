@@ -14,7 +14,7 @@ using System.Data;
 using QRESTModel.DataTableGen;
 using QREST.App_Logic;
 using ClosedXML.Excel;
-
+using QRESTModel.COMM;
 
 namespace QREST.Controllers
 {
@@ -862,6 +862,7 @@ namespace QREST.Controllers
                 model.selsDt = new DateTime(model.selYear, model.selMonth, 1);
                 model.seleDt = new DateTime(model.selYear, model.selMonth, 1).AddMonths(1).AddHours(-1);
                 model.Results = db_Air.SP_AQS_REVIEW_STATUS(id.GetValueOrDefault(), model.selsDt.GetValueOrDefault(), model.seleDt);
+                model.FiveMinGaps = db_Air.SP_FIVE_MIN_DATA_GAPS(id.GetValueOrDefault()).Count();
             }
             return View(model);
         }
@@ -946,6 +947,11 @@ namespace QREST.Controllers
 
             //unit dropdown
             model.ddl_ParUnits = ddlHelpers.get_ddl_ref_units(model.selMon.PAR_CODE);
+
+            //qual code dropdown
+            model.ddl_NullQual = ddlHelpers.get_ddl_ref_qualifier("NULL");
+            model.ddl_Qual = ddlHelpers.get_ddl_ref_qualifierNonNull(model.selMon.PAR_CODE);
+
 
             //get security access rights
             model.secLvl1Ind = db_Account.IsOrgLvl1(UserIDX, model.selMon.ORG_ID);
@@ -1191,7 +1197,7 @@ namespace QREST.Controllers
                     Response.Buffer = true;
                     Response.Charset = "";
                     Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    Response.AddHeader("content-disposition", "attachment;filename=HourlyLog.xlsx");
+                    Response.AddHeader("content-disposition", "attachment;filename=DataReviewNotesLog.xlsx");
                     ms.WriteTo(Response.OutputStream);
                     Response.Flush();
                     Response.End();
@@ -1312,7 +1318,55 @@ namespace QREST.Controllers
             return null;
         }
 
+        public ActionResult FillGaps(Guid? id)
+        {
+            var model = new vmDataFillGaps
+            {
+                selSite = id,
+                dataGaps = db_Air.SP_FIVE_MIN_DATA_GAPS(id.GetValueOrDefault())
+            };
 
+            if (model.selSite != null)
+            {
+                T_QREST_SITES _s = db_Air.GetT_QREST_SITES_ByID(id.GetValueOrDefault());
+                if (_s != null)
+                {
+                    model.selSiteID = _s.SITE_ID;
+                }
+            }
+
+            return View(model);
+        }
+
+
+        public ActionResult FillGaps2(Guid? id, DateTime? sdt, DateTime? edt)
+        {
+            T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ActiveByID(id.GetValueOrDefault());
+            if (_config != null)
+            {
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id.GetValueOrDefault());
+                DateTime sdt1 = sdt.GetValueOrDefault();
+                DateTime edt1 = edt.GetValueOrDefault();
+
+                string dateRangeString = sdt1.ToString("yyMMddHH") + "0000" + edt1.ToString("yyMMddHH") + "0000";
+                CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), "DB" + dateRangeString + ",", _site.SITE_ID);
+                if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                {
+                    List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX, true);
+                    SitePollingConfigType _config1 = db_Air.GetT_QREST_SITES_POLLING_CONFIG_Single(_config.POLL_CONFIG_IDX);
+
+                    //send the entire text response to the file parser routine
+                    LoggerComm.ParseFlatFile(_log.CommResponse, _config1, _config_dtl, false, false, true);
+                    TempData["Success"] = "Update successful.";
+                }
+                else
+                    TempData["Error"] = "No data found or unable to communicate with logger" + _log.CommResponse;
+            }
+            else
+                TempData["Error"] = "Unable to find polling configuration for this site.";
+
+            return RedirectToAction("FillGaps", new { id });
+        }
         #endregion
 
 

@@ -802,9 +802,9 @@ namespace QREST.Controllers
                 return RedirectToAction("SiteList", "Site");
             }
             //FAIL IF LOGGER CONFIGURATION IS INCOMPLETE
-            else if (_config.LOGGER_PASSWORD == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
+            else if (_config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
             {
-                TempData["Error"] = "Polling configuration is incomplete: logger source, port, and password must be supplied";
+                TempData["Error"] = "Polling configuration is incomplete: logger source and port must be supplied";
                 return RedirectToAction("SiteList", "Site");
             }
 
@@ -818,8 +818,10 @@ namespace QREST.Controllers
             var model = new vmSitePing
             {
                 POLL_CONFIG_IDX = id ?? Guid.Empty,
-                recCount = 5
+                recCount = _config.LOGGER_TYPE == "SUTRON_LEADS" ? 0 : 5,
+                LOGGER_TYPE = _config.LOGGER_TYPE
             };
+
 
             return View(model);
         }
@@ -874,8 +876,8 @@ namespace QREST.Controllers
             if (siteID == null || siteID.Length != 4)
                 ModelState.AddModelError("pingType", "Site ID must be a 4 digit number that corresponds to ID configured on logger.");
 
-            if (_config?.LOGGER_TYPE != "ZENO" && _config?.LOGGER_TYPE != "SUTRON")
-                ModelState.AddModelError("pingType", "Ping currently only available for Zeno and Sutron dataloggers.");
+            if (_config?.LOGGER_TYPE != "ZENO" && _config?.LOGGER_TYPE != "SUTRON" && _config?.LOGGER_TYPE != "ESC" && _config?.LOGGER_TYPE != "SUTRON_LEADS")
+                ModelState.AddModelError("pingType", "Ping currently only available for Zeno, Sutron, and ESC dataloggers.");
 
             if (_config?.LOGGER_TYPE != "ZENO" && model.pingType == "Ping Only")
                 ModelState.AddModelError("pingType", "Ping Only option is only available for Zeno logger.");
@@ -889,11 +891,29 @@ namespace QREST.Controllers
                 // ***************** RETRIEVE DATA: THIS POLLS DATA FROM THE LOGGER USING SAIL **********************
                 else if (model.pingType == "Retrieve Data")
                 {
-                    CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), "DL" + model.recCount + ",", siteID);
-                    if (_log.CommMessageStatus)
-                        model.loggerData = LoggerComm.stripMessage(_log.CommResponse, "#0001" + siteID);
+                    CommMessageLog _log = new CommMessageLog();
+                    if (_config.LOGGER_TYPE == "ESC")
+                    {
+                        siteID = "32";
+                        _log = LoggerComm.ConnectTcpESC(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), "003120000|Y|003130000", siteID);
+                    }
+                    else if (_config.LOGGER_TYPE == "SUTRON_LEADS")
+                    {
+                        //_log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, "GET /S 06-06-2022 03:00:00");
+                        _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, "GET /TODAY /C");
+                        if (_log.CommMessageStatus)
+                            model.loggerData = _log.CommResponse;
+                        else
+                            model.pingResults2 = new List<CommMessageLog> { _log };
+                    }
                     else
-                        model.pingResults2 = new List<CommMessageLog> { _log };
+                    {
+                        _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), "DL" + model.recCount + ",", siteID);
+                        if (_log.CommMessageStatus)
+                            model.loggerData = LoggerComm.stripMessage(_log.CommResponse, "#0001" + siteID);
+                        else
+                            model.pingResults2 = new List<CommMessageLog> { _log };
+                    }
                 }
             }
 

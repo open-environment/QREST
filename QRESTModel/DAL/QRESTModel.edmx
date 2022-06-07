@@ -427,6 +427,18 @@
           <Property Name="MIN_AMT" Type="float" />
           <Property Name="MAX_AMT" Type="float" />
         </EntityType>
+        <EntityType Name="T_QREST_REF_QUAL_DISALLOW">
+          <Key>
+            <PropertyRef Name="QUAL_CODE" />
+            <PropertyRef Name="PAR_CODE" />
+          </Key>
+          <Property Name="QUAL_CODE" Type="varchar" MaxLength="2" Nullable="false" />
+          <Property Name="PAR_CODE" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="CREATE_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
+          <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+        </EntityType>
         <EntityType Name="T_QREST_REF_QUALIFIER">
           <Key>
             <PropertyRef Name="QUAL_CODE" />
@@ -775,6 +787,34 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <Property Name="POLLING_LAST_RUN_DT" Type="datetime2" Precision="7" />
           <Property Name="lvl1" Type="datetime2" Precision="0" />
           <Property Name="lvl2" Type="datetime2" Precision="0" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'QREST.dbo.SITE_HEALTH' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SITE_HEALTH">
+          <Key>
+            <PropertyRef Name="ORG_ID" />
+            <PropertyRef Name="SITE_IDX" />
+            <PropertyRef Name="SITE_ID" />
+            <PropertyRef Name="SITE_NAME" />
+            <PropertyRef Name="CURR_UTC" />
+          </Key>
+          <Property Name="ORG_ID" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="SITE_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="SITE_ID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="SITE_NAME" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="POLLING_ONLINE_IND" Type="bit" />
+          <Property Name="POLLING_LAST_RUN_DT" Type="datetime2" Precision="7" />
+          <Property Name="POLLING_NEXT_RUN_DT" Type="datetime2" Precision="7" />
+          <Property Name="AIRNOW_IND" Type="bit" />
+          <Property Name="AIRNOW_USR" Type="varchar" MaxLength="50" />
+          <Property Name="AIRNOW_PWD" Type="varchar" MaxLength="50" />
+          <Property Name="AIRNOW_ORG" Type="varchar" MaxLength="3" />
+          <Property Name="AIRNOW_SITE" Type="varchar" MaxLength="10" />
+          <Property Name="LOGGER_TYPE" Type="varchar" MaxLength="20" />
+          <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="RAW_DURATION_CODE" Type="varchar" MaxLength="1" />
+          <Property Name="LAST_UTC_POLL" Type="datetime2" Precision="0" />
+          <Property Name="CURR_UTC" Type="datetime" Nullable="false" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -1370,6 +1410,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="tz" Type="varchar" Mode="In" />
         </Function>
+        <Function Name="SP_FIVE_MIN_DATA_GAPS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
+        </Function>
         <Function Name="SP_IMPORT_DATA_FROM_TEMP" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="import_idx" Type="uniqueidentifier" Mode="In" />
         </Function>
@@ -1452,6 +1495,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="T_QREST_REF_PARAMETERS" EntityType="Self.T_QREST_REF_PARAMETERS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_QC" EntityType="Self.T_QREST_REF_QC" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_QC_AUDIT_LVL" EntityType="Self.T_QREST_REF_QC_AUDIT_LVL" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="T_QREST_REF_QUAL_DISALLOW" EntityType="Self.T_QREST_REF_QUAL_DISALLOW" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_QUALIFIER" EntityType="Self.T_QREST_REF_QUALIFIER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_REGION" EntityType="Self.T_QREST_REF_REGION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="T_QREST_REF_STATE" EntityType="Self.T_QREST_REF_STATE" Schema="dbo" store:Type="Tables" />
@@ -1497,6 +1541,27 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
     [MONITOR_SNAPSHOT].[lvl1] AS [lvl1], 
     [MONITOR_SNAPSHOT].[lvl2] AS [lvl2]
     FROM [dbo].[MONITOR_SNAPSHOT] AS [MONITOR_SNAPSHOT]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="SITE_HEALTH" EntityType="Self.SITE_HEALTH" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SITE_HEALTH].[ORG_ID] AS [ORG_ID], 
+    [SITE_HEALTH].[SITE_IDX] AS [SITE_IDX], 
+    [SITE_HEALTH].[SITE_ID] AS [SITE_ID], 
+    [SITE_HEALTH].[SITE_NAME] AS [SITE_NAME], 
+    [SITE_HEALTH].[POLLING_ONLINE_IND] AS [POLLING_ONLINE_IND], 
+    [SITE_HEALTH].[POLLING_LAST_RUN_DT] AS [POLLING_LAST_RUN_DT], 
+    [SITE_HEALTH].[POLLING_NEXT_RUN_DT] AS [POLLING_NEXT_RUN_DT], 
+    [SITE_HEALTH].[AIRNOW_IND] AS [AIRNOW_IND], 
+    [SITE_HEALTH].[AIRNOW_USR] AS [AIRNOW_USR], 
+    [SITE_HEALTH].[AIRNOW_PWD] AS [AIRNOW_PWD], 
+    [SITE_HEALTH].[AIRNOW_ORG] AS [AIRNOW_ORG], 
+    [SITE_HEALTH].[AIRNOW_SITE] AS [AIRNOW_SITE], 
+    [SITE_HEALTH].[LOGGER_TYPE] AS [LOGGER_TYPE], 
+    [SITE_HEALTH].[TIME_POLL_TYPE] AS [TIME_POLL_TYPE], 
+    [SITE_HEALTH].[RAW_DURATION_CODE] AS [RAW_DURATION_CODE], 
+    [SITE_HEALTH].[LAST_UTC_POLL] AS [LAST_UTC_POLL], 
+    [SITE_HEALTH].[CURR_UTC] AS [CURR_UTC]
+    FROM [dbo].[SITE_HEALTH] AS [SITE_HEALTH]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="Self.USERLIST_DISPLAY_VIEW" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
@@ -1977,6 +2042,11 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <FunctionImport Name="SP_TRAIN_COURSE_USER_PROGRESS" ReturnType="Collection(QRESTModel.SP_TRAIN_COURSE_USER_PROGRESS_Result)">
           <Parameter Name="useridx" Mode="In" Type="String" />
           </FunctionImport>
+          <FunctionImport Name="SP_FIVE_MIN_DATA_GAPS" ReturnType="Collection(QRESTModel.SP_FIVE_MIN_DATA_GAPS_Result)">
+          <Parameter Name="siteid" Mode="In" Type="Guid" />
+          </FunctionImport>
+          <EntitySet Name="SITE_HEALTH" EntityType="QRESTModel.SITE_HEALTH" />
+          <EntitySet Name="T_QREST_REF_QUAL_DISALLOW" EntityType="QRESTModel.T_QREST_REF_QUAL_DISALLOW" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -3542,6 +3612,49 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Type="Int32" Name="COURSE_LESSON_TOT" Nullable="true" />
           <Property Type="Int32" Name="COURSE_LESSON_COMP" Nullable="true" />
         </ComplexType>
+        <ComplexType Name="SP_FIVE_MIN_DATA_GAPS_Result">
+          <Property Type="Guid" Name="DATA_FIVE_IDX" Nullable="false" />
+          <Property Type="DateTime" Name="DATA_DTTM" Nullable="true" />
+          <Property Type="DateTime" Name="NEXT_DTTM" Nullable="true" />
+        </ComplexType>
+        <EntityType Name="SITE_HEALTH">
+          <Key>
+            <PropertyRef Name="ORG_ID" />
+            <PropertyRef Name="SITE_IDX" />
+            <PropertyRef Name="SITE_ID" />
+            <PropertyRef Name="SITE_NAME" />
+            <PropertyRef Name="CURR_UTC" />
+          </Key>
+          <Property Name="ORG_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="SITE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="SITE_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SITE_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="POLLING_ONLINE_IND" Type="Boolean" />
+          <Property Name="POLLING_LAST_RUN_DT" Type="DateTime" Precision="7" />
+          <Property Name="POLLING_NEXT_RUN_DT" Type="DateTime" Precision="7" />
+          <Property Name="AIRNOW_IND" Type="Boolean" />
+          <Property Name="AIRNOW_USR" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AIRNOW_PWD" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AIRNOW_ORG" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="AIRNOW_SITE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LOGGER_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="TIME_POLL_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="RAW_DURATION_CODE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="LAST_UTC_POLL" Type="DateTime" Precision="0" />
+          <Property Name="CURR_UTC" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="T_QREST_REF_QUAL_DISALLOW">
+          <Key>
+            <PropertyRef Name="QUAL_CODE" />
+            <PropertyRef Name="PAR_CODE" />
+          </Key>
+          <Property Name="QUAL_CODE" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="PAR_CODE" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4597,6 +4710,50 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_FIVE_MIN_DATA_GAPS" FunctionName="QRESTModel.Store.SP_FIVE_MIN_DATA_GAPS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_FIVE_MIN_DATA_GAPS_Result">
+                <ScalarProperty Name="DATA_FIVE_IDX" ColumnName="DATA_FIVE_IDX" />
+                <ScalarProperty Name="DATA_DTTM" ColumnName="DATA_DTTM" />
+                <ScalarProperty Name="NEXT_DTTM" ColumnName="NEXT_DTTM" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="SITE_HEALTH">
+            <EntityTypeMapping TypeName="QRESTModel.SITE_HEALTH">
+              <MappingFragment StoreEntitySet="SITE_HEALTH">
+                <ScalarProperty Name="CURR_UTC" ColumnName="CURR_UTC" />
+                <ScalarProperty Name="LAST_UTC_POLL" ColumnName="LAST_UTC_POLL" />
+                <ScalarProperty Name="RAW_DURATION_CODE" ColumnName="RAW_DURATION_CODE" />
+                <ScalarProperty Name="TIME_POLL_TYPE" ColumnName="TIME_POLL_TYPE" />
+                <ScalarProperty Name="LOGGER_TYPE" ColumnName="LOGGER_TYPE" />
+                <ScalarProperty Name="AIRNOW_SITE" ColumnName="AIRNOW_SITE" />
+                <ScalarProperty Name="AIRNOW_ORG" ColumnName="AIRNOW_ORG" />
+                <ScalarProperty Name="AIRNOW_PWD" ColumnName="AIRNOW_PWD" />
+                <ScalarProperty Name="AIRNOW_USR" ColumnName="AIRNOW_USR" />
+                <ScalarProperty Name="AIRNOW_IND" ColumnName="AIRNOW_IND" />
+                <ScalarProperty Name="POLLING_NEXT_RUN_DT" ColumnName="POLLING_NEXT_RUN_DT" />
+                <ScalarProperty Name="POLLING_LAST_RUN_DT" ColumnName="POLLING_LAST_RUN_DT" />
+                <ScalarProperty Name="POLLING_ONLINE_IND" ColumnName="POLLING_ONLINE_IND" />
+                <ScalarProperty Name="SITE_NAME" ColumnName="SITE_NAME" />
+                <ScalarProperty Name="SITE_ID" ColumnName="SITE_ID" />
+                <ScalarProperty Name="SITE_IDX" ColumnName="SITE_IDX" />
+                <ScalarProperty Name="ORG_ID" ColumnName="ORG_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="T_QREST_REF_QUAL_DISALLOW">
+            <EntityTypeMapping TypeName="QRESTModel.T_QREST_REF_QUAL_DISALLOW">
+              <MappingFragment StoreEntitySet="T_QREST_REF_QUAL_DISALLOW">
+                <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
+                <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="QUAL_CODE" ColumnName="QUAL_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

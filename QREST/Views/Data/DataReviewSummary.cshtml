@@ -20,6 +20,15 @@
         }
         @if (Model.Results != null)
         {
+            if (Model.FiveMinGaps > 0)
+            {
+            <div class="alert alert-danger">
+                <b>WARNING: </b>@Model.FiveMinGaps gap(s) of missing 5 minute data were detected for this site in the past month. Click to resolve.
+                <br/>
+                <a class=" btn btn-danger" href="@Url.Action("FillGaps", new { id = Model.selSite } )">Resolve</a>
+            </div>
+            }
+
             if (Model.Results.Count == 0)
             {
                 <span class="text-danger">No data for the selected parameter and month.</span>
@@ -100,7 +109,7 @@
             </div>
         }
         else
-        {            
+        {
             <div class="row col-md-12">No data</div>
         }
         <div class="row">

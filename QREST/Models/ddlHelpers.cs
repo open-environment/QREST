@@ -116,8 +116,10 @@ namespace QREST.Models
         {
             List<SelectListItem> _list = new List<SelectListItem>();
             _list.Add(new SelectListItem() { Value = "CAMPBELL", Text = "Campbell Scientific" });
-            _list.Add(new SelectListItem() { Value = "ZENO", Text = "Zeno 3200 - TCP Connection" });
-            _list.Add(new SelectListItem() { Value = "SUTRON", Text = "Sutron - TCP Connection" });
+            _list.Add(new SelectListItem() { Value = "ZENO", Text = "Zeno 3200" });
+            _list.Add(new SelectListItem() { Value = "SUTRON", Text = "Sutron" });
+            _list.Add(new SelectListItem() { Value = "SUTRON_LEADS", Text = "Sutron w/LEADS" });
+            _list.Add(new SelectListItem() { Value = "ESC", Text = "Agilaire/ESC" });
             _list.Add(new SelectListItem() { Value = "WEATHER_PWS", Text = "Weather.com Personal Weather Station" });
             return _list;
         }
@@ -326,9 +328,9 @@ namespace QREST.Models
             });
         }
 
-        public static IEnumerable<SelectListItem> get_ddl_ref_qualifierNonNull()
+        public static IEnumerable<SelectListItem> get_ddl_ref_qualifierNonNull(string parCode)
         {
-            return db_Ref.GetT_QREST_REF_QUALIFIER_NonNull().Select(x => new SelectListItem
+            return db_Ref.GetT_QREST_REF_QUALIFIER_NonNull(parCode).Select(x => new SelectListItem
             {
                 Value = x.QUAL_CODE,
                 Text = x.QUAL_CODE + " - " + x.QUAL_DESC.Truncate(50)

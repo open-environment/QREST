@@ -478,7 +478,7 @@ namespace QRESTModel.DataTableGen
 
         public static DataTable GetHourlyLogByHourlyIDX(Guid dATA_HOURLY_IDX)
         {
-            DataTable _dt = new DataTable("Hourly Log");
+            DataTable _dt = new DataTable("Data Review Notes Log");
             _dt.Columns.AddRange(new DataColumn[4] {
                 //new DataColumn("SITE_ID"),
                 //new DataColumn("PAR_CODE"),

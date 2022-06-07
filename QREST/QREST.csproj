@@ -101,6 +101,9 @@
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
+    <Reference Include="Renci.SshNet, Version=2020.0.1.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2020.0.1\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -676,6 +679,8 @@
     <Content Include="Views\Training\Certificate.cshtml" />
     <Content Include="Views\Home\PushDataToQREST.cshtml" />
     <Content Include="Views\Reports\LogActivity.cshtml" />
+    <Content Include="Views\Data\FillGaps.cshtml" />
+    <Content Include="Views\Reports\RefDisallowQual.cshtml" />
     <None Include="Web.ReleaseTest.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

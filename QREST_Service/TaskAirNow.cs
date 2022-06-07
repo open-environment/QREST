@@ -73,16 +73,44 @@ namespace QRESTServiceCatalog
                         }
                     }
 
-                    using (var client = new System.Net.WebClient())
+                    string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
+                    string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
+                    string ip = "webdmcdata.airnowtech.org";
+                    using (var client = new Renci.SshNet.SftpClient(ip, ftpUser, ftpPwd))
                     {
-                        string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
-                        string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
+                        try
+                        {
+                            client.Connect();
+                            client.ChangeDirectory("AQCSV");
 
-                        client.Credentials = new System.Net.NetworkCredential(ftpUser, ftpPwd);
-                        client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/" + file, System.Net.WebRequestMethods.Ftp.UploadFile, filepath);
+                            var xxx = client.ListDirectory(".");
+
+                            using (var fileStream = new FileStream(filepath, FileMode.Open))
+                            {
+                                client.BufferSize = 4 * 1024; // bypass payload error large files
+                                client.UploadFile(fileStream, Path.GetFileName(filepath));
+                            }
+
+                            client.Disconnect();
+                            General.WriteToFile("AirNow: File sent - " + file);
+                        }
+                        catch (Exception ex)
+                        {
+                            General.WriteToFile("AirNow: ERROR - " + ex.Message);
+                        }
                     }
 
-                    General.WriteToFile("AirNow: File sent - " + file);
+                    //PREVIOUS AIRNOW CONNECTION APPROACH************************************
+                    //using (var client = new System.Net.WebClient())
+                    //{
+                    //    string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
+                    //    string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
+
+                    //    client.Credentials = new System.Net.NetworkCredential(ftpUser, ftpPwd);
+                    //    client.UploadFile("ftp://ftp.airnowdata.org/incoming/data/AQCSV/" + file, System.Net.WebRequestMethods.Ftp.UploadFile, filepath);
+                    //}
+                    //General.WriteToFile("AirNow: File sent - " + file);
+                    //END PREVIOUS AIRNOW CONNECTION APPROACH************************************
                 }
             }
 

@@ -109,7 +109,7 @@ namespace QRESTModel.COMM
         {
             var log = new CommMessageLog();
 
-            // This discards any pending data and Winsock resets the connection.
+            // This dictates that the socket will not longer open after the socket is closed
             LingerOption lingerOption = new LingerOption(true, 0);
 
             //Create a TCPClient object at the IP and port
@@ -125,7 +125,6 @@ namespace QRESTModel.COMM
                         using (NetworkStream stream = client.GetStream())
                         {
                             //*************** send sailer message *****************************
-                            //siteID = "1018";
                             string xxx = SendReceiveMessage(stream, "#" + siteID + "0001" + message, 700, 700, true);
                             if (xxx != null && xxx.Length > 10)
                             {
@@ -134,6 +133,149 @@ namespace QRESTModel.COMM
                             }
                             else
                                 log = new CommMessageLog { CommMessageStatus = false, CommMessageType = xxx, CommResponse = "" };
+
+                            //disconnect
+                            client.Client.Close();
+                            System.Threading.Thread.Sleep(250);
+                            client.Close();
+                        }
+                    }
+
+                }
+                catch (SocketException sex)
+                {
+                    //disconnect if exception
+                    client.Client.Close();
+                    System.Threading.Thread.Sleep(250);
+                    client.Close();
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping Socket Exception 1", CommResponse = sex.Message };
+                }
+                catch (Exception ex)
+                {
+                    //disconnect if exception
+                    client.Client.Close();
+                    System.Threading.Thread.Sleep(250);
+                    client.Close();
+
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping General Exception 2", CommResponse = ex.Message };
+                }
+            }
+
+            return log;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="command">DDDHHMMSS|Y|DDDHHMMSS</param>
+        /// <param name="siteID"></param>
+        /// <returns></returns>
+        public static CommMessageLog ConnectTcpESC(string ip, ushort port, string command, string siteID)
+        {
+            var log = new CommMessageLog();
+
+            //Create a TCPClient object at the IP and port
+            using (TcpClient client = new TcpClient { SendTimeout = 2000, ReceiveTimeout = 2000, LingerState = new LingerOption(true, 0) })
+            {
+                try
+                {
+                    if (!client.ConnectAsync(ip, port).Wait(TimeSpan.FromSeconds(10)))
+                        log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Connect", CommResponse = "" };
+                    else
+                    {
+                        // Get a client stream for reading and writing.
+                        using (NetworkStream stream = client.GetStream())
+                        {
+                            //*************** send message and get response *****************************
+                            string xxx = SendReceiveMessage(stream, "@" + siteID + "!5600" + "001H" + command + "&$", 700, 700, false);
+                            if (xxx != null && xxx.Length > 10)
+                            {
+                                xxx = stripMessage(xxx, "#0001" + siteID); //strip unnecessary stuff from beginning of file (TO DO replace with validity check)
+                                log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = xxx };
+                            }
+                            else
+                                log = new CommMessageLog { CommMessageStatus = false, CommMessageType = xxx, CommResponse = "" };
+
+                            //disconnect
+                            client.Client.Close();
+                            System.Threading.Thread.Sleep(250);
+                            client.Close();
+                        }
+                    }
+
+                }
+                catch (SocketException sex)
+                {
+                    //disconnect if exception
+                    client.Client.Close();
+                    System.Threading.Thread.Sleep(250);
+                    client.Close();
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping Socket Exception 1", CommResponse = sex.Message };
+                }
+                catch (Exception ex)
+                {
+                    //disconnect if exception
+                    client.Client.Close();
+                    System.Threading.Thread.Sleep(250);
+                    client.Close();
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping General Exception 2", CommResponse = ex.Message };
+                }
+            }
+
+            return log;
+        }
+
+
+        /// <summary>
+        /// Creates a TCP Connection to a data logger, and then uses a SAILER command to connect to a Zeno or Sutron data logger and return the logger response, based on the input message.
+        /// </summary>
+        /// <param name="ip">Data logger IP address</param>
+        /// <param name="port">Data logger port</param>
+        /// <param name="message">CCSAILER command to issue to logger</param>
+        /// <param name="siteID">Four digit site ID that the logger uses to define the site</param>
+        /// <returns></returns>
+        public static CommMessageLog ConnectTcpSutron(string ip, ushort port, string username, string password, string message)
+        {
+            var log = new CommMessageLog();
+
+            // This dictates that the socket will not longer open after the socket is closed
+            LingerOption lingerOption = new LingerOption(true, 0);
+
+            //Create a TCPClient object at the IP and port
+            using (TcpClient client = new TcpClient { SendTimeout = 2000, ReceiveTimeout = 2000, LingerState = lingerOption })
+            {
+                try
+                {
+                    if (!client.ConnectAsync(ip, port).Wait(TimeSpan.FromSeconds(2)))
+                        log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Connect", CommResponse = "" };
+                    else
+                    {
+                        // Get a client stream for reading and writing.
+                        using (NetworkStream stream = client.GetStream())
+                        {
+                            //*************** send username *****************************
+                            string _usrResp = SendReceiveMessage(stream, username + "\r", 700, 700, false);
+                            if (_usrResp != null && _usrResp.Length > 10 && _usrResp.Contains("assword"))
+                            {
+                                string _pwdResp = SendReceiveMessage(stream, password + "\r", 700, 700, false);
+                                if (_pwdResp != null && _pwdResp.Length > 10 && _pwdResp.Contains("Flash"))
+                                {
+                                    string xxx = SendReceiveMessage(stream, message + "\r", 700, 700, false);
+                                    if (xxx != null && xxx.Length > 10)
+                                    {
+                                        //xxx = stripMessage(xxx, "#0001" + siteID); //strip unnecessary stuff from beginning of file (TO DO replace with validity check)
+                                        log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = xxx };
+                                    }
+                                    else
+                                        log = new CommMessageLog { CommMessageStatus = false, CommMessageType = xxx, CommResponse = "" };
+                                }
+                                else
+                                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password failed", CommResponse = "" };
+                            }
+                            else
+                                log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password failed", CommResponse = "" };
 
                             //disconnect
                             client.Client.Close();
@@ -186,7 +328,7 @@ namespace QRESTModel.COMM
             while (!_cancelToken.IsCancellationRequested)
             {
                 // ****************Send message to the connected TcpServer ********************************
-                Thread.Sleep(msWaitPreSend ?? 700); //wait for socket to be ready write data
+                Thread.Sleep(msWaitPreSend ?? 100); //wait for socket to be ready write data
 
                 Byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(message);
 
@@ -209,9 +351,9 @@ namespace QRESTModel.COMM
                 stream.Write(bytesToSend, 0, bytesToSend.Length);
 
                 // ****************Read response after the send command ********************************
-                Thread.Sleep(msWaitPostSend ?? 700); //wait for socket to begin writing response
+                Thread.Sleep(msWaitPostSend ?? 100); //wait for socket to begin writing response
                 var ms = new MemoryStream();
-                byte[] data = new byte[1024];
+                byte[] data = new byte[8192];
                 int numBytesRead;
                 do
                 {

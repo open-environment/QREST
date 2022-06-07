@@ -27,6 +27,9 @@ namespace QREST.Controllers
                 ddl_MyMonitors = ddlHelpers.get_monitors_sampled_by_user(UserIDX, 30)
             };
 
+            if (User.IsInRole("GLOBAL ADMIN"))
+                model.SiteHealth = db_Air.GetSITE_HEALTH();
+            
             return View(model);
         }
 

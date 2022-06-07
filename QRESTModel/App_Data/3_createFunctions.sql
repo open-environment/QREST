@@ -214,6 +214,20 @@ and DATA_VALUE <> 'FEW');
 GO
 
 
+CREATE VIEW [dbo].[SITE_HEALTH] AS
+select S.ORG_ID, S.SITE_IDX, S.SITE_ID, S.SITE_NAME, S.POLLING_ONLINE_IND, S.POLLING_LAST_RUN_DT, 
+S.POLLING_NEXT_RUN_DT, S.AIRNOW_IND, S.AIRNOW_USR, S.AIRNOW_PWD, S.AIRNOW_ORG, S.AIRNOW_SITE, 
+PC.LOGGER_TYPE, PC.TIME_POLL_TYPE, PC.[RAW_DURATION_CODE]
+,(select max([DATA_DTTM]) from T_QREST_DATA_FIVE_MIN F, T_QREST_MONITORS M where F.MONITOR_IDX=M.MONITOR_IDX and M.SITE_IDX = S.SITE_IDX and data_dttm>getdate()-7) as LAST_UTC_POLL
+,GETUTCDATE() as CURR_UTC
+from T_QREST_SITES S, T_QREST_SITE_POLL_CONFIG PC
+where PC.SITE_IDX=S.SITE_IDX
+and PC.ACT_IND=1
+and S.POLLING_ONLINE_IND=1
+
+
+GO
+
 
 
 --STORED PROCEDURES *******************************************************************************************************
@@ -1169,9 +1183,45 @@ BEGIN
 
 END;
 
+GO
+
+
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_FIVE_MIN_DATA_GAPS]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+CREATE PROCEDURE [dbo].[SP_FIVE_MIN_DATA_GAPS] 
+	@siteid uniqueidentifier
+AS
+BEGIN   
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--1. identifies where there are gaps in 5 minute data for a given site
+	--CHANGE LOG
+	------------------------------
+	--4/17/2022 created
+
+	--DECLARE @siteid uniqueidentifier
+	--set @siteid = '14E3F3B4-8A76-4380-88CD-FB277292240A'
+
+	SET NOCOUNT ON;  
+
+	DECLARE @mon uniqueidentifier;  
+	select top 1 @mon = M.monitor_idx from T_QREST_DATA_FIVE_MIN F, T_QREST_MONITORS M where M.MONITOR_IDX=F.MONITOR_IDX and M.SITE_IDX = @siteid and [DATA_DTTM] > GetDate()-30
+
+	;with cte as
+	(SELECT DATA_FIVE_IDX, 
+			DATA_DTTM,
+			LEAD(DATA_DTTM,1) OVER (ORDER BY DATA_DTTM) NEXT_DTTM
+	FROM 
+		T_QREST_DATA_FIVE_MIN where MONITOR_IDX = @mon and [DATA_DTTM]> GetDate()-30
+	)
+	select * from cte where datediff(mi, data_dttm, NEXT_DTTM) > 60
+
+END;
 
 
 GO
+
 
 
 
@@ -1263,3 +1313,4 @@ END
 
 
 GO
+

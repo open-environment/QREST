@@ -1,7 +1,7 @@
 ﻿@model QREST.Models.vmAdminImport
 @{
     ViewBag.Title = "Import Reference Data";
-    ViewBag.SubTitle = "Import the latest reference data from AQS. Import csv files can be found: <a href='https://www.epa.gov/aqs/aqs-code-list' target='_blank'>HERE</a>. Files that can be imported are: States/Counties, Agencies-Tribal, Durations, Frequencies, Unit Codes, Parameter Codes, Parameter Methods, and Qualifiers. Import Parameter Codes before importing Parameter methods.";
+    ViewBag.SubTitle = "Import the latest reference data from AQS. Import csv files can be found: <a href='https://www.epa.gov/aqs/aqs-code-list' target='_blank'>HERE</a>. Files that can be imported are: States/Counties, Agencies-Tribal, Durations, Frequencies, Unit Codes, Parameter Codes, Parameter Methods, Qualifiers, and Disallowed Qualifiers. Import Parameter Codes before importing Parameter methods.";
 }
 
 @using (Html.BeginForm("ImportData", "Admin", null, FormMethod.Post, new { enctype = "multipart/form-data", @id = "norepostform" }))

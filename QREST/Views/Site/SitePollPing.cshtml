@@ -15,22 +15,34 @@
             <div class="row">
                 <div class="col-md-4">
                     <label class="btn ">
-                        @Html.RadioButtonFor(m => m.pingType, "Ping Only", new { @checked="checked", @class = "form-control" }) Ping Only
+                        @Html.RadioButtonFor(m => m.pingType, "Ping Only", new { @checked = "checked", @class = "form-control pinger" }) Ping Only
                     </label>
                     <label class="btn ">
-                        @Html.RadioButtonFor(m => m.pingType, "Retrieve Data", new { @class = "form-control" }) Retrieve Data
+                        @Html.RadioButtonFor(m => m.pingType, "Retrieve Data", new { @class = "form-control pinger" }) Retrieve Data
                     </label>
                     @Html.ValidationMessageFor(m => m.pingType)
                 </div>
-                <div class="col-md-4">
+
+                @if (Model.LOGGER_TYPE != "SUTRON_LEADS")
+                {
+                <div class="col-md-4 poll-data" style="display:none;">
                     <label>Last X Records</label>
                     @Html.TextBoxFor(model => model.recCount, new { @class = "form-control", @maxlength = "3" })
                     @Html.ValidationMessageFor(model => model.recCount)
                 </div>
+                }
+                else
+                {
+            <div class="col-md-4 poll-data" style="display:none;">
+                <label>Today's Records</label>
+                <input class="form-control" id="ignore" name="ignore1" readonly="readonly" type="text" value="Today">
+                @Html.ValidationMessageFor(model => model.recCount)
+            </div>                    
+                }
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <button id="btnSave" type="submit" class="btn btn-primary">Submit</button>
+                    <button id="btnSave" type="submit" class="btn btn-primary">Ping</button>
                     <a class=" btn btn-default pull-right" href="@Url.Action("SitePollConfig", new { configid = Model.POLL_CONFIG_IDX })">Back to Polling Config</a>
                 </div>
             </div>
@@ -88,3 +100,30 @@
     </div>
 
 </section>
+
+
+@section scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+
+            //update the saved lat/long coordinates back to main form
+            $('.pinger').change(function () {
+                if (this.value == "Ping Only") {
+                    $(".poll-data").hide();
+                    $("#btnSave").html("Ping");
+                }
+                else {
+                    $(".poll-data").show();
+                    $("#btnSave").html("Retrieve");
+                }
+            });
+
+
+        });
+
+    </script>
+
+}

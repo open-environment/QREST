@@ -1365,6 +1365,7 @@ namespace QRESTModel.DAL
                 {
                     return (from a in ctx.T_QREST_SITE_POLL_CONFIG_DTL.AsNoTracking()
                             join b in ctx.T_QREST_MONITORS.AsNoTracking() on a.MONITOR_IDX equals b.MONITOR_IDX
+                            join c in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on b.PAR_METHOD_IDX equals c.PAR_METHOD_IDX
                             where a.POLL_CONFIG_IDX == PollConfigIDX
                             && (OnlyWithCols == true ? a.COL != null : true)
                             select new SitePollingConfigDetailType
@@ -1378,7 +1379,8 @@ namespace QRESTModel.DAL
                                 ALERT_MIN_VALUE = b.ALERT_MIN_VALUE,
                                 ALERT_MAX_TYPE = b.ALERT_MAX_TYPE,
                                 ALERT_MAX_VALUE = b.ALERT_MAX_VALUE,
-                                ADJUST_FACTOR = a.ADJUST_FACTOR ?? 1
+                                ADJUST_FACTOR = a.ADJUST_FACTOR ?? 1,
+                                PAR_CODE = c.PAR_CODE
                             }).ToList();
 
                 }
@@ -3944,68 +3946,76 @@ namespace QRESTModel.DAL
                             foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                             {
                                 //****************************** START COLUMN POLLUTANT READING******************************************************************************
-                                string dATA_VALUE = cols[(_item.COL ?? 1) - 1].Trim();
+                                string dATA_VALUE = cols[(_item.COL ?? 1) - 1]?.Trim();
 
-                                T_QREST_DATA_IMPORT_TEMP f = new T_QREST_DATA_IMPORT_TEMP
+                                if (dATA_VALUE.Length > 0)
                                 {
-                                    DATA_IMPORT_TEMP_IDX = Guid.NewGuid(),
-                                    IMPORT_USER_IDX = UserIDX,
-                                    MONITOR_IDX = _item.MONITOR_IDX,
-                                    UNIT_CODE = _item.COLLECT_UNIT_CODE,
-                                    IMPORT_DT = System.DateTime.Now,
-                                    IMPORT_VAL_IND = true,
-                                    IMPORT_DUP_IND = false,
-                                    IMPORT_IDX = iMPORT_IDX
-                                };
-                                
-                                if (DateTime.TryParseExact(dateTimeString, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtRaw))
-                                {
-                                    if (dtRaw.Second != 0)
+                                    T_QREST_DATA_IMPORT_TEMP f = new T_QREST_DATA_IMPORT_TEMP
                                     {
-                                        f.IMPORT_VAL_IND = false;
-                                        f.IMPORT_MSG = "Seconds must be 0 for import";
+                                        DATA_IMPORT_TEMP_IDX = Guid.NewGuid(),
+                                        IMPORT_USER_IDX = UserIDX,
+                                        MONITOR_IDX = _item.MONITOR_IDX,
+                                        UNIT_CODE = _item.COLLECT_UNIT_CODE,
+                                        IMPORT_DT = System.DateTime.Now,
+                                        IMPORT_VAL_IND = true,
+                                        IMPORT_DUP_IND = false,
+                                        IMPORT_IDX = iMPORT_IDX
+                                    };
+
+                                    if (DateTime.TryParseExact(dateTimeString, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtRaw))
+                                    {
+                                        if (dtRaw.Second != 0)
+                                        {
+                                            f.IMPORT_VAL_IND = false;
+                                            f.IMPORT_MSG = "Seconds must be 0 for import";
+                                        }
+                                        else
+                                        {
+                                            f.DATA_DTTM_UTC = (timePollType == "U" ? dtRaw : dtRaw.AddHours(timeZoneOffset * (-1)));
+                                            f.DATA_DTTM_LOCAL = (timePollType == "L" ? dtRaw : dtRaw.AddHours(timeZoneOffset));
+                                        }
                                     }
                                     else
                                     {
-                                        f.DATA_DTTM_UTC = (timePollType == "U" ? dtRaw : dtRaw.AddHours(timeZoneOffset * (-1)));
-                                        f.DATA_DTTM_LOCAL = (timePollType == "L" ? dtRaw : dtRaw.AddHours(timeZoneOffset));
-                                    }
-                                }
-                                else
-                                {
-                                    f.IMPORT_VAL_IND = false;
-                                    f.IMPORT_MSG = "Datetime cannot be read";
-                                }
-
-                                //DATA VALUE VALIDATION/POPULATION
-                                //if numeric, store as numeric
-                                if (Decimal.TryParse(dATA_VALUE, out decimal val_num))
-                                {
-                                    f.DATA_VALUE = dATA_VALUE;
-                                    f.DATA_VALUE_NUM = val_num;
-                                }
-                                else  //non-numeric
-                                {
-                                    dATA_VALUE = dATA_VALUE.Replace("*", "");
-
-                                    //fail if non-numeric too long
-                                    if (dATA_VALUE.Length > 5)
-                                    {
                                         f.IMPORT_VAL_IND = false;
-                                        f.IMPORT_MSG = "Non-numeric and string length > 5";
+                                        f.IMPORT_MSG = "Datetime cannot be read";
                                     }
-                                    //save as AQS Null Code if matched
-                                    else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNull(dATA_VALUE))
-                                        f.AQS_NULL_CODE = dATA_VALUE;
-                                    //lookup AQS Qual Codes
-                                    else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNotNull(dATA_VALUE))
-                                        f.AQS_QUAL_CODES = dATA_VALUE;
-                                    else
-                                        f.VAL_CD = dATA_VALUE;
+
+                                    //DATA VALUE VALIDATION/POPULATION
+                                    //if numeric, store as numeric
+                                    if (Decimal.TryParse(dATA_VALUE, out decimal val_num))
+                                    {
+                                        f.DATA_VALUE = dATA_VALUE;
+                                        f.DATA_VALUE_NUM = val_num;
+                                    }
+                                    else  //non-numeric
+                                    {
+                                        dATA_VALUE = dATA_VALUE.Replace("*", "");
+
+                                        //fail if non-numeric too long
+                                        if (dATA_VALUE.Length > 5)
+                                        {
+                                            f.IMPORT_VAL_IND = false;
+                                            f.IMPORT_MSG = "Non-numeric and string length > 5";
+                                        }
+                                        //reject if disallowed qualifier
+                                        else if (db_Ref.IsDisallowedQualifier(_item.PAR_CODE, dATA_VALUE))
+                                        {
+                                            f.IMPORT_VAL_IND = false;
+                                            f.IMPORT_MSG = "Qualifier " + dATA_VALUE + " not allowed for this par code";
+                                        }
+                                        //save as AQS Null Code if matched
+                                        else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNull(dATA_VALUE))
+                                            f.AQS_NULL_CODE = dATA_VALUE;
+                                        //lookup AQS Qual Codes
+                                        else if (db_Ref.GetT_QREST_REF_QUALIFIER_LookupNotNull(dATA_VALUE))
+                                            f.AQS_QUAL_CODES = dATA_VALUE;
+                                        else
+                                            f.VAL_CD = dATA_VALUE;
+                                    }
+
+                                    _impList.Add(f);
                                 }
-
-                                _impList.Add(f);
-
                                 //ctx.T_QREST_DATA_IMPORT_TEMP.Add(f);
                                 //iCount++;
 
@@ -4850,6 +4860,23 @@ namespace QRESTModel.DAL
         }
 
 
+        public static List<SITE_HEALTH> GetSITE_HEALTH()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.SITE_HEALTH.AsNoTracking()
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
         //*****************STORED PROCEDURES**********************************
         //*****************STORED PROCEDURES**********************************
@@ -5043,6 +5070,22 @@ namespace QRESTModel.DAL
                 try
                 {
                     return ctx.SP_MONTHLY_STATS(sDate, eDate, mONITOR_IDX).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+        public static List<SP_FIVE_MIN_DATA_GAPS_Result> SP_FIVE_MIN_DATA_GAPS(Guid sITE_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_FIVE_MIN_DATA_GAPS(sITE_IDX).ToList();
                 }
                 catch (Exception ex)
                 {

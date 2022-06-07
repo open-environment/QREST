@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using QRESTModel.COMM;
+using Renci.SshNet;
 
 namespace QREST.Controllers
 {
@@ -777,7 +778,7 @@ namespace QREST.Controllers
                                     importType = "COLLECTION FREQUENCY";
                                 else if (cols[0] == "Unit Code")
                                     importType = "UNITS";
-                                else if (cols[0] == "Parameter Code")
+                                else if (cols[0] == "Parameter Code" && cols[2] == "Parameter Abbreviation")
                                     importType = "PARAMETERS";
                                 else if (cols[0] == "Parameter" && cols[2] == "Method Code")
                                     importType = "METHODS";
@@ -785,7 +786,8 @@ namespace QREST.Controllers
                                     importType = "STATES COUNTIES";
                                 else if (cols[0] == "Qualifier Code")
                                     importType = "QUALIFIERS";
-
+                                else if (cols[0] == "Parameter Code" && cols[2] == "Qualifier Code")
+                                    importType = "DISALLOWQUAL";
                                 headInd = false;
                             }
                             else
@@ -912,12 +914,26 @@ namespace QREST.Controllers
                                     else
                                         existCount++;
                                 }
-                                if (importType == "QUALIFIERS" && cols[4] == "YES")
+                                else if (importType == "QUALIFIERS" && cols[4] == "YES")
                                 {
                                     T_QREST_REF_QUALIFIER _data = db_Ref.GetT_QREST_REF_QUALIFIER_ByID(cols[0]);
                                     if (_data == null)
                                     {
                                         bool succId = db_Ref.InsertUpdatetT_QREST_REF_QUALIFIER(cols[0], cols[1], cols[3], UserIDX);
+                                        if (succId)
+                                            insCount++;
+                                        else
+                                            errorCount++;
+                                    }
+                                    else
+                                        existCount++;
+                                }
+                                else if (importType == "DISALLOWQUAL")
+                                {
+                                    T_QREST_REF_QUAL_DISALLOW _data = db_Ref.GetT_QREST_REF_QUAL_DISALLOW_ByIDs(cols[2], cols[0]);
+                                    if (_data == null)
+                                    {
+                                        bool succId = db_Ref.InsertUpdatetT_QREST_REF_QUAL_DISALLOW(cols[2], cols[0], UserIDX);
                                         if (succId)
                                             insCount++;
                                         else
@@ -1161,6 +1177,31 @@ namespace QREST.Controllers
 
 
         //************************************* TEST METHODS ************************************************************
+        public ActionResult TestAIRNOW() {
+            string ftpUser = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_USER");
+            string ftpPwd = db_Ref.GetT_QREST_APP_SETTING("AIRNOW_FTP_PWD");
+            string ip = "webdmcdata.airnowtech.org";
+
+            using (var client = new Renci.SshNet.SftpClient(ip, ftpUser, ftpPwd))
+            {
+                try
+                {
+                    client.Connect();
+                    client.ChangeDirectory("AQCSV");
+                    var xxx = client.ListDirectory(".");
+                    client.Disconnect();
+                    TempData["Success"] = "Credentials successful";
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = "Failed: " + ex.Message;
+                }
+            }
+
+            return RedirectToAction("AppSettings");
+
+        }
+        
         public ActionResult Testing()
         {
 

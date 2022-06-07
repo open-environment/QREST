@@ -224,6 +224,7 @@ namespace QREST.Models
         [Required]
         public string pingType { get; set; }
         public Guid POLL_CONFIG_IDX { get; set; }
+        public string LOGGER_TYPE { get; set; }
         public List<CommMessageLog> pingResults2 { get; set; }
         public string loggerData { get; set; }
         [Required]

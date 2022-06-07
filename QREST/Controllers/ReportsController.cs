@@ -427,5 +427,26 @@ namespace QREST.Controllers
 
 
 
+        public ActionResult RefDisallowQual()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult RefDisallowQualData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
+            int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
+            int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
+            int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
+            string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
+
+            List<T_QREST_REF_QUAL_DISALLOW> data = db_Ref.GetT_QREST_REF_QUAL_DISALLOW_data(pageSize, start, orderColName, orderDir);
+            var recordsTotal = db_Ref.GetT_QREST_REF_QUAL_DISALLOWCount();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+
     }
 }

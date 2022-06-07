@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "Reference Parameters";
+    ViewBag.HideTitle = true;
+    ViewBag.selOpt = "Qualifier";
+    ViewBag.HelpLink = "Reference-Data";
+}
+
+@Html.Partial("_RefDataTopNav")
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Qualifiers
+    </header>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Par Code</th>
+                            <th>Qual Code</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            // datatable initialization
+            $("#gridData").DataTable({
+                "responsive": true,
+                "serverSide": true,
+                "processing": true,
+                "orderMulti": false,
+                "lengthChange": false,
+                "paging": true,
+                "pageLength": 20,
+                "pagingType": "full_numbers",
+                "info": false,
+                "searching": false,
+                "ajax": {
+                    "url": "@Url.Action("RefDisallowQualData", "Reports")",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "PAR_CODE", "name": "PAR_CODE", "autoWidth": true },
+                    { "data": "QUAL_CODE", "name": "QUAL_CODE", "autoWidth": true }
+                ]
+            });
+
+        });
+    </script>
+}

@@ -1,0 +1,48 @@
+﻿@model QREST.Models.vmDataFillGaps
+@{
+    ViewBag.Title = "Fill Gaps";
+    ViewBag.HelpLink = "Fill-Gaps";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">Data Gaps</header>
+    <div class="panel-body">
+        @if (Model.dataGaps != null)
+        {
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Site</th>
+                            <th>Begin Missing Data</th>
+                            <th>End Missing Data</th>
+                            <th>Attempt to Retrieve</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.dataGaps)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.selSiteID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.DATA_DTTM)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.NEXT_DTTM)
+                            </td>
+                            <td>
+                                <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("FillGaps2", new { id = Model.selSite, sdt = item.DATA_DTTM, edt = item.NEXT_DTTM })"><i class="fa fa-download"></i> Retrieve</a>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-12">
+                <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selSite })">Back to Data Review</a>
+            </div>
+        </div>
+    </div>
+</section>

@@ -228,6 +228,7 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_Year { get; set; }
         public IEnumerable<SelectListItem> ddl_Sites { get; set; }
         public List<SP_AQS_REVIEW_STATUS_Result> Results { get; set; }
+        public int? FiveMinGaps { get; set; }
 
         public vmDataReviewSummary()
         {
@@ -310,8 +311,6 @@ namespace QREST.Models
         //initialize
         public vmDataReview2()
         {
-            ddl_NullQual = ddlHelpers.get_ddl_ref_qualifier("NULL");
-            ddl_Qual = ddlHelpers.get_ddl_ref_qualifierNonNull();
             editValueBlank = false;
             editFlagBlank = false;
             editDeleteRecords = false;
@@ -416,4 +415,14 @@ namespace QREST.Models
         public string AQSUser { get; set; }
 
     }
+
+    public class vmDataFillGaps
+    {
+        public Guid? selSite { get; set; }
+        public string selSiteID { get; set; }
+
+        public List<SP_FIVE_MIN_DATA_GAPS_Result> dataGaps { get; set; }
+
+    }
+
 }

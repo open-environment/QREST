@@ -17,6 +17,7 @@ namespace QREST.Models
 
         public IEnumerable<SelectListItem> ddl_MyMonitors { get; set; }
         public string selChartMon { get; set; }
+        public List<SITE_HEALTH> SiteHealth { get; set; }
 
     }
 }

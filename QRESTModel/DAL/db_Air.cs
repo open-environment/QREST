@@ -223,7 +223,18 @@ namespace QRESTModel.DAL
 
     public class AQSDisplay
     {
-        public T_QREST_AQS T_QREST_AQS { get; set; }
+        //public T_QREST_AQS T_QREST_AQS { get; set; }
+
+        public Guid AQS_IDX { get; set; }
+        public string COMMENT { get; set; }
+        public string AQS_SUBMISSION_NAME { get; set; }
+        public DateTime? CREATE_DT { get; set; }
+        public DateTime START_DT { get; set; }
+        public DateTime END_DT { get; set; }
+        public string SUBMISSION_STATUS { get; set; }
+        public string SUBMISSION_SUBSTATUS { get; set; }
+        public bool DOWNLOAD_FILE_IND { get; set; }
+
         public string SITE_ID { get; set; }
         public string SITE_NAME { get; set; }
         public string SUBMITTER { get; set; }
@@ -2587,7 +2598,7 @@ namespace QRESTModel.DAL
                 catch (Exception ex)
                 {
                     logEF.LogEFException(ex);
-                    return null;
+                    return null;    
                 }
             }
         }
@@ -4707,8 +4718,16 @@ namespace QRESTModel.DAL
                             from u in lj1.DefaultIfEmpty() //left join on submitter
                             where a.ORG_ID == oRG_ID
                             orderby a.CREATE_DT descending
-                            select new AQSDisplay { 
-                                T_QREST_AQS = a,
+                            select new AQSDisplay {
+                                AQS_IDX = a.AQS_IDX,
+                                COMMENT = a.COMMENT, 
+                                AQS_SUBMISSION_NAME = a.AQS_SUBMISSION_NAME, 
+                                CREATE_DT = a.CREATE_DT, 
+                                START_DT = a.START_DT, 
+                                END_DT = a.END_DT,
+                                SUBMISSION_STATUS = a.SUBMISSION_STATUS, 
+                                SUBMISSION_SUBSTATUS = a.SUBMISSION_SUBSTATUS, 
+                                DOWNLOAD_FILE_IND = (a.DOWNLOAD_FILE != null),
                                 SITE_ID = b.SITE_ID,
                                 SITE_NAME = b.SITE_NAME,
                                 SUBMITTER = u.FNAME + " " + u.LNAME
@@ -4741,7 +4760,7 @@ namespace QRESTModel.DAL
         }
 
         public static Guid? InsertUpdateT_QREST_AQS(Guid? aQS_IDX, string oRG_ID, Guid? sITE_IDX, string aQS_SUBMISSION_NAME, DateTime? sTART_DT, DateTime? eND_DT, 
-            byte[] aQS_CONTENT, int? dOC_SIZE, string cOMMENT, string sUBMISSION_STATUS, string UserIDX, string aQS_CONTENT_XML, string tRANS_ID, byte[] dOWNLOAD_FILE)
+            byte[] aQS_CONTENT, int? dOC_SIZE, string cOMMENT, string sUBMISSION_STATUS, string UserIDX, string aQS_CONTENT_XML, string tRANS_ID, byte[] dOWNLOAD_FILE, string sUBMISSION_SUBSTATUS = null)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -4779,6 +4798,7 @@ namespace QRESTModel.DAL
                     if (aQS_CONTENT_XML != null) e.AQS_CONTENT_XML = aQS_CONTENT_XML;
                     if (tRANS_ID != null) e.CDX_TOKEN = tRANS_ID;
                     if (dOWNLOAD_FILE != null) e.DOWNLOAD_FILE = dOWNLOAD_FILE;
+                    if (sUBMISSION_SUBSTATUS != null) e.SUBMISSION_SUBSTATUS = sUBMISSION_SUBSTATUS;
 
                     if (insInd)
                         ctx.T_QREST_AQS.Add(e);

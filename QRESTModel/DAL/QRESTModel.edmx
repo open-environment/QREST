@@ -63,6 +63,7 @@
           <Property Name="CDX_TOKEN" Type="varchar" MaxLength="250" />
           <Property Name="DOWNLOAD_FILE" Type="varbinary(max)" />
           <Property Name="AQS_TRANS_TYPE" Type="varchar" MaxLength="2" />
+          <Property Name="SUBMISSION_SUBSTATUS" Type="varchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="T_QREST_ASSESS_DOCS">
           <Key>
@@ -3048,6 +3049,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="CDX_TOKEN" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="DOWNLOAD_FILE" Type="Binary" MaxLength="Max" FixedLength="false" />
           <Property Name="AQS_TRANS_TYPE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="SUBMISSION_SUBSTATUS" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_T_QREST_AQS_O">
           <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
@@ -4366,6 +4368,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_AQS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_AQS">
               <MappingFragment StoreEntitySet="T_QREST_AQS">
+                <ScalarProperty Name="SUBMISSION_SUBSTATUS" ColumnName="SUBMISSION_SUBSTATUS" />
                 <ScalarProperty Name="AQS_TRANS_TYPE" ColumnName="AQS_TRANS_TYPE" />
                 <ScalarProperty Name="DOWNLOAD_FILE" ColumnName="DOWNLOAD_FILE" />
                 <ScalarProperty Name="CDX_TOKEN" ColumnName="CDX_TOKEN" />

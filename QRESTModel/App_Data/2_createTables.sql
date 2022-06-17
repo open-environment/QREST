@@ -834,6 +834,7 @@ CREATE TABLE [dbo].[T_QREST_AQS](
 	[DOC_SIZE] [int],
 	[COMMENT] [varchar](1000),
 	[SUBMISSION_STATUS] [varchar](20),
+	[SUBMISSION_SUBSTATUS] [varchar](1000),
 	[AQS_CONTENT_XML] varchar(max),
 	[CDX_TOKEN] [varchar](250),
     [DOWNLOAD_FILE] [varbinary](max),

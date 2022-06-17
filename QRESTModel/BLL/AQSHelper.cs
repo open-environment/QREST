@@ -131,7 +131,7 @@ namespace QRESTModel.AQSHelper
                         if (_assess != null)
                         {
                             string dt = _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_DT.ToString("yyyyMMdd");
-                            string line = "QA|" + actionCode + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE + "||" + _assess.STATE_CODE + "|" + _assess.COUNTY_CD + "|" + _assess.AQS_SITE_ID + "|" + _assess.PAR_CODE + "|" + _assess.POC + "|" + dt + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_NUM.ToString() + _assess.METHOD_CODE + "|";
+                            string line = "QA|" + actionCode + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE + "||" + _assess.STATE_CODE + "|" + _assess.COUNTY_CD + "|" + _assess.AQS_SITE_ID + "|" + _assess.PAR_CODE + "|" + _assess.POC + "|" + dt + "|" + _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_NUM.ToString() + "|" + _assess.METHOD_CODE + "|";
 
 
                             //*************** 1 POINT QC LOGIC **************************************
@@ -296,7 +296,7 @@ namespace QRESTModel.AQSHelper
                 {
                     string strStatus = subStatus.status.ToString();
                     string strStatusDtl = subStatus.statusDetail.ToString();
-                    db_Air.InsertUpdateT_QREST_AQS(aQS_IDX, null, null, null, null, null, null, null, null, strStatus, null, null, null, null);
+                    db_Air.InsertUpdateT_QREST_AQS(aQS_IDX, null, null, null, null, null, null, null, null, strStatus, null, null, null, null, strStatusDtl);
                     return strStatus;
                 }
             }
@@ -314,6 +314,13 @@ namespace QRESTModel.AQSHelper
                 NodeDocumentType[] dlResp = DownloadHelper(_cred.NodeURL, _token, "AQS", transID);
                 foreach (NodeDocumentType ndt in dlResp)
                 {
+                    //give preference to Load report if it's there
+                    if (ndt.documentName.Contains("Load")) {
+                        Byte[] resp1 = dlResp[iCount].documentContent.Value;
+                        db_Air.InsertUpdateT_QREST_AQS(aQS_IDX, null, null, null, null, null, null, null, null, null, null, null, null, resp1);
+                        return true;
+                    }
+
                     if (ndt.documentName.Contains("submit.xml") || ndt.documentName.Contains("Processing") || ndt.documentName.Contains("submit.zip"))
                     {
                         Byte[] resp1 = dlResp[iCount].documentContent.Value;

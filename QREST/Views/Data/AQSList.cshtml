@@ -29,78 +29,89 @@
                     <thead>
                         <tr>
                             <th style="width: 120px;"></th>
-                            <th>Organization</th>
                             <th>Site</th>
                             <th>Submission Name</th>
                             <th>Submission Date (UTC)</th>
                             <th>Data Date Range</th>
                             <th>Submitted By</th>
                             <th>Comments</th>
-                            <th>Download</th>
-                            <th>Status</th>
+                            <th>Submission File</th>
+                            <th>Submission Status</th>
+                            <th>Details</th>
                         </tr>
                     </thead>
                     @foreach (var item in Model.T_QREST_AQS)
                     {
                         <tr>
                             <td>
-                                <a href="#modal-form" data-toggle="modal" data-id="@item.T_QREST_AQS.AQS_IDX" data-comment="@item.T_QREST_AQS.COMMENT" data-name="@item.T_QREST_AQS.AQS_SUBMISSION_NAME" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                <a href="#modal-form" data-toggle="modal" data-id="@item.AQS_IDX" data-comment="@item.COMMENT" data-name="@item.AQS_SUBMISSION_NAME" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
                                 <div class="delete-section" style="display:inline-block">
                                     <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_AQS.AQS_IDX" data-delete-p="/Data/AQSDelete">
+                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.AQS_IDX" data-delete-p="/Data/AQSDelete">
                                         <b>Confirm Delete</b>
                                     </div>
                                 </div>
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.ORG_ID)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.SITE_ID)
                                 @Html.DisplayFor(modelItem => item.SITE_NAME)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.AQS_SUBMISSION_NAME)
+                                @Html.DisplayFor(modelItem => item.AQS_SUBMISSION_NAME)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.CREATE_DT)
+                                @Html.DisplayFor(modelItem => item.CREATE_DT)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.START_DT) -
-                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.END_DT)
+                                @Html.DisplayFor(modelItem => item.START_DT) -
+                                @Html.DisplayFor(modelItem => item.END_DT)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.SUBMITTER)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.COMMENT)
+                                @Html.DisplayFor(modelItem => item.COMMENT)
                             </td>
                             <td>
-                                <a class="text-info" href="@Url.Action("AQSFileDownload", new { id = item.T_QREST_AQS.AQS_IDX })">@item.T_QREST_AQS.AQS_SUBMISSION_NAME</a>
-                                <a class="text-info" href="@Url.Action("AQSFileDownloadHeader", new { id = item.T_QREST_AQS.AQS_IDX })">Header File</a>
+                                <a class="text-info" href="@Url.Action("AQSFileDownload", new { id = item.AQS_IDX })">Text</a> 
+                                
+                                | 
+                                <a class="text-info" href="@Url.Action("AQSFileDownloadHeader", new { id = item.AQS_IDX })">XML</a>
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.T_QREST_AQS.SUBMISSION_STATUS)
-                                @if (item.T_QREST_AQS.SUBMISSION_STATUS == "File Created")
+                                @Html.DisplayFor(modelItem => item.SUBMISSION_STATUS)
+                            </td>
+                            <td>
+                                @if (item.SUBMISSION_STATUS == "File Created")
                                 {
-                                    <a id="btnResult" href="@(Url.Action("AQSSubmitToEPA", "Data", new { id = item.T_QREST_AQS.AQS_IDX }))" class="btn btn-rounded btn-sm btn-danger" style="display: inline-block;">Submit to EPA</a>
+                                    <a id="btnResult" href="@(Url.Action("AQSSubmitToEPA", "Data", new { id = item.AQS_IDX }))" class="btn btn-rounded btn-sm btn-danger" style="display: inline-block;">Submit to EPA</a>
                                 }
-                                else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Submitted-Processing" || item.T_QREST_AQS.SUBMISSION_STATUS == "Processing" || item.T_QREST_AQS.SUBMISSION_STATUS == "Pending")
+                                else if (item.SUBMISSION_STATUS == "Submitted-Processing" || item.SUBMISSION_STATUS == "Processing" || item.SUBMISSION_STATUS == "Pending" || (item.SUBMISSION_STATUS == "Completed" && item.SUBMISSION_SUBSTATUS == null))
                                 {
-                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-warning getStatus" data-id="@item.T_QREST_AQS.AQS_IDX" style="display: inline-block;">Get Status</a>
+                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-warning getStatus" data-id="@item.AQS_IDX" style="display: inline-block;">Get Status</a>
                                 }
-                                else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Failed" && item.T_QREST_AQS.DOWNLOAD_FILE == null)
+                                else if (item.SUBMISSION_STATUS == "Failed" && item.DOWNLOAD_FILE_IND == false)
                                 {
-                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-dark download" data-id="@item.T_QREST_AQS.AQS_IDX" data-dl-url="@Url.Action("AQSResponseDownload", new { id = item.T_QREST_AQS.AQS_IDX })" style="display: inline-block;">Download Errors</a>
+                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-dark download" data-id="@item.AQS_IDX" data-dl-url="@Url.Action("AQSResponseDownload", new { id = item.AQS_IDX })" style="display: inline-block;">Download Errors</a>
                                 }
-                                else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Failed" && item.T_QREST_AQS.DOWNLOAD_FILE != null)
+                                else if (item.SUBMISSION_STATUS == "Completed" && item.DOWNLOAD_FILE_IND == false)
                                 {
-                                    <a id="btnResult" class="text-info " href="@Url.Action("AQSResponseDownload", new { id = item.T_QREST_AQS.AQS_IDX })">Validation Errors</a>
+                                    <a id="btnResult" href="#" class="btn btn-rounded btn-sm btn-dark download" data-id="@item.AQS_IDX" data-dl-url="@Url.Action("AQSResponseDownload", new { id = item.AQS_IDX })" style="display: inline-block;">Get AQS Load Report</a>
                                 }
-                                else if (item.T_QREST_AQS.SUBMISSION_STATUS == "Completed")
+                                else if (item.SUBMISSION_STATUS == "Failed" && item.DOWNLOAD_FILE_IND == true)
                                 {
+                                    <a id="btnResult" class="text-info " href="@Url.Action("AQSResponseDownload", new { id = item.AQS_IDX })">Validation Errors</a>
+                                }
+                                else if (item.SUBMISSION_STATUS == "Completed" && item.DOWNLOAD_FILE_IND == true)
+                                {
+                                    <a id="btnResult" class="text-info " href="@Url.Action("AQSResponseDownload", new { id = item.AQS_IDX })">AQS Load Report</a>
                                 }
 
+                                <!--show substatus if there is any-->
+                                @if (item.SUBMISSION_SUBSTATUS != null)
+                                {
+                                    <button class="btn btn-sm btn-rounded btn-primary" data-toggle="popover" data-html="true" data-placement="top" data-content="<div class='scrollable' style='height:80px'>@item.SUBMISSION_SUBSTATUS</div>" title="Details" data-original-title="<button type=&quot;button&quot; class=&quot;close pull-right&quot; data-dismiss=&quot;popover&quot;>×</button>Details" aria-describedby="popover528835">Details</button>
+                                }
                             </td>
 
                         </tr>
@@ -187,12 +198,15 @@
 
         //******************get status*******************
         $(document).on('click', '.getStatus', function () {
+            $('#pleaseWaitDialog').modal('show');
             var btn = $(this);
             $.post('@Url.Action("AQSGetStatus","Data")',
                 AddAntiForgeryToken({
                     id: $(this).attr('data-id')
                 }))
                 .done(function (response) {
+                    $('#pleaseWaitDialog').modal('hide');
+
                     if (response != "ERROR") {
 
                         if (response == "Failed") {
@@ -200,13 +214,16 @@
                             btn.get(0).lastChild.nodeValue = "Download Errors";
                         }
                         else if (response == "Completed") {
-
+                            location.reload();
+                            return false;
                         }
                         toastr.success("Get Status updated.");
                     }
                     else
                         toastr.warning("Error calling Get Status");
+
                 }).fail(function (data) {
+                    $('#pleaseWaitDialog').modal('hide');
                     toastr.warning("Unable to Get Status");
                 });
         });
@@ -224,14 +241,13 @@
                 .done(function (response) {
                     $('#pleaseWaitDialog').modal('hide');
 
-                    console.log(response);
                     if (response == "Success") {
-                        console.log(btn.attr('data-dl-url'));
+                        location.reload();
 
-                        btn.removeClass("btn").removeClass("btn-sm").removeClass("btn-rounded").removeClass("btn-dark").removeClass("download").addClass("text-info");
-                        btn.get(0).lastChild.nodeValue = "Validation Errors";
-                        btn.attr("href", btn.attr('data-dl-url'));
-                        toastr.success("Error Report Downloaded");
+                    //    btn.removeClass("btn").removeClass("btn-sm").removeClass("btn-rounded").removeClass("btn-dark").removeClass("download").addClass("text-info");
+                    //    btn.get(0).lastChild.nodeValue = "Validation Errors";
+                    //    btn.attr("href", btn.attr('data-dl-url'));
+                    //    toastr.success("Error Report Downloaded");
                     }
                     else
                         toastr.warning("Unable to download");

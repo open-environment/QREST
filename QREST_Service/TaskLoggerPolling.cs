@@ -123,6 +123,23 @@ namespace QRESTServiceCatalog
                                 General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
 
                         }
+                        //****************** MET ONE BAM*********************************************************
+                        //****************** MET ONE BAM*********************************************************
+                        //****************** MET ONE BAM*********************************************************
+                        else if (_config.LOGGER_TYPE == "MET_ONE_BAM")
+                        {
+                            CommMessageLog _log = LoggerComm.ConnectTcpBAM(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT);
+                            if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                            {
+                                //send the entire text response to the file parser routine
+                                LoggerComm.ParseFlatFileMetOneBAM(_log.CommResponse, _config, _config_dtl, true);
+
+                                //log the text to file (for future auditing of parse accuracy)
+                                General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
+                            }
+                            else
+                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+                        }
                         //****************** WEATHER.COM WEATHER STATION *********************************************************
                         //****************** WEATHER.COM WEATHER STATION *********************************************************
                         //****************** WEATHER.COM WEATHER STATION *********************************************************

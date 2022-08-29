@@ -152,7 +152,7 @@ namespace QREST_TaskConsole
                     nextrun = System.DateTime.Now.AddMinutes(pollFreqNum ?? 15);
 
                 db_Air.InsertUpdatetT_QREST_SITES(siteIDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 
-                    System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null);
+                    System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null, null);
 
                 return true;
             }

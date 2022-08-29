@@ -113,11 +113,11 @@ namespace QREST.Controllers
             {
                 string UserIDX = User.Identity.GetUserId();
 
-                int succId = db_Train.DeleteT_QREST_TRAIN_COURSE(id ?? Guid.Empty);
+                int succId = db_Train.DeleteT_QREST_TRAIN_LESSON_USER(id ?? Guid.Empty, UserIDX);
                 if (succId == 1)
                     return Json("Success");
                 else
-                    return Json("Unable to delete course.");
+                    return Json("Unable to reset lesson.");
             }
         }
 

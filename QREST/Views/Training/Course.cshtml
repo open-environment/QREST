@@ -46,7 +46,7 @@
 
                                 <div class="delete-section" style="display:inline-block">
                                     <a class=" btn btn-rounded btn-sm btn-danger delete-link"><i class="fa fa-times"></i> Reset Progress</a>
-                                    <div class="btn btn-rounded btn-sm btn-warning delete-confirm" style="display:none" data-delete-id="@item.LESSON_IDX" data-delete-p="/Training/LessonReset" data-success-url="/Admin/HelpConfig"><b>Confirm</b></div>
+                                    <div class="btn btn-rounded btn-sm btn-warning delete-confirm" style="display:none" data-delete-id="@item.LESSON_IDX" data-delete-p="/Training/LessonReset" data-success-url="/Training/Course/@item.COURSE_IDX"><b>Confirm</b></div>
                                 </div>
                             }
                             else if (item.LESSON_STEPS_COMP > 0)
@@ -70,3 +70,7 @@
 
     </div>
 </section>
+
+@section scripts {
+    @Scripts.Render("~/bundles/confirm-delete")
+}

@@ -531,6 +531,7 @@ CREATE TABLE [T_QREST_SITES] (
 	[AIRNOW_ORG] varchar(3),
 	[AIRNOW_SITE] varchar(10),
 	[AQS_IND] bit,
+	[PUB_WEB_IND] bit,
 	[SITE_COMMENTS] varchar(max),
 	[CREATE_USER_IDX] nvarchar(128),
 	[CREATE_DT] datetime2(0),

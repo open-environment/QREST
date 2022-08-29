@@ -36,17 +36,17 @@
                 {
                     <button type="button" class="btn btn-xs btn-info pull-right dropdown-toggle" data-toggle="dropdown">Options <i class="caret"></i></button>
                     <ul class="dropdown-menu pull-right btn-info">
-                        @if (Model.editLOGGER_TYPE == "WEATHER_PWS")
+                        @if (Model.editLOGGER_TYPE == "WEATHER_PWS" || Model.editLOGGER_TYPE == "ESC" || Model.editLOGGER_TYPE == "SUTRON_LEADS" || Model.editLOGGER_TYPE == "MET_ONE_BAM")
                         {
                             <li data-value="2">
                                 <a id="lnkDownload" href="@Url.Action("LoggerPollManual", new { id = Model.editPOLL_CONFIG_IDX })">Manual Poll and Store </a>
                             </li>
                         }
-                        else
+                        @if (Model.editLOGGER_TYPE != "WEATHER_PWS")
                         {
-                            <li data-value="1">
-                                <a id="lnkPing" href="@Url.Action("SitePollPing", "Site", new { id=Model.editPOLL_CONFIG_IDX })">Ping Connection</a>
-                            </li>
+                        <li data-value="1">
+                            <a id="lnkPing" href="@Url.Action("SitePollPing", "Site", new { id=Model.editPOLL_CONFIG_IDX })">Ping Connection</a>
+                        </li>
                         }
                         <li data-value="2">
                             <a id="lnkDownload" href="@Url.Action("DownloadTemplate", "Data", new { id=Model.editPOLL_CONFIG_IDX })">Download File Template</a>
@@ -183,7 +183,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-md-12 hideWeather">
+                                                    <div class="col-md-12 hideWeather hideESC">
                                                         <div class="form-group">
                                                             Delimiter
                                                             @Html.DropDownListFor(model => model.editDELIMITER, Model.ddl_LoggerDelimiter, "", new { @class = "form-control" })
@@ -211,7 +211,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-md-6 hideWeather">
+                                                    <div class="col-md-6 hideWeather hideESC">
                                                         <div class="form-group">
                                                             Date Column
                                                             @Html.TextBoxFor(model => model.editDATE_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
@@ -219,7 +219,7 @@
                                                             <span class="help-block">Column number in which date is stored.</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6 hideWeather">
+                                                    <div class="col-md-6 hideWeather hideESC">
                                                         <div class="form-group">
                                                             Date Format
                                                             @Html.DropDownListFor(model => model.editDATE_FORMAT, Model.ddl_LoggerDate, "", new { @class = "form-control" })
@@ -227,13 +227,13 @@
                                                             <span class="help-block">Format of DATE field on data logger file.</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3 hideWeather">
+                                                    <div class="col-md-3 hideWeather hideESC">
                                                         <div class="form-group">
                                                             Time in Separate Column?
                                                             <input type="checkbox" id="chkDateTimeSame" name="chkDateTimeSameName" class="form-control">
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3 hideWeather">
+                                                    <div class="col-md-3 hideWeather hideESC">
                                                         <div class="form-group">
                                                             Time Column
                                                             @Html.TextBoxFor(model => model.editTIME_COL, new { @class = "form-control cleave-num", @maxlength = "2" })
@@ -241,7 +241,7 @@
                                                             <span class="help-block">Column # in which time is stored.</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6 hideWeather">
+                                                    <div class="col-md-6 hideWeather hideESC">
                                                         <div class="form-group">
                                                             Time Format
                                                             @Html.DropDownListFor(model => model.editTIME_FORMAT, Model.ddl_LoggerTime, "", new { @class = "form-control" })
@@ -504,27 +504,29 @@
             });
 
             function loggerSpecificShowHide() {
+                //reset to defaults
                 $("#hlpIP").text("The TCP/IP address (X.X.X.X) of the instrument.");
                 $("#hlpPWD").text("Password (aka Level 1 password) for accessing the logger.");
+                $('.loggerOnly').show();
+                $('.hideWeather').show();
+                $('.hideCampbell').show();
+                $('.hideESC').show();
+
                 var xxx = $('#editLOGGER_TYPE').val();
+
                 if (xxx == "NONE") {
                     $('.loggerOnly').hide();
                 }
                 else if (xxx == "WEATHER_PWS") {
-                    $('.loggerOnly').show();
                     $('.hideWeather').hide();
                     $("#hlpIP").text("Weather Company station ID.");
                     $("#hlpPWD").text("API Key for Weather Company web service.");
                 }
-                else if (xxx == "CAMPBELL")
-                {
-                    $('.hideWeather').show();
+                else if (xxx == "CAMPBELL") {
                     $('.hideCampbell').hide();
                 }
-                else {
-                    $('.loggerOnly').show();
-                    $('.hideWeather').show();
-                    $('.hideCampbell').show();
+                else if (xxx == "ESC") {
+                    $('.hideESC').hide();
                 }
 
                 if (!$('#editLOGGER_PORT').val()) {

@@ -43,13 +43,27 @@ namespace QREST.App_Logic
                                 string columnLetter = column.ColumnLetter();
                                 string rng = $"${columnLetter}2:{columnLetter}50000";
                                 _ws.Range(rng).DataType = XLDataType.DateTime;
-                                _ws.Range(rng).Style.NumberFormat.Format = "MM/dd/yyyy hh:mm AM/PM";
+                                _ws.Range(rng).Style.NumberFormat.Format = "MM/dd/yyyy HH:mm";
                             }
                             catch
                             {
                                 // ignored
                             }
                         }
+                        //else if (column.Cell(1).GetString().Contains("Time ("))
+                        //{
+                        //    try
+                        //    {
+                        //        string columnLetter = column.ColumnLetter();
+                        //        string rng = $"${columnLetter}2:{columnLetter}50000";
+                        //        _ws.Range(rng).DataType = XLDataType.Text;
+                        //        _ws.Range(rng).Style.NumberFormat.Format = "HH:mm";
+                        //    }
+                        //    catch
+                        //    {
+                        //        // ignored
+                        //    }
+                        //}
                         else if (column.Cell(1).GetString().Contains("Date ("))
                         {
                             try

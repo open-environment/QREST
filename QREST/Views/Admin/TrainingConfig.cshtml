@@ -4,7 +4,10 @@
 }
 
 <section class="panel panel-qrest">
-    <header class="panel-heading font-bold">Training Courses</header>
+    <header class="panel-heading font-bold">
+        Training Courses
+        <a id="btnHealth" href="@Url.Action("TrainingProgress")" class="btn btn-xs btn-primary health-dtl pull-right">View Training Progress</a>
+    </header>
     <div class="panel-body">
         @if (Model.courses != null)
         {

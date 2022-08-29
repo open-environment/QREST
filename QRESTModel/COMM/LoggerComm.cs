@@ -192,11 +192,14 @@ namespace QRESTModel.COMM
                             string xxx = SendReceiveMessage(stream, "@" + siteID + "!5600" + "001H" + command + "&$", 700, 700, false);
                             if (xxx != null && xxx.Length > 10)
                             {
+                                xxx = xxx.Replace("&", System.Environment.NewLine);
+                                xxx = xxx.Replace("@" + siteID + "a", "");
                                 xxx = stripMessage(xxx, "#0001" + siteID); //strip unnecessary stuff from beginning of file (TO DO replace with validity check)
                                 log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = xxx };
                             }
                             else
                                 log = new CommMessageLog { CommMessageStatus = false, CommMessageType = xxx, CommResponse = "" };
+
 
                             //disconnect
                             client.Client.Close();
@@ -229,11 +232,11 @@ namespace QRESTModel.COMM
 
 
         /// <summary>
-        /// Creates a TCP Connection to a data logger, and then uses a SAILER command to connect to a Zeno or Sutron data logger and return the logger response, based on the input message.
+        /// Creates a TCP Connection to a Sutron data logger with LEADs module enabled, and then uses a command to return the logger response, based on the input message.
         /// </summary>
         /// <param name="ip">Data logger IP address</param>
         /// <param name="port">Data logger port</param>
-        /// <param name="message">CCSAILER command to issue to logger</param>
+        /// <param name="message">command to issue to logger</param>
         /// <param name="siteID">Four digit site ID that the logger uses to define the site</param>
         /// <returns></returns>
         public static CommMessageLog ConnectTcpSutron(string ip, ushort port, string username, string password, string message)
@@ -266,6 +269,10 @@ namespace QRESTModel.COMM
                                     if (xxx != null && xxx.Length > 10)
                                     {
                                         //xxx = stripMessage(xxx, "#0001" + siteID); //strip unnecessary stuff from beginning of file (TO DO replace with validity check)
+                                        xxx = xxx.Replace(' ', ','); //change dates from space delimited to comma
+                                        string[] lines = xxx.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
+                                        xxx = string.Join(Environment.NewLine, lines);
+
                                         log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = xxx };
                                     }
                                     else
@@ -273,6 +280,80 @@ namespace QRESTModel.COMM
                                 }
                                 else
                                     log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password failed", CommResponse = "" };
+                            }
+                            else
+                                log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password failed", CommResponse = "" };
+
+                            //disconnect
+                            client.Client.Close();
+                            System.Threading.Thread.Sleep(250);
+                            client.Close();
+                        }
+                    }
+
+                }
+                catch (SocketException sex)
+                {
+                    //disconnect if exception
+                    client.Client.Close();
+                    System.Threading.Thread.Sleep(250);
+                    client.Close();
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping Socket Exception 1", CommResponse = sex.Message };
+                }
+                catch (Exception ex)
+                {
+                    //disconnect if exception
+                    client.Client.Close();
+                    System.Threading.Thread.Sleep(250);
+                    client.Close();
+
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping General Exception 2", CommResponse = ex.Message };
+                }
+            }
+
+            return log;
+        }
+
+
+        /// <summary>
+        /// Creates a TCP Connection to a Met One BAM, and then uses a command to return the logger response.
+        /// </summary>
+        /// <param name="ip">Data logger IP address</param>
+        /// <param name="port">Data logger port</param>
+        /// <returns></returns>
+        public static CommMessageLog ConnectTcpBAM(string ip, ushort port)
+        {
+            var log = new CommMessageLog();
+
+            // This dictates that the socket will not longer open after the socket is closed
+            LingerOption lingerOption = new LingerOption(true, 0);
+
+            //Create a TCPClient object at the IP and port
+            using (TcpClient client = new TcpClient { SendTimeout = 2000, ReceiveTimeout = 2000, LingerState = lingerOption })
+            {
+                try
+                {
+                    if (!client.ConnectAsync(ip, port).Wait(TimeSpan.FromSeconds(2)))
+                        log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Connect", CommResponse = "" };
+                    else
+                    {
+                        // Get a client stream for reading and writing.
+                        using (NetworkStream stream = client.GetStream())
+                        {
+                            //*************** send three enters *****************************
+                            string _usrResp = SendReceiveMessage(stream, "\r\n\r\n\r\n", 700, 700, false);
+                            if (_usrResp != null && _usrResp.Contains("*"))
+                            {
+                                string xxx = SendReceiveMessage(stream, "1" + "\r", 700, 700, false);  //1 means all data for today
+                                if (xxx != null && xxx.Length > 10)
+                                {
+                                    string[] lines = xxx.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
+                                    xxx = string.Join(Environment.NewLine, lines);
+
+                                    log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = xxx };
+                                }
+                                else
+                                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = xxx, CommResponse = "" };
                             }
                             else
                                 log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password failed", CommResponse = "" };
@@ -443,7 +524,7 @@ namespace QRESTModel.COMM
                         nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
 
                     db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null);
+                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null, null);
                 }
 
                 return SuccInd;
@@ -455,6 +536,113 @@ namespace QRESTModel.COMM
             }
 
         }
+
+
+        /// <summary>
+        /// Parses an entire ESC/AGILAIRE polling file into the HOURLY table, based on a provided polling configuration. 
+        /// Can optionally update the next time polling should run.
+        /// </summary>
+        /// <param name="loggerData"></param>
+        /// <param name="config"></param>
+        /// <param name="updateNextRunTime"></param>
+        /// <returns>True only if ran successfully.</returns>
+        public static bool ParseFlatFileESC(string loggerData, SitePollingConfigType config, List<SitePollingConfigDetailType> _config_dtl, bool updateNextRunTime, bool? overrideConfigDuration = false, bool insertsOnly = false)
+        {
+            try
+            {
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(config.SITE_IDX);
+
+                string line;
+                bool SuccInd = true;
+                using (System.IO.StringReader sr = new System.IO.StringReader(loggerData))
+                {
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        //FIVE MINUTE RAW DATA
+                        if (config.RAW_DURATION_CODE == "H" || overrideConfigDuration == true)
+                        {
+                            //SuccInd = db_Air.InsertT_QREST_DATA_FIVE_MIN_fromLine(line, config, _config_dtl, insertsOnly);
+                        }
+                        //HOURLY RAW DATA
+                        else if (config.RAW_DURATION_CODE == "1")
+                        {
+                            SuccInd = db_Air.InsertT_QREST_DATA_HOURLY_fromLine_ESC(line, config, _config_dtl, _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
+                        }
+                    }
+                }
+
+
+                if (updateNextRunTime)
+                {
+                    //update next run for the site
+                    DateTime nextrun = System.DateTime.Now.AddMinutes(15);  //default to 15 minutes next run
+                    if (config.POLLING_FREQ_TYPE == "M")
+                        nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
+
+                    db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null, null);
+                }
+
+                return SuccInd;
+            }
+            catch (Exception ex)
+            {
+                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", ex.InnerException?.ToString());
+                return false;
+            }
+
+        }
+
+        /// <summary>
+        /// Parses an entire ESC/AGILAIRE polling file into the HOURLY table, based on a provided polling configuration. 
+        /// Can optionally update the next time polling should run.
+        /// </summary>
+        /// <param name="loggerData"></param>
+        /// <param name="config"></param>
+        /// <param name="updateNextRunTime"></param>
+        /// <returns>True only if ran successfully.</returns>
+        public static bool ParseFlatFileMetOneBAM(string loggerData, SitePollingConfigType config, List<SitePollingConfigDetailType> _config_dtl, bool updateNextRunTime, bool? overrideConfigDuration = false, bool insertsOnly = false)
+        {
+            try
+            {
+                T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(config.SITE_IDX);
+
+                string line;
+                bool SuccInd = true;
+                using (System.IO.StringReader sr = new System.IO.StringReader(loggerData))
+                {
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        //HOURLY RAW DATA
+                        if (config.RAW_DURATION_CODE == "1")
+                        {
+                            SuccInd = db_Air.InsertT_QREST_DATA_HOURLY_fromLine_BAM(line, config, _config_dtl, _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
+                        }
+                    }
+                }
+
+
+                if (updateNextRunTime)
+                {
+                    //update next run for the site
+                    DateTime nextrun = System.DateTime.Now.AddMinutes(15);  //default to 15 minutes next run
+                    if (config.POLLING_FREQ_TYPE == "M")
+                        nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
+
+                    db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null, null);
+                }
+
+                return SuccInd;
+            }
+            catch (Exception ex)
+            {
+                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", ex.InnerException?.ToString());
+                return false;
+            }
+
+        }
+
 
         public static async Task<bool> RetrieveWeatherCompanyPWS(T_QREST_SITE_POLL_CONFIG config) {
 

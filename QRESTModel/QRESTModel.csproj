@@ -215,6 +215,9 @@
     <Compile Include="DAL\SP_TRAIN_STEP_USER_PROGRESS_Result.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\TRAINING_SNAPSHOT.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\T_QREST_APP_SETTINGS.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>

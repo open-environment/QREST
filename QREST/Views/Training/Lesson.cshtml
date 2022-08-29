@@ -32,6 +32,14 @@
                 @if (_step.STEP_COMP_IND == 1)
                 {
                     <label class="label label-lg bg-success"><i class="fa fa-check"></i> Step Completed</label>
+                    if (!string.IsNullOrEmpty(_step.REQUIRED_URL))
+                    {
+                        <a class="" href="@_step.REQUIRED_URL" target="_blank">Link</a>
+                    }
+                    else if (!string.IsNullOrEmpty(_step.REQUIRED_YT_VID))
+                    {
+                        <a class="" href="https://www.youtube.com/@_step.REQUIRED_YT_VID" target="_blank">Video Link</a>
+                    }
                 }
                 @if (_step.STEP_COMP_IND == 0 && showUndone == true)
                 {

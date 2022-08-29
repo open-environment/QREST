@@ -120,6 +120,7 @@ namespace QREST.Models
             _list.Add(new SelectListItem() { Value = "SUTRON", Text = "Sutron" });
             _list.Add(new SelectListItem() { Value = "SUTRON_LEADS", Text = "Sutron w/LEADS" });
             _list.Add(new SelectListItem() { Value = "ESC", Text = "Agilaire/ESC" });
+            _list.Add(new SelectListItem() { Value = "MET_ONE_BAM", Text = "Met One BAM" });
             _list.Add(new SelectListItem() { Value = "WEATHER_PWS", Text = "Weather.com Personal Weather Station" });
             return _list;
         }

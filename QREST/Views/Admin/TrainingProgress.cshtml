@@ -1,0 +1,64 @@
+﻿@model QREST.Models.vmAdminTrainingCourseProgress
+@{
+    ViewBag.Title = "Training Progress";
+}
+
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">
+        Training Progress
+        <a id="btnHealth" href="@Url.Action("TrainingConfig")" class="btn btn-xs btn-primary health-dtl pull-right">Back to Course Listing</a>
+    </header>
+    <div class="panel-body">
+        @if (Model.course_progress != null)
+        {
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Trainee</th>
+                            <th>Course Start Date</th>
+                            <th>Total Course Steps</th>
+                            <th>Steps Completed</th>
+                            <th>Course Completed</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.course_progress)
+                    {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.COURSE_NAME)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FNAME)
+                        @Html.DisplayFor(modelItem => item.LNAME)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CourseStartDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalCourseSteps)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StepsCompleted)
+                    </td>
+                    <td>
+                        @if (item.CertIssuedInd == 1)
+                        {
+                            <span class="label bg-primary"><i class="fa fa-check"></i></span>
+                        }
+                        else
+                        {
+                            <span class="label bg-warning">In progress</span>
+                        }
+                        @Html.DisplayFor(modelItem => item.CertIssuedDate)
+                    </td>
+
+                </tr>
+                    }
+                </table>
+            </div>
+        }
+
+    </div>
+</section>

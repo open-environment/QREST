@@ -1231,6 +1231,66 @@ GO
 
 
 
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[SP_LATEST_POLLED_DATE]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+CREATE PROCEDURE [dbo].[SP_LATEST_POLLED_DATE] 
+	@siteid uniqueidentifier, 
+	@durcode varchar(1),
+	@timetype varchar(1)
+AS
+BEGIN
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--for a given site and polling config settings, returns the the last time this site was polled
+
+	--declare @siteid uniqueidentifier;
+	--declare @durcode varchar(1);
+	--declare @timetype varchar(1);
+	--set @siteid = '14E3F3B4-8A76-4380-88CD-FB277292240A';
+	--set @durcode = 'H';  --1=hourly  H=5 min
+	--set @timetype = 'L';  --L=local U=utc
+
+
+
+	DECLARE @lastDate datetime = null;
+
+
+	if (@durcode = 'H' and @timetype='L')
+	BEGIN
+		select @lastDate = max([DATA_DTTM_LOCAL]) 
+		from T_QREST_DATA_FIVE_MIN D, T_QREST_MONITORS M
+		where M.monitor_idx=d.monitor_idx 
+		and m.site_idx=@siteid;
+	END
+	else if (@durcode = 'H' and @timetype='U')
+	BEGIN
+		select @lastDate = max([DATA_DTTM]) 
+		from T_QREST_DATA_FIVE_MIN D, T_QREST_MONITORS M
+		where M.monitor_idx=d.monitor_idx 
+		and m.site_idx=@siteid;
+	END
+	else if (@durcode = '1' and @timetype='L')
+	BEGIN
+		select @lastDate = max([DATA_DTTM_LOCAL]) 
+		from T_QREST_DATA_HOURLY D, T_QREST_MONITORS M
+		where M.monitor_idx=d.monitor_idx 
+		and m.site_idx=@siteid;
+	END
+	else if (@durcode = '1' and @timetype='U')
+	BEGIN
+		select @lastDate = max([DATA_DTTM_UTC]) 
+		from T_QREST_DATA_HOURLY D, T_QREST_MONITORS M
+		where M.monitor_idx=d.monitor_idx 
+		and m.site_idx=@siteid;
+	END
+
+	select @lastDate;
+
+END
+
+GO
+
+
 
 
 
@@ -1321,3 +1381,25 @@ END
 
 GO
 
+CREATE VIEW TRAINING_SNAPSHOT as
+		select U.USER_IDX, U.[FNAME], U.LNAME, TC.COURSE_IDX, TC.COURSE_NAME, 
+		(select count(*) from T_QREST_TRAIN_COURSE_LESSON TCL2, T_QREST_TRAIN_LESSON_STEP TLS2 where TCL2.LESSON_IDX=TLS2.LESSON_IDX and TCL2.COURSE_IDX = TC.COURSE_IDX) as TotalCourseSteps
+		,(select min(create_dt) 
+			from T_QREST_TRAIN_LESSON_STEP_USER TLSU1, T_QREST_TRAIN_LESSON_STEP TLS1, T_QREST_TRAIN_COURSE_LESSON TCL1 
+			where TLSU1.LESSON_STEP_IDX=TLS1.LESSON_STEP_IDX and TLS1.LESSON_IDX=TCL1.LESSON_IDX and TLSU1.USER_IDX=U.USER_IDX) as CourseStartDate		
+		,count(*) as StepsCompleted
+		,(select count(*) from T_QREST_TRAIN_COURSE_USER TCU where TCU.USER_IDX=U.USER_IDX and TCU.COURSE_IDX=TC.COURSE_IDX) as CertIssuedInd
+		,(select top 1 create_dt from T_QREST_TRAIN_COURSE_USER TCU where TCU.USER_IDX=U.USER_IDX and TCU.COURSE_IDX=TC.COURSE_IDX) as CertIssuedDate
+		from 
+		T_QREST_TRAIN_LESSON_STEP_USER TLSU,
+		T_QREST_TRAIN_LESSON_STEP TLS,
+		T_QREST_USERS U
+	,T_QREST_TRAIN_COURSE_LESSON TCL
+	,T_QREST_TRAIN_COURSE TC
+		where TLSU.USER_IDX=U.USER_IDX
+		and TLSU.LESSON_STEP_IDX=TLS.LESSON_STEP_IDX
+		and TLS.LESSON_IDX=TCL.LESSON_IDX
+		and TCL.COURSE_IDX=TC.COURSE_IDX
+		group by U.USER_IDX, U.[FNAME], U.LNAME, TC.COURSE_IDX, TC.COURSE_NAME;
+
+GO

@@ -98,6 +98,7 @@ namespace QREST.Models
         public bool POLLING_ONLINE_IND { get; set; }
         public bool AIRNOW_IND { get; set; }
         public bool AQS_IND { get; set; }
+        public bool PUB_WEB_IND { get; set; }
         public string AIRNOW_USR { get; set; }
         public string AIRNOW_PWD { get; set; }
         public string AIRNOW_ORG { get; set; }
@@ -218,6 +219,14 @@ namespace QREST.Models
         }
     }
 
+
+    public class vmSitePollOffline
+    {
+        public Guid POLL_CONFIG_IDX { get; set; }
+        public Guid SITE_IDX { get; set; }
+        [Required]
+        public string OfflineReason { get; set; }
+    }
 
     public class vmSitePing
     {

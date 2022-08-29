@@ -56,9 +56,9 @@ namespace QRESTServiceCatalog
                     {
                         General.WriteToFile("Start poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);
 
-                        //****************** ZENO OR SUTRON DATA LOGGER *********************************************************
-                        //****************** ZENO OR SUTRON DATA LOGGER *********************************************************
-                        //****************** ZENO OR SUTRON DATA LOGGER *********************************************************
+                        //****************** ZENO OR SUTRON CCSAIL DATA LOGGER *********************************************************
+                        //****************** ZENO OR SUTRON CCSAIL DATA LOGGER *********************************************************
+                        //****************** ZENO OR SUTRON CCSAIL DATA LOGGER *********************************************************
                         if (_config.LOGGER_TYPE == "ZENO" || _config.LOGGER_TYPE == "SUTRON")
                         {
                             CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, "DL" + recCount + ",", _config.SITE_ID);
@@ -66,6 +66,55 @@ namespace QRESTServiceCatalog
                             {
                                 //send the entire text response to the file parser routine
                                 LoggerComm.ParseFlatFile(_log.CommResponse, _config, _config_dtl, true);
+
+                                //log the text to file (for future auditing of parse accuracy)
+                                General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
+                            }
+                            else
+                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+
+                        }
+                        //****************** SUTRON WITH LEADS DATA LOGGER *********************************************************
+                        //****************** SUTRON WITH LEADS DATA LOGGER *********************************************************
+                        //****************** SUTRON WITH LEADS DATA LOGGER *********************************************************
+                        else if (_config.LOGGER_TYPE == "SUTRON_LEADS")
+                        {
+                            //get latest date value that was polled. If in last 10 days then send date range, otherwide query for today
+                            string msg = "GET /TODAY /C";
+                            DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
+                            if (latestValue != null && latestValue > System.DateTime.Today.AddDays(-10))    
+                                msg = "GET /S " + latestValue.GetValueOrDefault().ToString("MM-dd-yyyy HH:mm:ss") + " /C";
+
+                            CommMessageLog _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, msg);
+                            if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                            {
+                                //send the entire text response to the file parser routine
+                                LoggerComm.ParseFlatFile(_log.CommResponse, _config, _config_dtl, true);
+
+                                //log the text to file (for future auditing of parse accuracy)
+                                General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
+                            }
+                            else
+                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+
+                        }
+                        //****************** ESC/AGILAIRE LOGGER *********************************************************
+                        //****************** ESC/AGILAIRE LOGGER  *********************************************************
+                        //****************** ESC/AGILAIRE LOGGER  *********************************************************
+                        else if (_config.LOGGER_TYPE == "ESC")
+                        {
+                            DateTime stDate = System.DateTime.Now.AddHours(-5);
+                            DateTime endDate = System.DateTime.Now.AddHours(5);
+                            string startJulian = stDate.DayOfYear.ToString().PadLeft(3, '0');
+                            string endJulian = endDate.DayOfYear.ToString().PadLeft(3, '0');
+                            string startHour = stDate.Hour.ToString().PadLeft(2, '0');
+                            string endtHour = endDate.Hour.ToString().PadLeft(2, '0');
+
+                            CommMessageLog _log = LoggerComm.ConnectTcpESC(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, startJulian + startHour + "0000" + "|Y|" + endJulian + endtHour + "0000", _config.SITE_ID);
+                            if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                            {
+                                //send the entire text response to the file parser routine
+                                LoggerComm.ParseFlatFileESC(_log.CommResponse, _config, _config_dtl, true);
 
                                 //log the text to file (for future auditing of parse accuracy)
                                 General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
@@ -98,11 +147,11 @@ namespace QRESTServiceCatalog
                             if (_file == null)
                                 General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###NO FILE");
                             else if (_file.Length > 10)
-                            {                            
+                            {
                                 //send the entire text response to the file parser routine
-                                General.WriteToFile("Campbell data found for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "###" + _file.Substring(1,10));
+                                General.WriteToFile("Campbell data found for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "###" + _file.Substring(1, 10));
 
-                                bool ParseSuccessInd = LoggerComm.ParseFlatFile(_file, _config, _config_dtl, true);
+                                bool ParseSuccessInd = LoggerComm.ParseFlatFile(_file, _config, _config_dtl, true); 
                                 if (ParseSuccessInd)
                                 {
                                     //move file to archive folder
@@ -126,7 +175,7 @@ namespace QRESTServiceCatalog
                         db_Air.InsertUpdatetT_QREST_SITES(_config.SITE_IDX, null, null, null, null, null, null, null,
                             null, null, null, null, null, null, null, false, null, null, 
                             null, null, null,
-                            null, null, null, null, null, null, null, null);
+                            null, null, null, null, null, null, null, null, null);
                     }
                 }
             }

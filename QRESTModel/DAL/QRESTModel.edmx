@@ -586,6 +586,7 @@
           <Property Name="AIRNOW_ORG" Type="varchar" MaxLength="3" />
           <Property Name="AIRNOW_SITE" Type="varchar" MaxLength="10" />
           <Property Name="LOCAL_TIMEZONE" Type="varchar" MaxLength="4" />
+          <Property Name="PUB_WEB_IND" Type="bit" />
         </EntityType>
         <EntityType Name="T_QREST_SYS_LOG">
           <Key>
@@ -816,6 +817,26 @@ warning 6002: The table/view 'QREST.dbo.SITE_HEALTH' does not have a primary key
           <Property Name="RAW_DURATION_CODE" Type="varchar" MaxLength="1" />
           <Property Name="LAST_UTC_POLL" Type="datetime2" Precision="0" />
           <Property Name="CURR_UTC" Type="datetime" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'QREST.dbo.TRAINING_SNAPSHOT' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="TRAINING_SNAPSHOT">
+          <Key>
+            <PropertyRef Name="USER_IDX" />
+            <PropertyRef Name="FNAME" />
+            <PropertyRef Name="LNAME" />
+            <PropertyRef Name="COURSE_IDX" />
+          </Key>
+          <Property Name="USER_IDX" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="FNAME" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="LNAME" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="COURSE_IDX" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="COURSE_NAME" Type="varchar" MaxLength="50" />
+          <Property Name="TotalCourseSteps" Type="int" />
+          <Property Name="CourseStartDate" Type="datetime2" Precision="0" />
+          <Property Name="StepsCompleted" Type="int" />
+          <Property Name="CertIssuedInd" Type="int" />
+          <Property Name="CertIssuedDate" Type="datetime2" Precision="0" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -1417,6 +1438,11 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
         <Function Name="SP_IMPORT_DATA_FROM_TEMP" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="import_idx" Type="uniqueidentifier" Mode="In" />
         </Function>
+        <Function Name="SP_LATEST_POLLED_DATE" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="durcode" Type="varchar" Mode="In" />
+          <Parameter Name="timetype" Type="varchar" Mode="In" />
+        </Function>
         <Function Name="SP_MONTHLY_STATS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="sDate" Type="datetime" Mode="In" />
           <Parameter Name="eDate" Type="datetime" Mode="In" />
@@ -1563,6 +1589,20 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
     [SITE_HEALTH].[LAST_UTC_POLL] AS [LAST_UTC_POLL], 
     [SITE_HEALTH].[CURR_UTC] AS [CURR_UTC]
     FROM [dbo].[SITE_HEALTH] AS [SITE_HEALTH]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="TRAINING_SNAPSHOT" EntityType="Self.TRAINING_SNAPSHOT" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [TRAINING_SNAPSHOT].[USER_IDX] AS [USER_IDX], 
+    [TRAINING_SNAPSHOT].[FNAME] AS [FNAME], 
+    [TRAINING_SNAPSHOT].[LNAME] AS [LNAME], 
+    [TRAINING_SNAPSHOT].[COURSE_IDX] AS [COURSE_IDX], 
+    [TRAINING_SNAPSHOT].[COURSE_NAME] AS [COURSE_NAME], 
+    [TRAINING_SNAPSHOT].[TotalCourseSteps] AS [TotalCourseSteps], 
+    [TRAINING_SNAPSHOT].[CourseStartDate] AS [CourseStartDate], 
+    [TRAINING_SNAPSHOT].[StepsCompleted] AS [StepsCompleted], 
+    [TRAINING_SNAPSHOT].[CertIssuedInd] AS [CertIssuedInd], 
+    [TRAINING_SNAPSHOT].[CertIssuedDate] AS [CertIssuedDate]
+    FROM [dbo].[TRAINING_SNAPSHOT] AS [TRAINING_SNAPSHOT]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="Self.USERLIST_DISPLAY_VIEW" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
@@ -2027,27 +2067,33 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_TRAIN_LESSON_STEP" EntitySet="T_QREST_TRAIN_LESSON_STEP" />
             <End Role="T_QREST_TRAIN_LESSON_STEP_USER" EntitySet="T_QREST_TRAIN_LESSON_STEP_USER" />
           </AssociationSet>
-          <FunctionImport Name="SP_TRAIN_LESSON_USER_PROGRESS" ReturnType="Collection(QRESTModel.SP_TRAIN_LESSON_USER_PROGRESS_Result)">
-            <Parameter Name="useridx" Mode="In" Type="String" />
-            <Parameter Name="courseidx" Mode="In" Type="Guid" />
-          </FunctionImport>
           <FunctionImport Name="SP_MONTHLY_STATS" ReturnType="Collection(QRESTModel.SP_MONTHLY_STATS_Result)">
             <Parameter Name="sDate" Mode="In" Type="DateTime" />
             <Parameter Name="eDate" Mode="In" Type="DateTime" />
             <Parameter Name="monid" Mode="In" Type="Guid" />
-          </FunctionImport>
-          <FunctionImport Name="SP_TRAIN_STEP_USER_PROGRESS" ReturnType="Collection(QRESTModel.SP_TRAIN_STEP_USER_PROGRESS_Result)">
-            <Parameter Name="useridx" Mode="In" Type="String" />
-            <Parameter Name="lessonidx" Mode="In" Type="Guid" />
-          </FunctionImport>
-          <FunctionImport Name="SP_TRAIN_COURSE_USER_PROGRESS" ReturnType="Collection(QRESTModel.SP_TRAIN_COURSE_USER_PROGRESS_Result)">
-          <Parameter Name="useridx" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="SP_FIVE_MIN_DATA_GAPS" ReturnType="Collection(QRESTModel.SP_FIVE_MIN_DATA_GAPS_Result)">
           <Parameter Name="siteid" Mode="In" Type="Guid" />
           </FunctionImport>
           <EntitySet Name="SITE_HEALTH" EntityType="QRESTModel.SITE_HEALTH" />
           <EntitySet Name="T_QREST_REF_QUAL_DISALLOW" EntityType="QRESTModel.T_QREST_REF_QUAL_DISALLOW" />
+          <FunctionImport Name="SP_LATEST_POLLED_DATE" ReturnType="Collection(DateTime)">
+            <Parameter Name="siteid" Mode="In" Type="Guid" />
+            <Parameter Name="durcode" Mode="In" Type="String" />
+            <Parameter Name="timetype" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SP_TRAIN_COURSE_USER_PROGRESS" ReturnType="Collection(QRESTModel.SP_TRAIN_COURSE_USER_PROGRESS_Result)">
+          <Parameter Name="useridx" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SP_TRAIN_LESSON_USER_PROGRESS" ReturnType="Collection(QRESTModel.SP_TRAIN_LESSON_USER_PROGRESS_Result)">
+            <Parameter Name="useridx" Mode="In" Type="String" />
+            <Parameter Name="courseidx" Mode="In" Type="Guid" />
+          </FunctionImport>
+          <FunctionImport Name="SP_TRAIN_STEP_USER_PROGRESS" ReturnType="Collection(QRESTModel.SP_TRAIN_STEP_USER_PROGRESS_Result)">
+            <Parameter Name="useridx" Mode="In" Type="String" />
+            <Parameter Name="lessonidx" Mode="In" Type="Guid" />
+          </FunctionImport>
+          <EntitySet Name="TRAINING_SNAPSHOT" EntityType="QRESTModel.TRAINING_SNAPSHOT" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -3158,6 +3204,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_NOTIFY" />
           <NavigationProperty Name="T_QREST_SITE_POLL_CONFIG" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITES" ToRole="T_QREST_SITE_POLL_CONFIG" />
           <Property Name="LOCAL_TIMEZONE" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="PUB_WEB_IND" Type="Boolean" />
         </EntityType>
         <Association Name="FK_T_QREST_AQS_S">
           <End Type="QRESTModel.T_QREST_SITES" Role="T_QREST_SITES" Multiplicity="1">
@@ -3566,16 +3613,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <ComplexType Name="SP_TRAIN_LESSON_USER_PROGRESS_Result">
-          <Property Type="Guid" Name="COURSE_IDX" Nullable="false" />
-          <Property Type="Guid" Name="LESSON_IDX" Nullable="false" />
-          <Property Type="Int32" Name="LESSON_SEQ" Nullable="true" />
-          <Property Type="String" Name="LESSON_TITLE" Nullable="true" MaxLength="100" />
-          <Property Type="String" Name="LESSON_DESC" Nullable="true" />
-          <Property Type="Int32" Name="LESSON_COMP_IND" Nullable="false" />
-          <Property Type="DateTime" Name="CREATE_DT" Nullable="true" />
-          <Property Type="Int32" Name="LESSON_STEPS_COMP" Nullable="true" />
-        </ComplexType>
         <ComplexType Name="SP_MONTHLY_STATS_Result">
           <Property Type="Guid" Name="monid" Nullable="true" />
           <Property Type="Int32" Name="mn" Nullable="true" />
@@ -3593,26 +3630,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Type="Double" Name="median1" Nullable="true" />
           <Property Type="Double" Name="twen_fifth" Nullable="true" />
           <Property Type="Double" Name="sevn_fifth" Nullable="true" />
-        </ComplexType>
-        <ComplexType Name="SP_TRAIN_STEP_USER_PROGRESS_Result">
-          <Property Type="Guid" Name="LESSON_STEP_IDX" Nullable="false" />
-          <Property Type="Guid" Name="LESSON_IDX" Nullable="false" />
-          <Property Type="Int32" Name="LESSON_STEP_SEQ" Nullable="true" />
-          <Property Type="String" Name="LESSON_STEP_DESC" Nullable="true" />
-          <Property Type="String" Name="REQUIRED_URL" Nullable="true" MaxLength="250" />
-          <Property Type="Boolean" Name="REQ_CONFIRM" Nullable="true" />
-          <Property Type="String" Name="REQUIRED_YT_VID" Nullable="true" MaxLength="250" />
-          <Property Type="Int32" Name="STEP_COMP_IND" Nullable="false" />
-          <Property Type="DateTime" Name="CREATE_DT" Nullable="true" />
-        </ComplexType>
-        <ComplexType Name="SP_TRAIN_COURSE_USER_PROGRESS_Result">
-          <Property Type="Guid" Name="COURSE_IDX" Nullable="false" />
-          <Property Type="String" Name="COURSE_NAME" Nullable="true" MaxLength="50" />
-          <Property Type="String" Name="COURSE_DESC" Nullable="true" MaxLength="2000" />
-          <Property Type="Int32" Name="COURSE_COMP_IND" Nullable="false" />
-          <Property Type="DateTime" Name="CREATE_DT" Nullable="true" />
-          <Property Type="Int32" Name="COURSE_LESSON_TOT" Nullable="true" />
-          <Property Type="Int32" Name="COURSE_LESSON_COMP" Nullable="true" />
         </ComplexType>
         <ComplexType Name="SP_FIVE_MIN_DATA_GAPS_Result">
           <Property Type="Guid" Name="DATA_FIVE_IDX" Nullable="false" />
@@ -3656,6 +3673,54 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="MODIFY_DT" Type="DateTime" Precision="0" />
+        </EntityType>
+        <ComplexType Name="SP_TRAIN_COURSE_USER_PROGRESS_Result">
+          <Property Type="Guid" Name="COURSE_IDX" Nullable="false" />
+          <Property Type="String" Name="COURSE_NAME" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="COURSE_DESC" Nullable="true" MaxLength="2000" />
+          <Property Type="Int32" Name="COURSE_COMP_IND" Nullable="false" />
+          <Property Type="DateTime" Name="CREATE_DT" Nullable="true" />
+          <Property Type="Int32" Name="COURSE_LESSON_TOT" Nullable="true" />
+          <Property Type="Int32" Name="COURSE_LESSON_COMP" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="SP_TRAIN_LESSON_USER_PROGRESS_Result">
+          <Property Type="Guid" Name="COURSE_IDX" Nullable="false" />
+          <Property Type="Guid" Name="LESSON_IDX" Nullable="false" />
+          <Property Type="Int32" Name="LESSON_SEQ" Nullable="true" />
+          <Property Type="String" Name="LESSON_TITLE" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="LESSON_DESC" Nullable="true" />
+          <Property Type="Int32" Name="LESSON_COMP_IND" Nullable="false" />
+          <Property Type="DateTime" Name="CREATE_DT" Nullable="true" />
+          <Property Type="Int32" Name="LESSON_STEPS_COMP" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="SP_TRAIN_STEP_USER_PROGRESS_Result">
+          <Property Type="Guid" Name="LESSON_STEP_IDX" Nullable="false" />
+          <Property Type="Guid" Name="LESSON_IDX" Nullable="false" />
+          <Property Type="Int32" Name="LESSON_STEP_SEQ" Nullable="true" />
+          <Property Type="String" Name="LESSON_STEP_DESC" Nullable="true" />
+          <Property Type="String" Name="REQUIRED_URL" Nullable="true" MaxLength="250" />
+          <Property Type="Boolean" Name="REQ_CONFIRM" Nullable="true" />
+          <Property Type="String" Name="REQUIRED_YT_VID" Nullable="true" MaxLength="250" />
+          <Property Type="Int32" Name="STEP_COMP_IND" Nullable="false" />
+          <Property Type="DateTime" Name="CREATE_DT" Nullable="true" />
+        </ComplexType>
+        <EntityType Name="TRAINING_SNAPSHOT">
+          <Key>
+            <PropertyRef Name="USER_IDX" />
+            <PropertyRef Name="FNAME" />
+            <PropertyRef Name="LNAME" />
+            <PropertyRef Name="COURSE_IDX" />
+          </Key>
+          <Property Name="USER_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="FNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="LNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="COURSE_IDX" Type="Guid" Nullable="false" />
+          <Property Name="COURSE_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TotalCourseSteps" Type="Int32" />
+          <Property Name="CourseStartDate" Type="DateTime" Precision="0" />
+          <Property Name="StepsCompleted" Type="Int32" />
+          <Property Name="CertIssuedInd" Type="Int32" />
+          <Property Name="CertIssuedDate" Type="DateTime" Precision="0" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -4425,6 +4490,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_SITES">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITES">
               <MappingFragment StoreEntitySet="T_QREST_SITES">
+                <ScalarProperty Name="PUB_WEB_IND" ColumnName="PUB_WEB_IND" />
                 <ScalarProperty Name="LOCAL_TIMEZONE" ColumnName="LOCAL_TIMEZONE" />
                 <ScalarProperty Name="AIRNOW_SITE" ColumnName="AIRNOW_SITE" />
                 <ScalarProperty Name="AIRNOW_ORG" ColumnName="AIRNOW_ORG" />
@@ -4649,20 +4715,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="SP_TRAIN_LESSON_USER_PROGRESS" FunctionName="QRESTModel.Store.SP_TRAIN_LESSON_USER_PROGRESS">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="QRESTModel.SP_TRAIN_LESSON_USER_PROGRESS_Result">
-                <ScalarProperty Name="COURSE_IDX" ColumnName="COURSE_IDX" />
-                <ScalarProperty Name="LESSON_IDX" ColumnName="LESSON_IDX" />
-                <ScalarProperty Name="LESSON_SEQ" ColumnName="LESSON_SEQ" />
-                <ScalarProperty Name="LESSON_TITLE" ColumnName="LESSON_TITLE" />
-                <ScalarProperty Name="LESSON_DESC" ColumnName="LESSON_DESC" />
-                <ScalarProperty Name="LESSON_COMP_IND" ColumnName="LESSON_COMP_IND" />
-                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
-                <ScalarProperty Name="LESSON_STEPS_COMP" ColumnName="LESSON_STEPS_COMP" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="SP_MONTHLY_STATS" FunctionName="QRESTModel.Store.SP_MONTHLY_STATS">
             <ResultMapping>
               <ComplexTypeMapping TypeName="QRESTModel.SP_MONTHLY_STATS_Result">
@@ -4682,34 +4734,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="median1" ColumnName="median1" />
                 <ScalarProperty Name="twen_fifth" ColumnName="twen_fifth" />
                 <ScalarProperty Name="sevn_fifth" ColumnName="sevn_fifth" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="SP_TRAIN_STEP_USER_PROGRESS" FunctionName="QRESTModel.Store.SP_TRAIN_STEP_USER_PROGRESS">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="QRESTModel.SP_TRAIN_STEP_USER_PROGRESS_Result">
-                <ScalarProperty Name="LESSON_STEP_IDX" ColumnName="LESSON_STEP_IDX" />
-                <ScalarProperty Name="LESSON_IDX" ColumnName="LESSON_IDX" />
-                <ScalarProperty Name="LESSON_STEP_SEQ" ColumnName="LESSON_STEP_SEQ" />
-                <ScalarProperty Name="LESSON_STEP_DESC" ColumnName="LESSON_STEP_DESC" />
-                <ScalarProperty Name="REQUIRED_URL" ColumnName="REQUIRED_URL" />
-                <ScalarProperty Name="REQ_CONFIRM" ColumnName="REQ_CONFIRM" />
-                <ScalarProperty Name="REQUIRED_YT_VID" ColumnName="REQUIRED_YT_VID" />
-                <ScalarProperty Name="STEP_COMP_IND" ColumnName="STEP_COMP_IND" />
-                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="SP_TRAIN_COURSE_USER_PROGRESS" FunctionName="QRESTModel.Store.SP_TRAIN_COURSE_USER_PROGRESS">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="QRESTModel.SP_TRAIN_COURSE_USER_PROGRESS_Result">
-                <ScalarProperty Name="COURSE_IDX" ColumnName="COURSE_IDX" />
-                <ScalarProperty Name="COURSE_NAME" ColumnName="COURSE_NAME" />
-                <ScalarProperty Name="COURSE_DESC" ColumnName="COURSE_DESC" />
-                <ScalarProperty Name="COURSE_COMP_IND" ColumnName="COURSE_COMP_IND" />
-                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
-                <ScalarProperty Name="COURSE_LESSON_TOT" ColumnName="COURSE_LESSON_TOT" />
-                <ScalarProperty Name="COURSE_LESSON_COMP" ColumnName="COURSE_LESSON_COMP" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
@@ -4754,6 +4778,65 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="CREATE_USER_IDX" ColumnName="CREATE_USER_IDX" />
                 <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
                 <ScalarProperty Name="QUAL_CODE" ColumnName="QUAL_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_LATEST_POLLED_DATE" FunctionName="QRESTModel.Store.SP_LATEST_POLLED_DATE" />
+          <FunctionImportMapping FunctionImportName="SP_TRAIN_COURSE_USER_PROGRESS" FunctionName="QRESTModel.Store.SP_TRAIN_COURSE_USER_PROGRESS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_TRAIN_COURSE_USER_PROGRESS_Result">
+                <ScalarProperty Name="COURSE_IDX" ColumnName="COURSE_IDX" />
+                <ScalarProperty Name="COURSE_NAME" ColumnName="COURSE_NAME" />
+                <ScalarProperty Name="COURSE_DESC" ColumnName="COURSE_DESC" />
+                <ScalarProperty Name="COURSE_COMP_IND" ColumnName="COURSE_COMP_IND" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="COURSE_LESSON_TOT" ColumnName="COURSE_LESSON_TOT" />
+                <ScalarProperty Name="COURSE_LESSON_COMP" ColumnName="COURSE_LESSON_COMP" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_TRAIN_LESSON_USER_PROGRESS" FunctionName="QRESTModel.Store.SP_TRAIN_LESSON_USER_PROGRESS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_TRAIN_LESSON_USER_PROGRESS_Result">
+                <ScalarProperty Name="COURSE_IDX" ColumnName="COURSE_IDX" />
+                <ScalarProperty Name="LESSON_IDX" ColumnName="LESSON_IDX" />
+                <ScalarProperty Name="LESSON_SEQ" ColumnName="LESSON_SEQ" />
+                <ScalarProperty Name="LESSON_TITLE" ColumnName="LESSON_TITLE" />
+                <ScalarProperty Name="LESSON_DESC" ColumnName="LESSON_DESC" />
+                <ScalarProperty Name="LESSON_COMP_IND" ColumnName="LESSON_COMP_IND" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="LESSON_STEPS_COMP" ColumnName="LESSON_STEPS_COMP" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_TRAIN_STEP_USER_PROGRESS" FunctionName="QRESTModel.Store.SP_TRAIN_STEP_USER_PROGRESS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_TRAIN_STEP_USER_PROGRESS_Result">
+                <ScalarProperty Name="LESSON_STEP_IDX" ColumnName="LESSON_STEP_IDX" />
+                <ScalarProperty Name="LESSON_IDX" ColumnName="LESSON_IDX" />
+                <ScalarProperty Name="LESSON_STEP_SEQ" ColumnName="LESSON_STEP_SEQ" />
+                <ScalarProperty Name="LESSON_STEP_DESC" ColumnName="LESSON_STEP_DESC" />
+                <ScalarProperty Name="REQUIRED_URL" ColumnName="REQUIRED_URL" />
+                <ScalarProperty Name="REQ_CONFIRM" ColumnName="REQ_CONFIRM" />
+                <ScalarProperty Name="REQUIRED_YT_VID" ColumnName="REQUIRED_YT_VID" />
+                <ScalarProperty Name="STEP_COMP_IND" ColumnName="STEP_COMP_IND" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="TRAINING_SNAPSHOT">
+            <EntityTypeMapping TypeName="QRESTModel.TRAINING_SNAPSHOT">
+              <MappingFragment StoreEntitySet="TRAINING_SNAPSHOT">
+                <ScalarProperty Name="CertIssuedDate" ColumnName="CertIssuedDate" />
+                <ScalarProperty Name="CertIssuedInd" ColumnName="CertIssuedInd" />
+                <ScalarProperty Name="StepsCompleted" ColumnName="StepsCompleted" />
+                <ScalarProperty Name="CourseStartDate" ColumnName="CourseStartDate" />
+                <ScalarProperty Name="TotalCourseSteps" ColumnName="TotalCourseSteps" />
+                <ScalarProperty Name="COURSE_NAME" ColumnName="COURSE_NAME" />
+                <ScalarProperty Name="COURSE_IDX" ColumnName="COURSE_IDX" />
+                <ScalarProperty Name="LNAME" ColumnName="LNAME" />
+                <ScalarProperty Name="FNAME" ColumnName="FNAME" />
+                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

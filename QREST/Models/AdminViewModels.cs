@@ -267,6 +267,12 @@ namespace QREST.Models
 
     }
 
+    public class vmAdminTrainingCourseProgress
+    {
+        public List<TRAINING_SNAPSHOT> course_progress { get; set; }
+
+    }
+
 
     public class vmAdminTrainingLessonEdit
     {
@@ -285,6 +291,10 @@ namespace QREST.Models
         [UIHint("wsywigeditor"), AllowHtml]
         [StringLength(12000)]
         public string stepDesc { get; set; }
+
+        [Required]
+        public string completeType { get; set; }
+
 
     }
 }

@@ -37,28 +37,41 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
+                            <label>How Will Trainee Indicate This Step is Complete?</label>
+                            <br />
+                            <label class="btn ">
+                                @Html.RadioButtonFor(m => m.completeType, "BTN", new { @class = "form-control pinger" }) Button Click
+                            </label>
+                            <label class="btn ">
+                                @Html.RadioButtonFor(m => m.completeType, "URL", new { @class = "form-control pinger" }) Click Link
+                            </label>
+                            <label class="btn ">
+                                @Html.RadioButtonFor(m => m.completeType, "VID", new { @class = "form-control pinger" }) Watch Video
+                            </label>
+                            @Html.ValidationMessageFor(m => m.completeType)
+                        </div>
+                    </div>
+
+                    <div id="opt1" class="row opts text-primary m-l-md m-t-md" style="display:none;">
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <label>Require trainee to click on a confirmation button after reading the description above</label>
-                                @Html.CheckBox("step.REQ_CONFIRM", Model.step.REQ_CONFIRM ?? false, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(model => model.step.REQ_CONFIRM)
+                                <label class="font-bold">Require trainee to click on a confirmation button after reading the description above</label>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div id="opt2" class="row opts text-primary m-l-md m-t-md" style="display:none;">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label>Require trainee to click on the following link</label>
+                                <label class="font-bold">Require trainee to click on the following link (e.g. https://www.example.com/)</label>
                                 @Html.TextBoxFor(model => model.step.REQUIRED_URL, new { @class = "form-control", @maxlength = "250" })
-                                @Html.ValidationMessageFor(model => model.step.REQUIRED_URL)
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div id="opt3" class="row opts text-primary m-l-md m-t-md" style="display:none;">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label>Require trainee to watch the following Youtube video (only include string code e.g. NvMrCgjHzYA)</label>
+                                <label class="font-bold">Require trainee to watch the following Youtube video (only include string code e.g. NvMrCgjHzYA)</label>
                                 @Html.TextBoxFor(model => model.step.REQUIRED_YT_VID, new { @class = "form-control", @maxlength = "250" })
-                                @Html.ValidationMessageFor(model => model.step.REQUIRED_YT_VID)
                             </div>
                         </div>
                     </div>
@@ -78,5 +91,33 @@
 @section scripts {
     @Scripts.Render("~/bundles/areyousure")
     @Scripts.Render("~/bundles/cleave")
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var xxx = '@Model.completeType';
+        optShowHIde(xxx);
+
+        //display div based on selecting radio button
+        $('.pinger').click(function () {
+            optShowHIde(this.value);
+        });
+
+        function optShowHIde(s1) {
+            $(".opts").hide();
+            if (s1 == "URL") {
+                $("#opt2").show();
+            }
+            else if (s1 == "VID") {
+                $("#opt3").show();
+            }
+            else {
+                $("#opt1").show();
+            }
+        }
+    });
+</script>
 }
 

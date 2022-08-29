@@ -214,6 +214,7 @@ namespace QREST.Controllers
                 model.POLLING_ONLINE_IND = _site.POLLING_ONLINE_IND ?? false;
                 model.AIRNOW_IND = _site.AIRNOW_IND ?? false;
                 model.AQS_IND = _site.AQS_IND ?? false;
+                model.PUB_WEB_IND = _site.PUB_WEB_IND ?? false;
                 model.AIRNOW_USR = _site.AIRNOW_USR;
                 model.AIRNOW_PWD = _site.AIRNOW_PWD;
                 model.AIRNOW_ORG = _site.AIRNOW_ORG;
@@ -270,6 +271,10 @@ namespace QREST.Controllers
             //reject if user doesn't have access to org
             RedirectToRouteResult r = CanAccessThisOrg(UserIDX, model.ORG_ID, true);
             if (r != null) return r;
+
+            if (model.AIRNOW_IND == true && model.AIRNOW_SITE == null)
+                ModelState.AddModelError("AIRNOW_SITE", "If enabling AirNow streaming, 9-digit AirNow site ID is needed.");
+
             //*************** VALIDATION END *********************************
 
 
@@ -277,8 +282,8 @@ namespace QREST.Controllers
             {
                 Guid? succId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
                     model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
-                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR, model.AIRNOW_PWD, 
-                    model.AIRNOW_ORG, model.AIRNOW_SITE, model.SITE_COMMENTS ?? "", UserIDX, model.LOCAL_TIMEZONE);
+                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR ?? "", model.AIRNOW_PWD ?? "", 
+                    model.AIRNOW_ORG, model.AIRNOW_SITE ?? "", model.SITE_COMMENTS ?? "", UserIDX, model.LOCAL_TIMEZONE, model.PUB_WEB_IND);
 
                 if (succId != null)
                 {
@@ -498,7 +503,7 @@ namespace QREST.Controllers
                             T_QREST_SITES _existSite = db_Air.GetT_QREST_SITES_ByOrgandAQSID(model.selOrgID, cols[5]);
                             if (_existSite == null)
                                 db_Air.InsertUpdatetT_QREST_SITES(null, model.selOrgID, cols[5], cols[7], cols[5], cols[1], cols[3], null, null, null, null, null,
-                                    null, null, null, false, null, null, null, null, false, false, null, null, null, null, null, UserIDX, null);
+                                    null, null, null, false, null, null, null, null, false, false, null, null, null, null, null, UserIDX, null, false);
                         }
 
                     }
@@ -547,6 +552,34 @@ namespace QREST.Controllers
             }
         }
 
+        [HttpGet]
+        public JsonResult TestAIRNOW(Guid? id)
+        {
+            T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(id ?? Guid.Empty);
+            if (_site != null)
+            {
+                string ftpUser = _site.AIRNOW_USR;
+                string ftpPwd = _site.AIRNOW_PWD;
+                string ip = "webdmcdata.airnowtech.org";
+
+                using (var client = new Renci.SshNet.SftpClient(ip, ftpUser, ftpPwd))
+                {
+                    try
+                    {
+                        client.Connect();
+                        client.ChangeDirectory("AQCSV");
+                        var xxx = client.ListDirectory(".");
+                        client.Disconnect();
+                        return Json("Success", JsonRequestBehavior.AllowGet);
+                    }
+                    catch (Exception ex)
+                    {
+                        return Json("Failed: " + ex.Message, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+            return Json("Failed");
+        }
 
 
         //**********************SITE POLLING **************************************
@@ -827,6 +860,7 @@ namespace QREST.Controllers
         }
 
 
+
         public ActionResult SitePollOffline(Guid id)
         {
             string UserIDX = User.Identity.GetUserId();
@@ -835,26 +869,56 @@ namespace QREST.Controllers
             RedirectToRouteResult r = CanAccessThisOrg(UserIDX, db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(id), true);
             if (r != null) return Json("Access Denied");
 
-            var _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(id);
+
+            var model = new vmSitePollOffline
+            {
+                POLL_CONFIG_IDX = id
+            };
+
+            var _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.POLL_CONFIG_IDX);
+            if (_config != null)
+            {
+                model.SITE_IDX = _config.SITE_IDX;
+            }
+
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public ActionResult SitePollOffline(vmSitePollOffline model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //reject if user doesn't have access to org
+            RedirectToRouteResult r = CanAccessThisOrg(UserIDX, db_Air.GetT_QREST_SITE_POLL_CONFIG_org_ByID(model.POLL_CONFIG_IDX), true);
+            if (r != null) return Json("Access Denied");
+
+            var _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.POLL_CONFIG_IDX);
             if (_config != null)
             {
                 T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(_config.SITE_IDX);
                 if (_site != null)
                 {
                     //take offline
-                    Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(id, null, null, null, null, null, null, null, null,
+                    Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.POLL_CONFIG_IDX, null, null, null, null, null, null, null, null,
                     null, null, null, null, null, null, false, UserIDX, _site.SITE_NAME, null);
+
+                    //log reason why
+                    db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", UserIDX, null, "Taking offline; reason: " + model.OfflineReason, null, model.POLL_CONFIG_IDX.ToString());
+
 
                     if (succId != null)
                     {
                         TempData["Success"] = "Configuration Taken Offline";
-                        return RedirectToAction("SitePollConfig", new { configid = id });
+                        return RedirectToAction("SitePollConfig", new { configid = model.POLL_CONFIG_IDX });
                     }
                 }
             }
 
             TempData["Error"] = "Error updating record.";
-            return RedirectToAction("SitePollConfig", new { configid = id });
+            return RedirectToAction("SitePollConfig", new { configid = model.POLL_CONFIG_IDX });
         }
 
 
@@ -866,19 +930,29 @@ namespace QREST.Controllers
             RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), OrgID, true);
             if (r != null) return r;
 
-            //FAIL IF NO CONFIGURATION FOUND
             T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.POLL_CONFIG_IDX);
-            if (_config == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null || _config.LOGGER_PASSWORD == null)
-                ModelState.AddModelError("pingType", "Polling configuration is incomplete: logger source, port, and password must be supplied.");
 
-            //SITE ID MUST BE 4 DIGITS 
+
+            //FAIL IF NO CONFIGURATION FOUND
+            if (_config == null || _config.LOGGER_SOURCE == null || _config.LOGGER_PORT == null)
+                ModelState.AddModelError("pingType", "Polling configuration is incomplete: logger source and port must be supplied.");
+
+            //SITE ID MUST BE 4 DIGITS (ZENO only)
             string siteID = db_Air.GetT_QREST_SITE_POLL_CONFIG_SiteID_ByID(_config.POLL_CONFIG_IDX);
-            if (siteID == null || siteID.Length != 4)
+            if ((siteID == null || siteID.Length != 4) && _config?.LOGGER_TYPE == "ZENO")
                 ModelState.AddModelError("pingType", "Site ID must be a 4 digit number that corresponds to ID configured on logger.");
 
-            if (_config?.LOGGER_TYPE != "ZENO" && _config?.LOGGER_TYPE != "SUTRON" && _config?.LOGGER_TYPE != "ESC" && _config?.LOGGER_TYPE != "SUTRON_LEADS")
-                ModelState.AddModelError("pingType", "Ping currently only available for Zeno, Sutron, and ESC dataloggers.");
+            //SITE ID MUST BE 2 DIGITS (ESC only)
+            if ((siteID == null || siteID.Length != 2) && _config?.LOGGER_TYPE == "ESC")
+                ModelState.AddModelError("pingType", "Site ID must be a 2 character code that corresponds to ID configured on logger.");
 
+
+            //THIS PAGE ONLY WORKS WITH SPECIFIED LOGGERS
+            if (_config?.LOGGER_TYPE != "ZENO" && _config?.LOGGER_TYPE != "SUTRON" && _config?.LOGGER_TYPE != "ESC" && _config?.LOGGER_TYPE != "SUTRON_LEADS" && _config?.LOGGER_TYPE != "MET_ONE_BAM")
+                ModelState.AddModelError("pingType", "Ping currently only available for Zeno, Sutron, or ESC dataloggers, or MetOne BAM.");
+
+
+            //ONLY ZENO LOGGERS ALLOW THE PING-ONLY OPTION
             if (_config?.LOGGER_TYPE != "ZENO" && model.pingType == "Ping Only")
                 ModelState.AddModelError("pingType", "Ping Only option is only available for Zeno logger.");
 
@@ -894,13 +968,25 @@ namespace QREST.Controllers
                     CommMessageLog _log = new CommMessageLog();
                     if (_config.LOGGER_TYPE == "ESC")
                     {
-                        siteID = "32";
-                        _log = LoggerComm.ConnectTcpESC(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), "003120000|Y|003130000", siteID);
+                        string todayJulian = System.DateTime.Now.AddHours(-7).DayOfYear.ToString().PadLeft(3, '0');
+                        _log = LoggerComm.ConnectTcpESC(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), todayJulian + "010000" + "|Y|" + todayJulian + "230000", siteID);
+                        if (_log.CommMessageStatus)
+                            model.loggerData = _log.CommResponse;
+                        else
+                            model.pingResults2 = new List<CommMessageLog> { _log };
                     }
                     else if (_config.LOGGER_TYPE == "SUTRON_LEADS")
                     {
                         //_log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, "GET /S 06-06-2022 03:00:00");
                         _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, "GET /TODAY /C");
+                        if (_log.CommMessageStatus)
+                            model.loggerData = _log.CommResponse;
+                        else
+                            model.pingResults2 = new List<CommMessageLog> { _log };
+                    }
+                    else if (_config.LOGGER_TYPE == "MET_ONE_BAM")
+                    {
+                        _log = LoggerComm.ConnectTcpBAM(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>());
                         if (_log.CommMessageStatus)
                             model.loggerData = _log.CommResponse;
                         else
@@ -969,7 +1055,55 @@ namespace QREST.Controllers
                 else
                     TempData["Success"] = "Polling successful";
             }
+            else if (_config.LOGGER_TYPE == "SUTRON_LEADS")
+            {
+                SitePollingConfigType _config2 = db_Air.GetT_QREST_SITES_POLLING_CONFIG_Single(_config.POLL_CONFIG_IDX);
+                List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX, true);
 
+                CommMessageLog _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, "GET /TODAY /C");
+                if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                {
+                    //send the entire text response to the file parser routine
+                    LoggerComm.ParseFlatFile(_log.CommResponse, _config2, _config_dtl, true);
+                }
+                else
+                    TempData["Error"] = "Error in polling: " + _log.CommMessageType;
+            }
+            else if (_config.LOGGER_TYPE == "ESC")
+            {
+                SitePollingConfigType _config2 = db_Air.GetT_QREST_SITES_POLLING_CONFIG_Single(_config.POLL_CONFIG_IDX);
+                List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX, true);
+
+                DateTime stDate = System.DateTime.Now.AddHours(-20);
+                DateTime endDate = System.DateTime.Now.AddHours(5);
+                string startJulian = stDate.DayOfYear.ToString().PadLeft(3, '0');
+                string endJulian = endDate.DayOfYear.ToString().PadLeft(3, '0');
+                string startHour = stDate.Hour.ToString().PadLeft(2, '0');
+                string endtHour = endDate.Hour.ToString().PadLeft(2, '0');
+                CommMessageLog _log = LoggerComm.ConnectTcpESC(_config2.LOGGER_SOURCE, (ushort)_config2.LOGGER_PORT, startJulian + startHour + "0000" + "|Y|" + endJulian + endtHour + "0000", _config2.SITE_ID);
+                if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                {
+                    //send the entire text response to the file parser routine
+                    LoggerComm.ParseFlatFileESC(_log.CommResponse, _config2, _config_dtl, true);
+
+                }
+                else
+                    TempData["Error"] = "Error in polling: " + _log.CommMessageType;
+            }
+            else if (_config.LOGGER_TYPE == "MET_ONE_BAM")
+            {
+                SitePollingConfigType _config2 = db_Air.GetT_QREST_SITES_POLLING_CONFIG_Single(_config.POLL_CONFIG_IDX);
+                List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX, true);
+
+                CommMessageLog _log = LoggerComm.ConnectTcpBAM(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT);
+                if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                {
+                    //send the entire text response to the file parser routine
+                    LoggerComm.ParseFlatFileMetOneBAM(_log.CommResponse, _config2, _config_dtl, true);
+                }
+                else
+                    TempData["Error"] = "Error in polling: " + _log.CommMessageType;
+            }
             return RedirectToAction("SitePollConfig", new { configid = id });
         }
 

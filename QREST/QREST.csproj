@@ -259,11 +259,13 @@
     <Content Include="Content\Images\GettingDataIntoQREST.png" />
     <Content Include="Content\Images\itep_logo_120.png" />
     <Content Include="Content\Images\main.png" />
+    <Content Include="Content\Images\mappoint_o.png" />
     <Content Include="Content\Images\phone-1.png" />
     <Content Include="Content\Images\phone-2.png" />
     <Content Include="Content\css\radio.css" />
     <Content Include="Content\css\toastr.css" />
     <Content Include="Content\css\toastr.min.css" />
+    <Content Include="Content\Images\mappoint.svg" />
     <Content Include="Content\Images\sort_asc.png" />
     <Content Include="Content\Images\sort_asc_disabled.png" />
     <Content Include="Content\Images\sort_both.png" />
@@ -681,6 +683,8 @@
     <Content Include="Views\Reports\LogActivity.cshtml" />
     <Content Include="Views\Data\FillGaps.cshtml" />
     <Content Include="Views\Reports\RefDisallowQual.cshtml" />
+    <Content Include="Views\Site\SitePollOffline.cshtml" />
+    <Content Include="Views\Admin\TrainingProgress.cshtml" />
     <None Include="Web.ReleaseTest.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

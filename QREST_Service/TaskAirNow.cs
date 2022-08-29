@@ -54,7 +54,7 @@ namespace QRESTServiceCatalog
                     Directory.CreateDirectory(path);
 
                 //write data to text file
-                string file = System.DateTime.Now.ToString("yyyyMMddHHmm") + "_840.TRX";
+                string file = System.DateTime.Now.ToString("yyyyMMddHHmm") + "_840.TRX";  //840 is USA country code
                 string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\AirNow\\" + file;
                 if (!File.Exists(filepath))
                 {

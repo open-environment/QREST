@@ -1090,12 +1090,17 @@ namespace QREST.Controllers
         public ActionResult TrainingLessonStep(Guid? id, Guid? lessonid)
         {
             var model = new vmAdminTrainingStepEdit();
+            model.completeType = "BTN";
 
             //update case
             if (id != null)
             {
                 model.step = db_Train.GetT_QREST_TRAIN_LESSON_STEP_byID(id.GetValueOrDefault());
                 model.stepDesc = model.step.LESSON_STEP_DESC;
+
+                //set completion method radio button
+                if (!string.IsNullOrEmpty(model.step.REQUIRED_URL)) model.completeType = "URL";
+                else if (!string.IsNullOrEmpty(model.step.REQUIRED_YT_VID)) model.completeType = "VID";
             }
             else if (lessonid != null) //insert case
             {
@@ -1124,6 +1129,23 @@ namespace QREST.Controllers
                 return View(model);
             }
             //***************** END VALIDATION ***************************
+
+            if (model.completeType == "BTN")
+            {
+                model.step.REQUIRED_URL = "";
+                model.step.REQUIRED_YT_VID = "";
+                model.step.REQ_CONFIRM = true;
+            }
+            if (model.completeType == "URL")
+            {
+                model.step.REQUIRED_YT_VID = "";
+                model.step.REQ_CONFIRM = false;
+            }
+            else if (model.completeType == "VID")
+            {
+                model.step.REQUIRED_URL = "";
+                model.step.REQ_CONFIRM = false;
+            }
 
             Guid? c = model.step.LESSON_STEP_IDX;
             if (c == Guid.Empty)
@@ -1174,6 +1196,14 @@ namespace QREST.Controllers
             }
         }
 
+        public ActionResult TrainingProgress()
+        {
+            var model = new vmAdminTrainingCourseProgress
+            {
+                course_progress = db_Train.TRAINING_SNAPSHOT()
+            };
+            return View(model);
+        }
 
 
         //************************************* TEST METHODS ************************************************************

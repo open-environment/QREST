@@ -31,6 +31,7 @@ namespace QRESTModel.DAL
         public string RAW_DURATION_CODE { get; set; }
         public string LOGGER_SOURCE { get; set; }
         public int? LOGGER_PORT { get; set; }
+        public string LOGGER_USERNAME { get; set; }
         public string LOGGER_PASSWORD { get; set; }
         public string DELIMITER { get; set; }
         public int? DATE_COL { get; set; }
@@ -393,7 +394,7 @@ namespace QRESTModel.DAL
                 {
                     var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
                                join b in ctx.T_QREST_ORGANIZATIONS.AsNoTracking() on a.ORG_ID equals b.ORG_ID
-                               where a.AIRNOW_IND == true
+                               where a.PUB_WEB_IND == true
                                orderby a.ORG_ID, a.SITE_ID
                                select new SiteDisplay
                                {
@@ -585,7 +586,7 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_SITES.AsNoTracking()
                             join b in ctx.T_QREST_MONITORS.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
                             join c in ctx.T_QREST_DATA_HOURLY.AsNoTracking() on b.MONITOR_IDX equals c.MONITOR_IDX
-                            where a.AIRNOW_IND == true
+                            where a.PUB_WEB_IND == true
                             select a).Distinct().OrderBy(x => x.ORG_ID).ThenBy(x => x.SITE_NAME).ToList();
                 }
                 catch (Exception ex)
@@ -624,7 +625,7 @@ namespace QRESTModel.DAL
         public static Guid? InsertUpdatetT_QREST_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_ID, string sITE_NAME, string aQS_SITE_ID, string sTATE, string cOUNTY,
             decimal? lATITUDE, decimal? lONGITUDE, string eLEVATION, string aDDRESS, string cITY, string zIP_CODE, DateTime? sTART_DT, DateTime? eND_DT,
             bool? pOLLING_ONLINE_IND, string pOLLING_FREQ_TYPE, int? pOLLING_FREQ_NUM, DateTime? pOLLING_LAST_RUN_DT, DateTime? pOLLING_NEXT_RUN_DT, bool? aIRNOW_IND, bool? aQS_IND,
-            string aIRNOW_USR, string aIRNOW_PWD, string aIRNOW_ORG, string aIRNOW_SITE, string sITE_COMMENTS, string cREATE_USER, string lOCAL_TIME_ZONE)
+            string aIRNOW_USR, string aIRNOW_PWD, string aIRNOW_ORG, string aIRNOW_SITE, string sITE_COMMENTS, string cREATE_USER, string lOCAL_TIME_ZONE, bool? pUB_WEB_IND)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -680,6 +681,7 @@ namespace QRESTModel.DAL
                     if (aIRNOW_SITE != null) e.AIRNOW_SITE = aIRNOW_SITE;
                     if (sITE_COMMENTS != null) e.SITE_COMMENTS = sITE_COMMENTS;
                     if (lOCAL_TIME_ZONE != null) e.LOCAL_TIMEZONE = lOCAL_TIME_ZONE;
+                    if (pUB_WEB_IND != null) e.PUB_WEB_IND = pUB_WEB_IND;
 
                     if (insInd)
                         ctx.T_QREST_SITES.Add(e);
@@ -984,6 +986,7 @@ namespace QRESTModel.DAL
                                    RAW_DURATION_CODE = b.RAW_DURATION_CODE,
                                    LOGGER_SOURCE = b.LOGGER_SOURCE,
                                    LOGGER_PORT = b.LOGGER_PORT,
+                                   LOGGER_USERNAME = b.LOGGER_USERNAME,
                                    LOGGER_PASSWORD = b.LOGGER_PASSWORD,
                                    DELIMITER = b.DELIMITER,
                                    DATE_COL = b.DATE_COL,
@@ -2293,6 +2296,8 @@ namespace QRESTModel.DAL
             }
         }
 
+
+
         //*****************QC_ASSESSMENT_DTL**********************************
         public static List<QC_ASSESSMENT_DTLDisplay> GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(Guid? AssessIDX)
         {
@@ -2618,8 +2623,8 @@ namespace QRESTModel.DAL
                 if (cols.Length > 1)  //skip blank row
                 {
                     //date
-                    string sDate = cols[config.DATE_COL.GetValueOrDefault() - 1].ToString();
-                    string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].ToString();
+                    string sDate = cols[config.DATE_COL.GetValueOrDefault() - 1].Replace("\"", "").Trim();
+                    string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].Replace("\"", "").Trim();
                     string dateTimeString = config.DATE_COL.GetValueOrDefault() != config.TIME_COL.GetValueOrDefault()
                         ? (sDate + " " + sTime).Trim()
                         : sDate;
@@ -3418,27 +3423,130 @@ namespace QRESTModel.DAL
                     string sTime = cols[config.TIME_COL.GetValueOrDefault() - 1].ToString().Replace("\"", "").Trim();
                     //int timeZoneOffset = config.LOCAL_TIMEZONE.ConvertOrDefault<int>();
                     string timePollType = config.TIME_POLL_TYPE;
+                    string dateTimeString = config.DATE_COL.GetValueOrDefault() != config.TIME_COL.GetValueOrDefault()
+                        ? (sDate + " " + sTime).Trim()
+                        : sDate;
 
                     //raw date time coming from logger
                     //get allowed date/time formats
                     string[] allowedFormats = UtilsText.GetDateTimeAllowedFormats(config.DATE_FORMAT, config.TIME_FORMAT);
 
-                    string dateTimeString = config.DATE_COL.GetValueOrDefault() != config.TIME_COL.GetValueOrDefault()
-                        ? (sDate + " " + sTime).Trim()
-                        : sDate;
                     DateTime dt = DateTime.ParseExact(dateTimeString, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
 
                     foreach (SitePollingConfigDetailType _map in config_dtl)
                     {
-                        //apply N-minute alerts if available
+                        //apply hourly alerts if available
                         string valCd = "";
                         Double? val = cols[_map.COL - 1 ?? 0].ToString().ConvertOrDefault<Double?>();
-                        if (val != null && _map.ALERT_MAX_TYPE == "N" && val > _map.ALERT_MAX_VALUE)
+                        if (val != null && _map.ALERT_MAX_TYPE == "H" && val > _map.ALERT_MAX_VALUE)
                             valCd = "MAX";
-                        if (val != null && _map.ALERT_MIN_TYPE == "N" && val < _map.ALERT_MIN_VALUE)
+                        if (val != null && _map.ALERT_MIN_TYPE == "H" && val < _map.ALERT_MIN_VALUE)
                             valCd = "MIN";
 
                         db_Air.InsertUpdateT_QREST_DATA_HOURLY(_map.MONITOR_IDX, timePollType == "L" ? dt.ConvertOrDefault<DateTime?>() : null, timePollType == "U" ? dt.ConvertOrDefault<DateTime?>() : null, timeZoneOffset, cols[_map.COL - 1 ?? 0], _map.COLLECT_UNIT_CODE, true, valCd);
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", "Site " + config.SITE_ID + " " + ex.Message ?? ex.InnerException?.ToString());
+                return false;
+            }
+
+        }
+
+
+
+        public static bool InsertT_QREST_DATA_HOURLY_fromLine_ESC(string line, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl, int timeZoneOffset)
+        {
+            try
+            {
+                if (line.Length > 20 && line.Length < 40)  //skip blank row
+                {
+                    //date
+                    int year = DateTime.Now.Year;  //year
+                    int julday = line.SubStringPlus(9, 3).ConvertOrDefault<int>();  //day
+                    int hour = line.SubStringPlus(12, 2).ConvertOrDefault<int>(); //hour
+                    int minute = line.SubStringPlus(14, 2).ConvertOrDefault<int>(); //minute
+                    DateTime dt = new DateTime(year, 1, 1).AddDays(julday - 1).AddHours(hour).AddMinutes(minute);
+                    string timePollType = config.TIME_POLL_TYPE;
+
+                    //read channel #
+                    int channel = line.SubStringPlus(3, 2).ConvertOrDefault<int>();
+                    
+                    //lookup parameter that matches channel
+                    SitePollingConfigDetailType _map = config_dtl.Where(c => c.COL == channel).FirstOrDefault();
+                    if (_map != null)
+                    {
+                        //read value 
+                        double? val = line.SubStringPlus(18, 10).ConvertOrDefault<Double?>();
+
+                        //apply hourly alerts if available
+                        string valCd = "";
+                        if (val != null && _map.ALERT_MAX_TYPE == "H" && val > _map.ALERT_MAX_VALUE)
+                            valCd = "MAX";
+                        if (val != null && _map.ALERT_MIN_TYPE == "H" && val < _map.ALERT_MIN_VALUE)
+                            valCd = "MIN";
+
+                        string valStr = val.ToString();
+
+                        //read for possible validation code
+                        string flag1 = line.SubStringPlus(28, 1);
+                        string flag2 = line.SubStringPlus(29, 1);
+                        if (val != null && (flag1 == "<" || flag2 == "<"))
+                            valStr = "FEW";
+                            
+                        //insert value
+                        InsertUpdateT_QREST_DATA_HOURLY(_map.MONITOR_IDX, timePollType == "L" ? dt.ConvertOrDefault<DateTime?>() : null, timePollType == "U" ? dt.ConvertOrDefault<DateTime?>() : null, timeZoneOffset, valStr, _map.COLLECT_UNIT_CODE, true, valCd);
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                db_Ref.CreateT_QREST_SYS_LOG(null, "POLLING", "Site " + config.SITE_ID + " " + ex.Message ?? ex.InnerException?.ToString());
+                return false;
+            }
+
+        }
+
+
+        public static bool InsertT_QREST_DATA_HOURLY_fromLine_BAM(string line, SitePollingConfigType config, List<SitePollingConfigDetailType> config_dtl, int timeZoneOffset)
+        {
+            try
+            {
+                if (line.Length > 20 && line.Length < 100 && line.Substring(2,1) == ":")  //skip blank row
+                {
+                    //date
+                    int hour = line.SubStringPlus(0, 2).ConvertOrDefault<int>(); //hour
+                    DateTime dt = System.DateTime.Today.AddHours(hour);
+                    string timePollType = config.TIME_POLL_TYPE;
+
+                    //read channel #
+                    int channel = 1;
+
+                    //lookup parameter that matches channel
+                    SitePollingConfigDetailType _map = config_dtl.Where(c => c.COL == channel).FirstOrDefault();
+                    if (_map != null)
+                    {
+                        //read value 
+                        double? val = line.SubStringPlus(21, 5).ConvertOrDefault<Double?>();
+
+
+                        //apply hourly alerts if available
+                        string valCd = "";
+                        if (val == 985)                         //apply special error
+                            valCd = "LOST";
+                        if (val != null && _map.ALERT_MAX_TYPE == "H" && val > _map.ALERT_MAX_VALUE)
+                            valCd = "MAX";
+                        if (val != null && _map.ALERT_MIN_TYPE == "H" && val < _map.ALERT_MIN_VALUE)
+                            valCd = "MIN";
+
+                        string valStr = val.ToString();
+
+                        //insert value
+                        InsertUpdateT_QREST_DATA_HOURLY(_map.MONITOR_IDX, timePollType == "L" ? dt.ConvertOrDefault<DateTime?>() : null, timePollType == "U" ? dt.ConvertOrDefault<DateTime?>() : null, timeZoneOffset, valStr, _map.COLLECT_UNIT_CODE, true, valCd);
                     }
                 }
                 return true;
@@ -5114,6 +5222,23 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+        public static DateTime? SP_LATEST_POLLED_DATE(Guid sITE_IDX, string durCode, string timeType)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_LATEST_POLLED_DATE(sITE_IDX, durCode, timeType).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
 
     }
 }

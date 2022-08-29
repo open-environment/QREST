@@ -483,6 +483,43 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        public static int DeleteT_QREST_TRAIN_LESSON_USER(Guid lESSON_IDX, string uSER_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    //first delete all user steps first
+                    List<T_QREST_TRAIN_LESSON_STEP_USER> _steps = (from a in ctx.T_QREST_TRAIN_LESSON_STEP_USER
+                                                                   join b in ctx.T_QREST_TRAIN_LESSON_STEP on a.LESSON_STEP_IDX equals b.LESSON_STEP_IDX
+                                                                   where a.USER_IDX == uSER_IDX
+                                                                   && b.LESSON_IDX == lESSON_IDX
+                                                                   select a).ToList();
+
+                    if (_steps != null && _steps.Count > 0)
+                        ctx.T_QREST_TRAIN_LESSON_STEP_USER.RemoveRange(_steps);
+
+                    //then delete user lesson
+
+                    T_QREST_TRAIN_LESSON_USER _lesson = (from a in ctx.T_QREST_TRAIN_LESSON_USER
+                                                         where a.USER_IDX == uSER_IDX
+                                                         && a.LESSON_IDX == lESSON_IDX
+                                                         select a).FirstOrDefault();
+                    ctx.Entry(_lesson).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
+
+
         //public static int DeleteT_QREST_TRAIN_LESSON_USER(Guid id)
         //{
         //    using (QRESTEntities ctx = new QRESTEntities())
@@ -719,6 +756,25 @@ namespace QRESTModel.DAL
             }
         }
 
+
+        public static List<TRAINING_SNAPSHOT> TRAINING_SNAPSHOT()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.TRAINING_SNAPSHOT
+                            orderby a.COURSE_NAME, a.CourseStartDate
+                            select a).ToList();
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
 
 
 

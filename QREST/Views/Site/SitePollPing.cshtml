@@ -23,7 +23,7 @@
                     @Html.ValidationMessageFor(m => m.pingType)
                 </div>
 
-                @if (Model.LOGGER_TYPE != "SUTRON_LEADS")
+                @if (Model.LOGGER_TYPE != "SUTRON_LEADS" && Model.LOGGER_TYPE != "ESC" && Model.LOGGER_TYPE != "MET_ONE_BAM")
                 {
                 <div class="col-md-4 poll-data" style="display:none;">
                     <label>Last X Records</label>
@@ -87,11 +87,11 @@
         }
         @if (Model.loggerData != null)
         {
-            <div class="row">
+            <div class="row m-t-md">
                 <div class="col-md-12">
                     <div class="form-group">
-                        Last X records
-                        @Html.TextAreaFor(model => model.loggerData, new { @class = "form-control", @rows = "15" })
+                        Data Returned
+                        @Html.TextAreaFor(model => model.loggerData, new { @class = "form-control", @rows = "15", @style="font-family: monospace;" })
                     </div>
                 </div>
             </div>

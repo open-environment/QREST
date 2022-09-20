@@ -1181,6 +1181,7 @@ namespace QREST.Controllers
             }
         }
 
+
         [HttpPost]
         public JsonResult TrainingLessonStepDelete(Guid? id)
         {
@@ -1196,6 +1197,7 @@ namespace QREST.Controllers
             }
         }
 
+
         public ActionResult TrainingProgress()
         {
             var model = new vmAdminTrainingCourseProgress
@@ -1204,6 +1206,7 @@ namespace QREST.Controllers
             };
             return View(model);
         }
+
 
 
         //************************************* TEST METHODS ************************************************************

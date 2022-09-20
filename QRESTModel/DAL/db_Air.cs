@@ -2994,6 +2994,7 @@ namespace QRESTModel.DAL
                                 VAL_CD = a.VAL_CD,
                                 NOTES = a.NOTES,
                                 UNIT_DESC = u3.UNIT_DESC,
+                                UNIT_CODE = u3.UNIT_CODE,
                                 AQS_QUAL_CODES = a.AQS_QUAL_CODES,
                                 AQS_NULL_CODE = a.AQS_NULL_CODE,
                                 LVL1_VAL_IND = a.LVL1_VAL_IND,

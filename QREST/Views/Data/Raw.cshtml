@@ -221,10 +221,27 @@
                 });
             };
 
+            function xaxisformat(hrs) {
+                return (hrs < 25 ? "HH:mm" : "MM/DD");
+            }
+
+            function xaxisintervaltype(hrs) {
+                return (hrs < 25 ? "hour" : "day");
+            }
+
+            function gridlineThick(hrs) {
+                return (hrs < 25 ? 1 : 1);
+            }
+
+            function units() {
+                return '@((Model.RawData!=null && Model.RawData.Count>0)? Model.RawData[0].UNIT_DESC: "")';
+            }
 
             //hide chart if no data
             if (dataPointsA.length > 0) {
-
+                var dataHoursSpan = dataPointsA.length;
+                if ($("#selType").val() == "H")
+                    dataHoursSpan = Math.floor(dataHoursSpan / 12);
 
                 chart = new CanvasJS.Chart("chartContainer", {
                     zoomEnabled: true,
@@ -232,6 +249,11 @@
                     exportEnabled: true,
                     title: {
                         text: parName
+                    },
+                    toolTip: {
+                        contentFormatter: function (e) {
+                            return CanvasJS.formatDate(e.entries[0].dataPoint.x, "MM/DD/YYYY HH:mm") + ": <strong style='color:green'>" + e.entries[0].dataPoint.y + " " + units() + "</strong>";
+                        }
                     },
                     data: [{
                         type: "column",
@@ -241,14 +263,26 @@
                         dataPoints: dataPointsA
                     }],
                     axisX: {
-                        valueFormatString: "MM/DD HH:mm",
+                        labelAutoFit: true,
+                        valueFormatString: "M/D/YYYY HH:mm",
+                        labelFormatter: function (e) { return CanvasJS.formatDate(e.value, xaxisformat(dataHoursSpan));  },
+                        interval: 1,
+                        intervalType: xaxisintervaltype(dataHoursSpan),
+                        gridThickness: gridlineThick(dataHoursSpan)
+                    },
+                    rangeChanging: function (e) {
+                        //change axis format based on zoom
+                        if (e.trigger === "zoom" || e.trigger === "reset") {
+                            var len1 = (e.axisX[0].viewportMaximum - e.axisX[0].viewportMinimum) / 1000 / 60 / 60;
+                            if (len1 == 0) len1 = dataHoursSpan;
+
+                            e.chart.options.axisX.labelFormatter = function (e) {
+                                return CanvasJS.formatDate(e.value, xaxisformat(len1));
+                            };
+                            e.chart.options.axisX.intervalType = xaxisintervaltype(len1);
+                        }
                     },
                     rangeChanged: function (e) {
-
-                        //set custom axis formatter
-                        var totHr = $("#totHoursDuration").val();
-                        console.log(totHr);
-
                         //hide grid rows based on chart zoom
                         var x1 = moment(e.axisX[0].viewportMinimum).format('MM-DD-YYYY HH:mm');
                         var x2 = moment(e.axisX[0].viewportMaximum).format('MM-DD-YYYY HH:mm');

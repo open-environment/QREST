@@ -36,6 +36,10 @@ namespace QREST.App_Logic
                 var imagedata = Convert.FromBase64String(base64Data);
                 image = Image.GetInstance(imagedata);
             }
+            else if (src.Contains(".webp"))
+            {
+                image = null; 
+            }
             else
             {
                 image = Image.GetInstance(src);

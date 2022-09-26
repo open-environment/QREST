@@ -837,6 +837,7 @@ warning 6002: The table/view 'QREST.dbo.TRAINING_SNAPSHOT' does not have a prima
           <Property Name="StepsCompleted" Type="int" />
           <Property Name="CertIssuedInd" Type="int" />
           <Property Name="CertIssuedDate" Type="datetime2" Precision="0" />
+          <Property Name="ORG_NAME" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -1601,7 +1602,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
     [TRAINING_SNAPSHOT].[CourseStartDate] AS [CourseStartDate], 
     [TRAINING_SNAPSHOT].[StepsCompleted] AS [StepsCompleted], 
     [TRAINING_SNAPSHOT].[CertIssuedInd] AS [CertIssuedInd], 
-    [TRAINING_SNAPSHOT].[CertIssuedDate] AS [CertIssuedDate]
+    [TRAINING_SNAPSHOT].[CertIssuedDate] AS [CertIssuedDate], 
+    [TRAINING_SNAPSHOT].[ORG_NAME] AS [ORG_NAME]
     FROM [dbo].[TRAINING_SNAPSHOT] AS [TRAINING_SNAPSHOT]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="Self.USERLIST_DISPLAY_VIEW" store:Type="Views" store:Schema="dbo">
@@ -3721,6 +3723,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="StepsCompleted" Type="Int32" />
           <Property Name="CertIssuedInd" Type="Int32" />
           <Property Name="CertIssuedDate" Type="DateTime" Precision="0" />
+          <Property Name="ORG_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -4827,6 +4830,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="TRAINING_SNAPSHOT">
             <EntityTypeMapping TypeName="QRESTModel.TRAINING_SNAPSHOT">
               <MappingFragment StoreEntitySet="TRAINING_SNAPSHOT">
+                <ScalarProperty Name="ORG_NAME" ColumnName="ORG_NAME" />
                 <ScalarProperty Name="CertIssuedDate" ColumnName="CertIssuedDate" />
                 <ScalarProperty Name="CertIssuedInd" ColumnName="CertIssuedInd" />
                 <ScalarProperty Name="StepsCompleted" ColumnName="StepsCompleted" />

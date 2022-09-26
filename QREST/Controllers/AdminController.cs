@@ -1202,10 +1202,21 @@ namespace QREST.Controllers
         {
             var model = new vmAdminTrainingCourseProgress
             {
-                course_progress = db_Train.TRAINING_SNAPSHOT()
+               // course_progress = db_Train.TRAINING_SNAPSHOT()
             };
             return View(model);
         }
+
+        [HttpPost]
+        public ActionResult TrainingProgressData()
+        {
+            var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
+            var data = db_Train.TRAINING_SNAPSHOT();
+            var recordsTotal = data.Count();
+
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
 
 
 

@@ -24,5 +24,6 @@ namespace QRESTModel.DAL
         public Nullable<int> StepsCompleted { get; set; }
         public Nullable<int> CertIssuedInd { get; set; }
         public Nullable<System.DateTime> CertIssuedDate { get; set; }
+        public string ORG_NAME { get; set; }
     }
 }

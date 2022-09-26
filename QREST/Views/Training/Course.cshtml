@@ -10,8 +10,17 @@
     </div>
     <div class="col-md-9">
         <h2 class="m-t-xs font-bold"><span class="text-success">Course: </span>@Model.course.COURSE_NAME</h2>
+        <div class="pull-right">
+            @using (Html.BeginForm("CoursePDF", "Training", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(modelItem => Model.course.COURSE_IDX)
+                <button type="submit" class="btn btn-md btn-warning"><span class="fa fa-file-pdf-o"></span> Printable Copy</button>
+            }
+        </div>
         <h4 class="m-t-md text-success page-header m-b-none">Course Description</h4>
         <h4 class="font-thin">@Model.course.COURSE_DESC</h4>
+
     </div>
 </div>
 <section class="panel panel-qrest">

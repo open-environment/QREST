@@ -1382,7 +1382,7 @@ END
 GO
 
 CREATE VIEW TRAINING_SNAPSHOT as
-		select U.USER_IDX, U.[FNAME], U.LNAME, TC.COURSE_IDX, TC.COURSE_NAME, 
+  		select U.USER_IDX, U.[FNAME], U.LNAME, TC.COURSE_IDX, TC.COURSE_NAME, 
 		(select count(*) from T_QREST_TRAIN_COURSE_LESSON TCL2, T_QREST_TRAIN_LESSON_STEP TLS2 where TCL2.LESSON_IDX=TLS2.LESSON_IDX and TCL2.COURSE_IDX = TC.COURSE_IDX) as TotalCourseSteps
 		,(select min(create_dt) 
 			from T_QREST_TRAIN_LESSON_STEP_USER TLSU1, T_QREST_TRAIN_LESSON_STEP TLS1, T_QREST_TRAIN_COURSE_LESSON TCL1 
@@ -1390,6 +1390,11 @@ CREATE VIEW TRAINING_SNAPSHOT as
 		,count(*) as StepsCompleted
 		,(select count(*) from T_QREST_TRAIN_COURSE_USER TCU where TCU.USER_IDX=U.USER_IDX and TCU.COURSE_IDX=TC.COURSE_IDX) as CertIssuedInd
 		,(select top 1 create_dt from T_QREST_TRAIN_COURSE_USER TCU where TCU.USER_IDX=U.USER_IDX and TCU.COURSE_IDX=TC.COURSE_IDX) as CertIssuedDate
+		,(select case when count(*)>1 then '(multiple)' else
+		(select top 1 org_name from t_qrest_organizations o, t_qrest_org_users ou where o.org_Id=ou.org_id and ou.user_IDX=u.user_IDX 
+		  order by case when ou.ACCESS_LEVEL='A' then 1 when ou.ACCESS_LEVEL='U' then 2 when ou.ACCESS_LEVEL='Q' then 3 else 4 end)
+		  end
+		 from t_qrest_organizations o, t_qrest_org_users ou where o.org_Id=ou.org_id and ou.user_IDX=u.user_IDX and OU.ACCESS_LEVEL='A') as ORG_NAME
 		from 
 		T_QREST_TRAIN_LESSON_STEP_USER TLSU,
 		T_QREST_TRAIN_LESSON_STEP TLS,

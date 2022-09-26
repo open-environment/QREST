@@ -265,6 +265,7 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_TRAIN_LESSON.AsNoTracking()
                             join b in ctx.T_QREST_TRAIN_COURSE_LESSON.AsNoTracking() on a.LESSON_IDX equals b.LESSON_IDX
                             where b.COURSE_IDX == cOURSE_IDX
+                            orderby b.LESSON_SEQ
                             select new CourseLessonDisplay { 
                                 COURSE_IDX = b.COURSE_IDX,
                                 LESSON_IDX = a.LESSON_IDX,

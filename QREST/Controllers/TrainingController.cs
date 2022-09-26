@@ -10,6 +10,7 @@ using Microsoft.AspNet.Identity.Owin;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
+using QREST.App_Logic;
 
 namespace QREST.Controllers
 {
@@ -76,6 +77,19 @@ namespace QREST.Controllers
         }
 
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public FileResult CoursePDF(vmTrainingCourse model)
+        {
+            try {
+                //id = Guid.Parse("426E0A18-A498-4F03-B54D-170851F850A7");
+                //T_QREST_TRAIN_LESSON_STEP _step = db_Train.GetT_QREST_TRAIN_LESSON_STEP_byID(id.GetValueOrDefault());
+                System.IO.MemoryStream _ms = PDFHelper.CreatePDFReportForCourse(model.course.COURSE_IDX);
+                return File(_ms, "application/pdf", "test.pdf");
+            }
+            catch (Exception ex) {
+            }
+            return null;
+        }
 
         public ActionResult Lesson(Guid? id)
         {

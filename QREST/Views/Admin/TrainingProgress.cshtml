@@ -51,10 +51,9 @@
                 },
                 "columns": [
                     { "data": "COURSE_NAME", "name": "COURSE_NAME", "autoWidth": true },
-
                     {
                         "render": function (data, type, row) {
-                            return row.FNAME + ' ' + row.LNAME;
+                            return "(redacted)";//row.FNAME + ' ' + row.LNAME;
                         }
                     },
                     { "data": "ORG_NAME", "name": "ORG_NAME", "autoWidth": true },

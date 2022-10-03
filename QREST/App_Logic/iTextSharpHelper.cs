@@ -35,8 +35,31 @@ namespace QREST.App_Logic
                 var base64Data = src.Substring(src.IndexOf(",") + 1);
                 var imagedata = Convert.FromBase64String(base64Data);
                 image = Image.GetInstance(imagedata);
+                
+                //set width cannot exceed 300, height 500
+                float w = (float)image.Width;
+                float h = (float)image.Height;
+                if (w > 300 || h > 500)
+                {
+                    float w_exceed_pct = w / 300f;
+                    float h_exceed_pct = h / 500f;
+                    float max_exceed_pct = Math.Max(w_exceed_pct, h_exceed_pct);
+
+                    image.ScaleAbsolute(w / max_exceed_pct, h / max_exceed_pct);
+                }
+
+                //image.ScaleAbsolute(100f, 200f);
+                //image.ScaleToFit(w, w);
+                //image.ScaleToFitHeight = false;
+                //if (image.Width > 1000)
+                //{
+
+                //    attrs.Remove(HtmlTags.WIDTH);
+                //    attrs.Add(HtmlTags.WIDTH, "400px");
+                //    //image.Width = 500; 
+                //}
             }
-            else if (src.Contains(".webp"))
+            else if (src.Contains(".webp"))  //pdf doesn't support webp images
             {
                 image = null; 
             }

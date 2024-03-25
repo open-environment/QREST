@@ -11,7 +11,7 @@
         <div class="bg-gradient pull-out" style="padding:10px; margin-top:-15px;">
 
             <div class="btn-group pull-right" data-toggle="buttons">
-                <label id="btnChartToggle" class="btn btn-default btn-rounded active" data-target="#chartContainer" data-toggle="collapse">
+                <label id="btnChartToggle" class="btn btn-default btn-rounded active" data-target="#chartContainer,#chartContainerSupp1,#chartContainerSupp2" data-toggle="collapse">
                     <input type="checkbox" name="option1" id="option1"><i class="fa fa-check text-active"></i> <span><i class="fa fa-line-chart"></i></span>
                 </label>
                 <label id="btnFilterToggle" class="btn btn-default btn-rounded" data-target="#filterContainer" data-toggle="collapse">
@@ -238,7 +238,7 @@
                                                 <div class="row col-md-12">
                                                     <div class="form-group">
                                                         <input id="chkLvl1" type="checkbox" value="">
-                                                        <label>Update Level 1 Review Status</label>
+                                                        <label>Change Level 1 Review Status</label>
                                                         <br />
                                                         <div id="divlvl1" class="btn-group" data-toggle="buttons" style="display: none">
                                                             <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl1, "", new { id = "editLvl1_0" })<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
@@ -253,7 +253,7 @@
                                                 <div class="row col-md-12">
                                                     <div class="form-group">
                                                         <input id="chkLvl2" type="checkbox" value="">
-                                                        <label>Update Level 2 Review Status</label>
+                                                        <label>Change Level 2 Review Status</label>
                                                         <br />
                                                         <div id="divlvl2" class="btn-group" data-toggle="buttons" style="display: none">
                                                             <label class="btn btn-sm btn-info active"> @Html.RadioButtonFor(x => x.editLvl2, "", new { id = "editLvl2_0" })<i class="fa fa-square-o text"></i> <i class="fa fa-check-square text-active"></i> No Changes </label>
@@ -513,7 +513,7 @@
 
             array.push({
                 x: new Date(xx),
-                y: yy == "FEW" ? 0 : Number(yy),
+                y: (yy == "FEW" || aqsnull) ? 0 : Number(yy),
                 lineColor: lcolor,
                 color: lcolor
             });
@@ -647,7 +647,13 @@
 
         //handling chart visibility
         $('#chartContainer').on("shown.bs.collapse", function () {
-            $("#chartContainer").height(300);
+            $("#chartContainer").height(320);
+        });
+        $('#chartContainerSupp1').on("shown.bs.collapse", function () {
+            $("#chartContainerSupp1").height(160);
+        });
+        $('#chartContainerSupp2').on("shown.bs.collapse", function () {
+            $("#chartContainerSupp2").height(160);
         });
 
         //handling grid visibility

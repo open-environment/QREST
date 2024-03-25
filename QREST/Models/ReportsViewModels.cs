@@ -18,12 +18,37 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
         public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
         public IEnumerable<SelectListItem> ddl_TimeType { get; set; }
-
+        public bool chkDaily { get; set; }
+        public bool chkMonthly { get; set; }
         public vmReportsExport(){
             ddl_TimeType = ddlHelpers.get_ddl_time_type();
+            chkDaily = true;
+            chkMonthly = true;
         }
     }
 
+    public class vmReportsDaily 
+    {
+        public IEnumerable<SelectListItem> ddl_Organization { get; set; }
+        public IEnumerable<SelectListItem> ddl_Monitor { get; set; }
+        public IEnumerable<SelectListItem> ddl_TimeType { get; set; }
+
+        public string selOrgID { get; set; }
+
+        [Required]
+        public Guid selMon { get; set; }
+
+        [Required]
+        public string selDate { get; set; }
+        public string selTimeType { get; set; }
+
+        public List<SP_DAILY_AVG_Result> stats { get; set; }
+
+        public vmReportsDaily()
+        {
+            ddl_TimeType = ddlHelpers.get_ddl_time_type();
+        }
+    }
 
     public class vmReportsMonthlyStats
     {
@@ -47,6 +72,22 @@ namespace QREST.Models
 
         public List<SP_MONTHLY_STATS_Result> stats { get; set; }
     }
+
+
+
+    public class vmReportUsageStats
+    {
+        public IEnumerable<SelectListItem> ddl_Years { get; set; }
+
+        public int? selYear { get; set; }
+        public int? HourlyCnt { get; set; }
+        public int? FiveMinCnt { get; set; }
+        public int? OrgCnt { get; set; }
+        public List<MONTHLY_USAGE_HOURLY> HourlyCnts { get; set; }
+        public List<MONTHLY_USAGE_FIVEMIN> FiveMinCnts { get; set; }
+    }
+
+
 
     // ******************************** REF DATA************************************
     //****************************************************************************

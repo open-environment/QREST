@@ -721,7 +721,7 @@ namespace QRESTModel.DAL
         }
 
         public static int InsertUpdatetT_QREST_ORGANIZATION(string oRG_ID, string oRG_NAME, string sTATE_CD, int? ePA_REGION, string aQS_NAAS_UID, string aQS_NAAS_PWD,
-            string aQS_AGENCY_CODE, bool? sELF_REG_IND, bool? aCT_IND, string cREATE_USER, string aQS_AQS_UID, string aQS_AQS_SCREENING_GRP)
+            string aQS_AGENCY_CODE, bool? sELF_REG_IND, bool? aCT_IND, string cREATE_USER, string aQS_AQS_UID, string aQS_AQS_SCREENING_GRP, bool? lOCK_ACCESS_IND = false)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -764,6 +764,7 @@ namespace QRESTModel.DAL
                     if (aCT_IND != null) e.ACT_IND = aCT_IND ?? true;
                     if (aQS_AQS_UID != null) e.AQS_AQS_UID = aQS_AQS_UID;
                     if (aQS_AQS_SCREENING_GRP != null) e.AQS_AQS_SCREENING_GRP = aQS_AQS_SCREENING_GRP;
+                    if (lOCK_ACCESS_IND != null) e.LOCK_ACCESS_IND = lOCK_ACCESS_IND ?? false;
 
 
                     if (insInd)

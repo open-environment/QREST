@@ -30,9 +30,10 @@
                         <tr>
                             <th>Organization</th>
                             <th>Site</th>
+                            <th>Data Date Range</th>
                             <th>Import Date</th>
                             <th>Imported By</th>
-                            <th>Data Type</th>
+                            <th>Import Type</th>
                             <th>Import Status</th>
                             <th># Records</th>
                             <th></th>
@@ -50,19 +51,34 @@
                                 @Html.DisplayFor(modelItem => item.SITE_NAME)
                             </td>
                             <td>
+                                @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.REC_MIN_DATE) -
+                                @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.REC_MAX_DATE)
+                            </td>
+                            <td>
                                 @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.IMPORT_DT)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.SUBMITTER)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.IMPORT_TYPE)
+                                @if (item.T_QREST_DATA_IMPORTS.IMPORT_TYPE == "H" || item.T_QREST_DATA_IMPORTS.IMPORT_TYPE == "H1")
+                                {
+                                    <span>Hourly</span>
+                                }
+                                else if (item.T_QREST_DATA_IMPORTS.IMPORT_TYPE == "A")
+                                {
+                                    <span>AQS RD File</span>
+                                }
+                                else 
+                                {
+                                    <span>5-min</span>
+                                }
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.COUNT)
+                                @Html.DisplayFor(modelItem => item.T_QREST_DATA_IMPORTS.REC_COUNT)
                                 <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("ImportFileDownload", new { id = item.T_QREST_DATA_IMPORTS.IMPORT_IDX })"><i class="fa fa-download"></i> Download</a>
                             </td>
                             <td>

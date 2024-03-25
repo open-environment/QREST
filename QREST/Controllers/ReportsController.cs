@@ -54,18 +54,21 @@ namespace QREST.Controllers
             }
             //***end validation ***********
 
+            var _dts = new List<DataTable>();
+
             string UserIDX = User.Identity.GetUserId();
 
-            DataTable dtSites = exportdata.Contains("Sites") ? DataTableGen.SitesByUser(UserIDX, model.selOrgID) : new DataTable("Sites");
-            DataTable dtMonitors = exportdata.Contains("Monitors") ? DataTableGen.MonitorsByUser(UserIDX, model.selOrgID) : new DataTable("Monitors");
+            if (exportdata.Contains("Sites"))
+                _dts.Add(DataTableGen.SitesByUser(UserIDX, model.selOrgID));
+
+            if (exportdata.Contains("Monitors"))
+                _dts.Add(DataTableGen.MonitorsByUser(UserIDX, model.selOrgID));
 
             //Polling Config
-            DataTable dtPollingConfig = new DataTable("Polling_Config");
-            DataTable dtPollingConfigDetail = new DataTable("Polling_Config_Detail");
             if (exportdata.Contains("PollingConfig"))
             {
-                dtPollingConfig = DataTableGen.GetPollingConfig(UserIDX, model.selOrgID);
-                dtPollingConfigDetail = DataTableGen.GetPollingConfigDetail(UserIDX, model.selOrgID);
+                _dts.Add(DataTableGen.GetPollingConfig(UserIDX, model.selOrgID));
+                _dts.Add(DataTableGen.GetPollingConfigDetail(UserIDX, model.selOrgID));
             }
 
             //raw data
@@ -77,13 +80,22 @@ namespace QREST.Controllers
                 {
                     DateTime? d1 = d[0].ConvertOrDefault<DateTime?>();
                     DateTime? d2 = (d.Length > 1) ? d[1].ConvertOrDefault<DateTime?>() : null;
-                    dtData = DataTableGen.RawData(model.selType, model.selOrgID, null, model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType);
+
+                    _dts.Add(DataTableGen.RawData(model.selType, model.selOrgID, null, model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType));
+
+                    //daily averages
+                    if (model.chkDaily)
+                        _dts.Add(DataTableGen.DailyAverages(model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType));
+
+                    //monthly stats
+                    if (model.chkMonthly)
+                        _dts.Add(DataTableGen.MonthlyStatistics(model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType));
                 }
             }
 
 
 
-            DataSet dsExport = DataTableGen.DataSetFromDataTables(new List<DataTable> { dtSites, dtMonitors, dtPollingConfig, dtPollingConfigDetail, dtData });
+            DataSet dsExport = DataTableGen.DataSetFromDataTables(_dts);
             if (dsExport.Tables.Count > 0)
             {
                 MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);
@@ -106,6 +118,43 @@ namespace QREST.Controllers
         }
 
 
+        public ActionResult Daily(string org, Guid? mon, string typ, string timtyp, string sDate)
+        {
+            string UserIDX = User.Identity.GetUserId();
+            var model = new vmReportsDaily
+            {
+                selOrgID = org,
+                selMon = mon.GetValueOrDefault(),
+                selTimeType = timtyp,
+                selDate = sDate,
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true),
+                ddl_Monitor = new List<SelectListItem>()
+            };
+
+            if (mon != null && sDate != null)
+            {
+                string[] d = sDate.Replace(" - ", "z").Split('z');
+                if (d.Length == 2)
+                {
+                    DateTime d1 = d[0].ConvertOrDefault<DateTime>();
+                    DateTime d2 = d[1].ConvertOrDefault<DateTime>().AddDays(1).AddHours(-1);
+                    model.stats = db_Air.SP_DAILY_AVGS(d1, d2, model.selMon);
+                }
+
+            }
+
+            //supply mon ddl
+            if (model.selOrgID != null)
+                model.ddl_Monitor = ddlHelpers.get_monitors_sampled_by_org(model.selOrgID);
+
+            return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Daily(vmReportsDaily model)
+        {
+            return RedirectToAction("Daily", "Reports", new { org = model.selOrgID, mon = model.selMon, sDate = model.selDate, timtyp = model.selTimeType });
+        }
 
         public ActionResult MonthlyStats(string org, Guid? mon, DateTime? sDate, DateTime? eDate)
         {
@@ -141,8 +190,7 @@ namespace QREST.Controllers
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult MonthlyStats(vmReportsMonthlyStats model)
-        {
-            
+        {            
             return RedirectToAction("MonthlyStats", "Reports", new { org = model.selOrgID, mon = model.selMon, sDate = model.selDate, eDate = model.endDate });
         }
 
@@ -157,6 +205,34 @@ namespace QREST.Controllers
             };
             return View(model);
         }
+
+
+
+
+
+        //************************************* USAGE STATS ************************************************************
+        public ActionResult UsageStats(int? yr)
+        {
+            var model = new vmReportUsageStats {
+                ddl_Years = ddlHelpers.get_ddl_years(2015),
+                selYear = yr ?? System.DateTime.Now.Year
+            };
+
+            if (model.selYear != null)
+            {
+                model.HourlyCnts = db_Air.GetMONTHLY_USAGE_HOURLY(model.selYear.GetValueOrDefault());
+                model.FiveMinCnts = db_Air.GetMONTHLY_USAGE_FIVEMIN(model.selYear.GetValueOrDefault());
+            }
+            return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult UsageStats(vmReportUsageStats model)
+        {
+            return RedirectToAction("UsageStats", "Reports", new { yr = model.selYear });
+        }
+
+
 
 
         //************************************* REF DATA ************************************************************

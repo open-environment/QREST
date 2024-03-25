@@ -88,6 +88,7 @@ namespace QREST.Models
         public string AQS_NAAS_UID { get; set; }
         public string AQS_NAAS_PWD { get; set; }
         public bool SELF_REG_IND { get; set; }
+        public bool LOCK_ACCESS_IND { get; set; }
 
 
         public List<UserOrgDisplayType> org_users { get; set; }
@@ -234,13 +235,14 @@ namespace QREST.Models
 
 
 
-    // ******************************** CONNECTIVITY******************************
+    // ******************************** REPORTS******************************
     //****************************************************************************
     //****************************************************************************
     public class vmAdminConnectivity
     {
         public List<SitePollingConfigType> PollingConfig { get; set; }
     }
+
 
     public class vmAdminCDXTest
     {

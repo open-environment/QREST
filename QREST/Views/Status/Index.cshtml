@@ -1,0 +1,27 @@
+﻿@model QREST.Models.vmStatusIndex
+@{
+    Layout = "~/Views/Shared/_LayoutPub.cshtml";
+    ViewBag.Title = "Status";
+
+    string cls = "bg-success";
+    if (Model.staleness > 1)
+    {
+        cls = "bg-warning";
+    }
+    if (Model.staleness > 3)
+    {
+        cls = "bg-danger";
+    }
+
+}
+<div class="well">
+    <h3>QREST Website Status</h3>
+    <p class="bg-success panel-footer" style="max-width:400px">Active (Code: web-success)</p>
+
+    <h3>QREST Polling Status</h3>
+    <p class="panel-footer bg-white" style="max-width:400px">Current Time (UTC): @Model.currTime</p>
+
+    <p class="panel-footer @cls" style="max-width:400px">Last Sample Time (UTC): @Model.sampTime</p>
+    <p class="panel-footer @cls" style="max-width:400px">Hours Since Last Sample: @(Math.Round(Model.staleness,1))</p>
+    <p class="panel-footer @cls" style="max-width:400px">@(cls.Replace("bg-","")) (Code: @(cls.Replace("bg-","poll-")))</p>
+</div>

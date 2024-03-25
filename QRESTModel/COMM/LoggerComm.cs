@@ -187,7 +187,7 @@ namespace QRESTModel.COMM
                     {
                         // Get a client stream for reading and writing.
                         using (NetworkStream stream = client.GetStream())
-                        {
+                        {//@TM!5600001H215010000|Y|215230000&$
                             //*************** send message and get response *****************************
                             string xxx = SendReceiveMessage(stream, "@" + siteID + "!5600" + "001H" + command + "&$", 700, 700, false);
                             if (xxx != null && xxx.Length > 10)
@@ -316,7 +316,7 @@ namespace QRESTModel.COMM
 
 
         /// <summary>
-        /// Creates a TCP Connection to a Met One BAM, and then uses a command to return the logger response.
+        /// Creates a TCP Connection to a Met One BAM 1020, and then uses a command to return the logger response.
         /// </summary>
         /// <param name="ip">Data logger IP address</param>
         /// <param name="port">Data logger port</param>
@@ -344,16 +344,134 @@ namespace QRESTModel.COMM
                             string _usrResp = SendReceiveMessage(stream, "\r\n\r\n\r\n", 700, 700, false);
                             if (_usrResp != null && _usrResp.Contains("*"))
                             {
-                                string xxx = SendReceiveMessage(stream, "1" + "\r", 700, 700, false);  //1 means all data for today
-                                if (xxx != null && xxx.Length > 10)
+                                //view menu to see what kind of BAM1020 we're dealing with
+                                string getMenu = SendReceiveMessage(stream, "h" + "\r", 700, 700, false);  //h means menu
+                                if (getMenu != null && getMenu.Length > 10 && getMenu.Contains("Display Current Day"))
                                 {
-                                    string[] lines = xxx.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
-                                    xxx = string.Join(Environment.NewLine, lines);
+                                    //daily report option
+                                    string xxx = SendReceiveMessage(stream, "1" + "\r", 700, 700, false);  //1 means all data for today
+                                    if (xxx != null && xxx.Length > 10)
+                                    {
+                                        string[] lines = xxx.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
+                                        xxx = string.Join(Environment.NewLine, lines);
 
-                                    log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = xxx };
+                                        log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = xxx };
+                                    }
+                                    else
+                                        log = new CommMessageLog { CommMessageStatus = false, CommMessageType = xxx, CommResponse = "" };
                                 }
                                 else
-                                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = xxx, CommResponse = "" };
+                                {
+                                    //set pointer (how many hours of data to retrieve
+                                    string _goPointer = SendReceiveMessage(stream, "9", 700, 700, false);  //hit 9 for ...
+                                    //byte[] bytestosend = { 0x1B };
+                                    string _ignore1 = SendReceiveMessage(stream, "3 6\r", 700, 700, false, true);  //hit escape then 3 is the hourly data file, then 6 is number of hours
+                                    string _ignore2 = SendReceiveMessage(stream, "\r\n\r\n\r\n", 700, 700, false);  //hit enter 3 times to return to menu
+                                    string _csvdata = SendReceiveMessage(stream, "6\r\n", 700, 700, false);  //hit 6 for CSV data then 3 to get data
+                                    string _csvdata2 = SendReceiveMessage(stream, "3\r\n ", 700, 700, false);  //3 to get new data
+                                    if (_csvdata2 != null && _csvdata2.Length > 10)
+                                    {
+                                        string[] lines = _csvdata2.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
+                                        _csvdata2 = string.Join(Environment.NewLine, lines);
+
+                                        log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = _csvdata2 };
+                                    }
+                                    else
+                                        log = new CommMessageLog { CommMessageStatus = false, CommMessageType = _csvdata2, CommResponse = "" };
+                                }
+                            }
+                            else
+                                log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password failed", CommResponse = "" };
+
+                            //disconnect
+                            client.Client.Close();
+                            System.Threading.Thread.Sleep(250);
+                            client.Close();
+                        }
+                    }
+
+                }
+                catch (SocketException sex)
+                {
+                    //disconnect if exception
+                    client.Client.Close();
+                    System.Threading.Thread.Sleep(250);
+                    client.Close();
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping Socket Exception 1", CommResponse = sex.Message };
+                }
+                catch (Exception ex)
+                {
+                    //disconnect if exception
+                    client.Client.Close();
+                    System.Threading.Thread.Sleep(250);
+                    client.Close();
+
+                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping General Exception 2", CommResponse = ex.Message };
+                }
+            }
+
+            return log;
+        }
+
+
+        /// <summary>
+        /// Creates a TCP Connection to a Met One BAM 1022, and then uses a command to return the logger response.
+        /// </summary>
+        /// <param name="ip">Data logger IP address</param>
+        /// <param name="port">Data logger port</param>
+        /// <returns></returns>
+        public static CommMessageLog ConnectTcpBAM1022(string ip, ushort port, int? numRecs)
+        {
+            var log = new CommMessageLog();
+
+            // This dictates that the socket will not longer open after the socket is closed
+            LingerOption lingerOption = new LingerOption(true, 0);
+
+            //Create a TCPClient object at the IP and port
+            using (TcpClient client = new TcpClient { SendTimeout = 2000, ReceiveTimeout = 2000, LingerState = lingerOption })
+            {
+                try
+                {
+                    //string remoteIP = "100.113.67.117"; // Replace with the remote IP address
+
+                    //System.Net.NetworkInformation.Ping pingSender = new System.Net.NetworkInformation.Ping();
+                    //System.Net.NetworkInformation.PingReply reply = pingSender.Send(remoteIP);
+                    //if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
+                    //{
+                    //    Console.WriteLine("Ping successful. Roundtrip time: " + reply.RoundtripTime + "ms");
+                    //}
+                    //else
+                    //{
+                    //    Console.WriteLine("Ping failed: " + reply.Status.ToString());
+                    //}
+
+
+                    if (!client.ConnectAsync(ip, port).Wait(TimeSpan.FromSeconds(2)))
+                        log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Connect", CommResponse = "" };
+                    else
+                    {
+                        // Get a client stream for reading and writing.
+                        using (NetworkStream stream = client.GetStream())
+                        {
+                            //*************** send three enters *****************************
+                            string _usrResp = SendReceiveMessage(stream, "\r\n\r\n\r\n", 700, 700, false);
+                            if (_usrResp != null && _usrResp.Contains("*"))
+                            {
+                                string numRecsStr = (numRecs ?? 10).ToString();
+                                //if numrecs == -1, then query all
+                                string recsCommand = numRecs == -1 ? "2\r" : "4 " + numRecsStr + "\r";
+                                //set pointer (how many hours of data to retrieve
+                                string _csvdata2 = SendReceiveMessage(stream, recsCommand, 700, 700, false);  //hit 4 10 to retrieve last 10 records
+                                if (_csvdata2 != null && _csvdata2.Length > 10)
+                                {
+                                    string[] lines = _csvdata2.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
+                                    _csvdata2 = string.Join(Environment.NewLine, lines);
+
+                                    log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = _csvdata2 };
+                                }
+                                else
+                                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = _csvdata2, CommResponse = "" };
+
                             }
                             else
                                 log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password failed", CommResponse = "" };
@@ -398,7 +516,7 @@ namespace QRESTModel.COMM
         /// <param name="msWaitPostSend">Wait in milliseconds between sending message and reading response</param>
         /// <param name="appendEOFInd">Indicates whether an End Of File ascii character should be appended to the end of the message</param>
         /// <returns>Network stream response</returns>
-        public static string SendReceiveMessage(NetworkStream stream, string message, int? msWaitPreSend, int? msWaitPostSend, bool appendEOFInd)
+        public static string SendReceiveMessage(NetworkStream stream, string message, int? msWaitPreSend, int? msWaitPostSend, bool appendEOFInd, bool prependEscape = false)
         {
             string resp = "init";
             string respPrev;
@@ -429,6 +547,13 @@ namespace QRESTModel.COMM
                         .ToArray();
                 }
 
+                if (prependEscape)
+                {
+                    byte[] newValues = new byte[bytesToSend.Length + 1];
+                    newValues[0] = 0x1B;                                // set the prepended value
+                    Array.Copy(bytesToSend, 0, newValues, 1, bytesToSend.Length); // copy the old values
+                    bytesToSend = newValues;
+                }
                 stream.Write(bytesToSend, 0, bytesToSend.Length);
 
                 // ****************Read response after the send command ********************************
@@ -496,7 +621,7 @@ namespace QRESTModel.COMM
                 {
                     while ((line = sr.ReadLine()) != null)
                     {
-                        if (line.Length > 0)
+                        if (line.Length > 20 && line.Contains("ConcR") == false)
                         {
                             //FIVE MINUTE RAW DATA
                             if (config.RAW_DURATION_CODE == "H" || overrideConfigDuration == true)
@@ -594,7 +719,7 @@ namespace QRESTModel.COMM
         }
 
         /// <summary>
-        /// Parses an entire ESC/AGILAIRE polling file into the HOURLY table, based on a provided polling configuration. 
+        /// Parses aMet One BAM file into the HOURLY table, based on a provided polling configuration. 
         /// Can optionally update the next time polling should run.
         /// </summary>
         /// <param name="loggerData"></param>

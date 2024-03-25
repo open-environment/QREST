@@ -149,8 +149,9 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
                             <th>Parameter</th>
                             <th>Datetime (Local)</th>
                             <th>Datetime (UTC)</th>
-                            <th>Value</th>
-                            <th>Unit</th>
+                            <th>Existing Value</th>
+                            <th>Imported Value</th>
+                            <th>Imported Unit</th>
                             <th>QREST Code</th>
                             <th>AQS Qual Code</th>
                             <th>AQS Null Code</th>
@@ -216,6 +217,7 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
                             return moment(d).format("MM/DD/YYYY HH:mm");
                         }
                     },
+                    { "data": "DupOrigValue", "name": "DupOrigValue" },
                     { "data": "DATA_VALUE", "name": "DATA_VALUE" },
                     { "data": "UNIT_CODE", "name": "UNIT_CODE"},
                     { "data": "VAL_CD", "name": "VAL_CD" },

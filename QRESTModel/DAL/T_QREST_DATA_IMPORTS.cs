@@ -32,6 +32,9 @@ namespace QRESTModel.DAL
         public Nullable<System.Guid> MONITOR_IDX { get; set; }
         public Nullable<System.Guid> POLL_CONFIG_IDX { get; set; }
         public Nullable<bool> RECALC_IND { get; set; }
+        public Nullable<int> REC_COUNT { get; set; }
+        public Nullable<System.DateTime> REC_MIN_DATE { get; set; }
+        public Nullable<System.DateTime> REC_MAX_DATE { get; set; }
     
         public virtual T_QREST_ORGANIZATIONS T_QREST_ORGANIZATIONS { get; set; }
         public virtual T_QREST_SITES T_QREST_SITES { get; set; }

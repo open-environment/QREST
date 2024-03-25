@@ -315,7 +315,7 @@ namespace QREST.Controllers
                 model.SELF_REG_IND = _org.SELF_REG_IND ?? true;
                 model.edit_org_id = _org.ORG_ID;
                 model.edit_typ = "org";
-
+                model.LOCK_ACCESS_IND = _org.LOCK_ACCESS_IND;
                 model.org_users = db_Account.GetT_QREST_ORG_USERS_ByOrgID(model.ORG_ID, null, null);
                 model.org_emails = db_Account.GetT_QREST_ORG_EMAIL_RULE(model.ORG_ID);
             }
@@ -330,7 +330,7 @@ namespace QREST.Controllers
             if (ModelState.IsValid)
             {
                 int succId = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
-                    null, null, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null);
+                    null, null, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null, null);
 
                 if (succId == 1)
                     TempData["Success"] = "Record updated";
@@ -969,7 +969,7 @@ namespace QREST.Controllers
 
 
 
-        //************************************* CONNECTIVITY ************************************************************
+        //************************************* REPORTS ************************************************************
         // GET: /Admin/Connectivity
         public ActionResult Connectivity()
         {
@@ -977,7 +977,6 @@ namespace QREST.Controllers
             model.PollingConfig = db_Air.GetT_QREST_SITES_POLLING_CONFIG_CompleteList();
             return View(model);
         }
-
 
 
 
@@ -1248,12 +1247,8 @@ namespace QREST.Controllers
         
         public ActionResult Testing()
         {
-
-
             return View();
         }
-
-
 
     }
 }

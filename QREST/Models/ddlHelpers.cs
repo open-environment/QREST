@@ -120,7 +120,8 @@ namespace QREST.Models
             _list.Add(new SelectListItem() { Value = "SUTRON", Text = "Sutron" });
             _list.Add(new SelectListItem() { Value = "SUTRON_LEADS", Text = "Sutron w/LEADS" });
             _list.Add(new SelectListItem() { Value = "ESC", Text = "Agilaire/ESC" });
-            _list.Add(new SelectListItem() { Value = "MET_ONE_BAM", Text = "Met One BAM" });
+            _list.Add(new SelectListItem() { Value = "MET_ONE_BAM", Text = "Met One BAM 1020" });
+            _list.Add(new SelectListItem() { Value = "MET_BAM_1022", Text = "Met One BAM 1022" });
             _list.Add(new SelectListItem() { Value = "WEATHER_PWS", Text = "Weather.com Personal Weather Station" });
             return _list;
         }
@@ -145,7 +146,14 @@ namespace QREST.Models
         
         public static IEnumerable<SelectListItem> get_ddl_my_organizations(string UserIDX, bool showID)
         {
-            return db_Account.GetT_QREST_ORG_USERS_byUSER_IDX(UserIDX, "A").Select(x => new SelectListItem
+            var xxx = db_Account.GetT_QREST_ORG_USERS_byUSER_IDX(UserIDX, "A");
+
+            if (showID)
+                xxx = xxx.OrderBy(x => x.ORG_ID).ToList();
+            else
+                xxx = xxx.OrderBy(x => x.ORG_NAME).ToList();
+
+            return xxx.Select(x => new SelectListItem
             {
                 Value = x.ORG_ID,
                 Text = showID ? x.ORG_ID : x.ORG_NAME

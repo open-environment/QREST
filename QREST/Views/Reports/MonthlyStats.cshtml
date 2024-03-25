@@ -83,7 +83,11 @@
                                 @Html.DisplayFor(modelItem => item.max1)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.max_dt)
+                                @if (item.max_dt.HasValue)
+                                {
+                                    <span>@item.max_dt.Value.ToString("MM/dd/yyyy HH:mm")</span>
+                                }
+                                @*@Html.DisplayFor(modelItem => item.max_dt)*@
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.scnd_max)
@@ -101,7 +105,12 @@
                                 @Html.DisplayFor(modelItem => item.sevn_fifth)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.hrs_data) / @Html.DisplayFor(modelItem => item.tot_hrs)
+                                @{
+                                    var _pct = 100 * item.hrs_data / item.tot_hrs;
+                                    <span>@(_pct)%</span>
+
+                                }
+                                (@Html.DisplayFor(modelItem => item.hrs_data)/@Html.DisplayFor(modelItem => item.tot_hrs))
                             </td>
                         </tr>
                     }

@@ -123,11 +123,11 @@
                 <text>parName = '@Model.RawData[0].PAR_NAME (' + '@Model.RawData[0].UNIT_DESC' + ')';</text>
                 foreach (var item in Model.RawData)
                 {
-                    <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', dataPointsA);</text>
+                    <text>addPoint('@item.DATA_DTTM', '@item.DATA_VALUE', '@item.VAL_CD', '@item.VAL_IND', '@item.AQS_NULL_CODE', dataPointsA);</text>
                 }
             }
 
-            function addPoint(xx, yy, zz, vv, array) {
+            function addPoint(xx, yy, zz, vv, aqsnull, array) {
                 var lcolor = "#67B347";
                 if (vv == "False")
                     lcolor = "#A5A5A5";
@@ -144,7 +144,7 @@
 
                 array.push({
                     x: new Date(xx),
-                    y: yy == "FEW" ? 0 : Number(yy),
+                    y: (yy == "FEW" || aqsnull) ? 0 : Number(yy),
                     lineColor: lcolor,
                     color: lcolor
                 });
@@ -211,9 +211,7 @@
             function fetchMonitors() {
                 $('#selMon').empty();
                 $.getJSON('@Url.Action("FetchMonitorsWithDatabyPollFreq")', { ID: $("#selOrgID").val(), pollFreq: $("#selType").val() }, function (data) {
-                    if (!data) {
-                        return;
-                    }
+                    if (!data) { return; }
                     $('#selMon').append($('<option></option>').val('').text('Please select'));
                     $.each(data, function (index, item) {
                         $('#selMon').append($('<option></option>').val(item.Value).text(item.Text));

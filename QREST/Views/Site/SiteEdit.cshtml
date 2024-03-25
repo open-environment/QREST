@@ -189,20 +189,28 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>My AirNow Username</label>
+                                    <label>My AirNow FTP Username</label>
                                     @Html.TextBoxFor(model => model.AIRNOW_USR, new { @class = "form-control", @maxlength = "50" })
                                     @Html.ValidationMessageFor(model => model.AIRNOW_USR)
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>My AirNow Password</label>
-                                    <div class="input-group">
+                                    @if (string.IsNullOrEmpty(Model.AIRNOW_PWD))
+                                    {
+                                        <label>Enter My AirNow FTP Password</label>
                                         @Html.PasswordFor(model => model.AIRNOW_PWD, new { @class = "form-control", @maxlength = "50" })
-                                        <span class="input-group-btn">
-                                            <button id="lnkAirNowTest" class="btn btn-primary"> Test</button>
-                                        </span>
-                                    </div>
+                                    }
+                                    else
+                                    {
+                                        <label><a id="lnkAirNowPwdUpdate" href="#" class="text-info">Click to change AirNow Pwd</a></label>
+                                        <div class="input-group">
+                                            @Html.PasswordFor(model => model.AIRNOW_PWD, new { @class = "form-control", @maxlength = "50", @style="display:none" })
+                                            <span class="input-group-btn">
+                                                <button id="lnkAirNowTest" class="btn btn-primary"> Test</button>
+                                            </span>
+                                        </div>
+                                    }
                                     @Html.ValidationMessageFor(model => model.AIRNOW_PWD)
                                 </div>
                             </div>
@@ -432,8 +440,10 @@
         $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
             if (ev.type === 'dirty') {
                 $("#btnSave").prop("disabled", false);
+                $("#lnkAirNowTest").hide();
             } else {
                 $("#btnSave").prop("disabled", true);
+                $("#lnkAirNowTest").show();
             }
         });
 
@@ -494,6 +504,14 @@
                     $("#AIRNOW_USR").prop("disabled", false);
                     $("#AIRNOW_PWD").prop("disabled", false);
                 }
+            });
+
+
+            //click to change pwd
+            $(document).on("click", "#lnkAirNowPwdUpdate", function (event) {
+                event.preventDefault();
+                $("#AIRNOW_PWD").show();
+                $("#lnkAirNowTest").hide();
             });
 
             //test AirNow

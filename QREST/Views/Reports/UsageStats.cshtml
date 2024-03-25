@@ -1,0 +1,92 @@
+﻿@model QREST.Models.vmReportUsageStats
+@{
+    ViewBag.Title = "Usage Stats";
+    ViewBag.HideTitle = true;
+    ViewBag.HelpLink = "Usage-Stats";
+}
+<section class="panel panel-qrest">
+    <header class="panel-heading font-bold">QREST Usage Statistics</header>
+    <div class="panel-body">
+        @using (Html.BeginForm("UsageStats", "Reports", FormMethod.Post, new { @class = "form-inline m-b-sm" }))
+        {
+            @Html.AntiForgeryToken()
+            <label class="control-label">Select Year</label>
+            @Html.DropDownListFor(model => model.selYear, Model.ddl_Years, "", new { @class = "form-control" })
+            <button id="btnGo" type="submit" class="btn btn-primary">Go</button>
+        }
+
+        @if (Model.HourlyCnts != null && Model.HourlyCnts.Count > 0)
+        {
+    <div class="row">
+        <div class="col-md-4">
+            <h4>Hourly Data</h4>
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Month</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.HourlyCnts)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.YR)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MN)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CNT)
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <h4>Five Min Data</h4>
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Month</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.FiveMinCnts)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.YR)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MN)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CNT)
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <h4>AQS Submissions</h4>
+            <div class="table-responsive">
+
+            </div>
+        </div>
+    </div>
+        }
+
+
+        </div>
+    </section>
+
+

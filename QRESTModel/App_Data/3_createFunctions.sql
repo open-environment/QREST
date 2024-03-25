@@ -204,6 +204,7 @@ and M.PAR_METHOD_IDX = PM.PAR_METHOD_IDX
 and S.AIRNOW_IND = 1
 and S.AIRNOW_SITE is not null
 and DATA_DTTM_UTC > GetDate()-1
+and len(par_code)=5
 and coalesce(H.UNIT_CODE, M.COLLECT_UNIT_CODE) is not null
 and DATA_DTTM_UTC = 
 (select max(H1.DATA_DTTM_UTC) from T_QREST_DATA_HOURLY H1, T_QREST_MONITORS M1
@@ -229,6 +230,24 @@ from T_QREST_SITES S, T_QREST_SITE_POLL_CONFIG PC
 where PC.SITE_IDX=S.SITE_IDX
 and PC.ACT_IND=1
 and S.POLLING_ONLINE_IND=1
+GO
+
+
+GO
+CREATE OR ALTER VIEW MONTHLY_USAGE_HOURLY
+as
+select 
+isnull(year([DATA_DTTM_LOCAL]),0) as YR, isnull(month(Data_dttm_local),0) as MN, count(*) as CNT
+from [T_QREST_DATA_HOURLY] 
+group by year([DATA_DTTM_LOCAL]), month(Data_dttm_local)
+
+GO
+
+CREATE OR ALTER VIEW MONTHLY_USAGE_FIVEMIN
+as
+select isnull(year([DATA_DTTM]),0) as YR, isnull(month([DATA_DTTM]),0) as MN, count(*) as CNT
+from T_QREST_DATA_FIVE_MIN 
+group by year([DATA_DTTM]), month([DATA_DTTM])
 GO
 
 
@@ -853,6 +872,7 @@ BEGIN
 	--20200703 fix table naming
 	--20201117 added forcing hourly data rounded to nearest hour
 	--20220404 added AQS "A" import type
+	--20230706 added writing import count and import date range
 
 	--get summary type to calculate
 	select @import_typ=T.IMPORT_TYPE, @recalc_ind=T.RECALC_IND
@@ -922,9 +942,17 @@ BEGIN
 	END		
 
 
+	declare @import_count int;
+	declare @min_dt datetime2(0);
+	declare @max_dt datetime2(0);
+
+	select @import_count = count(*), @min_dt = min(DATA_DTTM_LOCAL), @max_dt = min(DATA_DTTM_LOCAL) from T_QREST_DATA_IMPORT_TEMP where IMPORT_IDX = @import_idx;
+
 	DELETE FROM T_QREST_DATA_IMPORT_TEMP where IMPORT_IDX = @import_idx;
 
-	UPDATE T_QREST_DATA_IMPORTS set SUBMISSION_STATUS='IMPORTED' where IMPORT_IDX = @import_idx;
+	
+
+	UPDATE T_QREST_DATA_IMPORTS set SUBMISSION_STATUS='IMPORTED', REC_COUNT=@import_count, REC_MIN_DATE=@min_dt, REC_MAX_DATE=@max_dt where IMPORT_IDX = @import_idx;
 
 END
 
@@ -1194,6 +1222,63 @@ GO
 
 
 
+
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[[SP_DAILY_AVG]]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_DAILY_AVG] 
+	@sDate datetime,
+	@eDate datetime,
+	@monid uniqueidentifier
+AS
+BEGIN 
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--Returns daily averages for a monitor between 2 date ranges (local time assumed)
+
+	--declare @sdate datetime;
+	--declare @edate datetime;
+	--declare @monid uniqueidentifier;
+	--set @sdate = '1/1/2022';
+	--set @edate = '12/31/2022 23:00';
+	--set @monid = '0f8746fc-5f5e-412e-9609-bbe090d8b948';
+
+	--***************** ROUNDING PRECISION DETERMINATION *********************
+	declare @roundDec int;
+
+	select top 1 @roundDec= charindex('.',reverse(data_value))-1 from T_QREST_DATA_HOURLY 
+	where MONITOR_IDX=@monid
+	and DATA_DTTM_LOCAL between @sdate and @edate
+	and data_value_num is not null
+	and data_value_num <> 0
+	and NULLIF(aqs_null_code, '') is null;
+
+	if (@roundDec = null)
+		set @roundDec = 2;
+	else if (@roundDec = -1)
+		set @roundDec = 0;
+	--***************** END ROUNDING PRECISION DETERMINATION *********************
+
+	select dateadd(DAY,0, datediff(day,0, hr.HR)) as DT, 
+	left(cast(round(avg(data_value_num),@roundDec) as varchar(20)), charindex('.',cast(round(avg(data_value_num),@roundDec) as varchar(20))) + @roundDec) as avg1
+	from T_SYS_HR hr 
+	left join t_qrest_data_hourly h on hr.[HR] = h.DATA_DTTM_LOCAL and h.MONITOR_IDX=@monid and NULLIF(aqs_null_code, '') is null
+	where hr.HR between @sdate and @edate
+	group by dateadd(DAY,0, datediff(day,0, hr.HR))
+	order by dateadd(DAY,0, datediff(day,0, hr.HR));
+END;
+
+
+
+
+
+GO
+
+
+
+
+
+
 --&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_FIVE_MIN_DATA_GAPS]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 CREATE PROCEDURE [dbo].[SP_FIVE_MIN_DATA_GAPS] 
@@ -1292,6 +1377,38 @@ GO
 
 
 
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_IMPORT_DETECT_DUPES]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+CREATE PROCEDURE [dbo].[SP_IMPORT_DETECT_DUPES] 
+	@impidx uniqueidentifier
+AS
+BEGIN   
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--1. identifies any duplicates in the manual import batch and sets those records to failing import validation
+	--CHANGE LOG
+	------------------------------
+	--2/27/2023 created
+
+	--DECLARE @impidx uniqueidentifier
+	--set @impidx = '9C30ED05-8A08-4CA5-9A2A-EBE398FD9439'
+
+	SET NOCOUNT ON;  
+
+	;with cte as
+	(select MONITOR_IDX, DATA_DTTM_LOCAL from [T_QREST_DATA_IMPORT_TEMP] 
+	where IMPORT_IDX = @impidx 
+	GROUP BY MONITOR_IDX, DATA_DTTM_LOCAL HAVING COUNT(*)>1)
+
+	update T1 set T1.IMPORT_VAL_IND=0, T1.IMPORT_MSG='Import file has duplicate rows.' 
+	FROM [T_QREST_DATA_IMPORT_TEMP] T1 INNER JOIN cte ON t1.MONITOR_IDX = cte.MONITOR_IDX and t1.DATA_DTTM_LOCAL = cte.DATA_DTTM_LOCAL
+	where T1.IMPORT_IDX=@impidx
+
+
+END;
+
+
+GO
 
 
 --&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   TRAINING     &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

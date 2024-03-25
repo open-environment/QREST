@@ -39,6 +39,7 @@ namespace QRESTModel.DAL
         public Nullable<bool> SELF_REG_IND { get; set; }
         public string AQS_AQS_UID { get; set; }
         public string AQS_AQS_SCREENING_GRP { get; set; }
+        public bool LOCK_ACCESS_IND { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<T_QREST_ORG_EMAIL_RULE> T_QREST_ORG_EMAIL_RULE { get; set; }

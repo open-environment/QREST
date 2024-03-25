@@ -43,7 +43,7 @@
                     {
                         <tr>
                             <td>
-                                <a href="@(Url.Action("MonitorEdit", "Site", new { id = item.T_QREST_MONITORS.MONITOR_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
+                                <a href="@(Url.Action("MonitorEdit", "Site", new { id = item.T_QREST_MONITORS.MONITOR_IDX, refr='m' }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
                                 <div class="delete-section" style="display:inline-block">
                                     <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
                                     <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_QREST_MONITORS.MONITOR_IDX" data-delete-p="/Site/MonitorDelete"><b>Confirm Delete</b></div>

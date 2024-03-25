@@ -72,6 +72,13 @@
                         @Html.ValidationMessageFor(model => model.SELF_REG_IND)
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        @Html.CheckBoxFor(model => model.LOCK_ACCESS_IND, new { @class = "checkbox-inline checkbox-lg" })
+                        <label class="label-lg font-bold">Prevent ITEP from accessing data</label>
+                        @Html.ValidationMessageFor(model => model.LOCK_ACCESS_IND)
+                    </div>
+                </div>
             </div>
 
             <p>
@@ -137,7 +144,7 @@
 
 <!-- START MODAL FORM  -->
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width:90%">
         @using (Html.BeginForm("OrgEditUser", "Site", FormMethod.Post))
         {
             @Html.AntiForgeryToken()

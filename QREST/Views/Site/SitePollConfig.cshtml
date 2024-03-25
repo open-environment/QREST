@@ -36,7 +36,7 @@
                 {
                     <button type="button" class="btn btn-xs btn-info pull-right dropdown-toggle" data-toggle="dropdown">Options <i class="caret"></i></button>
                     <ul class="dropdown-menu pull-right btn-info">
-                        @if (Model.editLOGGER_TYPE == "WEATHER_PWS" || Model.editLOGGER_TYPE == "ESC" || Model.editLOGGER_TYPE == "SUTRON_LEADS" || Model.editLOGGER_TYPE == "MET_ONE_BAM")
+                        @if (Model.editLOGGER_TYPE == "WEATHER_PWS" || Model.editLOGGER_TYPE == "ESC" || Model.editLOGGER_TYPE == "SUTRON_LEADS" || Model.editLOGGER_TYPE == "MET_ONE_BAM" || Model.editLOGGER_TYPE == "MET_BAM_1022")
                         {
                             <li data-value="2">
                                 <a id="lnkDownload" href="@Url.Action("LoggerPollManual", new { id = Model.editPOLL_CONFIG_IDX })">Manual Poll and Store </a>
@@ -157,6 +157,16 @@
                                                 @Html.TextBoxFor(model => model.POLLING_NEXT_RUN_DT, new { @class = "form-control", @readonly = "readonly" })
                                                 @Html.ValidationMessageFor(model => model.POLLING_NEXT_RUN_DT)
                                                 <span class="help-block">Next time the site will be polled.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row showLeads">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                Log File Name
+                                                @Html.TextBoxFor(model => model.editLOGGER_FILE_NAME, new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(model => model.editLOGGER_FILE_NAME)
+                                                <span class="help-block">The name of the LEADS log file (e.g. SSP_60MIN.LOG) to be retrieved.</span>
                                             </div>
                                         </div>
                                     </div>
@@ -511,6 +521,8 @@
                 $('.hideWeather').show();
                 $('.hideCampbell').show();
                 $('.hideESC').show();
+                $('.showLeads').hide();
+
 
                 var xxx = $('#editLOGGER_TYPE').val();
 
@@ -527,6 +539,9 @@
                 }
                 else if (xxx == "ESC") {
                     $('.hideESC').hide();
+                }
+                else if (xxx == "SUTRON_LEADS") {
+                    $('.showLeads').show();
                 }
 
                 if (!$('#editLOGGER_PORT').val()) {

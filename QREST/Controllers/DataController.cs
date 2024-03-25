@@ -43,23 +43,14 @@ namespace QREST.Controllers
             if (prevStartedIDX != null)
                 return RedirectToAction("ImportStatus", new { id = prevStartedIDX.IMPORT_IDX });
 
-
-            var model = new vmDataImport {
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true),
-                ddl_Sites = new List<SelectListItem>(),
-                ddl_Monitors = new List<SelectListItem>(),
-                ddl_PollConfig = new List<SelectListItem>(),
-                ddl_ImportType = ddlHelpers.get_ddl_import_type(),
-                ddl_Time = ddlHelpers.get_ddl_time_type(),
-                ddl_Calc = ddlHelpers.get_ddl_yes_no(),
-                selTimeType = "L"
+            var model = new vmDataImport { 
+                selTimeType = "L",
+                selPollConfig = configid
             };
 
-            //if passing in configuration ID, can prepopulate the org, site, and poll config list
-            if (configid != null)
+            //if passing in configuration ID, can prepopulate the org & site
+            if (model.selPollConfig != null)
             {
-                model.selPollConfig = configid;
-
                 T_QREST_SITE_POLL_CONFIG _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(configid.GetValueOrDefault());
                 if (_config != null)
                 {
@@ -69,15 +60,11 @@ namespace QREST.Controllers
                         model.selOrgID = _site.ORG_ID;
                         model.selSite = _config.SITE_IDX;
                         model.selImportType = "H";
-                        model.ddl_Sites = ddlHelpers.get_ddl_my_sites(model.selOrgID, UserIDX);
-                        model.ddl_PollConfig = ddlHelpers.get_ddl_import_templates(_config.SITE_IDX);
                     }
                 }
-
             }
 
-
-            return View(model);
+            return View(ManualImportModelDdlPop(model, UserIDX));
         }
 
 
@@ -88,10 +75,9 @@ namespace QREST.Controllers
             //*********************** MODEL VALIDATION PRIOR TO IMPORT**************************************
             //**********************************************************************************************
 
-            //*********model validation for H1 *************************
-            if (model.selImportType == "H1" && model.selMonitor==null)
+            //*********model validation for H1 and A (AQS) *************************
+            if ((model.selImportType == "H1" || model.selImportType == "A") && model.selMonitor==null)
                 ModelState.AddModelError("selMonitor", "Parameter required for this import type.");
-
 
 
             //*********model validation for H and F *************************
@@ -99,36 +85,29 @@ namespace QREST.Controllers
             {
                 if (model.selPollConfig == null)
                     ModelState.AddModelError("selPollConfig", "Import Template is required.");
-
-                T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
-
-                if (_pollConfig != null)
-                {
-                    if (_pollConfig.DATE_COL == null && _pollConfig.TIME_COL == null) 
-                        ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
-                }
                 else
-                    ModelState.AddModelError("selPollConfig", "Polling configuration cannot be found.");
-
-                //Verify all import config columns have units
-                List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, false);
-                foreach (SitePollingConfigDetailType _temp in _pollConfigDtl)
                 {
-                    if (_temp.COLLECT_UNIT_CODE == null || _temp.COL == null)
-                        ModelState.AddModelError("selPollConfig", "One or more parameters in your import configuration do not have a unit or column specified.");
+                    T_QREST_SITE_POLL_CONFIG _pollConfig = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(model.selPollConfig ?? Guid.Empty);
+                    if (_pollConfig == null)
+                        ModelState.AddModelError("selPollConfig", "Polling configuration cannot be found.");
+                    else if (_pollConfig.DATE_COL == null && _pollConfig.TIME_COL == null)
+                            ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
+
+                    //Verify all import config columns have units
+                    List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, false);
+                    foreach (SitePollingConfigDetailType _temp in _pollConfigDtl)
+                    {
+                        if (_temp.COLLECT_UNIT_CODE == null || _temp.COL == null)
+                            ModelState.AddModelError("selPollConfig", "One or more parameters in your import configuration do not have a unit or column specified.");
+                    }
                 }
             }
-
-            //*********model validation for A (AQS) *************************
-            if (model.selImportType == "A" && model.selMonitor == null)
-                ModelState.AddModelError("selMonitor", "Parameter required for this import type.");
             //**********************************************************************************************
             //*********************** END MODEL VALIDATION *************************************************
             //**********************************************************************************************
 
 
             string UserIDX = User.Identity.GetUserId();
-
 
             if (ModelState.IsValid)
             {
@@ -159,17 +138,22 @@ namespace QREST.Controllers
                     TempData["Error"] = "Import failure";
             }
 
+            //repopulate dropdowns before returning to view
+            return View(ManualImportModelDdlPop(model, UserIDX));
 
-            //if got this far, import errors occurred; reinitialize model
-            model.ddl_ImportType = ddlHelpers.get_ddl_import_type();
-            model.ddl_Time = ddlHelpers.get_ddl_time_type();
+        }
+
+
+        private vmDataImport ManualImportModelDdlPop(vmDataImport model, string UserIDX)
+        {
             model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
             model.ddl_Sites = model.selOrgID == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_my_sites(model.selOrgID, UserIDX);
             model.ddl_Monitors = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_monitors_by_site(model.selSite, true, false);
             model.ddl_PollConfig = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_import_templates(model.selSite);
+            model.ddl_ImportType = ddlHelpers.get_ddl_import_type();
+            model.ddl_Time = ddlHelpers.get_ddl_time_type();
             model.ddl_Calc = ddlHelpers.get_ddl_yes_no();
-            return View(model);
-
+            return model;
         }
 
 
@@ -410,11 +394,11 @@ namespace QREST.Controllers
             if (model.ddl_Organization != null && model.ddl_Organization.ToList().Count == 1)
                 model.selOrgID = model.ddl_Organization.First().Value;
 
-            if (selOrgID != null)
+            if (!string.IsNullOrEmpty(selOrgID))
+            {
                 model.selOrgID = selOrgID;
-
-            model.T_QREST_DATA_IMPORTS  = db_Air.GetT_QREST_DATA_IMPORTS_byORG_ID(model.selOrgID);
-
+                model.T_QREST_DATA_IMPORTS = db_Air.GetT_QREST_DATA_IMPORTS_byORG_ID(model.selOrgID);
+            }
             return View(model);
         }
 
@@ -817,8 +801,6 @@ namespace QREST.Controllers
             {
                 DateTime? d1 = d[0].ConvertOrDefault<DateTime?>();
                 DateTime? d2 = (d.Length > 1) ? d[1].ConvertOrDefault<DateTime?>() : null;
-                TimeSpan? span = d2 - d1;
-                //model.totHoursDuration = span.GetValueOrDefault().TotalHours;
 
                 if (model.selType == "H")
                 {
@@ -1589,7 +1571,7 @@ namespace QREST.Controllers
             string cdxU = model.UseGlobalCDXAccount ? "-999" : model.CDXUsername;
             string cdxP = model.UseGlobalCDXAccount ? "-999" : model.CDXPwd;
 
-            int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.selOrgID, null, null, null, cdxU, cdxP, null, null, true, UserIDX, model.AQSUser, model.AQSScreeningGroup);
+            int SuccID = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.selOrgID, null, null, null, cdxU, cdxP, null, null, true, UserIDX, model.AQSUser, model.AQSScreeningGroup, null);
 
             if (SuccID == 0)
                 TempData["Error"] = "Unable to update record";

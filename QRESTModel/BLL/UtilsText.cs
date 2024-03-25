@@ -62,7 +62,12 @@ namespace QRESTModel.BLL
         /// <param name="index">Zero based</param>
         public static string SubStringPlus(this string str, int index, int length)
         {
-            return str?.Substring(index, Math.Min(str.Length - index, length));
+            try {
+                return str?.Substring(index, Math.Min(str.Length - index, length));
+            }
+            catch {
+                return str;
+            }
         }
 
 

@@ -124,7 +124,7 @@ namespace QRESTModel.DAL
             try
             {
                 T_QREST_USERS user = db_Account.GetT_QREST_USERS_ByID(UserIDX);
-                string to = user.Email;
+                string to = user.Email.Trim();
                 List<string> cc = mailData.Where(u => u.USER_IDX != user.USER_IDX).Select(u => u.Email).ToList<string>();
                 return UtilsEmail.SendEmail(null, to, cc, null, null, null, emailSubject, emailBody);
             }

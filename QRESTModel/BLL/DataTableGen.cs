@@ -174,6 +174,52 @@ namespace QRESTModel.DataTableGen
             return dtData;
         }
 
+        public static DataTable DailyAverages(Guid? MonIDX, DateTime startDt, DateTime endDt, string tIME_TYPE)
+        {
+            DataTable dtData = new DataTable("Daily Averages");
+            dtData.Columns.AddRange(new DataColumn[2] {
+                                            new DataColumn("Date"),
+                                            new DataColumn("Daily Average"),
+                                           });
+
+            List<SP_DAILY_AVG_Result> datas = db_Air.SP_DAILY_AVGS(startDt, endDt, MonIDX.GetValueOrDefault());
+            foreach (var _data in datas)
+                dtData.Rows.Add(_data.DT, _data.avg1);
+
+            return dtData;
+        }
+
+
+        public static DataTable MonthlyStatistics(Guid? MonIDX, DateTime startDt, DateTime endDt, string tIME_TYPE)
+        {
+            DataTable dtData = new DataTable("Monthly Stats");
+            dtData.Columns.AddRange(new DataColumn[14] {
+                                            new DataColumn("Year"),
+                                            new DataColumn("Month"),
+                                            new DataColumn("Min"),
+                                            new DataColumn("Mean"),
+                                            new DataColumn("% annual hours below monthly mean"),
+                                            new DataColumn("Median"),
+                                            new DataColumn("Max"),
+                                            new DataColumn("DateTime of Max " + (tIME_TYPE == "U" ? " (UTC)" : " (local)")),
+                                            new DataColumn("2nd Max"),
+                                            new DataColumn("Max - 2nd Max Difference"),
+                                            new DataColumn("Std Dev"),
+                                            new DataColumn("25th Ntile"),
+                                            new DataColumn("75th Ntile"),
+                                            new DataColumn("Completeness")
+                                           });
+
+            List<SP_MONTHLY_STATS_Result> datas = db_Air.SP_MONTHLY_STATS(startDt, endDt, MonIDX.GetValueOrDefault());
+            foreach (var _data in datas)
+            {
+                dtData.Rows.Add(_data.yr, _data.mn, _data.min1, _data.avg1, _data.pct_yr_hrs_below_mn_mean, _data.median1, _data.max1, _data.max_dt.GetValueOrDefault().Date,
+                    _data.scnd_max, _data.max2diff, _data.stddev1, _data.twen_fifth, _data.sevn_fifth, _data.hrs_data / _data.tot_hrs);
+            }
+            return dtData;
+        }
+
+
         public static DataTable ReportMonthly(Guid monIDX, int mnth, int yr, string time)
         {
             DataTable dt = new DataTable("Monthly Data");

@@ -39,7 +39,12 @@
                         <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
                         @Html.DropDownListFor(model => model.selTimeType, Model.ddl_TimeType, new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.selTimeType)
-
+                        <br />
+                        <div id="chkDivStats" class="checkboxes" style="display:none;">
+                            <label>@Html.CheckBoxFor(model => model.chkDaily) Include Daily Averages</label>
+                            <br />
+                            <label>@Html.CheckBoxFor(model => model.chkMonthly) Include Monthly Summary</label>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary">Export Data</button>
                 </div>
@@ -93,6 +98,14 @@
             //update monitor dropdown
             $('#selOrgID').change(function () {
                 fetchMonitors();
+            });
+
+            $('#selMon').change(function () {
+                var item = $(this);
+                if (item.val())
+                    $("#chkDivStats").show();
+                else
+                    $("#chkDivStats").hide();
             });
 
             //update monitor dropdown

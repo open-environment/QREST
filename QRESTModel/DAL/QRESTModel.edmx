@@ -175,6 +175,9 @@
           <Property Name="MONITOR_IDX" Type="uniqueidentifier" />
           <Property Name="POLL_CONFIG_IDX" Type="uniqueidentifier" />
           <Property Name="RECALC_IND" Type="bit" />
+          <Property Name="REC_COUNT" Type="int" />
+          <Property Name="REC_MIN_DATE" Type="datetime2" Precision="0" />
+          <Property Name="REC_MAX_DATE" Type="datetime2" Precision="0" />
         </EntityType>
         <EntityType Name="T_QREST_EMAIL_TEMPLATE">
           <Key>
@@ -266,6 +269,7 @@
           <Property Name="SELF_REG_IND" Type="bit" />
           <Property Name="AQS_AQS_UID" Type="varchar" MaxLength="100" />
           <Property Name="AQS_AQS_SCREENING_GRP" Type="varchar" MaxLength="100" />
+          <Property Name="LOCK_ACCESS_IND" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -537,6 +541,7 @@
           <Property Name="CONFIG_NAME" Type="varchar" MaxLength="40" />
           <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="CONFIG_DESC" Type="varchar" MaxLength="200" />
+          <Property Name="LOGGER_FILE_NAME" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
@@ -789,6 +794,28 @@ warning 6002: The table/view 'QREST.dbo.MONITOR_SNAPSHOT' does not have a primar
           <Property Name="POLLING_LAST_RUN_DT" Type="datetime2" Precision="7" />
           <Property Name="lvl1" Type="datetime2" Precision="0" />
           <Property Name="lvl2" Type="datetime2" Precision="0" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'QREST.dbo.MONTHLY_USAGE_FIVEMIN' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="MONTHLY_USAGE_FIVEMIN">
+          <Key>
+            <PropertyRef Name="YR" />
+            <PropertyRef Name="MN" />
+          </Key>
+          <Property Name="YR" Type="int" Nullable="false" />
+          <Property Name="MN" Type="int" Nullable="false" />
+          <Property Name="CNT" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'QREST.dbo.MONTHLY_USAGE_HOURLY' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="MONTHLY_USAGE_HOURLY">
+          <Key>
+            <PropertyRef Name="YR" />
+            <PropertyRef Name="MN" />
+          </Key>
+          <Property Name="YR" Type="int" Nullable="false" />
+          <Property Name="MN" Type="int" Nullable="false" />
+          <Property Name="CNT" Type="int" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'QREST.dbo.SITE_HEALTH' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -1417,6 +1444,16 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="fn_diagramobjects" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int" />
+        <Function Name="InitCap" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="varchar">
+          <Parameter Name="InputString" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="sp_alterdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+          <Parameter Name="version" Type="int" Mode="In" />
+          <Parameter Name="definition" Type="varbinary(max)" Mode="In" />
+        </Function>
         <Function Name="SP_AQS_REVIEW_STATUS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="adate" Type="datetime" Mode="In" />
@@ -1427,6 +1464,21 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Parameter Name="sdate" Type="datetime" Mode="In" />
           <Parameter Name="edate" Type="datetime" Mode="In" />
         </Function>
+        <Function Name="sp_creatediagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+          <Parameter Name="version" Type="int" Mode="In" />
+          <Parameter Name="definition" Type="varbinary(max)" Mode="In" />
+        </Function>
+        <Function Name="SP_DAILY_AVG" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="sDate" Type="datetime" Mode="In" />
+          <Parameter Name="eDate" Type="datetime" Mode="In" />
+          <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
+        </Function>
+        <Function Name="sp_dropdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+        </Function>
         <Function Name="SP_FILL_LOST_DATA" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="sDate" Type="datetime" Mode="In" />
           <Parameter Name="eDate" Type="datetime" Mode="In" />
@@ -1436,8 +1488,19 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
         <Function Name="SP_FIVE_MIN_DATA_GAPS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
         </Function>
+        <Function Name="sp_helpdiagramdefinition" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+        </Function>
+        <Function Name="sp_helpdiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+        </Function>
         <Function Name="SP_IMPORT_DATA_FROM_TEMP" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="import_idx" Type="uniqueidentifier" Mode="In" />
+        </Function>
+        <Function Name="SP_IMPORT_DETECT_DUPES" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="impidx" Type="uniqueidentifier" Mode="In" />
         </Function>
         <Function Name="SP_LATEST_POLLED_DATE" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
@@ -1448,6 +1511,11 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Parameter Name="sDate" Type="datetime" Mode="In" />
           <Parameter Name="eDate" Type="datetime" Mode="In" />
           <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
+        </Function>
+        <Function Name="sp_renamediagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+          <Parameter Name="owner_id" Type="int" Mode="In" />
+          <Parameter Name="new_diagramname" Type="nvarchar" Mode="In" />
         </Function>
         <Function Name="SP_RPT_ANNUAL" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="monid" Type="uniqueidentifier" Mode="In" />
@@ -1489,6 +1557,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Parameter Name="useridx" Type="varchar" Mode="In" />
           <Parameter Name="lessonidx" Type="uniqueidentifier" Mode="In" />
         </Function>
+        <Function Name="sp_upgraddiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="SP_VALIDATE_HOURLY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="SP_VALIDATE_HOURLY_IMPORT" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="import_id" Type="uniqueidentifier" Mode="In" />
@@ -1569,6 +1638,20 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
     [MONITOR_SNAPSHOT].[lvl1] AS [lvl1], 
     [MONITOR_SNAPSHOT].[lvl2] AS [lvl2]
     FROM [dbo].[MONITOR_SNAPSHOT] AS [MONITOR_SNAPSHOT]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="MONTHLY_USAGE_FIVEMIN" EntityType="Self.MONTHLY_USAGE_FIVEMIN" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [MONTHLY_USAGE_FIVEMIN].[YR] AS [YR], 
+    [MONTHLY_USAGE_FIVEMIN].[MN] AS [MN], 
+    [MONTHLY_USAGE_FIVEMIN].[CNT] AS [CNT]
+    FROM [dbo].[MONTHLY_USAGE_FIVEMIN] AS [MONTHLY_USAGE_FIVEMIN]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="MONTHLY_USAGE_HOURLY" EntityType="Self.MONTHLY_USAGE_HOURLY" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [MONTHLY_USAGE_HOURLY].[YR] AS [YR], 
+    [MONTHLY_USAGE_HOURLY].[MN] AS [MN], 
+    [MONTHLY_USAGE_HOURLY].[CNT] AS [CNT]
+    FROM [dbo].[MONTHLY_USAGE_HOURLY] AS [MONTHLY_USAGE_HOURLY]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="SITE_HEALTH" EntityType="Self.SITE_HEALTH" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
@@ -2096,6 +2179,46 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <Parameter Name="lessonidx" Mode="In" Type="Guid" />
           </FunctionImport>
           <EntitySet Name="TRAINING_SNAPSHOT" EntityType="QRESTModel.TRAINING_SNAPSHOT" />
+          <FunctionImport Name="SP_DAILY_AVG" ReturnType="Collection(QRESTModel.SP_DAILY_AVG_Result)">
+            <Parameter Name="sDate" Mode="In" Type="DateTime" />
+            <Parameter Name="eDate" Mode="In" Type="DateTime" />
+            <Parameter Name="monid" Mode="In" Type="Guid" />
+          </FunctionImport>
+          <FunctionImport Name="SP_IMPORT_DETECT_DUPES">
+          <Parameter Name="impidx" Mode="In" Type="Guid" />
+          </FunctionImport>
+          <FunctionImport Name="sp_alterdiagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="version" Mode="In" Type="Int32" />
+            <Parameter Name="definition" Mode="In" Type="Binary" />
+          </FunctionImport>
+          <FunctionImport Name="sp_creatediagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="version" Mode="In" Type="Int32" />
+            <Parameter Name="definition" Mode="In" Type="Binary" />
+          </FunctionImport>
+          <FunctionImport Name="sp_dropdiagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_helpdiagramdefinition" ReturnType="Collection(QRESTModel.sp_helpdiagramdefinition_Result)">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_helpdiagrams" ReturnType="Collection(QRESTModel.sp_helpdiagrams_Result)">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_renamediagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="new_diagramname" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="sp_upgraddiagrams" />
+          <EntitySet Name="MONTHLY_USAGE_FIVEMIN" EntityType="QRESTModel.MONTHLY_USAGE_FIVEMIN" />
+          <EntitySet Name="MONTHLY_USAGE_HOURLY" EntityType="QRESTModel.MONTHLY_USAGE_HOURLY" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -2210,6 +2333,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_QREST_SITES_O" FromRole="T_QREST_ORGANIZATIONS" ToRole="T_QREST_SITES" />
           <Property Name="AQS_AQS_UID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="AQS_AQS_SCREENING_GRP" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="LOCK_ACCESS_IND" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="T_QREST_QC_ASSESSMENT">
           <Key>
@@ -2976,6 +3100,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="TIME_POLL_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
           <Property Name="CONFIG_DESC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="LOGGER_FILE_NAME" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_T_SITE_POLL_CONFIG_D">
           <End Type="QRESTModel.T_QREST_REF_DURATION" Role="T_QREST_REF_DURATION" Multiplicity="0..1" />
@@ -3132,6 +3257,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="POLL_CONFIG_IDX" Type="Guid" />
           <Property Name="RECALC_IND" Type="Boolean" />
           <NavigationProperty Name="T_QREST_DATA_IMPORT_TEMP" Relationship="QRESTModel.FK_QREST_DATA_IMPORT_TEMP" FromRole="T_QREST_DATA_IMPORTS" ToRole="T_QREST_DATA_IMPORT_TEMP" />
+          <Property Name="REC_COUNT" Type="Int32" />
+          <Property Name="REC_MIN_DATE" Type="DateTime" Precision="0" />
+          <Property Name="REC_MAX_DATE" Type="DateTime" Precision="0" />
         </EntityType>
         <Association Name="FK_T_QREST_DATA_IMPORTS_O">
           <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
@@ -3725,6 +3853,39 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="CertIssuedDate" Type="DateTime" Precision="0" />
           <Property Name="ORG_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
+        <ComplexType Name="SP_DAILY_AVG_Result">
+          <Property Type="DateTime" Name="DT" Nullable="true" Precision="23" />
+          <Property Type="String" Name="avg1" Nullable="true" MaxLength="20" />
+        </ComplexType>
+        <ComplexType Name="sp_helpdiagramdefinition_Result">
+          <Property Type="Int32" Name="version" Nullable="true" />
+          <Property Type="Binary" Name="definition" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="sp_helpdiagrams_Result">
+          <Property Type="String" Name="Database" Nullable="true" MaxLength="128" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="128" />
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Owner" Nullable="true" MaxLength="128" />
+          <Property Type="Int32" Name="OwnerID" Nullable="false" />
+        </ComplexType>
+        <EntityType Name="MONTHLY_USAGE_FIVEMIN">
+          <Key>
+            <PropertyRef Name="YR" />
+            <PropertyRef Name="MN" />
+          </Key>
+          <Property Name="YR" Type="Int32" Nullable="false" />
+          <Property Name="MN" Type="Int32" Nullable="false" />
+          <Property Name="CNT" Type="Int32" />
+        </EntityType>
+        <EntityType Name="MONTHLY_USAGE_HOURLY">
+          <Key>
+            <PropertyRef Name="YR" />
+            <PropertyRef Name="MN" />
+          </Key>
+          <Property Name="YR" Type="Int32" Nullable="false" />
+          <Property Name="MN" Type="Int32" Nullable="false" />
+          <Property Name="CNT" Type="Int32" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3823,6 +3984,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_ORGANIZATIONS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_ORGANIZATIONS">
               <MappingFragment StoreEntitySet="T_QREST_ORGANIZATIONS">
+                <ScalarProperty Name="LOCK_ACCESS_IND" ColumnName="LOCK_ACCESS_IND" />
                 <ScalarProperty Name="AQS_AQS_SCREENING_GRP" ColumnName="AQS_AQS_SCREENING_GRP" />
                 <ScalarProperty Name="AQS_AQS_UID" ColumnName="AQS_AQS_UID" />
                 <ScalarProperty Name="SELF_REG_IND" ColumnName="SELF_REG_IND" />
@@ -4365,6 +4527,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG">
               <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG">
+                <ScalarProperty Name="LOGGER_FILE_NAME" ColumnName="LOGGER_FILE_NAME" />
                 <ScalarProperty Name="CONFIG_DESC" ColumnName="CONFIG_DESC" />
                 <ScalarProperty Name="TIME_POLL_TYPE" ColumnName="TIME_POLL_TYPE" />
                 <ScalarProperty Name="CONFIG_NAME" ColumnName="CONFIG_NAME" />
@@ -4461,6 +4624,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_DATA_IMPORTS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_IMPORTS">
               <MappingFragment StoreEntitySet="T_QREST_DATA_IMPORTS">
+                <ScalarProperty Name="REC_MAX_DATE" ColumnName="REC_MAX_DATE" />
+                <ScalarProperty Name="REC_MIN_DATE" ColumnName="REC_MIN_DATE" />
+                <ScalarProperty Name="REC_COUNT" ColumnName="REC_COUNT" />
                 <ScalarProperty Name="RECALC_IND" ColumnName="RECALC_IND" />
                 <ScalarProperty Name="POLL_CONFIG_IDX" ColumnName="POLL_CONFIG_IDX" />
                 <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
@@ -4841,6 +5007,57 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="LNAME" ColumnName="LNAME" />
                 <ScalarProperty Name="FNAME" ColumnName="FNAME" />
                 <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_DAILY_AVG" FunctionName="QRESTModel.Store.SP_DAILY_AVG">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_DAILY_AVG_Result">
+                <ScalarProperty Name="DT" ColumnName="DT" />
+                <ScalarProperty Name="avg1" ColumnName="avg1" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SP_IMPORT_DETECT_DUPES" FunctionName="QRESTModel.Store.SP_IMPORT_DETECT_DUPES" />
+          <FunctionImportMapping FunctionImportName="sp_alterdiagram" FunctionName="QRESTModel.Store.sp_alterdiagram" />
+          <FunctionImportMapping FunctionImportName="sp_creatediagram" FunctionName="QRESTModel.Store.sp_creatediagram" />
+          <FunctionImportMapping FunctionImportName="sp_dropdiagram" FunctionName="QRESTModel.Store.sp_dropdiagram" />
+          <FunctionImportMapping FunctionImportName="sp_helpdiagramdefinition" FunctionName="QRESTModel.Store.sp_helpdiagramdefinition">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.sp_helpdiagramdefinition_Result">
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="definition" ColumnName="definition" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="sp_helpdiagrams" FunctionName="QRESTModel.Store.sp_helpdiagrams">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.sp_helpdiagrams_Result">
+                <ScalarProperty Name="Database" ColumnName="Database" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Owner" ColumnName="Owner" />
+                <ScalarProperty Name="OwnerID" ColumnName="OwnerID" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="sp_renamediagram" FunctionName="QRESTModel.Store.sp_renamediagram" />
+          <FunctionImportMapping FunctionImportName="sp_upgraddiagrams" FunctionName="QRESTModel.Store.sp_upgraddiagrams" />
+          <EntitySetMapping Name="MONTHLY_USAGE_FIVEMIN">
+            <EntityTypeMapping TypeName="QRESTModel.MONTHLY_USAGE_FIVEMIN">
+              <MappingFragment StoreEntitySet="MONTHLY_USAGE_FIVEMIN">
+                <ScalarProperty Name="CNT" ColumnName="CNT" />
+                <ScalarProperty Name="MN" ColumnName="MN" />
+                <ScalarProperty Name="YR" ColumnName="YR" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MONTHLY_USAGE_HOURLY">
+            <EntityTypeMapping TypeName="QRESTModel.MONTHLY_USAGE_HOURLY">
+              <MappingFragment StoreEntitySet="MONTHLY_USAGE_HOURLY">
+                <ScalarProperty Name="CNT" ColumnName="CNT" />
+                <ScalarProperty Name="MN" ColumnName="MN" />
+                <ScalarProperty Name="YR" ColumnName="YR" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

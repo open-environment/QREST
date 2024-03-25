@@ -80,12 +80,16 @@ namespace QRESTServiceCatalog
                         else if (_config.LOGGER_TYPE == "SUTRON_LEADS")
                         {
                             //get latest date value that was polled. If in last 10 days then send date range, otherwide query for today
-                            string msg = "GET /TODAY /C";
+                            string msg = "GET /TODAY";
                             DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
                             if (latestValue != null && latestValue > System.DateTime.Today.AddDays(-10))    
-                                msg = "GET /S " + latestValue.GetValueOrDefault().ToString("MM-dd-yyyy HH:mm:ss") + " /C";
+                                msg = "GET /S " + latestValue.GetValueOrDefault().ToString("MM-dd-yyyy HH:mm:ss");
 
-                            CommMessageLog _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, msg);
+                            //if log file is explicitly specified, then specify it
+                            if (string.IsNullOrEmpty(_config.LOGGER_FILE_NAME) == false)
+                                msg = msg + " /F " + _config.LOGGER_FILE_NAME;
+
+                            CommMessageLog _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, msg + " /C");
                             if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
                             {
                                 //send the entire text response to the file parser routine
@@ -133,6 +137,37 @@ namespace QRESTServiceCatalog
                             {
                                 //send the entire text response to the file parser routine
                                 LoggerComm.ParseFlatFileMetOneBAM(_log.CommResponse, _config, _config_dtl, true);
+
+                                //log the text to file (for future auditing of parse accuracy)
+                                General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
+                            }
+                            else
+                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+                        }
+                        //****************** MET ONE BAM 1022*********************************************************
+                        //****************** MET ONE BAM 1022*********************************************************
+                        //****************** MET ONE BAM 1022*********************************************************
+                        else if (_config.LOGGER_TYPE == "MET_BAM_1022")
+                        {
+                            General.WriteToFile("MET_BAM_1022 logging happening for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "");
+
+                            //find how many records to retrieve
+                            int hrs = -1;
+                            DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
+                            if (latestValue != null)
+                            {
+                                TimeSpan difference = DateTime.Now - latestValue.Value;
+                                hrs = ((int)difference.TotalHours);
+                                if (hrs > 2000) hrs = -1;
+                            }
+
+                            General.WriteToFile("MET_BAM_1022 will retrieve for hours count (-1 means all):" + hrs);
+
+                            CommMessageLog _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, hrs);
+                            if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                            {
+                                //send the entire text response to the file parser routine
+                                LoggerComm.ParseFlatFile(_log.CommResponse, _config, _config_dtl, true);
 
                                 //log the text to file (for future auditing of parse accuracy)
                                 General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);

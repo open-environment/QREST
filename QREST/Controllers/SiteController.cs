@@ -67,6 +67,7 @@ namespace QREST.Controllers
                     model.EPA_REGION = _org.EPA_REGION;
                     model.AQS_AGENCY_CODE = _org.AQS_AGENCY_CODE;
                     model.SELF_REG_IND = _org.SELF_REG_IND ?? true;
+                    model.LOCK_ACCESS_IND = _org.LOCK_ACCESS_IND;
                     model.edit_org_id = _org.ORG_ID;
                     model.edit_typ = "org";
 
@@ -92,7 +93,7 @@ namespace QREST.Controllers
                 if (ModelState.IsValid)
                 {
                     int succId = db_Ref.InsertUpdatetT_QREST_ORGANIZATION(model.ORG_ID, model.ORG_NAME, model.STATE_CD, model.EPA_REGION,
-                        model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null);
+                        model.AQS_NAAS_UID, model.AQS_NAAS_PWD, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null, model.LOCK_ACCESS_IND);
 
                     if (succId == 1)
                         TempData["Success"] = "Record updated";
@@ -127,7 +128,6 @@ namespace QREST.Controllers
                     string UserIDX = User.Identity.GetUserId();  //lookup user
                     var user = db_Account.GetT_QREST_USERS_ByID(UserIDX);
                     db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("ORG EDIT", UserIDX, null, "Edit org access for " + (user != null ? user.Email : "unknown") + " at " + model.edit_org_id, GetIP.GetLocalIPAddress(System.Web.HttpContext.Current), model.edit_org_id);
-
 
                     TempData["Success"] = "Record updated";
                 }
@@ -282,7 +282,7 @@ namespace QREST.Controllers
             {
                 Guid? succId = db_Air.InsertUpdatetT_QREST_SITES(model.SITE_IDX, model.ORG_ID, model.SITE_ID, model.SITE_NAME, model.AQS_SITE_ID ?? "",
                     model.STATE_CD ?? "", model.COUNTY_CD ?? "", model.LATITUDE, model.LONGITUDE, model.ELEVATION, model.ADDRESS ?? "", model.CITY ?? "", model.ZIP_CODE ?? "",
-                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR ?? "", model.AIRNOW_PWD ?? "", 
+                    model.START_DT, model.END_DT, model.POLLING_ONLINE_IND, null, null, null, null, model.AIRNOW_IND, model.AQS_IND, model.AIRNOW_USR ?? "", model.AIRNOW_PWD, 
                     model.AIRNOW_ORG, model.AIRNOW_SITE ?? "", model.SITE_COMMENTS ?? "", UserIDX, model.LOCAL_TIMEZONE, model.PUB_WEB_IND);
 
                 if (succId != null)
@@ -561,7 +561,6 @@ namespace QREST.Controllers
                 string ftpUser = _site.AIRNOW_USR;
                 string ftpPwd = _site.AIRNOW_PWD;
                 string ip = "webdmcdata.airnowtech.org";
-
                 using (var client = new Renci.SshNet.SftpClient(ip, ftpUser, ftpPwd))
                 {
                     try
@@ -574,7 +573,7 @@ namespace QREST.Controllers
                     }
                     catch (Exception ex)
                     {
-                        return Json("Failed: " + ex.Message, JsonRequestBehavior.AllowGet);
+                        return Json("Failed: " + ex.Message + " Note: this might mean you have entered valid AirNOW credentials, but these credentials do not have sufficient FTP rights to AirNOW", JsonRequestBehavior.AllowGet);
                     }
                 }
             }
@@ -650,6 +649,7 @@ namespace QREST.Controllers
                         model.editTIME_FORMAT = e.TIME_FORMAT;
                         model.editLOCAL_TIMEZONE = _site.LOCAL_TIMEZONE;
                         model.editTIME_POLL_TYPE = e.TIME_POLL_TYPE;
+                        model.editLOGGER_FILE_NAME = e.LOGGER_FILE_NAME;
                         model.editACT_IND = e.ACT_IND;
 
                         //display polling warning message
@@ -688,6 +688,12 @@ namespace QREST.Controllers
                 model.editDATE_COL = 1;
                 model.editDELIMITER = "C";
             }
+
+            //if (model.editLOGGER_TYPE == "SUTRON_LEADS")
+            //{
+            //    if (string.IsNullOrEmpty(model.editLOGGER_FILE_NAME))
+            //        ModelState.AddModelError("editLOGGER_FILE_NAME", "Log file name required for Sutron w/LEADS");
+            //}
             //*************** VALIDATION END  *********************************
 
             model.ConfigList = db_Air.GetT_QREST_SITE_POLL_CONFIG_BySite(model.SITE_IDX.ConvertOrDefault<Guid>(), false, true);
@@ -716,9 +722,14 @@ namespace QREST.Controllers
                         model.editTIME_POLL_TYPE = "L";
                     }
 
+                    if (model.editLOGGER_TYPE == "ESC" && model.editDELIMITER == null) model.editDELIMITER = "C";
+                    if (model.editLOGGER_TYPE == "ESC" && model.editDATE_COL == null) model.editDATE_COL = 1;
+                    if (model.editLOGGER_TYPE == "ESC" && model.editTIME_COL == null) model.editTIME_COL = 1;
+
+
                     Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,
                         model.editLOGGER_SOURCE, model.editLOGGER_PORT, model.editLOGGER_USERNAME, model.editLOGGER_PASSWORD, model.editDELIMITER, model.editDATE_COL,
-                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, null, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE, true, model.editPOLL_LOG_DESC, null);
+                        model.editDATE_FORMAT, model.editTIME_COL, model.editTIME_FORMAT, null, model.editACT_IND, UserIDX, _site.SITE_NAME, model.editTIME_POLL_TYPE, true, model.editPOLL_LOG_DESC, null, model.editLOGGER_FILE_NAME);
 
                     if (succId != null)
                     {
@@ -948,7 +959,7 @@ namespace QREST.Controllers
 
 
             //THIS PAGE ONLY WORKS WITH SPECIFIED LOGGERS
-            if (_config?.LOGGER_TYPE != "ZENO" && _config?.LOGGER_TYPE != "SUTRON" && _config?.LOGGER_TYPE != "ESC" && _config?.LOGGER_TYPE != "SUTRON_LEADS" && _config?.LOGGER_TYPE != "MET_ONE_BAM")
+            if (_config?.LOGGER_TYPE != "ZENO" && _config?.LOGGER_TYPE != "SUTRON" && _config?.LOGGER_TYPE != "ESC" && _config?.LOGGER_TYPE != "SUTRON_LEADS" && _config?.LOGGER_TYPE != "MET_ONE_BAM" && _config?.LOGGER_TYPE != "MET_BAM_1022")
                 ModelState.AddModelError("pingType", "Ping currently only available for Zeno, Sutron, or ESC dataloggers, or MetOne BAM.");
 
 
@@ -969,6 +980,7 @@ namespace QREST.Controllers
                     if (_config.LOGGER_TYPE == "ESC")
                     {
                         string todayJulian = System.DateTime.Now.AddHours(-7).DayOfYear.ToString().PadLeft(3, '0');
+                        //_log = LoggerComm.ConnectTcpESC(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), todayJulian + "060000" + "|Y|" + todayJulian + "230000", siteID);
                         _log = LoggerComm.ConnectTcpESC(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), todayJulian + "010000" + "|Y|" + todayJulian + "230000", siteID);
                         if (_log.CommMessageStatus)
                             model.loggerData = _log.CommResponse;
@@ -977,8 +989,11 @@ namespace QREST.Controllers
                     }
                     else if (_config.LOGGER_TYPE == "SUTRON_LEADS")
                     {
+                        //10 hours ago
+                        //var tenHrAgo = System.DateTime.Now.AddHours(-10).ToString("MM-dd-yyyy HH:00:00");
                         //_log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, "GET /S 06-06-2022 03:00:00");
-                        _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, "GET /TODAY /C");
+                        string msg1 = string.IsNullOrEmpty(_config.LOGGER_FILE_NAME) ? "GET /TODAY /C" : "GET /TODAY /F " + _config.LOGGER_FILE_NAME + " /C";
+                        _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, msg1);
                         if (_log.CommMessageStatus)
                             model.loggerData = _log.CommResponse;
                         else
@@ -987,6 +1002,14 @@ namespace QREST.Controllers
                     else if (_config.LOGGER_TYPE == "MET_ONE_BAM")
                     {
                         _log = LoggerComm.ConnectTcpBAM(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>());
+                        if (_log.CommMessageStatus)
+                            model.loggerData = _log.CommResponse;
+                        else
+                            model.pingResults2 = new List<CommMessageLog> { _log };
+                    }
+                    else if (_config.LOGGER_TYPE == "MET_BAM_1022")
+                    {
+                        _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), model.recCount);
                         if (_log.CommMessageStatus)
                             model.loggerData = _log.CommResponse;
                         else
@@ -1060,7 +1083,8 @@ namespace QREST.Controllers
                 SitePollingConfigType _config2 = db_Air.GetT_QREST_SITES_POLLING_CONFIG_Single(_config.POLL_CONFIG_IDX);
                 List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX, true);
 
-                CommMessageLog _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, "GET /TODAY /C");
+                string msg1 = string.IsNullOrEmpty(_config.LOGGER_FILE_NAME) ? "GET /TODAY /C" : "GET /TODAY /F " + _config.LOGGER_FILE_NAME + " /C";
+                CommMessageLog _log = LoggerComm.ConnectTcpSutron(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, _config.LOGGER_USERNAME, _config.LOGGER_PASSWORD, msg1);
                 if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
                 {
                     //send the entire text response to the file parser routine
@@ -1104,6 +1128,29 @@ namespace QREST.Controllers
                 else
                     TempData["Error"] = "Error in polling: " + _log.CommMessageType;
             }
+            else if (_config.LOGGER_TYPE == "MET_BAM_1022")
+            {
+                SitePollingConfigType _config2 = db_Air.GetT_QREST_SITES_POLLING_CONFIG_Single(_config.POLL_CONFIG_IDX);
+                List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX, true);
+
+                //find how many records to retrieve
+                int hrs = -1;
+                DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
+                if (latestValue != null)
+                {
+                    TimeSpan difference = DateTime.Now - latestValue.Value;
+                    hrs = difference.TotalHours.ConvertOrDefault<int>();
+                    if (hrs > 2000) hrs = -1;
+                }
+                CommMessageLog _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, hrs);
+                if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
+                {
+                    //send the entire text response to the file parser routine
+                    LoggerComm.ParseFlatFile(_log.CommResponse, _config2, _config_dtl, true);
+                }
+                else
+                    TempData["Error"] = "Error in polling: " + _log.CommMessageType;
+            }
             return RedirectToAction("SitePollConfig", new { configid = id });
         }
 
@@ -1129,11 +1176,11 @@ namespace QREST.Controllers
         }
 
 
-        public ActionResult MonitorEdit(Guid? id, Guid? siteIDX)
+        public ActionResult MonitorEdit(Guid? id, Guid? siteIDX, string refr)
         {
             string UserIDX = User.Identity.GetUserId();
             var model = new vmSiteMonitorEdit();
-
+            model.refr = refr ?? "s";
             //insert case (Site ID provided but no Monitor ID)
             if (id == null && siteIDX != null)
             {

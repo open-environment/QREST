@@ -81,10 +81,11 @@ namespace QREST.Controllers
         public FileResult CoursePDF(vmTrainingCourse model)
         {
             try {
-                //id = Guid.Parse("426E0A18-A498-4F03-B54D-170851F850A7");
-                //T_QREST_TRAIN_LESSON_STEP _step = db_Train.GetT_QREST_TRAIN_LESSON_STEP_byID(id.GetValueOrDefault());
                 System.IO.MemoryStream _ms = PDFHelper.CreatePDFReportForCourse(model.course.COURSE_IDX);
-                return File(_ms, "application/pdf", "test.pdf");
+
+                var _course = db_Train.GetT_QREST_TRAIN_COURSE_byID(model.course.COURSE_IDX);
+
+                return File(_ms, "application/pdf", (_course.COURSE_NAME ?? "QREST_course") + ".pdf");
             }
             catch (Exception ex) {
             }

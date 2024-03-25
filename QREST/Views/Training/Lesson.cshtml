@@ -10,9 +10,13 @@
         <img src="~/Content/Images/training-lesson.png" />
     </div>
     <div class="col-md-9">
-        <h4 class="m-t-md page-header m-b-none"><span class="text-success">Course: </span>@Model.course.COURSE_NAME</h4>
+        <h4 class="m-t-md page-header m-b-none">
+            <span class="text-success">Course: </span>@Model.course.COURSE_NAME
+        </h4>
         <h4 class="font-thin"></h4>
-        <h2 class="m-t-xs font-bold"><span class="text-success">Lesson: </span>@Model.lesson.LESSON_TITLE</h2>
+        <h2 class="m-t-xs font-bold">
+            <span class="text-success">Lesson: </span>@Model.lesson.LESSON_TITLE
+        </h2>
     </div>
 </div>
 
@@ -34,28 +38,52 @@
                     <label class="label label-lg bg-success"><i class="fa fa-check"></i> Step Completed</label>
                     if (!string.IsNullOrEmpty(_step.REQUIRED_URL))
                     {
-                        <a class="" href="@_step.REQUIRED_URL" target="_blank">Link</a>
+                        <a href="@_step.REQUIRED_URL" target="_blank" style="color: #0036fb; text-decoration: underline; ">Link</a>
                     }
                     else if (!string.IsNullOrEmpty(_step.REQUIRED_YT_VID))
                     {
-                        <a class="" href="https://www.youtube.com/@_step.REQUIRED_YT_VID" target="_blank">Video Link</a>
+                        if (_step.REQUIRED_YT_VID.Contains("mediaspace"))
+                        {
+                            <a href="@_step.REQUIRED_YT_VID" target="_blank">Video Link</a>
+                        }
+                        else
+                        {
+                            <a href="https://www.youtube.com/@_step.REQUIRED_YT_VID" target="_blank">Video Link</a>
+                        }
                     }
                 }
                 @if (_step.STEP_COMP_IND == 0 && showUndone == true)
                 {
                     if (!string.IsNullOrEmpty(_step.REQUIRED_YT_VID))
                     {
-                        <section class="panel bg-black m-r-n-lg m-b-n-lg no-border device">
-                            <iframe id="player" width="470" height="315" class="m-t-xs"
-                                    src="https://www.youtube.com/embed/@_step.REQUIRED_YT_VID?enablejsapi=1"
-                                    frameborder="0" allowfullscreen>
-                            </iframe>
-                            <span class="text-danger italic">You must watch the video to the end to receive credit.</span>
-                        </section>
+                        if (_step.REQUIRED_YT_VID.Contains("mediaspace"))
+                        {
+                            <section class="panel bg-black m-r-n-lg m-b-n-lg no-border device">
+                                <iframe id="kmsembed-1_33qg7p9u" width="400" height="285" src="@_step.REQUIRED_YT_VID"
+                                        class="kmsembed" allowfullscreen webkitallowfullscreen mozAllowFullScreen allow="autoplay *; fullscreen *; encrypted-media *"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        sandbox="allow-downloads allow-forms allow-same-origin allow-scripts allow-top-navigation allow-pointer-lock allow-popups allow-modals allow-orientation-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation-by-user-activation"
+                                        frameborder="0" title="QREST Training"></iframe><br />
+                                <span class="text-danger italic">
+                                    Please watch the video to the end.
+                                    <button data-toggle="modal" data-target="#modal-form" class="btn btn-xs btn-primary">Click here when finished</button>
+                                </span>
+                            </section>
+                        }
+                        else
+                        {
+                            <section class="panel bg-black m-r-n-lg m-b-n-lg no-border device">
+                                <iframe id="player" width="470" height="315" class="m-t-xs"
+                                        src="https://www.youtube.com/embed/@_step.REQUIRED_YT_VID?enablejsapi=1"
+                                        frameborder="0" allowfullscreen>
+                                </iframe>
+                                <span class="text-danger italic">You must watch the video to the end to receive credit.</span>
+                            </section>
+                        }
                     }
                     else if (!string.IsNullOrEmpty(_step.REQUIRED_URL))
                     {
-                        <a class="reqdoc" href="@_step.REQUIRED_URL" target="_blank">Click here to open browser tab for relevant information</a>
+                        <a class="reqdoc" href="@_step.REQUIRED_URL" target="_blank" style="color: #0036fb; text-decoration: underline; ">Click here to open browser tab for relevant information</a>
                     }
                     else if (_step.REQ_CONFIRM == true)
                     {
@@ -117,7 +145,7 @@
                 videoId: 'VIDEO_ID',
                 events: {
                     'onStateChange': function (evt) {
-                        if (evt.data == 0) {                            
+                        if (evt.data == 0) {
                             $("#modal-form").modal({ show: true });
                         }
                     }

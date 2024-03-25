@@ -98,14 +98,23 @@
                             </thead>
                             @foreach (var item in Model.SiteHealth)
                             {
-                                var styl = (item.LAST_UTC_POLL > item.CURR_UTC) ? "text-danger" : "";
+                                var dtLastPoll = item.LAST_UTC_POLL ?? System.DateTime.Now.AddDays(-1);
+                                var dtCurTime = item.CURR_UTC;
+                                var styl = "";
+                                var mn = System.DateTime.Now.Month;
+                                var yr = System.DateTime.Now.Year;
+                                var dy = System.DateTime.Now.Day;
+                                if (dtLastPoll > dtCurTime) { styl = "text-danger"; }
+                                if (dtLastPoll < dtCurTime.AddHours(-5)) { styl = "text-danger"; }
                                 <tr class="@styl">
                                     <td>
                                         @Html.DisplayFor(modelItem => item.ORG_ID)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.SITE_ID)
-                                        @Html.DisplayFor(modelItem => item.SITE_NAME)
+                                        <a href="@Url.Action("ReportDaily", "Home", new { id = item.SITE_IDX, month=mn, year=yr, day=dy })" class="text-info">
+                                            @Html.DisplayFor(modelItem => item.SITE_ID) - @Html.DisplayFor(modelItem => item.SITE_NAME)
+                                        </a>
+
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.LOGGER_TYPE)
@@ -119,7 +128,15 @@
                                     <td>
                                         @if (item.LAST_UTC_POLL > item.CURR_UTC)
                                         {
-                                            <span>UTC Polling in future</span>
+                                            <span><i class="fa fa-warning"></i> UTC Polling in future <i class="fa fa-warning"></i></span>
+                                        }
+                                        else if (item.LAST_UTC_POLL == null)
+                                        {
+                                            <span><i class="fa fa-warning"></i> No polling conducted <i class="fa fa-warning"></i></span>
+                                        }
+                                        else if (dtLastPoll < dtCurTime.AddHours(-5))
+                                        {
+                                            <span><i class="fa fa-warning"></i> Polling has been down for 5 or more hours <i class="fa fa-warning"></i></span>
                                         }
 
                                     </td>

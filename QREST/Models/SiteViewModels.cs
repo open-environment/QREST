@@ -29,6 +29,7 @@ namespace QREST.Models
         public string AQS_NAAS_UID { get; set; }
         public string AQS_NAAS_PWD { get; set; }
         public bool SELF_REG_IND { get; set; }
+        public bool LOCK_ACCESS_IND { get; set; }
 
         public List<UserOrgDisplayType> org_users { get; set; }
 
@@ -182,6 +183,7 @@ namespace QREST.Models
         public string editTIME_FORMAT { get; set; }
         public string editLOCAL_TIMEZONE { get; set; }
         public string editTIME_POLL_TYPE { get; set; }
+        public string editLOGGER_FILE_NAME { get; set; }
         public bool editACT_IND { get; set; }
         public string editPOLL_LOG_DESC { get; set; }
 
@@ -283,6 +285,7 @@ namespace QREST.Models
         public string ALERT_MAX_TYPE { get; set; }
         public string ALERT_AMT_CHANGE_TYPE { get; set; }
         public string ALERT_STUCK_TYPE { get; set; }
+        public bool ALERT_STUCK_TYPE_BOOL { get; set; }
 
         public DateTime? CREATE_DT { get; set; }
 
@@ -292,6 +295,8 @@ namespace QREST.Models
         public IEnumerable<SelectListItem> ddl_NMIN_HOURLY { get; set; }
         public IEnumerable<SelectListItem> ddl_HOURLY { get; set; }
 
+        //handles the referral (m=coming from monitor list page)
+        public string refr { get; set; }
 
         public vmSiteMonitorEdit() {
             ddl_Ref_Duration = ddlHelpers.get_ddl_ref_duration();

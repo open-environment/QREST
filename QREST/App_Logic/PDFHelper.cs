@@ -26,11 +26,13 @@ namespace QREST.App_Logic
                 using (MemoryStream ms = new MemoryStream())
                 {
                     // Create an instance of the document class which represents the PDF document itself.
-                    Document document = new Document(PageSize.A4, 25, 25, 25, 25);
+                    Document document = new Document(PageSize.LETTER, 30f, 20f, 50f, 40f);
                     string title = _course.COURSE_NAME;
 
                     // Create an instance to the PDF file by creating an instance of the PDF Writer class using the document and the filestrem in the constructor.
                     PdfWriter writer = PdfWriter.GetInstance(document, ms);
+
+                    writer.PageEvent = new HeaderFooter();
 
                     // Add meta information to the document
                     document.AddAuthor("ITEP");
@@ -51,6 +53,7 @@ namespace QREST.App_Logic
                     Font font_main_bold = new Font(bfHelv, 12, Font.BOLD, BaseColor.BLACK);
                     Font font_small = new Font(bfHelv, 9, Font.BOLD, BaseColor.DARK_GRAY);
                     Font font_small_no_bold = new Font(bfHelv, 9, Font.NORMAL, BaseColor.DARK_GRAY);
+                    Font font_small_no_bold_blue = new Font(bfHelv, 9, Font.NORMAL, BaseColor.BLUE);
 
                     // Add course title
                     document.Add(new Paragraph(title + Environment.NewLine, font_head));
@@ -118,10 +121,18 @@ namespace QREST.App_Logic
 
                             //add link or yt vid
                             if (string.IsNullOrEmpty(_step.REQUIRED_URL) == false)
-                                document.Add(new Paragraph("Link to click: " + _step.REQUIRED_URL, font_small_no_bold));
+                            {
+                                document.Add(new Paragraph("Link to click: ", font_small_no_bold));
+                                document.Add(new Paragraph(_step.REQUIRED_URL, font_small_no_bold_blue));
+                            }
                             else if (string.IsNullOrEmpty(_step.REQUIRED_YT_VID) == false)
-                                document.Add(new Paragraph("Youtube video link to watch: https://www.youtube.com/embed/" + _step.REQUIRED_YT_VID + "?enablejsapi=1", font_small));
-
+                            {
+                                if (_step.REQUIRED_YT_VID.ToLower().Contains("mediaspace")) {
+                                    document.Add(new Paragraph("Mediaspace video link to watch: " + _step.REQUIRED_YT_VID, font_small));
+                                }
+                                else
+                                    document.Add(new Paragraph("Youtube video link to watch: https://www.youtube.com/embed/" + _step.REQUIRED_YT_VID + "?enablejsapi=1", font_small));
+                            }
                             worker.EndDocument();
                             worker.Close();
                             //Add html to the PDF END ******************************************
@@ -147,6 +158,44 @@ namespace QREST.App_Logic
             }
             else
                 return null;
+        }
+
+    }
+
+    class HeaderFooter : PdfPageEventHelper {
+        public override void OnEndPage(PdfWriter writer, Document document)
+        {
+            BaseFont bfHelv = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, false);
+            Font header_footer_font = new Font(bfHelv, 9, Font.NORMAL, BaseColor.DARK_GRAY);
+
+            var _info = writer.Info;
+
+            //set page header (but skip for 1st page) **************************************
+            if (writer.PageNumber > 1)
+            {
+                PdfPTable tbHeader = new PdfPTable(1);
+                tbHeader.TotalWidth = document.PageSize.Width - document.LeftMargin - document.RightMargin;
+                tbHeader.DefaultCell.Border = 0;
+
+                PdfPCell _cell = new PdfPCell(new Paragraph(_info.Get(PdfName.TITLE).ToString(), header_footer_font));
+                _cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                _cell.Border = PdfPCell.BOTTOM_BORDER;
+                tbHeader.AddCell(_cell);
+
+                tbHeader.WriteSelectedRows(0, -1, document.LeftMargin, writer.PageSize.GetTop(document.TopMargin) + 40, writer.DirectContent);
+            }
+
+            //set page footer **************************************
+            PdfPTable tbFooter = new PdfPTable(1);
+            tbFooter.TotalWidth = document.PageSize.Width - document.LeftMargin - document.RightMargin;
+            tbFooter.DefaultCell.Border = 0;
+
+            PdfPCell _cell2 = new PdfPCell(new Paragraph("Page " + writer.PageNumber, header_footer_font));
+            _cell2.HorizontalAlignment = Element.ALIGN_RIGHT;
+            _cell2.Border = PdfPCell.TOP_BORDER;
+            tbFooter.AddCell(_cell2);
+
+            tbFooter.WriteSelectedRows(0, -1, document.LeftMargin, writer.PageSize.GetBottom(document.BottomMargin) - 5, writer.DirectContent);
         }
     }
 }

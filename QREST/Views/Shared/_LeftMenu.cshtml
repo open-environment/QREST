@@ -107,6 +107,12 @@
                                     <span class="title">Data Export</span>
                                 </a>
                             </li>
+                            <li class="@Html.ActivePage("Reports", "Daily")">
+                                <a href="@Url.Action("Daily", "Reports")">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span class="title">Daily Averages</span>
+                                </a>
+                            </li>
                             <li class="@Html.ActivePage("Reports", "MonthlyStats")">
                                 <a href="@Url.Action("MonthlyStats", "Reports")">
                                     <i class="fa fa-angle-right"></i>
@@ -208,6 +214,12 @@
                                             <a href="@Url.Action("Connectivity", "Admin")">
                                                 <i class="fa fa-angle-right"></i>
                                                 <span class="title">Connectivity</span>
+                                            </a>
+                                        </li>
+                                        <li class="@Html.ActivePage("Reports", "UsageStats")">
+                                            <a href="@Url.Action("UsageStats", "Reports")">
+                                                <i class="fa fa-angle-right"></i>
+                                                <span class="title">Usage Stats</span>
                                             </a>
                                         </li>
                                     </ul>

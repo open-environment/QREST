@@ -106,6 +106,8 @@
         <EntityTypeShape EntityType="QRESTModel.SITE_HEALTH" Width="1.5" PointX="23.375" PointY="16.75" />
         <EntityTypeShape EntityType="QRESTModel.T_QREST_REF_QUAL_DISALLOW" Width="1.5" PointX="23.375" PointY="22.75" />
         <EntityTypeShape EntityType="QRESTModel.TRAINING_SNAPSHOT" Width="1.5" PointX="25.375" PointY="0.75" />
+        <EntityTypeShape EntityType="QRESTModel.MONTHLY_USAGE_FIVEMIN" Width="1.5" PointX="0.75" PointY="25.75" />
+        <EntityTypeShape EntityType="QRESTModel.MONTHLY_USAGE_HOURLY" Width="1.5" PointX="25.75" PointY="16.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

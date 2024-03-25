@@ -85,7 +85,7 @@ namespace QRESTModel.BLL
                 //**************************************************************************************
                 if (_import.IMPORT_TYPE == "F" || _import.IMPORT_TYPE == "H")
                 {
-                    AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H(allRows, _pollConfig, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats, _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
+                    AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_H(allRows, _pollConfig, _import.IMPORT_USERIDX, _import.IMPORT_IDX, dtTmFormats, _site.LOCAL_TIMEZONE.ConvertOrDefault<int>(), _import.IMPORT_TYPE);
                 }
 
                 //**************************************************************************************
@@ -110,6 +110,9 @@ namespace QRESTModel.BLL
                         AnyDupsOrErrors = db_Air.BulkInsertT_QREST_DATA_IMPORT_TEMP_AQS_RD(allRows, _import.IMPORT_USERIDX, _import.IMPORT_IDX, _import.MONITOR_IDX.GetValueOrDefault(), _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
                     }
                 }
+
+                //detect duplicates 
+                db_Air.SP_IMPORT_DETECT_DUPES(_import.IMPORT_IDX);
 
                 //update status to VALIDATED
                 db_Air.InsertUpdateT_QREST_DATA_IMPORTS(_import.IMPORT_IDX, null, null, null, "VALIDATED", null, null, null, null, null, null, null);

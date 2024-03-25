@@ -182,7 +182,9 @@ namespace QREST.Controllers
 
                 //********************* SPAM CHECK *******************************
                 var tld = model.Email.Substring(model.Email.LastIndexOf('.') + 1).ToLower();
-                if (tld == "ru" || tld == "xyz" || tld == "de" || tld == "tst" || tld == "fr" || tld == "top")
+                if (tld == "ru" || tld == "xyz" || tld == "de" 
+                    || tld == "tst" || tld == "fr" || tld == "top"
+                    || model.Email.Contains("andex"))
                 {
                     TempData["Error"] = "QREST is intended for tribal users only. Please contact ITEP to obtain an account.";
                     return RedirectToAction("QRESTRegister", "Account");
@@ -549,7 +551,7 @@ namespace QREST.Controllers
 
                 UserManager.Update(user);
 
-                TempData["Success"] = "Profile updated";
+                TempData["Success"] = "Profile updated.";
                 model.ROLES = UserManager.GetRoles(user.Id);
                 model.user_orgs = db_Account.GetT_QREST_ORG_USERS_byUSER_IDX(user.Id, null);
             }

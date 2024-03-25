@@ -14,7 +14,7 @@ QREST (Quality Review and Exchange System for Tribes) is open-source software th
 ## QREST Goals
 
 The overarching goals of QREST are to:
-1. Provide small tribal agencies with the ability to generate legally-defensible air quality data and build tribal capacity
+1. Provide tribal agencies with the ability to generate legally-defensible air quality data and build tribal capacity
 2. Support tribes with air quality data analysis and reporting by pushing out industry and EPA changes to all participating tribes at once 
 3. Enable more valid data availability to EPA and partners
 
@@ -58,6 +58,8 @@ The following diagram illustrates the various way that tribes can get data inTO 
 - **2022-07-01** AIRNow --> can now use either tribe-specific or global AirNow credentials
 - **2022-07-19** Add ability to retrieve data from ESC Data Loggers
 - **2022-08-23** Add ability to retrieve data from MetOne BAM1020 devices
+- **2023-03-27** Add setting to allow tribes to lock out admins (TAMS Center) from editing tribal data
+- **2023-08-02** Add ability to retrieve data from MetOne BAM1022 devices
 
 
 ## Sending Feedback

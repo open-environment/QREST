@@ -35,8 +35,9 @@
                         <th>Status</th>
                         <th>Global Admin</th>
                         <th>Tribal Admin</th>
-                        <th>Tribal QA</th>
-                        <th>Tribal Operator</th>
+                        <th>QA Reviewer</th>
+                        <th>Operator</th>
+                        <th>Read Only</th>
                     </tr>
                 </thead>
             </table>
@@ -192,26 +193,35 @@
                         "data": "IS_TRIBAL_ADMIN",
                         "name": "IS_TRIBAL_ADMIN",
                         "autoWidth": true,
-                        "render": function (d) {
-                            return d == true ? '<span class="label label-success"> Yes</span>' : '<span class="label label-warning"> No</span>';
+                        "render": function (d, type, row) {
+                            return d == true ? '<span class="label label-success"> Yes</span>' + (row.COUNT_ADMIN > 1 ? "<span class='badge badge-sm up bg-danger m-l-n-sm count' style='display: inline-block;'>" + row.COUNT_ADMIN + "</span>" : "") : '<span class="label label-warning"> No</span>';
                         }
                     },
                     {
                         "data": "IS_TRIBAL_QA",
                         "name": "IS_TRIBAL_QA",
                         "autoWidth": true,
-                        "render": function (d) {
-                            return d == true ? '<span class="label label-success"> Yes</span>' : '<span class="label label-warning"> No</span>';
+                        "render": function (d, type, row) {
+                            return d == true ? '<span class="label label-success"> Yes</span>' + (row.COUNT_QA > 1 ? "<span class='badge badge-sm up bg-danger m-l-n-sm count' style='display: inline-block;'>" + row.COUNT_QA + "</span>" : "") : '<span class="label label-warning"> No</span>';
                         }
                     },
                     {
                         "data": "IS_TRIBAL_OPERATOR",
                         "name": "IS_TRIBAL_OPERATOR",
                         "autoWidth": true,
-                        "render": function (d) {
-                            return d == true ? '<span class="label label-success"> Yes</span>' : '<span class="label label-warning"> No</span>';
+                        "render": function (d, type, row) {
+                            return d == true ? '<span class="label label-success"> Yes</span>' + (row.COUNT_OPERATOR > 1 ? "<span class='badge badge-sm up bg-danger m-l-n-sm count' style='display: inline-block;'>" + row.COUNT_OPERATOR + "</span>" : "") : '<span class="label label-warning"> No</span>';
+                        }
+                    },
+                    {
+                        "data": "IS_READONLY",
+                        "name": "IS_READONLY",
+                        "autoWidth": true,
+                        "render": function (d, type, row) {
+                            return d == true ? '<span class="label label-success"> Yes</span>' + (row.COUNT_READONLY > 1 ? "<span class='badge badge-sm up bg-danger m-l-n-sm count' style='display: inline-block;'>" + row.COUNT_READONLY + "</span>" : "") : '<span class="label label-warning"> No</span>';
                         }
                     }
+
                 ],
                 "createdRow": function (row, data, dataIndex) {
                     $('td:eq(0)', row).css('width', '90px');

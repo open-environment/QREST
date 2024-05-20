@@ -35,6 +35,12 @@ namespace QRESTModel.DAL
         public bool IS_TRIBAL_ADMIN { get; set; }
         public bool IS_TRIBAL_QA { get; set; }
         public bool IS_TRIBAL_OPERATOR { get; set; }
+        public bool IS_READONLY { get; set; }
+
+        public int COUNT_ADMIN { get; set; }
+        public int COUNT_QA { get; set; }
+        public int COUNT_OPERATOR { get; set; }
+        public int COUNT_READONLY { get; set; }
     }
 
 
@@ -49,9 +55,10 @@ namespace QRESTModel.DAL
                 {
                     return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
                             where userType == 1 ? u.Name == "1" : true
-                            && userType == 2 ? u.TribalAdmin == "1" : true
-                            && userType == 3 ? u.QaReviewer == "1" : true
-                            && userType == 4 ? u.Operator == "1" : true
+                            && userType == 2 ? u.TribalAdmin > 0 : true
+                            && userType == 3 ? u.QaReviewer > 0 : true
+                            && userType == 4 ? u.Operator > 0 : true
+                            && userType == 5 ? u.RedOnly > 0 : true
                             select new UserListDisplayType
                             {
                                 USER_IDX = u.USER_IDX,
@@ -63,9 +70,14 @@ namespace QRESTModel.DAL
                                 EMAILCONFIRMED = u.EmailConfirmed,
                                 CREATE_DT = u.CREATE_DT,
                                 ISGLOBALADMIN = u.Name == "1" ? true : false,
-                                IS_TRIBAL_ADMIN = u.TribalAdmin == "1" ? true : false,
-                                IS_TRIBAL_QA = u.QaReviewer == "1" ? true : false,
-                                IS_TRIBAL_OPERATOR = u.Operator == "1" ? true : false
+                                IS_TRIBAL_ADMIN = u.TribalAdmin > 0 ? true : false,
+                                IS_TRIBAL_QA = u.QaReviewer > 0 ? true : false,
+                                IS_TRIBAL_OPERATOR = u.Operator > 0 ? true : false,
+                                IS_READONLY = u.RedOnly > 0 ? true : false,
+                                COUNT_ADMIN = u.TribalAdmin ?? 0,
+                                COUNT_QA = u.QaReviewer ?? 0,
+                                COUNT_OPERATOR = u.Operator ?? 0,
+                                COUNT_READONLY = u.RedOnly ?? 0
                             }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
                 catch (Exception ex)
@@ -84,9 +96,10 @@ namespace QRESTModel.DAL
                 {
                     return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
                             where userType == 1 ? u.Name == "1" : true
-                            && userType == 2 ? u.TribalAdmin == "1" : true
-                            && userType == 3 ? u.QaReviewer == "1" : true
-                            && userType == 4 ? u.Operator == "1" : true
+                            && userType == 2 ? u.TribalAdmin > 0 : true
+                            && userType == 3 ? u.QaReviewer > 0 : true
+                            && userType == 4 ? u.Operator > 0 : true
+                            && userType == 5 ? u.RedOnly > 0 : true                             
                             select u).ToList();
                 }
                 catch (Exception ex)
@@ -106,9 +119,9 @@ namespace QRESTModel.DAL
                 {
                     return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
                             where userType == 1 ? u.Name == "1" : true
-                            && userType == 2 ? u.TribalAdmin == "1" : true
-                            && userType == 3 ? u.QaReviewer == "1" : true
-                            && userType == 4 ? u.Operator == "1" : true
+                            && userType == 2 ? u.TribalAdmin > 0 : true
+                            && userType == 3 ? u.QaReviewer > 0 : true
+                            && userType == 4 ? u.Operator > 0 : true
                             select u).Count();
                 }
                 catch (Exception ex)
@@ -556,7 +569,7 @@ namespace QRESTModel.DAL
 
 
         /// <summary>
-        /// Checks if the user is an admin of a specified organization
+        /// Checks if the user is an admin of the specified organization
         /// </summary>
         /// <param name="uSER_IDX"></param>
         /// <param name="oRG_ID"></param>
@@ -599,7 +612,7 @@ namespace QRESTModel.DAL
                 {
                     int iCount = (from a in ctx.T_QREST_ORG_USERS
                                   where a.USER_IDX == uSER_IDX
-                                  && (a.ACCESS_LEVEL == "A" || a.ACCESS_LEVEL == "Q" || a.ACCESS_LEVEL == "U")
+                                  && (a.ACCESS_LEVEL == "A" || a.ACCESS_LEVEL == "U")
                                   && a.STATUS_IND == "A"
                                   && a.ORG_ID == oRG_ID
                                   select a).Count();
@@ -646,23 +659,24 @@ namespace QRESTModel.DAL
         }
 
         /// <summary>
-        /// Checks if the user is an admin of any organization
+        /// Checks if the user has read only rights to a specified organization
         /// </summary>
         /// <param name="uSER_IDX"></param>
+        /// <param name="oRG_ID"></param>
         /// <returns></returns>
-        public static bool IsAnOrgAdmin(string uSER_IDX)
+        /// 
+        public static bool IsReadOnly(string uSER_IDX, string oRG_ID)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    int iCount = (from a in ctx.T_QREST_ORG_USERS
+                    return (from a in ctx.T_QREST_ORG_USERS
                                   where a.USER_IDX == uSER_IDX
-                                  && a.ACCESS_LEVEL == "A"
+                                  && a.ACCESS_LEVEL == "R"
                                   && a.STATUS_IND == "A"
-                                  select a).Count();
-
-                    return iCount > 0;
+                                  && a.ORG_ID == oRG_ID
+                                  select a).Any();
                 }
                 catch (Exception ex)
                 {
@@ -672,32 +686,6 @@ namespace QRESTModel.DAL
             }
         }
 
-
-        /// <summary>
-        /// Checks if the user belongs to any organization
-        /// </summary>
-        /// <param name="uSER_IDX"></param>
-        /// <returns></returns>
-        public static bool BelongsToAnyOrg(string uSER_IDX)
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    int iCount = (from a in ctx.T_QREST_ORG_USERS
-                                  where a.USER_IDX == uSER_IDX
-                                  && a.STATUS_IND == "A"
-                                  select a).Count();
-
-                    return iCount > 0;
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return false;
-                }
-            }
-        }
 
 
         /// <summary>
@@ -705,7 +693,7 @@ namespace QRESTModel.DAL
         /// </summary>
         /// <param name="uSER_IDX"></param>
         /// <param name="oRG_ID"></param>
-        /// <param name="CanEditToo"></param>
+        /// <param name="CanEditToo">Also checks if person can edit the org, which is only Tribal Admin</param>
         /// <returns>True if user is active and has access</returns>
         public static bool CanAccessThisOrg(string uSER_IDX, string oRG_ID, bool CanEditToo)
         {
@@ -713,14 +701,12 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    int iCount = (from a in ctx.T_QREST_ORG_USERS
+                    return (from a in ctx.T_QREST_ORG_USERS
                                   where a.USER_IDX == uSER_IDX
                                   && a.ORG_ID == oRG_ID
                                   && a.STATUS_IND == "A"
-                                  && (CanEditToo == true ? a.ACCESS_LEVEL != "R" : true)
-                                  select a).Count();
-
-                    return iCount > 0;
+                                  && (CanEditToo == true ? a.ACCESS_LEVEL == "A" : true)
+                                  select a).Any();
                 }
                 catch (Exception ex)
                 {
@@ -736,7 +722,7 @@ namespace QRESTModel.DAL
         /// </summary>
         /// <param name="uSER_IDX"></param>
         /// <param name="sITE_IDX"></param>
-        /// <param name="CanEditToo"></param>
+        /// <param name="CanEditToo">Only those with ADMIN (A) or OPERATOR (U) roles can edit a site</param>
         /// <returns></returns>
         public static bool CanAccessThisSite(string uSER_IDX, Guid sITE_IDX, bool CanEditToo)
         {
@@ -749,7 +735,7 @@ namespace QRESTModel.DAL
                                   where a.USER_IDX == uSER_IDX
                                   && s.SITE_IDX == sITE_IDX
                                   && a.STATUS_IND == "A"
-                                  && (CanEditToo == true ? a.ACCESS_LEVEL != "R" : true)
+                                  && (CanEditToo == true ? a.ACCESS_LEVEL == "A" || a.ACCESS_LEVEL == "U" : true)
                                   select a).Count();
 
                     return iCount > 0;
@@ -807,6 +793,54 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<T_QREST_ORGANIZATIONS> GetT_QREST_ORG_USERS_byUSER_IDX_AdminAccess(string uSER_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var x = (from uo in ctx.T_QREST_ORG_USERS.AsNoTracking()
+                             join o in ctx.T_QREST_ORGANIZATIONS.AsNoTracking() on uo.ORG_ID equals o.ORG_ID
+                             where uo.STATUS_IND == "A"
+                             && uo.ACCESS_LEVEL == "A"
+                             && uo.USER_IDX == uSER_IDX
+                             orderby o.ORG_NAME
+                             select o).ToList();
+
+                    return x;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static List<T_QREST_ORGANIZATIONS> GetT_QREST_ORG_USERS_byUSER_IDX_AdminOrOpperatorAccess(string uSER_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var x = (from uo in ctx.T_QREST_ORG_USERS.AsNoTracking()
+                             join o in ctx.T_QREST_ORGANIZATIONS.AsNoTracking() on uo.ORG_ID equals o.ORG_ID
+                             where uo.STATUS_IND == "A"
+                             && (uo.ACCESS_LEVEL == "A" || uo.ACCESS_LEVEL == "U")
+                             && uo.USER_IDX == uSER_IDX
+                             orderby o.ORG_NAME
+                             select o).ToList();
+
+                    return x;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
 
         /// <summary>
         /// Lists all organizations that a user has access to, which have made an AQS submission 
@@ -838,68 +872,6 @@ namespace QRESTModel.DAL
         }
 
 
-
-        /// <summary>
-        /// Lists all users who do not currently belong to org
-        /// </summary>
-        /// <param name="uSER_IDX"></param>
-        /// <returns></returns>
-        public static List<T_QREST_USERS> GetT_QREST_USERS_allUsersNotInOrg(string ORG_ID)
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    //first get all active users 
-                    var allUsers = (from itemA in ctx.T_QREST_USERS
-                                    where itemA.LockoutEndDateUtc == null
-                                    select itemA);
-
-                    //next get all users in org
-                    var UsersInOrg = (from itemA in ctx.T_QREST_USERS
-                                      join itemB in ctx.T_QREST_ORG_USERS on itemA.USER_IDX equals itemB.USER_IDX
-                                      where itemB.ORG_ID == ORG_ID
-                                      select itemA);
-
-                    //then get exclusions
-                    var usersNotInOrg = allUsers.Except(UsersInOrg);
-
-                    return usersNotInOrg.OrderBy(a => a.Email).ToList();
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return null;
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// Will return true if the supplied user belongs to the org
-        /// </summary>
-        public static bool GetT_QREST_ORG_USERS_ByUserAndOrgID(string oRG_ID, string uSER_IDX, bool excludePending)
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    var x = (from a in ctx.T_QREST_ORG_USERS
-                             where a.ORG_ID == oRG_ID
-                             && a.USER_IDX == uSER_IDX
-                             && (excludePending == true ? a.STATUS_IND == "A" : true)
-                             select a).Count();
-
-                    return x > 0 ? true : false;
-
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return false;
-                }
-            }
-        }
 
 
         /// <summary>
@@ -1093,7 +1065,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        //***************** T_QREST_HELP_DOCS ***************************************        
+     
 
 
     }

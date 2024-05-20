@@ -146,7 +146,7 @@ namespace QREST.Controllers
 
         private vmDataImport ManualImportModelDdlPop(vmDataImport model, string UserIDX)
         {
-            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, true);
+            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations_admin_operator(UserIDX);
             model.ddl_Sites = model.selOrgID == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_my_sites(model.selOrgID, UserIDX);
             model.ddl_Monitors = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_monitors_by_site(model.selSite, true, false);
             model.ddl_PollConfig = model.selSite == null ? new List<SelectListItem>() : ddlHelpers.get_ddl_import_templates(model.selSite);
@@ -627,7 +627,7 @@ namespace QREST.Controllers
 
             var model = new vmDataQCEntry {
                 ddl_Assess_Type = ddlHelpers.get_ddl_ref_assess_type(),
-                ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX, true),
+                ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX, true, true),
                 ddl_AQS_Null = ddlHelpers.get_ddl_ref_qualifier("NULL"),
                 ddl_FlowRate_Unit = ddlHelpers.get_ddl_ref_units("68101"),
                 DisplayUnit = false
@@ -742,7 +742,7 @@ namespace QREST.Controllers
             ////reinitialize
             ////assessment dtl
             model.AssessmentDetails = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(model.QC_ASSESS_IDX);
-            model.ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX, true);
+            model.ddl_Monitor = ddlHelpers.get_ddl_my_monitors(null, UserIDX, true, true);
             model.ddl_Assess_Type = ddlHelpers.get_ddl_ref_assess_type();
             model.ddl_AQS_Null = ddlHelpers.get_ddl_ref_qualifier("NULL");
             model.ddl_FlowRate_Unit = ddlHelpers.get_ddl_ref_units("68101");
@@ -921,7 +921,7 @@ namespace QREST.Controllers
             };
 
             //security check
-            if (db_Account.CanAccessThisOrg(UserIDX, model.selMon.ORG_ID, true) == false)
+            if (db_Account.CanAccessThisOrg(UserIDX, model.selMon.ORG_ID, false) == false)
             {
                 TempData["Error"] = "Access Denied.";
                 return RedirectToAction("SiteList", "Site");
@@ -938,6 +938,7 @@ namespace QREST.Controllers
             //get security access rights
             model.secLvl1Ind = db_Account.IsOrgLvl1(UserIDX, model.selMon.ORG_ID);
             model.secLvl2Ind = db_Account.IsOrgLvl2(UserIDX, model.selMon.ORG_ID);
+            model.isReadOnly = db_Account.IsReadOnly(UserIDX, model.selMon.ORG_ID);
 
             //get raw data
             if (dur == "H")
@@ -1210,6 +1211,10 @@ namespace QREST.Controllers
                 MonDocs = db_Air.GetT_QREST_ASSESS_DOCS_ByMonitor(monid.GetValueOrDefault(), sDt, eDt)
             };
 
+            //allow anyone except readonly 
+            var _site = db_Air.GetT_QREST_SITES_ByID(model.selSite.Value);
+            model.CanEdit = !db_Account.IsReadOnly(User.Identity.GetUserId(), _site.ORG_ID);
+
             SiteMonitorDisplayType _mon = db_Air.GetT_QREST_MONITORS_ByID(monid.GetValueOrDefault());
             if (_mon != null)
             {
@@ -1451,7 +1456,7 @@ namespace QREST.Controllers
             string UserIDX = User.Identity.GetUserId();
 
             var model = new vmDataAQSGen {
-                ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(null, UserIDX),
+                ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(UserIDX, true),
                 selAQSTransType = typ ?? "RD",
                 selDtStart = sDt ?? new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddMonths(-1),
                 selDtEnd = eDt ?? new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddHours(-1),
@@ -1485,8 +1490,7 @@ namespace QREST.Controllers
             AQSGenDataReview(model);
 
             //repopulate model before returning
-            string UserIDX = User.Identity.GetUserId();
-            model.ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(null, UserIDX);
+            model.ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(User.Identity.GetUserId(), true);
 
             return View(model);
         }
@@ -1764,7 +1768,7 @@ namespace QREST.Controllers
         public JsonResult FetchMonitors(string ID)
         {
             string UserIDX = User.Identity.GetUserId();
-            var data = ddlHelpers.get_ddl_my_monitors(ID, UserIDX, false);
+            var data = ddlHelpers.get_ddl_my_monitors(ID, UserIDX, false, false);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 

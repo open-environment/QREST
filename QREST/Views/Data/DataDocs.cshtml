@@ -29,11 +29,14 @@
                         {
                             <tr>
                                 <td class="fit" style="white-space: nowrap; width: 1%;">
-                                    <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" data-start="@item.START_DT" data-end="@item.END_DT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
-                                    <div class="delete-section" style="display:inline-block;">
-                                        <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
-                                    </div>
+                                    @if (Model.CanEdit)
+                                    {
+                                        <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" data-start="@item.START_DT" data-end="@item.END_DT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                        <div class="delete-section" style="display:inline-block;">
+                                            <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
+                                        </div>
+                                    }
                                     <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-download"></i></a>
                                 </td>
                                 <td>
@@ -58,7 +61,10 @@
                         }
                     </table>
                 </div>
-                <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-primary btn-sm"><i class="fa fa-plus"></i> Upload</a>
+                @if (Model.CanEdit)
+                {
+                    <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-primary btn-sm"><i class="fa fa-plus"></i> Upload</a>
+                }
             </div>
         </section>
     </div>
@@ -86,11 +92,14 @@
                         {
                             <tr>
                                 <td class="fit" style="white-space: nowrap; width: 1%;">
-                                    <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" data-start="@item.START_DT" data-end="@item.END_DT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
-                                    <div class="delete-section" style="display:inline-block;">
-                                        <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
-                                    </div>
+                                    @if (Model.CanEdit)
+                                    {
+                                        <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" data-start="@item.START_DT" data-end="@item.END_DT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                        <div class="delete-section" style="display:inline-block;">
+                                            <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
+                                        </div>
+                                    }
                                     <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-download"></i></a>
                                 </td>
                                 <td>
@@ -115,7 +124,10 @@
                         }
                     </table>
                 </div>
-                <a id="add-it2" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-primary btn-sm"><i class="fa fa-plus"></i> Upload</a>
+                @if (Model.CanEdit)
+                {
+                    <a id="add-it2" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-primary btn-sm"><i class="fa fa-plus"></i> Upload</a>
+                }
             </div>
         </section>
 

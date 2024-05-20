@@ -31,16 +31,16 @@
             </span>
             <a class="clear" href="@Url.Action("SiteList", "Site")">
                 <span class="h4 block m-t-xs">
-                    @if (Model.T_QREST_SITES != null && Model.T_QREST_SITES.Count > 0)
+                    @if (Model.LastPollMySites != null)
                     {
-                        @Model.T_QREST_SITES[0].POLLING_LAST_RUN_DT
+                        @Model.LastPollMySites
                     }
                     else
                     {
                         <strong>N/A</strong>
                     }
                 </span>
-                <small class="text-muted text-uc">Last Poll (UTC)</small>
+                <small class="text-muted text-uc">Last Poll (Central)</small>
             </a>
         </div>
         <div class="col-sm-6 col-md-3 padder-v b-r b-light">
@@ -164,7 +164,12 @@
                 }
             </header>
             <div class="bg-light">
-                @Html.DropDownListFor(model => model.selChartMon, Model.ddl_MyMonitors, new { @class = "form-control ", @onchange = "getDataChart()" })
+                <div class="input-group">
+                    @Html.DropDownListFor(model => model.selChartMon, Model.ddl_MyMonitors, new { @class = "form-control ", @onchange = "getDataChart()" })
+                    <span class="input-group-btn">
+                        <button class="btn btn-danger" type="button" data-toggle="tooltip" data-original-title="Favorite"><i class="fa fa-heart-o"></i></button>
+                    </span>
+                </div>
                 <div class="text-center m-b-n m-t-sm">
                     <div id="chartContainer" class="collapse in" style="height: 200px; width: 100%;">
                     </div>

@@ -180,7 +180,11 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
+            @if (Model.CanEdit)
+            {
+                <button id="btnSave" type="submit" disabled class="btn btn-primary">Save</button>
+            }
+
             @if (Model.refr == "m")
             {
                 <a class=" btn btn-default" href="@Url.Action("MonitorList")">Back to Monitor List</a>

@@ -599,20 +599,20 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_SITES> GetT_QREST_SITES_Sampling_ByUser_OrgID(string orgId, string UserIDX)
+        public static List<T_QREST_SITES> GetT_QREST_SITES_Sampled_ByUser(string UserIDX, bool AdminAndOperatorOnly)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
                     return (from a in ctx.T_QREST_SITES.AsNoTracking()
-                            join b in ctx.T_QREST_MONITORS.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
-                            join c in ctx.T_QREST_DATA_HOURLY.AsNoTracking() on b.MONITOR_IDX equals c.MONITOR_IDX
-                            join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
-                            where u.USER_IDX == UserIDX
-                            && u.STATUS_IND == "A"
-                            && (orgId != null ? a.ORG_ID == orgId : true)
-                            select a).Distinct().ToList();
+                               join b in ctx.T_QREST_MONITORS.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
+                               join c in ctx.T_QREST_DATA_HOURLY.AsNoTracking() on b.MONITOR_IDX equals c.MONITOR_IDX
+                               join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
+                               where u.USER_IDX == UserIDX
+                               && u.STATUS_IND == "A"
+                               && (AdminAndOperatorOnly == false || (u.ACCESS_LEVEL == "A" || u.ACCESS_LEVEL == "U"))
+                               select a).Distinct().ToList();
                 }
                 catch (Exception ex)
                 {
@@ -1941,7 +1941,7 @@ namespace QRESTModel.DAL
         /// <param name="OrgID"></param>
         /// <param name="UserIDX"></param>
         /// <returns></returns>
-        public static List<SiteMonitorDisplayType> GetT_QREST_MONITORS_ByUser_OrgID(string OrgID, string UserIDX)
+        public static List<SiteMonitorDisplayType> GetT_QREST_MONITORS_ByUser_OrgID(string OrgID, string UserIDX, bool AdminOperatorOnly)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1956,6 +1956,7 @@ namespace QRESTModel.DAL
                                into lj from unit in lj.DefaultIfEmpty() //left join on monitor's unit
                                where u.USER_IDX == UserIDX
                                && u.STATUS_IND == "A"
+                               && (AdminOperatorOnly == false || (u.ACCESS_LEVEL == "A" || u.ACCESS_LEVEL == "U"))
                                && (OrgID != null ? a.ORG_ID == OrgID : true)
                                orderby a.SITE_ID
                                select new SiteMonitorDisplayType

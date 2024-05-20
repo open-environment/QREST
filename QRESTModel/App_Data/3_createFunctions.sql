@@ -184,12 +184,13 @@ CREATE VIEW [dbo].[USERLIST_DISPLAY_VIEW]
 AS
 SELECT u.USER_IDX, u.Email, u.FNAME, u.LNAME, u.LAST_LOGIN_DT, u.LockoutEndDateUtc, u.EmailConfirmed, u.CREATE_DT
 , (select case when count(*) > 0 then '1' else '0' end from T_QREST_ROLES R, T_QREST_USER_ROLES UR where R.ROLE_IDX=UR.ROLE_IDX and UR.USER_IDX=U.USER_IDX and R.Name='GLOBAL ADMIN') as Name
-, (select case when count(*) > 0 then '1' else '0' end from T_QREST_ORG_USERS OU where U.USER_IDX=OU.USER_IDX and OU.STATUS_IND='A' and OU.ACCESS_LEVEL='A') as TribalAdmin
-, (select case when count(*) > 0 then '1' else '0' end from T_QREST_ORG_USERS OU where U.USER_IDX=OU.USER_IDX and OU.STATUS_IND='A' and OU.ACCESS_LEVEL in ('A','Q')) as QaReviewer
-, (select case when count(*) > 0 then '1' else '0' end from T_QREST_ORG_USERS OU where U.USER_IDX=OU.USER_IDX and OU.STATUS_IND='A' and OU.ACCESS_LEVEL in ('A','Q','U')) as Operator
+, (select count(*) from T_QREST_ORG_USERS OU where U.USER_IDX=OU.USER_IDX and OU.STATUS_IND='A' and OU.ACCESS_LEVEL='A') as TribalAdmin
+, (select count(*) from T_QREST_ORG_USERS OU where U.USER_IDX=OU.USER_IDX and OU.STATUS_IND='A' and OU.ACCESS_LEVEL='Q') as QaReviewer
+, (select count(*) from T_QREST_ORG_USERS OU where U.USER_IDX=OU.USER_IDX and OU.STATUS_IND='A' and OU.ACCESS_LEVEL='U') as Operator
+, (select count(*) from T_QREST_ORG_USERS OU where U.USER_IDX=OU.USER_IDX and OU.STATUS_IND='A' and OU.ACCESS_LEVEL = 'R') as RedOnly
 FROM T_QREST_USERS u 
-
 GO
+
 
 
 

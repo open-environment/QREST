@@ -36,9 +36,14 @@
                                 </td>
                                 <td>
                                     @(item.ENCRYPT_IND != true ? item.SETTING_VALUE : "*********************")
-                                    @if (item.SETTING_NAME == "AIRNOW_FTP_PWD" && item.SETTING_VALUE != null )
+                                    @if (item.SETTING_NAME == "AIRNOW_FTP_PWD" && item.SETTING_VALUE != null)
                                     {
-                                        <a href="@Url.Action("TestAIRNOW")" class="btn btn-rounded btn-xs btn-primary"><i class="fa fa-pencil"></i> Test</a>
+                                        <a href="@Url.Action("TestAIRNOW")" class="btn btn-rounded btn-xs btn-primary">Test AirNow</a>
+                                    }
+
+                                    @if (item.SETTING_NAME == "CDX_GLOBAL_PWD" && item.SETTING_VALUE != null)
+                                    {
+                                        <a href="@Url.Action("CDXTest")" class="btn btn-rounded btn-xs btn-primary">Test CDX</a>
                                     }
                                 </td>
                             </tr>

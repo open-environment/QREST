@@ -16,6 +16,10 @@ using System.Web;
 using System.Web.Mvc;
 using QRESTModel.COMM;
 using Renci.SshNet;
+using System.Net.Http.Headers;
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Text;
 
 namespace QREST.Controllers
 {
@@ -1217,6 +1221,53 @@ namespace QREST.Controllers
         }
 
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult TrainingCourseCopy(vmAdminTrainingCourseEdit model)
+        {
+            if (model.course.COURSE_IDX != Guid.Empty)
+            {
+                T_QREST_TRAIN_COURSE _course = db_Train.GetT_QREST_TRAIN_COURSE_byID(model.course.COURSE_IDX);
+                List<T_QREST_TRAIN_LESSON> _lessons = db_Train.GetT_QREST_TRAIN_LESSONS_byCourseStraight(_course.COURSE_IDX);
+                if (_course != null)
+                {
+                    //copy course
+                    Guid? _newCourseID = db_Train.InsertUpdateT_QREST_TRAIN_COURSE(null, _course.COURSE_NAME + "_COPY", _course.COURSE_DESC, _course.COURSE_SEQ, false);
+                    if (_newCourseID != null && _lessons !=null)
+                    {
+                        int seq = 1;
+                        foreach (var _lesson in _lessons)
+                        {
+                            //copy lessons
+                            Guid? _newLessonID = db_Train.InsertUpdateT_QREST_TRAIN_LESSON(null, _lesson.LESSON_TITLE, _lesson.LESSON_DESC, _newCourseID.Value, seq);
+                            seq++;
+
+                            if (_newLessonID != null && _newLessonID != Guid.Empty)
+                            {
+                                //get existing less steps
+                                List<T_QREST_TRAIN_LESSON_STEP> _steps = db_Train.GetT_QREST_TRAIN_LESSON_STEPS_byLessonID(_lesson.LESSON_IDX);
+
+                                foreach (var _step in _steps)
+                                {
+                                    db_Train.InsertUpdateT_QREST_TRAIN_LESSON_STEP(null, _newLessonID.Value, _step.LESSON_STEP_SEQ, _step.LESSON_STEP_DESC, _step.REQUIRED_URL, _step.REQ_CONFIRM, _step.REQUIRED_YT_VID);
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                TempData["SUCCESS"] = "Course copied to " + _course.COURSE_NAME + "_COPY and set to Inactive";
+                return RedirectToAction("TrainingConfig");
+
+            }
+            else
+            {
+                TempData["ERROR"] = "Unable to copy course";
+                return RedirectToAction("TrainingConfig");
+            }
+            return RedirectToAction("TrainingCourse");
+        }
+
 
 
         //************************************* TEST METHODS ************************************************************
@@ -1247,6 +1298,25 @@ namespace QREST.Controllers
         
         public ActionResult Testing()
         {
+
+
+
+            using (var client = new System.Net.Http.HttpClient())
+            {
+
+                var url = "https://api.quant-aq.com/v1/account";
+                url = "https://api.quant-aq.com/v1/devices/MOD-PM-00624";
+                url = "https://api.quant-aq.com/v1/networks";
+                url = "https://api.quant-aq.com/v1/devices/MOD-PM-00624/data-by-date/raw/2024-05-10";
+                url = "https://api.quant-aq.com/v1/data/most-recent/?sn=MOD-PM-00624";
+
+                var byteArray = Encoding.ASCII.GetBytes("REMOVED:");
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                var response = client.GetAsync(url).Result;
+                var result = response.Content.ReadAsStringAsync();
+
+            }
+
             return View();
         }
 

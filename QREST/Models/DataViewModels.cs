@@ -295,6 +295,7 @@ namespace QREST.Models
 
         public bool secLvl1Ind { get; set; }  //indicates if user has Lvl1 Validation rights
         public bool secLvl2Ind { get; set; }  //indicates if user has Lvl2 Validation rights
+        public bool isReadOnly { get; set; }  //indicates if user is Read Only for site
         public string editLvl1 { get; set; }
         public string editLvl2 { get; set; }
         [Required]
@@ -327,6 +328,7 @@ namespace QREST.Models
         public string PAR_CODE { get; set; }
         public string PAR_NAME { get; set; }
         public string SITE_ID { get; set; }
+        public bool CanEdit { get; set; }
 
 
 

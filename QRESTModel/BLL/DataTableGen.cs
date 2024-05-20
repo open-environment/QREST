@@ -77,7 +77,7 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("Alert Stuck Count")
                                            });
 
-            List<SiteMonitorDisplayType> _mons = db_Air.GetT_QREST_MONITORS_ByUser_OrgID(org, UserIDX);
+            List<SiteMonitorDisplayType> _mons = db_Air.GetT_QREST_MONITORS_ByUser_OrgID(org, UserIDX, false);
             foreach (var _mon in _mons)
             {
                 dtMonitors.Rows.Add(_mon.ORG_ID, _mon.SITE_ID, _mon.PAR_CODE, _mon.PAR_NAME, _mon.METHOD_CODE, _mon.T_QREST_MONITORS.POC, _mon.T_QREST_MONITORS.DURATION_CODE,

@@ -169,6 +169,24 @@ namespace QREST.Models
             });
         }
 
+        public static IEnumerable<SelectListItem> get_ddl_my_organizations_admin(string UserIDX)
+        {
+            return db_Account.GetT_QREST_ORG_USERS_byUSER_IDX_AdminAccess(UserIDX).Select(x => new SelectListItem
+            {
+                Value = x.ORG_ID,
+                Text = x.ORG_NAME
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_my_organizations_admin_operator(string UserIDX)
+        {
+            return db_Account.GetT_QREST_ORG_USERS_byUSER_IDX_AdminOrOpperatorAccess(UserIDX).Select(x => new SelectListItem
+            {
+                Value = x.ORG_ID,
+                Text = x.ORG_ID
+            });
+        }
+
 
         public static IEnumerable<SelectListItem> get_ddl_my_sites(string OrgID, string UserIDX)
         {
@@ -179,9 +197,9 @@ namespace QREST.Models
             });
         }
 
-        public static IEnumerable<SelectListItem> get_ddl_my_sites_sampled(string OrgID, string UserIDX)
+        public static IEnumerable<SelectListItem> get_ddl_my_sites_sampled(string UserIDX, bool AdminAndOperatorOnly)
         {
-            return db_Air.GetT_QREST_SITES_Sampling_ByUser_OrgID(OrgID, UserIDX).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_SITES_Sampled_ByUser(UserIDX, AdminAndOperatorOnly).Select(x => new SelectListItem
             {
                 Value = x.SITE_IDX.ToString(),
                 Text = x.SITE_ID + " " + x.SITE_NAME
@@ -195,9 +213,9 @@ namespace QREST.Models
         /// <param name="orgId"></param>
         /// <param name="userIdx"></param>
         /// <returns></returns>
-        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string orgId, string userIdx, bool dispUnit)
+        public static IEnumerable<SelectListItem> get_ddl_my_monitors(string orgId, string userIdx, bool dispUnit, bool AdminOperatorOnly)
         {
-            return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(orgId, userIdx).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_MONITORS_ByUser_OrgID(orgId, userIdx, AdminOperatorOnly).Select(x => new SelectListItem
             {
                 Value = x.T_QREST_MONITORS.MONITOR_IDX.ToString(),
                 Text = "Site: " + x.SITE_ID + " | Par: " + x.PAR_NAME + " | POC: " + x.T_QREST_MONITORS.POC + (dispUnit == true ? " | " + x.UNIT_DESC : "")

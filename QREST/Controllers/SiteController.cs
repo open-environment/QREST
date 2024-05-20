@@ -195,6 +195,8 @@ namespace QREST.Controllers
                 RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _site.ORG_ID, false);
                 if (r != null) return r;
 
+                model.CanEdit = db_Account.CanAccessThisSite(UserIDX, _site.SITE_IDX, true);
+
                 //EDIT CASE
                 model.SITE_IDX = _site.SITE_IDX;
                 model.ORG_ID = _site.ORG_ID;
@@ -228,6 +230,11 @@ namespace QREST.Controllers
                 TempData["Error"] = "Site not found.";
                 return RedirectToAction("SiteList", "Site");
             }
+            else 
+            {
+                //insert case
+                model.CanEdit = true;
+            }
 
             InitializeSiteEditModel(model, UserIDX);
             return View(model);
@@ -237,7 +244,13 @@ namespace QREST.Controllers
         private static void InitializeSiteEditModel(vmSiteSiteEdit model, string UserIDX)
         {
             model.ddl_State = ddlHelpers.get_ddl_state();
-            model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false);
+
+
+            if (model.SITE_IDX == null)
+                model.ddl_Organization = ddlHelpers.get_ddl_my_organizations_admin(UserIDX);
+            else
+                model.ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false);
+
             model.monitors = db_Air.GetT_QREST_MONITORS_Display_bySiteIDX(model.SITE_IDX);
             model.notifiees = db_Air.GetT_QREST_SITE_NOTIFY_BySiteID(model.SITE_IDX);
             model.ddl_User = ddlHelpers.get_ddl_users(true);
@@ -534,7 +547,7 @@ namespace QREST.Controllers
             {
                 Guid idg = new Guid(id);
 
-                //reject if user doesn't have access to org
+                //only allow those who can edit this org (Admin) delete
                 T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(idg);
                 if (_site != null)
                 {
@@ -1169,7 +1182,7 @@ namespace QREST.Controllers
             {
                 selOrgID = selOrgID,
                 ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false),
-                monitors = db_Air.GetT_QREST_MONITORS_ByUser_OrgID(selOrgID, UserIDX)
+                monitors = db_Air.GetT_QREST_MONITORS_ByUser_OrgID(selOrgID, UserIDX, false)
             };
 
             return View(model);
@@ -1179,8 +1192,10 @@ namespace QREST.Controllers
         public ActionResult MonitorEdit(Guid? id, Guid? siteIDX, string refr)
         {
             string UserIDX = User.Identity.GetUserId();
+
             var model = new vmSiteMonitorEdit();
-            model.refr = refr ?? "s";
+            model.refr = refr ?? "s";  //referral (where coming from)
+
             //insert case (Site ID provided but no Monitor ID)
             if (id == null && siteIDX != null)
             {
@@ -1198,7 +1213,7 @@ namespace QREST.Controllers
                 SiteMonitorDisplayType _monitor = db_Air.GetT_QREST_MONITORS_ByID(id ?? Guid.Empty);
                 if (_monitor != null)
                 {
-                    //reject if user doesn't have access to site
+                    //reject if user doesn't have access to view site
                     RedirectToRouteResult r = CanAccessThisSite(UserIDX, _monitor.T_QREST_MONITORS.SITE_IDX, false);
                     if (r != null) return r;
 
@@ -1221,7 +1236,6 @@ namespace QREST.Controllers
                     model.ALERT_AMT_CHANGE_TYPE = _monitor.T_QREST_MONITORS.ALERT_AMT_CHANGE_TYPE;
                     model.ALERT_STUCK_TYPE = _monitor.T_QREST_MONITORS.ALERT_STUCK_TYPE;
                     model.ddl_Unit = ddlHelpers.get_ddl_ref_units_with_code_too(_monitor.PAR_CODE);
-
                 }
                 else
                 {
@@ -1242,7 +1256,11 @@ namespace QREST.Controllers
             {
                 T_QREST_SITES _site = db_Air.GetT_QREST_SITES_ByID(model.SITE_IDX.GetValueOrDefault());
                 model.SITE_NAME = _site.SITE_NAME;
+
+                //records if the person can EDIT the site
+                model.CanEdit = db_Account.CanAccessThisSite(UserIDX, model.SITE_IDX.GetValueOrDefault(), true);
             }
+
 
             return View(model);
         }

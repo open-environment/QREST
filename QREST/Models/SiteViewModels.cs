@@ -72,6 +72,9 @@ namespace QREST.Models
     {
         public Guid? SITE_IDX { get; set; }
 
+        //only site admin and operator can edit the site
+        public bool CanEdit { get; set; }
+
         [Required]
         public string ORG_ID { get; set; }
 
@@ -258,6 +261,8 @@ namespace QREST.Models
         [Required]
         public Guid? SITE_IDX { get; set; }
         public string SITE_NAME { get; set; }
+
+        public bool CanEdit { get; set; }
 
         [Required]
         [Display(Name = "Parameter Method")]

@@ -201,7 +201,7 @@ namespace QREST.Controllers
             string UserIDX = User.Identity.GetUserId();
 
             var model = new vmSharedLogActivity {
-                ddl_Organization = ddlHelpers.get_ddl_my_organizations(UserIDX, false)
+                ddl_Organization = ddlHelpers.get_ddl_my_organizations_admin(UserIDX)
             };
             return View(model);
         }

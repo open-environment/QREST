@@ -283,6 +283,26 @@ namespace QRESTModel.DAL
         }
 
 
+        public static List<T_QREST_TRAIN_LESSON> GetT_QREST_TRAIN_LESSONS_byCourseStraight(Guid cOURSE_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return (from a in ctx.T_QREST_TRAIN_LESSON.AsNoTracking()
+                            join b in ctx.T_QREST_TRAIN_COURSE_LESSON.AsNoTracking() on a.LESSON_IDX equals b.LESSON_IDX
+                            where b.COURSE_IDX == cOURSE_IDX
+                            orderby b.LESSON_SEQ
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
         public static CourseLessonDisplay GetT_QREST_TRAIN_LESSON_byLesson(Guid lESSON_IDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())

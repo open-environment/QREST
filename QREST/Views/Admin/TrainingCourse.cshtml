@@ -108,29 +108,42 @@
     }
 
 </div>
+@if (Model.course != null)
+{
+    <div class="row">
+        <div class="col-md-12">
+            @using (Html.BeginForm("TrainingCourseCopy", "Admin", FormMethod.Post, new { @id = "norepostform", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.course.COURSE_IDX)
+                <button id="btnSave" type="submit" class="btn btn-info pull-right">Copy Course</button>
 
+            }
+        </div>
+    </div>
+}
 
 @section scripts {
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/areyousure")
     @Scripts.Render("~/bundles/cleave")
 
-<script type="text/javascript">
-    // Enable dirtyforms
-    $('#norepostform').dirtyForms();
-    // Enable/disable the submit button when the state transitions between dirty and clean.
-    $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
-        if (ev.type === 'dirty') {
-            $("#btnSave").prop("disabled", false);
-        } else {
-            $("#btnSave").prop("disabled", true);
-        }
-    });
+    <script type="text/javascript">
+        // Enable dirtyforms
+        $('#norepostform').dirtyForms();
+        // Enable/disable the submit button when the state transitions between dirty and clean.
+        $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
+            if (ev.type === 'dirty') {
+                $("#btnSave").prop("disabled", false);
+            } else {
+                $("#btnSave").prop("disabled", true);
+            }
+        });
 
-    $(document).ready(function () {
+        $(document).ready(function () {
 
-    });
+        });
 
-</script>
+    </script>
 }
 

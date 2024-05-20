@@ -216,6 +216,8 @@ namespace QRESTServiceCatalog
                             else
                                 General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###NO DATA");
                         }
+                        else
+                            General.WriteToFile("Logger type not found for:" + _config.ORG_ID + " site: " + _config.SITE_ID);
 
                         General.WriteToFile("End poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);
                     }

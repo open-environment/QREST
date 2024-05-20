@@ -884,9 +884,10 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="EmailConfirmed" Type="bit" Nullable="false" />
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="Name" Type="varchar" MaxLength="1" />
-          <Property Name="TribalAdmin" Type="varchar" MaxLength="1" />
-          <Property Name="QaReviewer" Type="varchar" MaxLength="1" />
-          <Property Name="Operator" Type="varchar" MaxLength="1" />
+          <Property Name="TribalAdmin" Type="int" />
+          <Property Name="QaReviewer" Type="int" />
+          <Property Name="Operator" Type="int" />
+          <Property Name="RedOnly" Type="int" />
         </EntityType>
         <Association Name="FK__T_QREST_O__AQS_A__48FABB07">
           <End Role="T_QREST_REF_AQS_AGENCY" Type="Self.T_QREST_REF_AQS_AGENCY" Multiplicity="0..1" />
@@ -1702,7 +1703,8 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
     [USERLIST_DISPLAY_VIEW].[Name] AS [Name], 
     [USERLIST_DISPLAY_VIEW].[TribalAdmin] AS [TribalAdmin], 
     [USERLIST_DISPLAY_VIEW].[QaReviewer] AS [QaReviewer], 
-    [USERLIST_DISPLAY_VIEW].[Operator] AS [Operator]
+    [USERLIST_DISPLAY_VIEW].[Operator] AS [Operator], 
+    [USERLIST_DISPLAY_VIEW].[RedOnly] AS [RedOnly]
     FROM [dbo].[USERLIST_DISPLAY_VIEW] AS [USERLIST_DISPLAY_VIEW]</DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK__T_QREST_O__AQS_A__48FABB07" Association="Self.FK__T_QREST_O__AQS_A__48FABB07">
@@ -2085,7 +2087,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             <End Role="T_QREST_SITES" EntitySet="T_QREST_SITES" />
             <End Role="T_QREST_SITE_POLL_CONFIG" EntitySet="T_QREST_SITE_POLL_CONFIG" />
           </AssociationSet>
-          <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" />
           <EntitySet Name="T_QREST_DATA_HOURLY_LOG" EntityType="QRESTModel.T_QREST_DATA_HOURLY_LOG" />
           <AssociationSet Name="FK_T_QREST_DATA_HOURLY_LOG_O" Association="QRESTModel.FK_T_QREST_DATA_HOURLY_LOG_O">
             <End Role="T_QREST_DATA_HOURLY" EntitySet="T_QREST_DATA_HOURLY" />
@@ -2219,6 +2220,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <FunctionImport Name="sp_upgraddiagrams" />
           <EntitySet Name="MONTHLY_USAGE_FIVEMIN" EntityType="QRESTModel.MONTHLY_USAGE_FIVEMIN" />
           <EntitySet Name="MONTHLY_USAGE_HOURLY" EntityType="QRESTModel.MONTHLY_USAGE_HOURLY" />
+          <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" />
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -3444,26 +3446,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="USERLIST_DISPLAY_VIEW">
-          <Key>
-            <PropertyRef Name="USER_IDX" />
-            <PropertyRef Name="FNAME" />
-            <PropertyRef Name="LNAME" />
-            <PropertyRef Name="EmailConfirmed" />
-          </Key>
-          <Property Name="USER_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="Email" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="FNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="LNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="LAST_LOGIN_DT" Type="DateTime" Precision="0" />
-          <Property Name="LockoutEndDateUtc" Type="DateTime" Precision="3" />
-          <Property Name="EmailConfirmed" Type="Boolean" Nullable="false" />
-          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
-          <Property Name="Name" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="TribalAdmin" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="QaReviewer" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="Operator" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="T_QREST_DATA_HOURLY_LOG">
           <Key>
             <PropertyRef Name="DATA_HOURLY_LOG_IDX" />
@@ -3885,6 +3867,27 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="YR" Type="Int32" Nullable="false" />
           <Property Name="MN" Type="Int32" Nullable="false" />
           <Property Name="CNT" Type="Int32" />
+        </EntityType>
+        <EntityType Name="USERLIST_DISPLAY_VIEW">
+          <Key>
+            <PropertyRef Name="USER_IDX" />
+            <PropertyRef Name="FNAME" />
+            <PropertyRef Name="LNAME" />
+            <PropertyRef Name="EmailConfirmed" />
+          </Key>
+          <Property Name="USER_IDX" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="FNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="LNAME" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="LAST_LOGIN_DT" Type="DateTime" Precision="0" />
+          <Property Name="LockoutEndDateUtc" Type="DateTime" Precision="3" />
+          <Property Name="EmailConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="CREATE_DT" Type="DateTime" Precision="0" />
+          <Property Name="Name" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="TribalAdmin" Type="Int32" />
+          <Property Name="QaReviewer" Type="Int32" />
+          <Property Name="Operator" Type="Int32" />
+          <Property Name="RedOnly" Type="Int32" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -4695,24 +4698,6 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="USERLIST_DISPLAY_VIEW">
-            <EntityTypeMapping TypeName="QRESTModel.USERLIST_DISPLAY_VIEW">
-              <MappingFragment StoreEntitySet="USERLIST_DISPLAY_VIEW">
-                <ScalarProperty Name="Operator" ColumnName="Operator" />
-                <ScalarProperty Name="QaReviewer" ColumnName="QaReviewer" />
-                <ScalarProperty Name="TribalAdmin" ColumnName="TribalAdmin" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
-                <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />
-                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
-                <ScalarProperty Name="LAST_LOGIN_DT" ColumnName="LAST_LOGIN_DT" />
-                <ScalarProperty Name="LNAME" ColumnName="LNAME" />
-                <ScalarProperty Name="FNAME" ColumnName="FNAME" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="T_QREST_DATA_HOURLY_LOG">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_DATA_HOURLY_LOG">
               <MappingFragment StoreEntitySet="T_QREST_DATA_HOURLY_LOG">
@@ -5058,6 +5043,25 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
                 <ScalarProperty Name="CNT" ColumnName="CNT" />
                 <ScalarProperty Name="MN" ColumnName="MN" />
                 <ScalarProperty Name="YR" ColumnName="YR" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="USERLIST_DISPLAY_VIEW">
+            <EntityTypeMapping TypeName="QRESTModel.USERLIST_DISPLAY_VIEW">
+              <MappingFragment StoreEntitySet="USERLIST_DISPLAY_VIEW">
+                <ScalarProperty Name="RedOnly" ColumnName="RedOnly" />
+                <ScalarProperty Name="Operator" ColumnName="Operator" />
+                <ScalarProperty Name="QaReviewer" ColumnName="QaReviewer" />
+                <ScalarProperty Name="TribalAdmin" ColumnName="TribalAdmin" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
+                <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />
+                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
+                <ScalarProperty Name="LAST_LOGIN_DT" ColumnName="LAST_LOGIN_DT" />
+                <ScalarProperty Name="LNAME" ColumnName="LNAME" />
+                <ScalarProperty Name="FNAME" ColumnName="FNAME" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="USER_IDX" ColumnName="USER_IDX" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

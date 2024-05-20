@@ -13,6 +13,7 @@ namespace QREST.Models
         public int? MySiteCount { get; set; }
         public int? MyMonitorCount { get; set; }
         public int? MyAlertCount { get; set; }
+        public DateTime? LastPollMySites { get; set; }
         public List<T_QREST_SITES> T_QREST_SITES { get; set; }
 
         public IEnumerable<SelectListItem> ddl_MyMonitors { get; set; }

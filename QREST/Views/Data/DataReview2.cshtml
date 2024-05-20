@@ -34,10 +34,10 @@
 
         <div id="filterContainer" class="pull-out padder collapse" style="background-color:#d3d3d3">
             <strong class="text-danger">Filters: </strong>
-            <br/>
+            <br />
             <div class="line line-dashed pull-in"></div>
         </div>
-        
+
         <div id="chartContainer" class="collapse in" style="height: 1px; width: 100%;">
         </div>
 
@@ -63,7 +63,11 @@
         {
             <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, month = Model.selDtStart.Month, year = Model.selDtStart.Year })">Back</a>
         }
-        <a id="divBulk" class="btn btn-success" href="#modal-form1" data-toggle="modal" style="display:none;">Review/Edit Selected Records</a>
+
+        @if (Model.isReadOnly == false)
+        {
+            <a id="divBulk" class="btn btn-success" href="#modal-form1" data-toggle="modal" style="display:none;">Review/Edit Selected Records</a>
+        }
 
         @if (Model.RawData != null)
         {

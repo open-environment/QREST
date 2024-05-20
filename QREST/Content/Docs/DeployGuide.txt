@@ -1,4 +1,5 @@
-﻿
+﻿DEPLOY GUIDE 
+
 1. Create and populate database 
 
 	a. Run 1_createDatabase.sql
@@ -41,6 +42,7 @@
  
 	a. Create account and select your organization.
 	b. Verify your account
+
 
 7. QREST Admin task
 

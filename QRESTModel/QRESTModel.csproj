@@ -203,6 +203,9 @@
     <Compile Include="DAL\sp_helpdiagrams_Result.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\SP_IMPORT_DETECT_GAPS_Result.cs">
+      <DependentUpon>QRESTModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\SP_MONTHLY_STATS_Result.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>

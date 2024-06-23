@@ -24,12 +24,18 @@ namespace QREST.Controllers
                 MyMonitorCount = db_Air.GetT_QREST_MONITORS_ByUser_OrgID_Count(null, UserIDX),
                 MyAlertCount = db_Account.GetT_QREST_USER_NOTIFICATION_ByUserIDUnreadCount(UserIDX),
                 T_QREST_SITES = db_Air.GetT_QREST_SITES_ByUser_OrgID(null, UserIDX),
-                ddl_MyMonitors = ddlHelpers.get_monitors_sampled_by_user(UserIDX, 30),
-                //selChartMon = "fb0dec3d-4275-4b89-b124-00e40fa37f8e"
+                ddl_MyMonitors = ddlHelpers.get_monitors_sampled_by_user(UserIDX, 30)
             };
+            
+            //set last polling time for my sites
             var _lastSite = model.T_QREST_SITES.Where(s => s.POLLING_LAST_RUN_DT != null).OrderByDescending(s => s.POLLING_LAST_RUN_DT).FirstOrDefault();
             if (_lastSite != null)
                 model.LastPollMySites = _lastSite.POLLING_LAST_RUN_DT.Value.ToUniversalTime();
+
+            //set favorite monitor
+            var _user = db_Account.GetT_QREST_USERS_ByID(UserIDX);
+            if (_user != null && _user.FAV_MONITOR_IDX != null)
+                model.selChartMon = _user.FAV_MONITOR_IDX.ToString();
 
             if (User.IsInRole("GLOBAL ADMIN"))
                 model.SiteHealth = db_Air.GetSITE_HEALTH();
@@ -45,6 +51,23 @@ namespace QREST.Controllers
         {
             var data = db_Air.GetT_QREST_DATA_HOURLY_Last24Records(selMon);
             return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult SetFavMonitor(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return Json("Error");
+            else
+            {
+                string UserIDX = User.Identity.GetUserId();
+                var SuccInd = db_Account.SetUserFavoriteMonitor(UserIDX, new Guid(id));
+                if (SuccInd)
+                    return Json("Success");
+                else
+                    return Json("Error setting favorite.");
+            }
         }
 
 

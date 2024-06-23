@@ -23,10 +23,6 @@
                     <br />
                     <small class="text-muted text-uc">Duplicates: @Model.ImportValDupCount</small>
                 }
-                else
-                {
-
-                }
             </a>
         </div>
         <div class="col-sm-12 col-md-8 padder-v b-r b-light lt" style="height:115px">
@@ -88,7 +84,7 @@
 </section>
 
 
-
+@***************************************  DISPLAY ERRORS ************************************** *@
 @if (Model.ImportValErrorCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS != "VALIDATING")
 {
     <!-- DISPLAY ERRORS-->
@@ -124,6 +120,7 @@
         </div>
     </section>
 }
+@***************************************  DISPLAY DUPLICATES ************************************** *@
 else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS != "VALIDATING")
 {
     <!-- DISPLAY DUPLICATES-->
@@ -162,7 +159,65 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
         </div>
     </section>
 }
+@***************************************  DISPLAY GAPS ************************************** *@
 
+@if (Model.ImportGaps != null && Model.ImportGaps.Count > 0)
+{
+    <!-- GAPS -->
+    <section class="panel panel-danger">
+        <header class="panel-heading font-bold">Missing Data (Gaps) Found</header>
+        @using (Html.BeginForm("ImportFillGap", "Data", FormMethod.Post, new { @id = "norepostform", @class = "panel-body" }))
+        {
+            @Html.HiddenFor(model => model.T_QREST_DATA_IMPORTS.IMPORT_IDX)
+
+            <div class="alert alert-danger alert-block">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                <h4>
+                    <i class="fa fa-bell-alt"></i>Warning!
+                </h4>
+                <p>
+                    No data for the following times below are currently in QREST for the monitors you are importing
+                </p>
+            </div>
+            <div class="table-responsive">
+                <table id="gridDataGaps" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Datetime (Local)</th>
+                            <th>Datetime (UTC)</th>
+                            <th>Missing Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ImportGaps)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PAR_NAME)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Hour)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UTCHour)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.VAL_CD)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="btnSave" class="btn btn-primary">Fill Gaps Above</button>
+                </div>
+            </div>
+        }
+    </section>
+}
 
 
 @section Scripts {

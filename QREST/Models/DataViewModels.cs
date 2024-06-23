@@ -214,6 +214,7 @@ namespace QREST.Models
         public int ImportSuccCount { get; set; }
         public List<T_QREST_DATA_IMPORT_TEMP> TempDupRecords { get; set; }
         public double durationSecs { get; set; }
+        public List<SP_IMPORT_DETECT_GAPS_Result> ImportGaps { get; set; }
     }
 
 

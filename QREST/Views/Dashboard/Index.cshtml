@@ -167,7 +167,7 @@
                 <div class="input-group">
                     @Html.DropDownListFor(model => model.selChartMon, Model.ddl_MyMonitors, new { @class = "form-control ", @onchange = "getDataChart()" })
                     <span class="input-group-btn">
-                        <button class="btn btn-danger" type="button" data-toggle="tooltip" data-original-title="Favorite"><i class="fa fa-heart-o"></i></button>
+                        <button id="btnFavorite" class="btn @(Model.selChartMon!=null ?"btn-danger":"") " type="button" data-toggle="tooltip" data-original-title="@(Model.selChartMon!=null ? "Favorite":"Set as Favorite")"><i class="fa fa-heart-o"></i></button>
                     </span>
                 </div>
                 <div class="text-center m-b-n m-t-sm">
@@ -211,6 +211,10 @@
     $(document).ready(function () {
         moment.updateLocale(moment.locale(), { invalidDate: "" });
         getDataChart();
+
+
+
+
     });
 
     $("#btnHealth").click(function () {
@@ -325,6 +329,24 @@
         }
 
 
+    //******************set favorite *******************
+    $(document).on('click', '#btnFavorite', function () {
+        $(this).addClass('btn-danger');
+        $(this).attr('data-original-title', 'Favorite');
+
+        $.post('@Url.Action("SetFavMonitor", "Dashboard")', { id: $("#selChartMon").val() })
+            .done(function (response) {
+                if (response == "Success")
+                    toastr.success("Favorite saved.");
+                else
+                    toastr.warning(response);
+            }).fail(function (data) {
+                toastr.warning("Unable to save");
+            });
+    });
+
+    $('#selChartMon').on('change')
+
     function showDefaultText(chart, text) {
 
         var isEmpty = !(chart.options.data[0].dataPoints && chart.options.data[0].dataPoints.length > 0);
@@ -432,4 +454,3 @@
 
 </script>
 }
-

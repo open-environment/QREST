@@ -766,6 +766,7 @@
           <Property Name="CREATE_DT" Type="datetime2" Precision="0" />
           <Property Name="MODIFY_USER_IDX" Type="nvarchar" MaxLength="128" />
           <Property Name="MODIFY_DT" Type="datetime2" Precision="0" />
+          <Property Name="FAV_MONITOR_IDX" Type="uniqueidentifier" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'QREST.dbo.AIRNOW_LAST_HOUR' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -1503,6 +1504,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
         <Function Name="SP_IMPORT_DETECT_DUPES" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="impidx" Type="uniqueidentifier" Mode="In" />
         </Function>
+        <Function Name="SP_IMPORT_DETECT_GAPS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="importIdx" Type="uniqueidentifier" Mode="In" />
+        </Function>
         <Function Name="SP_LATEST_POLLED_DATE" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="siteid" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="durcode" Type="varchar" Mode="In" />
@@ -2221,6 +2225,9 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="MONTHLY_USAGE_FIVEMIN" EntityType="QRESTModel.MONTHLY_USAGE_FIVEMIN" />
           <EntitySet Name="MONTHLY_USAGE_HOURLY" EntityType="QRESTModel.MONTHLY_USAGE_HOURLY" />
           <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" />
+          <FunctionImport Name="SP_IMPORT_DETECT_GAPS" ReturnType="Collection(QRESTModel.SP_IMPORT_DETECT_GAPS_Result)">
+            <Parameter Name="importIdx" Mode="In" Type="Guid" />
+          </FunctionImport>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
           <Key>
@@ -2606,6 +2613,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_USER_LOGINS" Relationship="QRESTModel.FK_AspNetUserLogins_Users_UserId" FromRole="T_QREST_USERS" ToRole="T_QREST_USER_LOGINS" />
           <NavigationProperty Name="T_QREST_ROLES" Relationship="QRESTModel.T_QREST_USER_ROLES" FromRole="T_QREST_USERS" ToRole="T_QREST_ROLES" />
           <NavigationProperty Name="T_QREST_SITE_NOTIFY" Relationship="QRESTModel.FK_T_QREST_SITE_NOTIFY_U" FromRole="T_QREST_USERS" ToRole="T_QREST_SITE_NOTIFY" />
+          <Property Name="FAV_MONITOR_IDX" Type="Guid" />
         </EntityType>
         <Association Name="FK__T_QREST_O__ORG_I__4BD727B2">
           <End Type="QRESTModel.T_QREST_ORGANIZATIONS" Role="T_QREST_ORGANIZATIONS" Multiplicity="1">
@@ -3889,6 +3897,14 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <Property Name="Operator" Type="Int32" />
           <Property Name="RedOnly" Type="Int32" />
         </EntityType>
+        <ComplexType Name="SP_IMPORT_DETECT_GAPS_Result">
+          <Property Type="Guid" Name="MONITOR_IDX" Nullable="false" />
+          <Property Type="String" Name="PAR_CODE" Nullable="false" MaxLength="6" />
+          <Property Type="String" Name="PAR_NAME" Nullable="false" MaxLength="100" />
+          <Property Type="DateTime" Name="Hour" Nullable="false" />
+          <Property Type="DateTime" Name="UTCHour" Nullable="true" />
+          <Property Type="String" Name="VAL_CD" Nullable="false" MaxLength="4" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4237,6 +4253,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_USERS">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_USERS">
               <MappingFragment StoreEntitySet="T_QREST_USERS">
+                <ScalarProperty Name="FAV_MONITOR_IDX" ColumnName="FAV_MONITOR_IDX" />
                 <ScalarProperty Name="MODIFY_DT" ColumnName="MODIFY_DT" />
                 <ScalarProperty Name="MODIFY_USER_IDX" ColumnName="MODIFY_USER_IDX" />
                 <ScalarProperty Name="CREATE_DT" ColumnName="CREATE_DT" />
@@ -5065,6 +5082,18 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_IMPORT_DETECT_GAPS" FunctionName="QRESTModel.Store.SP_IMPORT_DETECT_GAPS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="QRESTModel.SP_IMPORT_DETECT_GAPS_Result">
+                <ScalarProperty Name="MONITOR_IDX" ColumnName="MONITOR_IDX" />
+                <ScalarProperty Name="PAR_CODE" ColumnName="PAR_CODE" />
+                <ScalarProperty Name="PAR_NAME" ColumnName="PAR_NAME" />
+                <ScalarProperty Name="Hour" ColumnName="Hour" />
+                <ScalarProperty Name="UTCHour" ColumnName="UTCHour" />
+                <ScalarProperty Name="VAL_CD" ColumnName="VAL_CD" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

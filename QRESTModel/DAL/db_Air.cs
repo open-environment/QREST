@@ -4098,9 +4098,12 @@ namespace QRESTModel.DAL
                             foreach (SitePollingConfigDetailType _item in _pollConfigDtl)
                             {
                                 //****************************** START COLUMN POLLUTANT READING******************************************************************************
-                                string dATA_VALUE = cols[(_item.COL ?? 1) - 1]?.Trim();
+                                //string dATA_VALUE = cols[(_item.COL ?? 1) - 1]?.Trim();
+                                string dATA_VALUE = (_item.COL.HasValue && _item.COL.Value > 0 && _item.COL.Value <= cols.Length)
+                                    ? cols[_item.COL.Value - 1]?.Trim()
+                                    : null;
 
-                                if (dATA_VALUE.Length > 0)
+                                if (dATA_VALUE != null && dATA_VALUE.Length > 0)
                                 {
                                     T_QREST_DATA_IMPORT_TEMP f = new T_QREST_DATA_IMPORT_TEMP
                                     {
@@ -5366,5 +5369,21 @@ namespace QRESTModel.DAL
         }
 
 
+
+        public static List<SP_IMPORT_DETECT_GAPS_Result> SP_IMPORT_DETECT_GAPS(Guid iMPORT_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.SP_IMPORT_DETECT_GAPS(iMPORT_IDX).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
     }
 }

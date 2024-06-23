@@ -476,5 +476,14 @@ namespace QRESTModel.DAL
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("sp_upgraddiagrams");
         }
+    
+        public virtual ObjectResult<SP_IMPORT_DETECT_GAPS_Result> SP_IMPORT_DETECT_GAPS(Nullable<System.Guid> importIdx)
+        {
+            var importIdxParameter = importIdx.HasValue ?
+                new ObjectParameter("importIdx", importIdx) :
+                new ObjectParameter("importIdx", typeof(System.Guid));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_IMPORT_DETECT_GAPS_Result>("SP_IMPORT_DETECT_GAPS", importIdxParameter);
+        }
     }
 }

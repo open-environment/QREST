@@ -185,6 +185,28 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static bool SetUserFavoriteMonitor(string userIDX, Guid mONITOR_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var e = ctx.T_QREST_USERS.Where(x => x.USER_IDX == userIDX).FirstOrDefault();
+                    if (e != null)
+                    {
+                        e.FAV_MONITOR_IDX = mONITOR_IDX;
+                        ctx.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
 
         //****************** T_QREST_USER_ROLES*************************************
         public static List<T_QREST_ROLES> GetT_QREST_ROLESNotInUserIDX(string userIDX)

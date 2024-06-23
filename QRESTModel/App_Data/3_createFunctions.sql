@@ -874,6 +874,7 @@ BEGIN
 	--20201117 added forcing hourly data rounded to nearest hour
 	--20220404 added AQS "A" import type
 	--20230706 added writing import count and import date range
+	--20240603 fix max date calculation
 
 	--get summary type to calculate
 	select @import_typ=T.IMPORT_TYPE, @recalc_ind=T.RECALC_IND
@@ -947,7 +948,7 @@ BEGIN
 	declare @min_dt datetime2(0);
 	declare @max_dt datetime2(0);
 
-	select @import_count = count(*), @min_dt = min(DATA_DTTM_LOCAL), @max_dt = min(DATA_DTTM_LOCAL) from T_QREST_DATA_IMPORT_TEMP where IMPORT_IDX = @import_idx;
+	select @import_count = count(*), @min_dt = min(DATA_DTTM_LOCAL), @max_dt = max(DATA_DTTM_LOCAL) from T_QREST_DATA_IMPORT_TEMP where IMPORT_IDX = @import_idx;
 
 	DELETE FROM T_QREST_DATA_IMPORT_TEMP where IMPORT_IDX = @import_idx;
 
@@ -1408,6 +1409,67 @@ BEGIN
 
 END;
 
+
+GO
+
+--&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&[SP_IMPORT_DETECT_GAPS]&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+CREATE PROCEDURE [dbo].[SP_IMPORT_DETECT_GAPS] 
+	@importIdx uniqueidentifier
+AS
+BEGIN 
+	--PROCEDURE DESCRIPTION
+	-------------------------
+	--for a manual import of hourly data, finds any data gaps and returns data for the gaps. 
+	--this could include different gaps for different monitors within the import
+
+	DECLARE @timeOffset int;
+
+	-- Determine the time difference in hours between DATA_DTTM_LOCAL and DATA_DTTM_UTC
+	SELECT TOP 1 @timeOffset = DATEDIFF(hour, DATA_DTTM_UTC, DATA_DTTM_LOCAL)
+	FROM [dbo].[T_QREST_DATA_HOURLY]
+	WHERE IMPORT_IDX = @importIdx;
+
+	WITH MonitorDateRanges AS (
+		SELECT 
+			MONITOR_IDX,
+			MIN(DATA_DTTM_LOCAL) AS MinDate,
+			MAX(DATA_DTTM_LOCAL) AS MaxDate
+		FROM [dbo].[T_QREST_DATA_HOURLY]
+		WHERE IMPORT_IDX = @importIdx
+		GROUP BY MONITOR_IDX
+	),
+	AllHours AS (
+		-- Get all possible hours for the range of each monitor
+		SELECT 
+			m.MONITOR_IDX,
+			h.HR AS Hour
+		FROM MonitorDateRanges m
+		CROSS JOIN [dbo].[T_SYS_HR] h
+		WHERE h.HR BETWEEN m.MinDate AND m.MaxDate
+	),
+	ExistingHours AS (
+		-- Get the existing hourly data points
+		SELECT 
+			MONITOR_IDX,
+			DATA_DTTM_LOCAL AS Hour
+		FROM [dbo].[T_QREST_DATA_HOURLY]
+		WHERE IMPORT_IDX = @importIdx
+	)
+	SELECT 
+		a.MONITOR_IDX, P.PAR_CODE, P.PAR_NAME,
+		a.Hour, 
+		DATEADD(hour, -@timeOffset, a.Hour) AS UTCHour, 'LOST' as VAL_CD
+	FROM AllHours a
+	LEFT JOIN ExistingHours e ON a.MONITOR_IDX = e.MONITOR_IDX AND a.Hour = e.Hour
+	INNER JOIN T_QREST_MONITORS M on a.MONITOR_IDX = M.MONITOR_IDX
+	INNER JOIN T_QREST_REF_PAR_METHODS RPM on M.PAR_METHOD_IDX = RPM.PAR_METHOD_IDX
+	INNER JOIN T_QREST_REF_PARAMETERS P on RPM.PAR_CODE = P.PAR_CODE
+	WHERE e.Hour IS NULL
+	ORDER BY a.MONITOR_IDX, a.Hour
+	-- Set a high recursion limit to handle large date ranges
+	OPTION (MAXRECURSION 32767);
+END;
 
 GO
 

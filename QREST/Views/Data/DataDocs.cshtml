@@ -1,4 +1,5 @@
-﻿@model QREST.Models.vmDataDocs
+﻿@using QREST.App_Logic.BusinessLogicLayer
+@model QREST.Models.vmDataDocs
 @{
     ViewBag.Title = "Supporting Documentation";
     ViewBag.HelpLink = "Data-Review";
@@ -18,8 +19,7 @@
                         <thead>
                             <tr>
                                 <th class="fit"></th>
-                                <th>Doc Name</th>
-                                <th>Type</th>
+                                <th>Document</th>
                                 <th>Applicable Dates</th>
                                 <th>Notes</th>
                             </tr>
@@ -37,13 +37,9 @@
                                             <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
                                         </div>
                                     }
-                                    <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-download"></i></a>
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.DOC_NAME)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.DOC_FILE_TYPE)
+                                    <a class="font-bold" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-2x @UtilsText.getFontAwesomeIconFromMIME(item.DOC_FILE_TYPE) text-dark"></i> <u>@item.DOC_NAME</u></a>
                                 </td>
                                 <td>
                                     @if (item.START_DT != null)
@@ -82,7 +78,6 @@
                             <tr>
                                 <th class="fit"></th>
                                 <th>Doc Name</th>
-                                <th>Type</th>
                                 <th>Applicable Dates</th>
                                 <th>Notes</th>
                             </tr>
@@ -100,13 +95,9 @@
                                             <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
                                         </div>
                                     }
-                                    <a class="btn btn-rounded btn-xs btn-dark" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-download"></i></a>
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.DOC_NAME)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.DOC_FILE_TYPE)
+                                    <a class="font-bold" href="@Url.Action("DataDocsDownload", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-2x @UtilsText.getFontAwesomeIconFromMIME(item.DOC_FILE_TYPE) text-dark"></i> <u>@item.DOC_NAME</u></a>
                                 </td>
                                 <td>
                                     @if (item.START_DT != null)

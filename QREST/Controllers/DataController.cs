@@ -303,6 +303,7 @@ namespace QREST.Controllers
 
 
         public ActionResult ImportStatus(Guid? id) {
+
             var model = new vmImportStatus
             {
                 T_QREST_DATA_IMPORTS = db_Air.GetT_QREST_DATA_IMPORTS_byID(id.GetValueOrDefault()),
@@ -318,10 +319,15 @@ namespace QREST.Controllers
 
                 if (model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "IMPORTED")
                 {
+                    //get imported data counts
                     if (model.T_QREST_DATA_IMPORTS.IMPORT_TYPE=="F")
                         model.ImportTotalCount = db_Air.GetT_QREST_DATA_FIVE_MINcountByImportIDX(id.GetValueOrDefault());
                     else
                         model.ImportTotalCount = db_Air.GetT_QREST_DATA_HOURLYcountByImportIDX(id.GetValueOrDefault());
+
+                    //check if there are Data Gaps and display if there are
+                    model.ImportGaps = db_Air.SP_IMPORT_DETECT_GAPS(model.T_QREST_DATA_IMPORTS.IMPORT_IDX);
+
                 }
                 else
                     model.ImportTotalCount = db_Air.GetT_QREST_DATA_IMPORT_TEMP_Count(id.GetValueOrDefault());
@@ -474,6 +480,53 @@ namespace QREST.Controllers
             { }
 
             return null;
+        }
+
+
+        public FileResult ImportRawFileDownload(Guid? id)
+        {
+            try
+            {
+                T_QREST_DATA_IMPORTS _imp = db_Air.GetT_QREST_DATA_IMPORTS_byID(id.GetValueOrDefault());
+                if (_imp != null && _imp.SUBMISSION_FILE != null)
+                {
+                    var byteArray = System.Text.Encoding.UTF8.GetBytes(_imp.SUBMISSION_FILE);
+                    var stream = new MemoryStream(byteArray);
+                    return File(stream, "text/plain", "data.txt");
+                }
+                else
+                    TempData["Error"] = "No data found to export";
+            }
+            catch
+            { }
+
+            return null;
+        }
+
+
+        [HttpPost]
+        public ActionResult ImportFillGap(vmImportStatus model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //check if there are Data Gaps and display if there are
+            model.ImportGaps = db_Air.SP_IMPORT_DETECT_GAPS(model.T_QREST_DATA_IMPORTS.IMPORT_IDX);
+
+            if (model.ImportGaps != null && model.ImportGaps.Count > 0)
+            {
+                foreach (var _item in model.ImportGaps)
+                {
+                    db_Air.InsertUpdateT_QREST_DATA_HOURLY(_item.MONITOR_IDX, _item.Hour, _item.UTCHour, 9, null, null, true, "LOST", model.T_QREST_DATA_IMPORTS.IMPORT_IDX);
+                }
+
+                TempData["Success"] = "Missing data filled";
+            }
+            else
+            {
+                TempData["Error"] = "No gaps to fill.";
+            }
+
+            return RedirectToAction("ImportStatus", new { id = model.T_QREST_DATA_IMPORTS.IMPORT_IDX });           
         }
 
 

@@ -615,6 +615,7 @@ CREATE TABLE [T_QREST_SITE_POLL_CONFIG] (
 	--[LOCAL_TIMEZONE] varchar(4),
 	[TIME_POLL_TYPE] varchar(1),
 	[LOGGER_FILE_NAME] varchar(30),
+	[LOGGER_RESP_DELAY_MS] int,
     [ACT_IND] bit NOT NULL,
 	[CREATE_USER_IDX] nvarchar(128),
 	[CREATE_DT] datetime2(0),

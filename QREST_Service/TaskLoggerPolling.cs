@@ -61,7 +61,19 @@ namespace QRESTServiceCatalog
                         //****************** ZENO OR SUTRON CCSAIL DATA LOGGER *********************************************************
                         if (_config.LOGGER_TYPE == "ZENO" || _config.LOGGER_TYPE == "SUTRON")
                         {
-                            CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, "DL" + recCount + ",", _config.SITE_ID);
+                            //get latest date value that was polled. If in last 10 days then send date range, otherwide query for today
+                            string msg = "DL" + recCount;
+                            DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
+                            if (latestValue!= null)
+                                msg = "DA" + latestValue.Value.ToString("yyMMddHHmm") + "0060";
+
+                            //fix weird bug in zeno logger where if polling on the 55th minute? 
+                            if (msg.Substring(10, 2) == "55")
+                                msg = msg.Substring(0, 11) + '0' + msg.Substring(12);
+
+                            General.WriteToFile("ZENO/SUTRON message: " + msg);
+
+                            CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, msg + ",", _config.SITE_ID, _config.LOGGER_RESP_DELAY_MS);
                             if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
                             {
                                 //send the entire text response to the file parser routine

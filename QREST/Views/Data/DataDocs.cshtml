@@ -31,11 +31,14 @@
                                 <td class="fit" style="white-space: nowrap; width: 1%;">
                                     @if (Model.CanEdit)
                                     {
-                                        <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" data-start="@item.START_DT" data-end="@item.END_DT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
-                                        <div class="delete-section" style="display:inline-block;">
-                                            <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
-                                        </div>
+                                        if (item.START_DT != null)
+                                        {
+                                            <a href="#modal-formPhoto" class="btn btn-rounded btn-xs btn-primary edit-it" data-toggle="modal" data-id="@item.ASSESS_DOC_IDX" data-desc="@item.DOC_COMMENT" data-start="@item.START_DT" data-end="@item.END_DT" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
+                                            <div class="delete-section" style="display:inline-block;">
+                                                <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESS_DOC_IDX" data-delete-path="" data-delete-p="/Data/DataDocsDelete"><b>Confirm Delete</b></div>
+                                            </div>
+                                        }
                                     }
                                 </td>
                                 <td>
@@ -44,11 +47,14 @@
                                 <td>
                                     @if (item.START_DT != null)
                                     {@item.START_DT.Value.ToString("d");
+                                        <span>-</span>
                                 }
-                                    -
                                     @if (item.END_DT != null)
                                     {@item.END_DT.Value.ToString("d");
                                 }
+                                    @if (item.START_DT == null && item.END_DT == null)
+                                    {<span>(Site-wide document)</span> 
+                                    }
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.DOC_COMMENT)

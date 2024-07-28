@@ -47,6 +47,7 @@ namespace QRESTModel.DAL
         public List<string> NotifyUsers { get; set; }
         public bool? AIRNOW_IND { get; set; }
         public string ConnectivityStatus { get; set; }
+        public int? LOGGER_RESP_DELAY_MS { get; set; }
     }
 
     public class SitePollingConfigTypeExtended : SitePollingConfigType
@@ -997,7 +998,8 @@ namespace QRESTModel.DAL
                                    TIME_FORMAT = b.TIME_FORMAT,
                                    LOCAL_TIMEZONE = a.LOCAL_TIMEZONE,
                                    TIME_POLL_TYPE = b.TIME_POLL_TYPE,
-                                   LOGGER_FILE_NAME = b.LOGGER_FILE_NAME
+                                   LOGGER_FILE_NAME = b.LOGGER_FILE_NAME,
+                                   LOGGER_RESP_DELAY_MS = b.LOGGER_RESP_DELAY_MS
                                }).ToList();
 
                     return xxx;
@@ -4701,7 +4703,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<AssessDocDisplay> GetT_QREST_ASSESS_DOCS_BySite(Guid sITE_IDX, DateTime? startDate, DateTime? endDate)
+        public static List<AssessDocDisplay> GetT_QREST_ASSESS_DOCS_BySite(Guid sITE_IDX, DateTime? startDate, DateTime? endDate, bool siteWideInd = false)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -4721,22 +4723,29 @@ namespace QRESTModel.DAL
                     if (startDate == null) startDate = System.DateTime.Now.AddYears(-20);
                     if (endDate == null) endDate = System.DateTime.Now.AddYears(20);
 
-                    return (from a in ctx.T_QREST_ASSESS_DOCS.AsNoTracking()
-                            where a.SITE_IDX == sITE_IDX
-                            && a.MONITOR_IDX == null
-                            && ((a.START_DT >= startDate && a.START_DT <= endDate) || (a.END_DT >= startDate && a.END_DT <= endDate) || (a.START_DT <= startDate && a.END_DT >= endDate))
-                            select new AssessDocDisplay
-                            {
-                                ASSESS_DOC_IDX = a.ASSESS_DOC_IDX,
-                                DOC_NAME = a.DOC_NAME,
-                                DOC_TYPE = a.DOC_TYPE,
-                                DOC_FILE_TYPE = a.DOC_FILE_TYPE,
-                                DOC_SIZE = a.DOC_SIZE,
-                                DOC_COMMENT = a.DOC_COMMENT,
-                                DOC_AUTHOR = a.DOC_AUTHOR,
-                                START_DT = a.START_DT,
-                                END_DT = a.END_DT
-                            }).ToList();
+                    var xxx = (from a in ctx.T_QREST_ASSESS_DOCS.AsNoTracking()
+                               where a.SITE_IDX == sITE_IDX
+                               && a.MONITOR_IDX == null
+                               //&& ((a.START_DT >= startDate && a.START_DT <= endDate) || (a.END_DT >= startDate && a.END_DT <= endDate) || (a.START_DT <= startDate && a.END_DT >= endDate))
+                               select new AssessDocDisplay
+                               {
+                                   ASSESS_DOC_IDX = a.ASSESS_DOC_IDX,
+                                   DOC_NAME = a.DOC_NAME,
+                                   DOC_TYPE = a.DOC_TYPE,
+                                   DOC_FILE_TYPE = a.DOC_FILE_TYPE,
+                                   DOC_SIZE = a.DOC_SIZE,
+                                   DOC_COMMENT = a.DOC_COMMENT,
+                                   DOC_AUTHOR = a.DOC_AUTHOR,
+                                   START_DT = a.START_DT,
+                                   END_DT = a.END_DT
+                               });
+
+                    if (siteWideInd == true)
+                        xxx = xxx.Where(x => x.START_DT == null && x.END_DT == null);
+                    else
+                        xxx = xxx.Where(x => (x.START_DT == null && x.END_DT == null) || (x.START_DT >= startDate && x.START_DT <= endDate) || (x.END_DT >= startDate && x.END_DT <= endDate) || (x.START_DT <= startDate && x.END_DT >= endDate));
+
+                    return xxx.ToList();
                 }
                 catch (Exception ex)
                 {
@@ -5055,7 +5064,9 @@ namespace QRESTModel.DAL
                 try
                 {
                     return (from a in ctx.SITE_HEALTH.AsNoTracking()
+                            orderby a.ORG_ID
                             select a).ToList();
+
                 }
                 catch (Exception ex)
                 {

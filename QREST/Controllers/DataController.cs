@@ -1260,7 +1260,7 @@ namespace QREST.Controllers
                 endDate = eDt.GetValueOrDefault(),
                 addStartDt = sDt.GetValueOrDefault(),
                 addEndDt = eDt.GetValueOrDefault(),
-                SiteDocs = db_Air.GetT_QREST_ASSESS_DOCS_BySite(id.GetValueOrDefault(), sDt, eDt),
+                SiteDocs = db_Air.GetT_QREST_ASSESS_DOCS_BySite(id.GetValueOrDefault(), sDt, eDt, false),
                 MonDocs = db_Air.GetT_QREST_ASSESS_DOCS_ByMonitor(monid.GetValueOrDefault(), sDt, eDt)
             };
 
@@ -1328,10 +1328,8 @@ namespace QREST.Controllers
                 int succId = db_Air.DeleteT_QREST_ASSESS_DOCS(id.GetValueOrDefault());
                 if (succId == 1)
                     return Json("Success");
-                else if (succId == -1)
-                    return Json("Cannot delete Organization that still has site records. Delete sites first.");
                 else
-                    return Json("Unable to find organization to delete.");
+                    return Json("Unable to find document to delete.");
             }
         }
 

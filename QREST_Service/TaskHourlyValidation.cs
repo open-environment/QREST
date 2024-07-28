@@ -69,9 +69,12 @@ namespace QRESTServiceCatalog
 
             //then update all records to notified
             List<T_QREST_DATA_HOURLY> xxx = db_Air.GetT_QREST_DATA_HOURLY_NotNotified();
-            foreach (T_QREST_DATA_HOURLY xx in xxx)
+            if (xxx != null)
             {
-                db_Air.UpdateT_QREST_DATA_HOURLY_Notified(xx.DATA_HOURLY_IDX);
+                foreach (T_QREST_DATA_HOURLY xx in xxx)
+                {
+                    db_Air.UpdateT_QREST_DATA_HOURLY_Notified(xx.DATA_HOURLY_IDX);
+                }
             }
 
             bExecutingGenLedSvcStatus = false;

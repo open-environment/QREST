@@ -98,14 +98,14 @@ namespace QRESTModel.COMM
 
 
         /// <summary>
-        /// Creates a TCP Connection to a data logger, and then uses a SAILER command to connect to a Zeno or Sutron data logger and return the logger response, based on the input message.
+        /// Creates a TCP Connection to a data logger, and then uses a SAILER command to connect to a ZENO or SUTRON data logger and return the logger response, based on the input message.
         /// </summary>
         /// <param name="ip">Data logger IP address</param>
         /// <param name="port">Data logger port</param>
         /// <param name="message">CCSAILER command to issue to logger</param>
         /// <param name="siteID">Four digit site ID that the logger uses to define the site</param>
         /// <returns></returns>
-        public static CommMessageLog ConnectTcpClientSailer(string ip, ushort port, string message, string siteID)
+        public static CommMessageLog ConnectTcpClientSailer(string ip, ushort port, string message, string siteID, int? postSend = null)
         {
             var log = new CommMessageLog();
 
@@ -113,7 +113,7 @@ namespace QRESTModel.COMM
             LingerOption lingerOption = new LingerOption(true, 0);
 
             //Create a TCPClient object at the IP and port
-            using (TcpClient client = new TcpClient { SendTimeout = 2000, ReceiveTimeout = 2000, LingerState = lingerOption })
+            using (TcpClient client = new TcpClient { SendTimeout = 5000, ReceiveTimeout = 10000, LingerState = lingerOption })
             {
                 try
                 {
@@ -125,7 +125,9 @@ namespace QRESTModel.COMM
                         using (NetworkStream stream = client.GetStream())
                         {
                             //*************** send sailer message *****************************
-                            string xxx = SendReceiveMessage(stream, "#" + siteID + "0001" + message, 700, 700, true);
+                            string xxx = SendReceiveMessage(stream, "#" + siteID + "0001" + message, 700, postSend ?? 700, true);
+                            //string xxx = Task.Run(() => SendReceiveMessageAsync(stream, "#" + siteID + "0001" + message, 700, postSend ?? 700, true)).Result;
+
                             if (xxx != null && xxx.Length > 10)
                             {
                                 xxx = stripMessage(xxx, "#0001" + siteID); //strip unnecessary stuff from beginning of file (TO DO replace with validity check)
@@ -529,8 +531,7 @@ namespace QRESTModel.COMM
                 // ****************Send message to the connected TcpServer ********************************
                 Thread.Sleep(msWaitPreSend ?? 100); //wait for socket to be ready write data
 
-                Byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(message);
-
+                byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(message);
 
                 if (appendEOFInd)
                 {
@@ -540,7 +541,6 @@ namespace QRESTModel.COMM
                         byteSum += bytesToSend[i];
                     int mod = byteSum % 100;
 
-                    //"#00030001DL5,29"
                     var ascii = Encoding.ASCII;
                     bytesToSend = Encoding.ASCII.GetBytes(message +  mod.ToString())
                         .Concat(ascii.GetBytes(new[] { (char)3 }))
@@ -576,6 +576,84 @@ namespace QRESTModel.COMM
                 return resp;
             }
             return "TIMEOUT:" + resp;
+        }
+
+
+        public static async Task<string> SendReceiveMessageAsync(NetworkStream stream, string message, int? msWaitPreSend, int? msWaitPostSend, bool appendEOFInd, bool prependEscape = false)
+        {
+            string response = "init";
+            string responsePrev;
+
+            //cancel service call if takes longer than 1 minute
+            using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
+            {
+                try
+                {
+                    //wait for socket to be ready write data
+                    await Task.Delay(msWaitPreSend ?? 100, cancelTokenSource.Token);
+
+                    byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(message);
+
+                    if (appendEOFInd)
+                        bytesToSend = AddChecksumAndEOF(bytesToSend, message);
+
+                    if (prependEscape)
+                        bytesToSend = PrependEscapeCharacter(bytesToSend);
+
+                    await stream.WriteAsync(bytesToSend, 0, bytesToSend.Length, cancelTokenSource.Token);
+
+                    //wait for socket to begin writing response
+                    await Task.Delay(msWaitPostSend ?? 100, cancelTokenSource.Token);
+
+                    using (var ms = new MemoryStream())
+                    {
+                        byte[] data = new byte[8192];
+                        int numBytesRead;
+
+                        do
+                        {
+                            responsePrev = response;
+
+                            stream.ReadTimeout = 5000;
+                            numBytesRead = await stream.ReadAsync(data, 0, data.Length, cancelTokenSource.Token);
+                            ms.Write(data, 0, numBytesRead);
+                            response = Encoding.ASCII.GetString(ms.ToArray());
+
+                            await Task.Delay(1500, cancelTokenSource.Token);
+                        } while (stream.DataAvailable && responsePrev != response);
+
+                        return response;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    return "TIMEOUT:" + response;
+                }
+                catch (Exception ex)
+                {
+                    return "ERROR:" + ex.Message;
+                }
+            }
+        }
+
+
+        private static byte[] AddChecksumAndEOF(byte[] bytesToSend, string message)
+        {
+            int byteSum = bytesToSend.Skip(1).Sum(b => b);
+            int mod = byteSum % 100;
+
+            var ascii = Encoding.ASCII;
+            return Encoding.ASCII.GetBytes(message + mod.ToString())
+                   .Concat(ascii.GetBytes(new[] { (char)3 }))
+                   .ToArray();
+        }
+
+        private static byte[] PrependEscapeCharacter(byte[] bytesToSend)
+        {
+            byte[] newValues = new byte[bytesToSend.Length + 1];
+            newValues[0] = 0x1B;
+            Array.Copy(bytesToSend, 0, newValues, 1, bytesToSend.Length);
+            return newValues;
         }
 
 

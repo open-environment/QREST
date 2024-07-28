@@ -223,6 +223,9 @@ namespace QREST.Controllers
                 model.AIRNOW_SITE = _site.AIRNOW_SITE;
                 model.SITE_COMMENTS = _site.SITE_COMMENTS;
                 model.LOCAL_TIMEZONE = _site.LOCAL_TIMEZONE;
+
+                //docs
+                model.SiteDocs = db_Air.GetT_QREST_ASSESS_DOCS_BySite(model.SITE_IDX.GetValueOrDefault(), null, null, true);
             }
             else if (id != null)
             {
@@ -307,6 +310,8 @@ namespace QREST.Controllers
                     TempData["Error"] = "Error updating record.";
 
             }
+            else
+                TempData["Error"] = "Unable to save record.";
 
             InitializeSiteEditModel(model, UserIDX);
             return View(model);
@@ -366,6 +371,59 @@ namespace QREST.Controllers
             }
         }
 
+
+
+        [HttpPost]
+        public ActionResult SiteDocsAdd(vmSiteSiteEdit model)
+        {
+            string UserIDX = User.Identity.GetUserId();
+
+            //if (model.SiteMonInd == "E")
+            //{
+            //    Guid? SuccID = db_Air.InsertUpdatetT_QREST_ASSESS_DOCS(model.editASSESS_DOC_IDX, null, null, null, null, null, null, null, null, null, model.fileDescription, null, UserIDX);
+
+            //    if (SuccID != null)
+            //        TempData["Success"] = "Update successful";
+            //    else
+            //        TempData["Error"] = "Update failed";
+            //}
+            //else
+            //{
+                if (model.fileUpload?.ContentLength > 0)
+                {
+                    Stream stream = model.fileUpload.InputStream;
+                    byte[] _file = UtilsText.ConvertStreamToByteArray(stream);
+
+                    Guid? SuccID = db_Air.InsertUpdatetT_QREST_ASSESS_DOCS(null, model.SITE_IDX, null, null, null, _file, model.fileUpload.FileName, "",
+                        model.fileUpload.ContentType, model.fileUpload.ContentLength, model.fileDescription, "", UserIDX);
+
+                    if (SuccID != null)
+                        TempData["Success"] = "File upload successful";
+                    else
+                        TempData["Error"] = "File upload failed";
+                }
+                else
+                    TempData["Error"] = "You must select a file to upload";
+
+            //}
+
+            return RedirectToAction("SiteEdit", new { id = model.SITE_IDX });
+        }
+
+        [HttpPost]
+        public JsonResult DataDocsDelete(Guid? id)
+        {
+            if (id == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int succId = db_Air.DeleteT_QREST_ASSESS_DOCS(id.GetValueOrDefault());
+                if (succId == 1)
+                    return Json("Success");
+                else
+                    return Json("Unable to find document to delete.");
+            }
+        }
 
         [HttpGet]
         public ActionResult SiteImport(string selOrgID)
@@ -1030,9 +1088,22 @@ namespace QREST.Controllers
                     }
                     else
                     {
-                        _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), "DL" + model.recCount + ",", siteID);
+                        //get latest date value that was polled. If in last 10 days then send date range, otherwide query for today
+                        string msg = "DL" + model.recCount;
+                        DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
+
+
+                        //latestValue = new DateTime(2024, 7, 19);
+                        if (latestValue != null)
+                            msg = "DA" + latestValue.Value.ToString("yyMMddHHmm") + "00" + model.recCount.ToString("D2");
+                        //msg = "DA24072617550099";
+                        //fix weird bug in zeno logger where if pulling 
+                        if (msg.Substring(10, 2) == "55")
+                            msg = msg.Substring(0, 11) + '0' + msg.Substring(12);
+                        
+                        _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), msg + ",", siteID, _config.LOGGER_RESP_DELAY_MS);
                         if (_log.CommMessageStatus)
-                            model.loggerData = LoggerComm.stripMessage(_log.CommResponse, "#0001" + siteID);
+                            model.loggerData = msg + Environment.NewLine + LoggerComm.stripMessage(_log.CommResponse, "#0001" + siteID);
                         else
                             model.pingResults2 = new List<CommMessageLog> { _log };
                     }

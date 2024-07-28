@@ -123,9 +123,15 @@ namespace QREST.Models
         //monitors
         public List<SiteMonitorDisplayType> monitors { get; set; }
 
-        //notifiee list
+        //notify list
         public Guid? edit_notify_user_idx { get; set; }
         public List<SiteNotifyDisplay> notifiees { get; set; }
+
+        //site docs
+        public List<AssessDocDisplay> SiteDocs { get; set; }
+        public Guid? editASSESS_DOC_IDX { get; set; }
+        public HttpPostedFileBase fileUpload { get; set; }
+        public string fileDescription { get; set; }
 
     }
 

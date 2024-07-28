@@ -43,6 +43,7 @@ namespace QRESTModel.DAL
         public string TIME_POLL_TYPE { get; set; }
         public string CONFIG_DESC { get; set; }
         public string LOGGER_FILE_NAME { get; set; }
+        public Nullable<int> LOGGER_RESP_DELAY_MS { get; set; }
     
         public virtual T_QREST_REF_DURATION T_QREST_REF_DURATION { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

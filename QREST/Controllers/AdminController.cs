@@ -1265,7 +1265,6 @@ namespace QREST.Controllers
                 TempData["ERROR"] = "Unable to copy course";
                 return RedirectToAction("TrainingConfig");
             }
-            return RedirectToAction("TrainingCourse");
         }
 
 

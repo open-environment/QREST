@@ -542,6 +542,7 @@
           <Property Name="TIME_POLL_TYPE" Type="varchar" MaxLength="1" />
           <Property Name="CONFIG_DESC" Type="varchar" MaxLength="200" />
           <Property Name="LOGGER_FILE_NAME" Type="varchar" MaxLength="30" />
+          <Property Name="LOGGER_RESP_DELAY_MS" Type="int" />
         </EntityType>
         <EntityType Name="T_QREST_SITE_POLL_CONFIG_DTL">
           <Key>
@@ -2226,7 +2227,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySet Name="MONTHLY_USAGE_HOURLY" EntityType="QRESTModel.MONTHLY_USAGE_HOURLY" />
           <EntitySet Name="USERLIST_DISPLAY_VIEW" EntityType="QRESTModel.USERLIST_DISPLAY_VIEW" />
           <FunctionImport Name="SP_IMPORT_DETECT_GAPS" ReturnType="Collection(QRESTModel.SP_IMPORT_DETECT_GAPS_Result)">
-            <Parameter Name="importIdx" Mode="In" Type="Guid" />
+          <Parameter Name="importIdx" Mode="In" Type="Guid" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="T_QREST_APP_SETTINGS">
@@ -3111,6 +3112,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <NavigationProperty Name="T_QREST_SITES" Relationship="QRESTModel.FK_T_SITE_POLL_CONFIG_S" FromRole="T_QREST_SITE_POLL_CONFIG" ToRole="T_QREST_SITES" />
           <Property Name="CONFIG_DESC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="LOGGER_FILE_NAME" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="LOGGER_RESP_DELAY_MS" Type="Int32" />
         </EntityType>
         <Association Name="FK_T_SITE_POLL_CONFIG_D">
           <End Type="QRESTModel.T_QREST_REF_DURATION" Role="T_QREST_REF_DURATION" Multiplicity="0..1" />
@@ -4547,6 +4549,7 @@ warning 6002: The table/view 'QREST.dbo.USERLIST_DISPLAY_VIEW' does not have a p
           <EntitySetMapping Name="T_QREST_SITE_POLL_CONFIG">
             <EntityTypeMapping TypeName="QRESTModel.T_QREST_SITE_POLL_CONFIG">
               <MappingFragment StoreEntitySet="T_QREST_SITE_POLL_CONFIG">
+                <ScalarProperty Name="LOGGER_RESP_DELAY_MS" ColumnName="LOGGER_RESP_DELAY_MS" />
                 <ScalarProperty Name="LOGGER_FILE_NAME" ColumnName="LOGGER_FILE_NAME" />
                 <ScalarProperty Name="CONFIG_DESC" ColumnName="CONFIG_DESC" />
                 <ScalarProperty Name="TIME_POLL_TYPE" ColumnName="TIME_POLL_TYPE" />

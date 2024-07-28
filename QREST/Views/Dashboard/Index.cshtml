@@ -104,7 +104,7 @@
                                 var mn = System.DateTime.Now.Month;
                                 var yr = System.DateTime.Now.Year;
                                 var dy = System.DateTime.Now.Day;
-                                if (dtLastPoll > dtCurTime) { styl = "text-danger"; }
+                                if (dtLastPoll > dtCurTime.AddHours(1)) { styl = "text-warning"; }
                                 if (dtLastPoll < dtCurTime.AddHours(-5)) { styl = "text-danger"; }
                                 <tr class="@styl">
                                     <td>
@@ -126,7 +126,7 @@
                                         @Html.DisplayFor(modelItem => item.CURR_UTC)
                                     </td>
                                     <td>
-                                        @if (item.LAST_UTC_POLL > item.CURR_UTC)
+                                        @if (item.LAST_UTC_POLL > dtCurTime.AddHours(1))
                                         {
                                             <span><i class="fa fa-warning"></i> UTC Polling in future <i class="fa fa-warning"></i></span>
                                         }

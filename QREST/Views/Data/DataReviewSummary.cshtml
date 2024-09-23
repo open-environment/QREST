@@ -23,7 +23,7 @@
             if (Model.FiveMinGaps > 0)
             {
             <div class="alert alert-danger">
-                <b>WARNING: </b>@Model.FiveMinGaps gap(s) of missing 5 minute data were detected for this site in the past month. Click to resolve.
+                <b>WARNING: </b>@Model.FiveMinGaps gap(s) of missing 5 minute data were detected for this site in the last 30 days. Click to resolve.
                 <br/>
                 <a class=" btn btn-danger" href="@Url.Action("FillGaps", new { id = Model.selSite } )">Resolve</a>
             </div>

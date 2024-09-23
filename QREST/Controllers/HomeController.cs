@@ -230,10 +230,15 @@ namespace QREST.Controllers
 
 
         [HttpGet]
-        public ActionResult Help()
+        public ActionResult Help(string s)
         {
+            //s with come in with -
             var model = new vmHomeHelp();
-            model.HelpTopics = db_Ref.GetT_QREST_HELP_DOCS_Grouped();
+            model.HelpTopicsLeft = db_Ref.GetT_QREST_HELP_DOCS_Grouped();
+            model.HelpTopics = db_Ref.GetT_QREST_HELP_DOCS_GroupedByID(s?.Replace("-"," "));
+            model.selSection = s;
+            model.selCat = model.HelpTopics.FirstOrDefault().HELP_CAT;
+            
             return View(model);
         }
 

@@ -22,6 +22,7 @@ namespace QRESTModel.DAL
     {
         public string HELP_CAT { get; set; }
         public List<T_QREST_HELP_DOCS> T_QREST_HELP_DOCS { get; set; }
+        public List<string> HELP_TITLELEft { get; set; }
     }
 
     public class AgencyImportType
@@ -563,10 +564,43 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_HELP_DOCS
                             group a by a.HELP_CAT into catGrp
                             orderby catGrp.Min(r => r.SORT_SEQ)
-                            select new HelpDisplay { 
-                                HELP_CAT = catGrp.Key, 
-                                T_QREST_HELP_DOCS = (from z in ctx.T_QREST_HELP_DOCS where z.HELP_CAT == catGrp.Key orderby z.SORT_SEQ select z).ToList() 
-                        }).ToList();
+                            select new HelpDisplay
+                            {
+                                HELP_CAT = catGrp.Key,
+                                HELP_TITLELEft = (from z in catGrp
+                                                     orderby z.SORT_SEQ
+                                                     select z.HELP_TITLE).ToList()
+                            }).ToList();
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static List<HelpDisplay> GetT_QREST_HELP_DOCS_GroupedByID(string id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+
+                try
+                {
+                    var xxx = ctx.T_QREST_HELP_DOCS.Where(x => x.HELP_TITLE == id).FirstOrDefault();
+                    string cat = xxx != null ? xxx.HELP_CAT : "Getting Started";
+                        return (from a in ctx.T_QREST_HELP_DOCS
+                                where a.HELP_CAT == cat
+                                group a by a.HELP_CAT into catGrp
+                                orderby catGrp.Min(r => r.SORT_SEQ)
+                                select new HelpDisplay
+                                {
+                                    HELP_CAT = catGrp.Key,
+                                    T_QREST_HELP_DOCS = (from z in ctx.T_QREST_HELP_DOCS where z.HELP_CAT == catGrp.Key orderby z.SORT_SEQ select z).ToList()
+                                }).ToList();
+
                 }
                 catch (Exception ex)
                 {

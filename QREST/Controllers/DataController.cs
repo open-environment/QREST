@@ -80,7 +80,7 @@ namespace QREST.Controllers
                 ModelState.AddModelError("selMonitor", "Parameter required for this import type.");
 
 
-            //*********model validation for H and F *************************
+            //*********model validation for H (Hourly) and F (5-minute) *************************
             if (model.selImportType == "H" || model.selImportType == "F")
             {
                 if (model.selPollConfig == null)
@@ -93,12 +93,15 @@ namespace QREST.Controllers
                     else if (_pollConfig.DATE_COL == null && _pollConfig.TIME_COL == null)
                             ModelState.AddModelError("selPollConfig", "Selected polling config does not define date and/or time column.");
 
-                    //Verify all import config columns have units
+                    //Verify all import config columns have units. For 5-minute data with hourly calculation turned on, also make sure all have a summary operator defined
                     List<SitePollingConfigDetailType> _pollConfigDtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_pollConfig.POLL_CONFIG_IDX, false);
                     foreach (SitePollingConfigDetailType _temp in _pollConfigDtl)
                     {
                         if (_temp.COLLECT_UNIT_CODE == null || _temp.COL == null)
-                            ModelState.AddModelError("selPollConfig", "One or more parameters in your import configuration do not have a unit or column specified.");
+                            ModelState.AddModelError("selPollConfig", "One or more parameters in your Import Template do not have a unit or column specified.");
+
+                        if (model.selImportType == "F" && model.selCalc == "Y" && string.IsNullOrEmpty(_temp.SUM_TYPE))
+                            ModelState.AddModelError("selPollConfig", "One or more parameters in your Import Template do not have an hourly calculation type.");
                     }
                 }
             }
@@ -122,12 +125,12 @@ namespace QREST.Controllers
                 if (importIDX != null)
                 {
                     //if not too many records, import immediately
-                    if (model.IMPORT_BLOCK.Length < 10000000)
+                    if (model.IMPORT_BLOCK.Length < 1500000)
                         QRESTModel.BLL.ImportHelper.ImportValidateAndSaveToTemp(importIDX.GetValueOrDefault());
                     else
                     {
                         //set the import task to run now
-                        db_Ref.UpdateT_QREST_TASKS(9999, null, null, null, System.DateTime.Now, null, UserIDX, "Import");
+                        db_Ref.UpdateT_QREST_TASKS(9999, null, null, null, System.DateTime.Now.AddHours(-1), null, UserIDX, "Import");
 
                         TempData["Success"] = "Import file is large and scheduled to run in a few minutes";
                     }
@@ -423,7 +426,11 @@ namespace QREST.Controllers
                     if (_imp.IMPORT_TYPE == "H" || _imp.IMPORT_TYPE == "H1" || _imp.IMPORT_TYPE == null)
                         SuccID = db_Air.DeleteT_QREST_DATA_HOURLY_ByImportIDX(id.GetValueOrDefault());
                     else if (_imp.IMPORT_TYPE == "F")
+                    {
                         SuccID = db_Air.DeleteT_QREST_DATA_FIVE_MIN_ByImportIDX(id.GetValueOrDefault());
+                        //also delete any hourly records if they were calculated
+                        db_Air.DeleteT_QREST_DATA_HOURLY_ByImportIDX(id.GetValueOrDefault());
+                    }
 
                     if (SuccID == 1)
                     {

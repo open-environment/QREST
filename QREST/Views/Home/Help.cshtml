@@ -1,31 +1,32 @@
 ﻿@model QREST.Models.vmHomeHelp
 @{
+    Layout = "~/Views/Shared/_LayoutHelp.cshtml";
     ViewBag.Title = "Online Help";
-    ViewBag.HideTitle = true;
-    ViewBag.HideLeft = true;
-    ViewBag.HideCrumbs = true;
 }
 
 <div class="hbox stretch">
     <aside class="bg-light aside b-r animated fadeInLeftBig">
         <section class="vbox">
-            <header class="header b-b navbar">
-                <a class="btn btn-link pull-right visible-xs" data-toggle="class:show" data-target=".nav-primary"> <i class="fa fa-bars"></i> </a>
-                <a href="#" class="navbar-brand">QREST Help</a>
-            </header>
             <section class="scrollable">
                 <nav class="nav-primary hidden-xs nav-docs">
                     <ul class="nav">
-                        @foreach (var item in Model.HelpTopics)
+                        @foreach (var item in Model.HelpTopicsLeft)
                         {
                             <li class="dropdown-header b-b b-light" style="background-color: #4cc6cf; font-size: 13pt; font-weight: bold; color: #eee; padding-left: 10px;">
                                 <em>@item.HELP_CAT</em>
                             </li>
-                            foreach (var subItem in item.T_QREST_HELP_DOCS)
+                            foreach (var subItem in item.HELP_TITLELEft)
                             {
-                            <li>
-                                <a href="#@subItem.HELP_TITLE.Replace(" ", "-")" style="font-size:12px">@subItem.HELP_TITLE</a>
-                            </li>
+                                <li>
+                                    @if (item.HELP_CAT == Model.selCat)
+                                    {
+                                        <a href="#@subItem.Replace(" ", "-")" style="font-size:12px">@subItem</a>
+                                    }
+                                    else
+                                    {
+                                        <a href="?s=@subItem.Replace(" ", "-")" style="font-size:12px">@subItem</a>
+                                    }
+                                </li>
                             }
                         }
                     </ul>
@@ -33,7 +34,7 @@
             </section>
         </section>
     </aside>
-       
+
     <section id="content">
         <section class="vbox">
             <section class="scrollable bg-light lter" data-spy="scroll" data-target=".nav-primary">
@@ -42,13 +43,15 @@
 
                         @foreach (var item in Model.HelpTopics)
                         {
+                            <h2 style="background-color: #25313e; color: #adbece; padding: 5px; ">
+                                @item.HELP_CAT
+                            </h2>
                             foreach (var subItem in item.T_QREST_HELP_DOCS)
                             {
-                            <h3 id="@subItem.HELP_TITLE.Replace(" ", "-")" class="text-info">
-                                @subItem.HELP_TITLE
-                            </h3>
-                            <div class="line"></div>
-                            @Html.Raw(HttpUtility.HtmlDecode(subItem.HELP_HTML))
+                                <h3 id="@subItem.HELP_TITLE.Replace(" ", "-")" class="text-info" style="background-color: #e5e5e5; padding: 5px;">
+                                    @subItem.HELP_TITLE
+                                </h3>
+                                @Html.Raw(HttpUtility.HtmlDecode(subItem.HELP_HTML))
                             }
                         }
                         <br /><br />
@@ -61,3 +64,13 @@
         </section>
     </section>
 </div>
+@section Scripts{
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var section = '@Model.selSection';
+        if (section) {
+            window.location.hash = section;
+        }
+    });
+    </script>
+}

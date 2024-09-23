@@ -268,7 +268,7 @@
                 "columns": [
                     {
                         "render": function (data, type, row) {
-                            var txt = '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum=' + row.SUM_TYPE + ' data-monid=' + row.MONITOR_IDX + ' data-rounding=' + row.ROUNDING + ' data-adjust=' + row.ADJUST_FACTOR + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>';
+                            var txt = '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum="' + row.SUM_TYPE + '" data-monid="' + row.MONITOR_IDX + '" data-rounding=' + row.ROUNDING + ' data-adjust=' + row.ADJUST_FACTOR + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>';
                             var txt2 = '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="' + row.POLL_CONFIG_DTL_IDX + '" data-delete-p="/Data/SitePollConfigDtlDelete"><b>Confirm Delete</b></div></div>';
                             return txt + txt2;
                         }

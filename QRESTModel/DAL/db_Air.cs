@@ -78,14 +78,15 @@ namespace QRESTModel.DAL
         public string ALERT_MIN_TYPE { get; set; }
         public string ALERT_MAX_TYPE { get; set; }
         public double? ADJUST_FACTOR { get; set; }
+        public string SUM_TYPE { get; set; }
     }
+
     public class SitePollingConfigDetailTypeExtended : SitePollingConfigDetailType
     {
         public SitePollingConfigDetailTypeExtended()
         {
 
         }
-        public string SUM_TYPE { get; set; }
         public int? ROUNDING { get; set; }
         public string ORG_ID { get; set; }
         public string SITE_ID { get; set; }
@@ -1401,7 +1402,8 @@ namespace QRESTModel.DAL
                                 ALERT_MAX_TYPE = b.ALERT_MAX_TYPE,
                                 ALERT_MAX_VALUE = b.ALERT_MAX_VALUE,
                                 ADJUST_FACTOR = a.ADJUST_FACTOR ?? 1,
-                                PAR_CODE = c.PAR_CODE
+                                PAR_CODE = c.PAR_CODE,
+                                SUM_TYPE = a.SUM_TYPE
                             }).ToList();
 
                 }
@@ -3191,6 +3193,7 @@ namespace QRESTModel.DAL
                             where a.VAL0_NOTIFY_IND == false
                             && a.VAL_IND == true
                             && a.VAL_CD != null
+                            && a.VAL_CD != ""
                             select sn.NOTIFY_USER_IDX).Distinct().ToList();
                 }
                 catch (Exception ex)
@@ -3377,17 +3380,13 @@ namespace QRESTModel.DAL
                             else
                                 e.VAL_CD = dATA_VALUE;
                         }
-
-
-
                     }
 
                     if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
                     if (vAL_IND != null) e.VAL_IND = vAL_IND;
-                    if (vAL_CD != null) e.VAL_CD = vAL_CD.SubStringPlus(0, 5);
+                    if (!string.IsNullOrEmpty(vAL_CD)) e.VAL_CD = vAL_CD.SubStringPlus(0, 5);
                     if (iMPORT_ID != null) e.IMPORT_IDX = iMPORT_ID;
                     e.MODIFY_DT = System.DateTime.Now;
-
 
                     if (insInd)
                         ctx.T_QREST_DATA_HOURLY.Add(e);
@@ -5241,6 +5240,7 @@ namespace QRESTModel.DAL
             {
                 try
                 {
+                    ctx.Database.CommandTimeout = 600;
                     return ctx.SP_IMPORT_DATA_FROM_TEMP(iMPORT_IDX);
                 }
                 catch (Exception ex)

@@ -13,6 +13,9 @@ namespace QREST.Models
 
     public class vmHomeHelp {
         public List<HelpDisplay> HelpTopics { get; set; }
+        public List<HelpDisplay> HelpTopicsLeft { get; set; }
+        public string selSection { get; set; }
+        public string selCat { get; set; }
     }
 
 

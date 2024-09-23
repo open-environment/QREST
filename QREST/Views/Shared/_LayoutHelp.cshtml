@@ -1,0 +1,79 @@
+﻿@using Microsoft.AspNet.Identity
+<!DOCTYPE html>
+<html lang="en" class="app">
+<head>
+    <meta charset="utf-8" />
+    <meta name="description" content="qrest, aqs, air quality, tribes, tribal environmental" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QREST - @ViewBag.Title</title>
+    <link rel="icon" href="@Url.Content("~/Content/favicon.ico")" />
+    <link rel="icon" type="image/png" sizes="32x32" href="@Url.Content("~/Content/favicon-32x32.png")">
+    <link rel="icon" type="image/png" sizes="16x16" href="@Url.Content("~/Content/favicon-16x16.png")">
+    @Styles.Render("~/Content/css/files")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="vbox">
+        <!-- HEADER -->
+        <header class="bg-dark dk header navbar navbar-fixed-top-xs" role="heading" aria-level="1">
+            <div class="navbar-header">
+                <a class="btn btn-link visible-xs" data-toggle="class:nav-off-screen,open" data-target="#nav,html">
+                    <i class="fa fa-bars"></i>
+                </a>
+                <a href="@Url.Action("Index", "Dashboard")" class="navbar-brand" data-toggle="tooltip" data-original-title="Quality Review and Exchange System for Tribes" data-placement="bottom" data-container="body"><img src="~/Content/Images/itep_logo_120.png" class="m-r-sm" alt="ITEP Logo">QREST @Html.Action("_PartialHeadEnvironment", "Shared") Online Help</a>
+                <a class="btn btn-link visible-xs dropdown-toggle" data-toggle="dropdown" data-target=".nav-user">
+                    <span class="fa fa-cog"></span>
+                </a>
+            </div>
+
+            <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user">
+
+                <li class="dropdown">
+                    @if (Request.IsAuthenticated)
+                    {
+                        using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                @User.Identity.GetUserName() <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu animated fadeInRight">
+                                <span class="arrow top"></span>
+                                <li>
+                                    <a href="@Url.Action("MyProfile", "Account")">Profile</a>
+                                </li>
+                                <li class="hidden-sm hidden-md hidden-lg">
+                                    <a href="@Url.Action("Notifications", "Account")">Notifications</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("Help", "Home")" target="_blank"><i class="fa fa-question-circle"></i> Help</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+                            </ul>
+                        }
+                    }
+                    else
+                    {
+                        <ul class="nav navbar-nav navbar-right" style="padding-right:20px;">
+                            <li>@Html.ActionLink("Register", "QRESTRegister", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
+                            <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+                        </ul>
+                    }
+
+                </li>
+            </ul>
+        </header>
+        <!-- END HEADER -->
+        <section>
+            @RenderBody()
+        </section>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/app")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

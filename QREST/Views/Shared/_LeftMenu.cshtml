@@ -244,7 +244,7 @@
             </div>
             }
             <div class="btn-group hidden-nav-xs">
-                <a href="@Url.Action("Help", "Home")/#@ViewBag.HelpLink" id="leftHelp" class="btn btn-rounded btn-sm btn-info" target="_blank"><i class="fa fa-question"></i></a>
+                <a href="@Url.Action("Help", "Home", new { s = @ViewBag.HelpLink })" id="leftHelp" class="btn btn-rounded btn-sm btn-info" target="_blank"><i class="fa fa-question"></i></a>
                 <a href="@Url.Action("Index", "Home")" id="leftMap" class="btn btn-rounded btn-sm btn-icon btn-warning"><i class="fa fa-globe" style="margin-left:8px;"></i></a>
             </div>
         </footer>

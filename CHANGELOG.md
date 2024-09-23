@@ -21,4 +21,4 @@
 - **2023-03-27** Add setting to allow tribes to lock out admins (TAMS Center) from editing tribal data
 - **2023-08-02** Add ability to retrieve data from MetOne BAM1022 devices
 
-More recent changes can be found here: [Current Change Log](https://github.com/open-environment/QREST)
+More recent changes can be found here: [Current Change Log](https://github.com/open-environment/QREST?tab=readme-ov-file#change-log)

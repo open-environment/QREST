@@ -39,6 +39,11 @@ The following diagram illustrates the various way that tribes can get data inTO 
 
 ## Change Log
 
+- **2024-09-23**
+  - **5-Minute Manual Data Import Improvements:** 
+    - Now prevents starting starting a manual import if one or more summary calculations in the import template is missing, and the option to  calculate hourly data during import is selected.
+    - When deleting a past import of 5-minute data on the Manual Import History page, now also deletes any associated calculated hourly data
+    - Various timeout settings changed to prevent system timeout on import of large 5-minute data files
 - **2024-08-18**
   - **Online Help Performance:** Improved performance of loading the online help
 - **2024-07-27**

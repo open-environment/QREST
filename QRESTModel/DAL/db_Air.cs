@@ -8,6 +8,7 @@ using EntityFramework.BulkInsert.Extensions;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using System.Data.Entity;
+using QRESTModel.net.epacdxnode.testngn;
 
 namespace QRESTModel.DAL
 {
@@ -1487,7 +1488,7 @@ namespace QRESTModel.DAL
                     if (cOL != null) e.COL = cOL;
                     if (sUM_TYPE != null) e.SUM_TYPE = sUM_TYPE;
                     if (rOUNDING != null) e.ROUNDING = rOUNDING;
-                    if (aDJUST_FACTOR != null) e.ADJUST_FACTOR = aDJUST_FACTOR;
+                    e.ADJUST_FACTOR = aDJUST_FACTOR;
 
                     if (insInd)
                         ctx.T_QREST_SITE_POLL_CONFIG_DTL.Add(e);
@@ -1727,9 +1728,9 @@ namespace QRESTModel.DAL
                                    PAR_CODE = p.PAR_CODE,
                                    PAR_NAME = p.PAR_NAME,
                                    UNIT_DESC = d.UNIT_DESC
-                               }).ToList();
-
-                    return xxx;
+                               });
+                   
+                    return xxx.ToList();
                 }
                 catch (Exception ex)
                 {
@@ -4141,6 +4142,13 @@ namespace QRESTModel.DAL
                                     //if numeric, store as numeric
                                     if (Decimal.TryParse(dATA_VALUE, out decimal val_num))
                                     {
+                                        //apply adjustment factor
+                                        if (_item.ADJUST_FACTOR != null && _item.ADJUST_FACTOR != 0)
+                                        {
+                                            dATA_VALUE = (val_num * ((decimal)_item.ADJUST_FACTOR)).ToString();
+                                            val_num = val_num * ((decimal)_item.ADJUST_FACTOR);
+                                        }
+
                                         f.DATA_VALUE = dATA_VALUE;
                                         f.DATA_VALUE_NUM = val_num;
                                     }

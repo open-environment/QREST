@@ -44,9 +44,9 @@
                         }
                         @if (Model.editLOGGER_TYPE != "WEATHER_PWS")
                         {
-                        <li data-value="1">
-                            <a id="lnkPing" href="@Url.Action("SitePollPing", "Site", new { id=Model.editPOLL_CONFIG_IDX })">Ping Connection</a>
-                        </li>
+                            <li data-value="1">
+                                <a id="lnkPing" href="@Url.Action("SitePollPing", "Site", new { id=Model.editPOLL_CONFIG_IDX })">Ping Connection</a>
+                            </li>
                         }
                         <li data-value="2">
                             <a id="lnkDownload" href="@Url.Action("DownloadTemplate", "Data", new { id=Model.editPOLL_CONFIG_IDX })">Download File Template</a>
@@ -206,7 +206,7 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group">
                                                             Local Time Zone
-                                                            @Html.DropDownListFor(model => model.editLOCAL_TIMEZONE, Model.ddl_TimeZone, "", new { @class = "form-control", @readonly="readonly" })
+                                                            @Html.DropDownListFor(model => model.editLOCAL_TIMEZONE, Model.ddl_TimeZone, "", new { @class = "form-control", @readonly = "readonly" })
                                                             @Html.ValidationMessageFor(model => model.editLOCAL_TIMEZONE)
                                                             <span class="help-block">Site's local time zone (set at site page)</span>
                                                         </div>
@@ -346,8 +346,8 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label>Monitor</label>
-                            @Html.DropDownListFor(model => model.editMONITOR_IDX, Model.ddl_Monitors, "", new { @class = "form-control" })
+                            <label>Monitor <span class="required" style="color:#ac2925;"> <span style="vertical-align: super;" class="fa fa-asterisk" data-unicode="270f"></span></span></label>
+                            @Html.DropDownListFor(model => model.editMONITOR_IDX, Model.ddl_Monitors, "", new { @class = "form-control required" })
                             <span class="field-validation-valid" data-valmsg-for="editMONITOR_IDX" data-valmsg-replace="true"></span>
                         </div>
                     </div>
@@ -355,17 +355,17 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Column</label>
+                            <label>Column <span class="required" style="color:#ac2925;"> <span style="vertical-align: super;" class="fa fa-asterisk" data-unicode="270f"></span></span></label>
                             @Html.TextBoxFor(model => model.editCOL, new { @class = "form-control", @maxlength = "2" })
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 mon5minfieldsonly">
                         <div class="form-group">
-                            <label>Summary Type</label>
-                            @Html.DropDownListFor(model => model.editSUM_TYPE, Model.ddl_SumType, "", new { @class = "form-control" })
+                            <label>Summary Type <span class="required" style="color:#ac2925;"> <span style="vertical-align: super;" class="fa fa-asterisk" data-unicode="270f"></span></span></label>
+                            @Html.DropDownListFor(model => model.editSUM_TYPE, Model.ddl_SumType, "", new { @class = "form-control required" })
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3 mon5minfieldsonly">
                         <div class="form-group">
                             <label>Rounding Decimals</label>
                             @Html.DropDownListFor(model => model.editROUNDING, Model.ddl_Rounding, "", new { @class = "form-control" })
@@ -374,10 +374,11 @@
                 </div>
                 <button type="button" class="btn btn-xs btn-warning btn-rounded m-l-xs" data-toggle="collapse" data-target="#advanced">Advanced Options</button>
                 <div id="advanced" class="row collapse">
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>Adjustment Factor</label>
                             @Html.TextBoxFor(model => model.editADJUST_FACTOR, new { @class = "form-control", @maxlength = "10" })
+                            <span class="help-block">Polled values will be multiplied by this value (leave this blank to not use)</span>
                         </div>
                     </div>
                 </div>
@@ -400,6 +401,7 @@
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/datatables")
     @Scripts.Render("~/bundles/areyousure")
+    @Scripts.Render("~/bundles/jqueryval")
 
     <script type="text/javascript">
         // Enable dirtyforms
@@ -408,13 +410,13 @@
         $('form').on('dirty.dirtyforms clean.dirtyforms', function (ev) {
             if (ev.type === 'dirty') {
                 $("#btnSave").prop("disabled", false);
-                $(".delete-section").hide();     
-                $(".modal-it").hide();     
+                $(".delete-section").hide();
+                $(".modal-it").hide();
                 $("#gridData").css({"z-index":2,"opacity":.5});
             } else {
                 $("#btnSave").prop("disabled", true);
-                $(".delete-section").show();     
-                $(".modal-it").show();     
+                $(".delete-section").show();
+                $(".modal-it").show();
                 $("#gridData").css({"z-index":2,"opacity":1});
             }
         });
@@ -456,7 +458,7 @@
                     { "data": "POLL_CONFIG_DTL_IDX", "name": "POLL_CONFIG_DTL_IDX", "autoWidth": true },
                     {
                         "render": function (data, type, row) {
-                            var txt = '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum=' + row.SUM_TYPE + ' data-monid=' + row.MONITOR_IDX + ' data-rounding=' + row.ROUNDING + ' data-adjust=' + row.ADJUST_FACTOR + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>';
+                            var txt = '<a href="#modal-form" data-toggle="modal" data-id=' + row.POLL_CONFIG_DTL_IDX + ' data-col=' + row.COL + ' data-sum="' + row.SUM_TYPE + '" data-monid=' + row.MONITOR_IDX + ' data-rounding=' + row.ROUNDING + ' data-adjust=' + row.ADJUST_FACTOR + ' class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>';
                             var txt2 = '<div class="delete-section" style="display:inline-block;"><a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a><div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="' + row.POLL_CONFIG_DTL_IDX + '" data-delete-path="@(Url.Content("~/"))" data-delete-p="/Site/SitePollConfigDtlDelete"><b>Confirm Delete</b></div></div>';
                             var act = '@Model.editACT_IND';
                             if (act == 'True')
@@ -561,6 +563,15 @@
                     $("#editADJUST_FACTOR").val(($(this).attr('data-adjust')).replace('null', ''));
                 else
                     $("#editADJUST_FACTOR").val('');
+
+                //hide summary and rounding if hourly
+                console.log($("#editRAW_DURATION_CODE").val())
+                if ($("#editRAW_DURATION_CODE").val()=="1")
+                    $(".mon5minfieldsonly").hide();
+                else
+                    $(".mon5minfieldsonly").show();
+
+
             });
 
 

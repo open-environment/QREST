@@ -34,7 +34,7 @@
                         <!-- H and N only -->
                         @Html.DropDownListFor(model => model.selPollConfig, Model.ddl_PollConfig, "--Select Import Template--", new { @class = "form-control typeh", @style = "display:none" })
 
-                        <a id="tempUrl2" class="btn btn-info m-l-none m-r-none" data-root="@Url.Action("ImportConfig")" style="display:none;" data-toggle="tooltip" data-original-title="Edit this selected Import Template" href=""><i class="fa fa-pencil"></i></a>
+                        <a id="tempUrl2" class="btn btn-info m-l-none m-r-none" data-root="@Url.Action("ImportConfig")" style="display:none;" data-toggle="tooltip" data-original-title="Edit this selected Import Template" href="" target="_blank"><i class="fa fa-pencil"></i></a>
                         <a id="tempUrl" class="btn btn-dark m-l-none m-r-none" data-root="@Url.Action("DownloadTemplate")" style="display:none;" data-toggle="tooltip" data-original-title="Download this selected Import Template" href=""><i class="fa fa-download"></i></a>
                         <a id="tempUrl3" class="btn btn-success m-l-none m-r-none" data-root="@Url.Action("ImportConfig")" style="display:none;" data-toggle="tooltip" data-original-title="Add a new Import Template for this site" href=""><i class="fa fa-plus"></i></a>
 

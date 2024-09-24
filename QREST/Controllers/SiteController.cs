@@ -861,6 +861,14 @@ namespace QREST.Controllers
         {
             if (configid != null && monid != null && col != null)
             {
+                var _config = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(configid.Value);
+                if (_config == null)
+                    return Json(new { msg = "Configuration can't be found" });
+
+                if (_config.RAW_DURATION_CODE == "H" && string.IsNullOrEmpty(sumtype))
+                    return Json(new { msg = "You must set summary type" });
+
+
                 string UserIDX = User.Identity.GetUserId();
                 SiteMonitorDisplayType _mon = db_Air.GetT_QREST_MONITORS_ByID(monid ?? Guid.Empty);
                 if (_mon != null)
@@ -870,7 +878,8 @@ namespace QREST.Controllers
                     {
                         //reject if user doesn't have access to org
                         RedirectToRouteResult r = CanAccessThisOrg(UserIDX, _site.ORG_ID, true);
-                        if (r != null) return Json(new { msg = "Access Denied" });
+                        if (r != null) 
+                            return Json(new { msg = "Access Denied" });
 
                         Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG_DTL(configdtlid, configid, monid, col, sumtype, rounding, adjustfactor, UserIDX);
                         if (succId != null)

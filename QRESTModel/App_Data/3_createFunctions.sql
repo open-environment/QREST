@@ -6,7 +6,7 @@ GO
 --TRIGGERS *******************************************************************************************************
 --TRIGGERS *******************************************************************************************************
 /****** Object:  Trigger [dbo].[TRG_UPDATE_HOURLY]    Script Date: 4/1/2022 6:30:05 PM ******/
-CREATE OR ALTER   TRIGGER [dbo].[TRG_UPDATE_HOURLY] ON [dbo].[T_QREST_DATA_FIVE_MIN]
+CREATE OR ALTER     TRIGGER [dbo].[TRG_UPDATE_HOURLY] ON [dbo].[T_QREST_DATA_FIVE_MIN]
 AFTER INSERT, UPDATE 
 AS
 BEGIN
@@ -19,11 +19,14 @@ BEGIN
 	--2/23/2020 DOUG TIMMS add calculation of TOT
 	--6/4/2020 DOUG TIMMS add numeric data value storage
 	--4/1/2022 DOUG TIMMS change storage of timezone from poll config to site
+	--9/23/2024 DOUG TIMMS fix issue where no active polling config is set
+	--                     write IMPORT_IDX to hourly
 
 	DECLARE @SumType varchar(4);
 	DECLARE @SumTemp float;
 	DECLARE @mon uniqueidentifier;
 	DECLARE @sit uniqueidentifier;
+	DECLARE @imprt uniqueidentifier;
 	DECLARE @dttm datetime; --UTC
 	DECLARE @sumVal varchar(20);
 	DECLARE @unit varchar(3);
@@ -33,10 +36,10 @@ BEGIN
 	DECLARE @calcIndYr int;
 
 	DECLARE ins_cursor CURSOR FOR 
-	SELECT distinct MONITOR_IDX, dateadd(hour, datediff(hour, 0, DATA_DTTM), 0), year(MODIFY_DT) FROM INSERTED
+	SELECT distinct MONITOR_IDX, dateadd(hour, datediff(hour, 0, DATA_DTTM), 0), year(MODIFY_DT), IMPORT_IDX FROM INSERTED
 
 	OPEN ins_cursor  
-	FETCH NEXT FROM ins_cursor INTO @mon, @dttm, @calcIndYr
+	FETCH NEXT FROM ins_cursor INTO @mon, @dttm, @calcIndYr, @imprt
 
 	WHILE @@FETCH_STATUS=0
 	BEGIN
@@ -48,6 +51,15 @@ BEGIN
 		where C.POLL_CONFIG_IDX = D.POLL_CONFIG_IDX
 		and C.ACT_IND=1
 		and D.MONITOR_IDX = @mon;
+
+		--if none found, then try to grab inactive one (for sites that only do manual import)
+		if (@SumType IS NULL)
+		BEGIN
+			select top 1 @SumType=D.SUM_TYPE, @sit=C.SITE_IDX, @precision=D.ROUNDING
+			from T_QREST_SITE_POLL_CONFIG C, T_QREST_SITE_POLL_CONFIG_DTL D 
+			where C.POLL_CONFIG_IDX = D.POLL_CONFIG_IDX
+			and D.MONITOR_IDX = @mon;
+		END
 
 		select @tz=S.LOCAL_TIMEZONE from T_QREST_SITES S where S.SITE_IDX=@sit;
 
@@ -147,14 +159,14 @@ BEGIN
 			WHEN NOT MATCHED and @calcIndYr<>1888 
 			THEN 
 				INSERT (DATA_HOURLY_IDX, MONITOR_IDX, DATA_DTTM_UTC, DATA_DTTM_LOCAL, DATA_VALUE, UNIT_CODE, VAL_IND
-				, DATA_VALUE_NUM
+				, DATA_VALUE_NUM, IMPORT_IDX
 				) VALUES (newid(), @mon, @dttm, DATEADD(HOUR,cast(@tz as int),@dttm), @sumVal, @unit, 0
-				, TRY_CAST(mySource.DATA_VALUE AS DECIMAL(18, 9)) 
+				, TRY_CAST(mySource.DATA_VALUE AS DECIMAL(18, 9)), @imprt 
 				);
 
 		END
 
-		FETCH NEXT FROM ins_cursor INTO @mon, @dttm, @calcIndYr
+		FETCH NEXT FROM ins_cursor INTO @mon, @dttm, @calcIndYr, @imprt
 	END
 
 	CLOSE ins_cursor	

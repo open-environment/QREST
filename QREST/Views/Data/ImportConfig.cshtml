@@ -171,8 +171,8 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label>Monitor</label>
-                            @Html.DropDownListFor(model => model.editMONITOR_IDX, Model.ddl_Monitors, "", new { @class = "form-control" })
+                            <label>Monitor <span class="required" style="color:#ac2925;"> <span style="vertical-align: super;" class="fa fa-asterisk" data-unicode="270f"></span></span></label>
+                            @Html.DropDownListFor(model => model.editMONITOR_IDX, Model.ddl_Monitors, "", new { @class = "form-control required" })
                             <span class="field-validation-valid" data-valmsg-for="editMONITOR_IDX" data-valmsg-replace="true"></span>
                         </div>
                     </div>
@@ -180,13 +180,10 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Column</label>
+                            <label>Column <span class="required" style="color:#ac2925;"> <span style="vertical-align: super;" class="fa fa-asterisk" data-unicode="270f"></span></span></label>
                             @Html.TextBoxFor(model => model.editCOL, new { @class = "form-control", @maxlength = "2" })
                         </div>
                     </div>
-                </div>
-                <button type="button" class="btn btn-xs btn-warning btn-rounded m-l-xs" data-toggle="collapse" data-target="#advanced">Advanced Options</button>
-                <div id="advanced" class="row collapse">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Summary Type</label>
@@ -199,11 +196,14 @@
                             @Html.DropDownListFor(model => model.editROUNDING, Model.ddl_Rounding, "", new { @class = "form-control" })
                         </div>
                     </div>
-
-                    <div class="col-md-3">
+                </div>
+                <button type="button" class="btn btn-xs btn-warning btn-rounded m-l-xs" data-toggle="collapse" data-target="#advanced">Advanced Options</button>
+                <div id="advanced" class="row collapse">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>Adjustment Factor</label>
                             @Html.TextBoxFor(model => model.editADJUST_FACTOR, new { @class = "form-control", @maxlength = "10" })
+                            <span class="help-block">Imported values will be multiplied by this value (leave this blank to not use).</span>
                         </div>
                     </div>
                 </div>
@@ -280,7 +280,11 @@
                         }, "name": "POC", "autoWidth": true
                     },
                     { "data": "SUM_TYPE", "name": "SUM_TYPE", "autoWidth": true },
-                    { "data": "ROUNDING", "name": "ROUNDING", "autoWidth": true }
+                    {
+                        "data": function (data, type) {
+                            return data.ROUNDING + (data.ADJUST_FACTOR != null ? "<br/>Adjust Factor: " + data.ADJUST_FACTOR : "")
+                        }, "name": "ROUNDING", "autoWidth": true
+                    }
                 ],
                 "createdRow": function (row, data, dataIndex) {
                     $('td:eq(0)', row).css('width', '90px');

@@ -255,7 +255,7 @@
                 data: {
                     usertype: $("#usertype").val(),  
                     EmailSubject: $('#EmailSubject').val(),
-                    emailBodyHtml: encodeURIComponent(tinyMCE.activeEditor.getContent())// $('#selChartMon').val()
+                    emailBodyHtml: encodeURIComponent(tinyMCE.activeEditor.getContent())
                 },
                 success: function (response) {
                     if (response === "True") {

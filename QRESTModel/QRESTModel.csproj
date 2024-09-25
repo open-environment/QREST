@@ -120,9 +120,6 @@
     <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.2\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
     </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -133,7 +130,7 @@
       <HintPath>..\packages\Twilio.5.52.0\lib\net451\Twilio.dll</HintPath>
     </Reference>
     <Reference Include="UnitsNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=f8601875a1f041da, processorArchitecture=MSIL">
-      <HintPath>..\packages\UnitsNet.4.77.0\lib\net40\UnitsNet.dll</HintPath>
+      <HintPath>..\packages\UnitsNet.4.152.0\lib\net47\UnitsNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -703,14 +703,14 @@
     <Content Include="Views\Reports\RefDisallowQual.cshtml" />
     <Content Include="Views\Site\SitePollOffline.cshtml" />
     <Content Include="Views\Admin\TrainingProgress.cshtml" />
-    <Content Include="Scripts\tinymce\skins\ui\oxide\fonts\tinymce-mobile.woff" />
-    <Content Include="Scripts\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
-    <Content Include="Scripts\tinymce\langs\README.md" />
     <Content Include="Scripts\tinymce\tsconfig.json" />
     <Content Include="Views\Status\Index.cshtml" />
     <Content Include="Views\Reports\Daily.cshtml" />
     <Content Include="Views\Reports\UsageStats.cshtml" />
     <Content Include="Views\Shared\_LayoutHelp.cshtml" />
+    <Content Include="Scripts\tinymce\skins\ui\oxide\fonts\tinymce-mobile.woff" />
+    <Content Include="Scripts\tinymce\skins\ui\oxide-dark\fonts\tinymce-mobile.woff" />
+    <Content Include="Scripts\tinymce\langs\README.md" />
     <None Include="Web.ReleaseTest.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

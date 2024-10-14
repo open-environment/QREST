@@ -21,6 +21,7 @@ BEGIN
 	--4/1/2022 DOUG TIMMS change storage of timezone from poll config to site
 	--9/23/2024 DOUG TIMMS fix issue where no active polling config is set
 	--                     write IMPORT_IDX to hourly
+	--10/9/2024 DOUG TIMMS fix issue where getting polling config has no summary type
 
 	DECLARE @SumType varchar(4);
 	DECLARE @SumTemp float;
@@ -58,7 +59,8 @@ BEGIN
 			select top 1 @SumType=D.SUM_TYPE, @sit=C.SITE_IDX, @precision=D.ROUNDING
 			from T_QREST_SITE_POLL_CONFIG C, T_QREST_SITE_POLL_CONFIG_DTL D 
 			where C.POLL_CONFIG_IDX = D.POLL_CONFIG_IDX
-			and D.MONITOR_IDX = @mon;
+			and D.MONITOR_IDX = @mon
+			and d.sum_type <>'';
 		END
 
 		select @tz=S.LOCAL_TIMEZONE from T_QREST_SITES S where S.SITE_IDX=@sit;

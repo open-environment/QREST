@@ -142,14 +142,12 @@ namespace QRESTModel.BLL
             db_Air.SP_IMPORT_DATA_FROM_TEMP(iMPORT_IDX);
 
 
-            //if hourly data is being imported, and user selected to revalidate, then revalidate
+            //if hourly data is being imported, and user selected to validate, then run min/max validation on data
+            //or if five minute data is being imported and user selected to calculate hourly, then run min/max validation on data
             T_QREST_DATA_IMPORTS _imp = db_Air.GetT_QREST_DATA_IMPORTS_byID(iMPORT_IDX);
-            if (_imp != null && (_imp.IMPORT_TYPE== "H1" || _imp.IMPORT_TYPE == "H") && _imp.RECALC_IND==true)
-            {
-                //run min/max validation on data
+            if (_imp != null && (_imp.IMPORT_TYPE== "H1" || _imp.IMPORT_TYPE == "H" || _imp.IMPORT_TYPE == "F") && _imp.RECALC_IND==true)
                 db_Air.SP_VALIDATE_HOURLY_IMPORT(iMPORT_IDX);
-            }
-
+ 
             return true;
         }
     }

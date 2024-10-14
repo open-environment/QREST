@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using System.Data.Entity;
 using QRESTModel.net.epacdxnode.testngn;
+using System.Runtime.Remoting.Contexts;
 
 namespace QRESTModel.DAL
 {
@@ -4618,7 +4619,23 @@ namespace QRESTModel.DAL
             }
         }
 
-
+        public static int DeleteT_QREST_DATA_IMPORT_TEMP(Guid id)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    ctx.Database.ExecuteSqlCommand("DELETE FROM T_QREST_DATA_IMPORT_TEMP WHERE IMPORT_IDX = {0}", id);
+                    ctx.SaveChanges();
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
 
 
 
@@ -5248,7 +5265,8 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    ctx.Database.CommandTimeout = 600;
+                    ctx.Database.CommandTimeout = 900;
+                    ctx.Configuration.EnsureTransactionsForFunctionsAndCommands = false;
                     return ctx.SP_IMPORT_DATA_FROM_TEMP(iMPORT_IDX);
                 }
                 catch (Exception ex)

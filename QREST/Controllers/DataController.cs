@@ -125,7 +125,7 @@ namespace QREST.Controllers
                 if (importIDX != null)
                 {
                     //if not too many records, import immediately
-                    if (model.IMPORT_BLOCK.Length < 1500000)
+                    if (model.IMPORT_BLOCK.Length < 1000000)
                         QRESTModel.BLL.ImportHelper.ImportValidateAndSaveToTemp(importIDX.GetValueOrDefault());
                     else
                     {
@@ -311,8 +311,6 @@ namespace QREST.Controllers
             {
                 T_QREST_DATA_IMPORTS = db_Air.GetT_QREST_DATA_IMPORTS_byID(id.GetValueOrDefault()),
                 ImportTotalCount = 0,
-                ImportValDupCount = db_Air.GetT_QREST_DATA_IMPORT_TEMP_DupCount(id.GetValueOrDefault()),
-                ImportValErrorCount = db_Air.GetT_QREST_DATA_IMPORT_TEMP_ErrorCount(id.GetValueOrDefault())
             };
 
             if (model.T_QREST_DATA_IMPORTS != null)
@@ -320,10 +318,11 @@ namespace QREST.Controllers
                 model.selOrg = model.T_QREST_DATA_IMPORTS.ORG_ID;
                 model.durationSecs = System.DateTime.Now.Subtract(model.T_QREST_DATA_IMPORTS.IMPORT_DT.GetValueOrDefault()).TotalSeconds;
 
+                //finished with import
                 if (model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "IMPORTED")
                 {
                     //get imported data counts
-                    if (model.T_QREST_DATA_IMPORTS.IMPORT_TYPE=="F")
+                    if (model.T_QREST_DATA_IMPORTS.IMPORT_TYPE == "F")
                         model.ImportTotalCount = db_Air.GetT_QREST_DATA_FIVE_MINcountByImportIDX(id.GetValueOrDefault());
                     else
                         model.ImportTotalCount = db_Air.GetT_QREST_DATA_HOURLYcountByImportIDX(id.GetValueOrDefault());
@@ -332,10 +331,19 @@ namespace QREST.Controllers
                     model.ImportGaps = db_Air.SP_IMPORT_DETECT_GAPS(model.T_QREST_DATA_IMPORTS.IMPORT_IDX);
 
                 }
-                else
+                else //import is still in progress
+                {
                     model.ImportTotalCount = db_Air.GetT_QREST_DATA_IMPORT_TEMP_Count(id.GetValueOrDefault());
+                    model.ImportValDupCount = db_Air.GetT_QREST_DATA_IMPORT_TEMP_DupCount(id.GetValueOrDefault());
+                    model.ImportValErrorCount = db_Air.GetT_QREST_DATA_IMPORT_TEMP_ErrorCount(id.GetValueOrDefault());
+                }
+                return View(model);
             }
-            return View(model);
+            else
+            {
+                TempData["Error"] = "Unable to find record to import";
+                return RedirectToAction("ImportList");
+            }
         }
 
 
@@ -347,6 +355,7 @@ namespace QREST.Controllers
             else
             {
                 int SuccID = db_Air.DeleteT_QREST_DATA_IMPORTS(id.GetValueOrDefault());
+                SuccID = db_Air.DeleteT_QREST_DATA_IMPORT_TEMP(id.GetValueOrDefault());
                 if (SuccID == 1)
                     return Json("Success");
                 else

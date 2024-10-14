@@ -35,16 +35,17 @@
                 else if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "VALIDATING")
                 {
                     <div class="alert alert-info">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <i class="fa fa-ok-sign"></i>
-                        <h4>Import is currently being processed</h4>
-                        <h4>@Model.ImportTotalCount records processed so far.</h4>
+                        <h4>Import is currently being validated.</h4>
+                        <p>
+                            This includes mapping columns to proper parameters, checking datetime formatting, checking for any AQS Null and Qual codes,
+                            applying adjustment factors (if applicable) and checking for duplicates.
+                        </p>
                     </div>
                     <a class=" btn btn-info" href="@Url.Action("ImportStatus", new { id = Model.T_QREST_DATA_IMPORTS.IMPORT_IDX })">Click to Refresh Status</a>
 
                     <br />
-                    <small class="text-muted text-uc">Seconds: @Model.durationSecs</small>
-
+                    <small class="text-muted text-uc">Validation Duration (seconds): @Model.durationSecs</small>
                 }
                 else if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "VALIDATED")
                 {
@@ -63,10 +64,16 @@
                         </div>
                     </div>
                 }
+                else if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "IMPORTING")
+                {
+                    <div class="alert alert-warning">
+                        <i class="fa fa-ok-sign"></i>
+                        <strong>Validation is complete and now records are being imported.</strong> 
+                    </div>
+                }
                 else if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "IMPORTED")
                 {
                     <div class="alert alert-success">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <i class="fa fa-ok-sign"></i>
                         <strong>Congrats!</strong> @Model.ImportTotalCount records were successfully imported.
                     </div>

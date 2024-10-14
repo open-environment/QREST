@@ -39,6 +39,10 @@ The following diagram illustrates the various way that tribes can get data inTO 
 
 ## Change Log
 
+- **2024-10-09**
+  - **General Data Import Improvement:**
+    - Fix bug when importing 5-minute records and specifying to calculate hourly data, but hourly valiation was not being run on the calculated hourly data
+    - Fix bug when importing 5-minute records and QREST was not grabbing summary type from import config
 - **2024-09-23**
   - **General Data Import Improvement:**
     - When bulk importing 5-minute or hourly data, adjustment factor is now applied if set in the Import Configuration 

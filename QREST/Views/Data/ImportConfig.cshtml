@@ -99,7 +99,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     Time in Separate Column?
-                                    <input type="checkbox" id="chkDateTimeSame" name="chkDateTimeSameName" class = "form-control">
+                                    <input type="checkbox" id="chkDateTimeSame" name="chkDateTimeSameName" class="form-control">
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -217,8 +217,7 @@
 </form>
 <!-- END MODAL FORM -->
 
-
-
+@Html.Partial("_PleaseWait", "Shared")
 @section scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/confirm-delete")

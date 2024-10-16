@@ -793,9 +793,11 @@ namespace QREST.Controllers
                         model.editTIME_POLL_TYPE = "L";
                     }
 
+                    //prepopulate some missing info with default values
                     if (model.editLOGGER_TYPE == "ESC" && model.editDELIMITER == null) model.editDELIMITER = "C";
                     if (model.editLOGGER_TYPE == "ESC" && model.editDATE_COL == null) model.editDATE_COL = 1;
                     if (model.editLOGGER_TYPE == "ESC" && model.editTIME_COL == null) model.editTIME_COL = 1;
+                    if (model.editLOGGER_TYPE == "ESC" && model.editTIME_POLL_TYPE == null) model.editTIME_POLL_TYPE = "L";
 
 
                     Guid? succId = db_Air.InsertUpdatetT_QREST_SITE_POLL_CONFIG(model.editPOLL_CONFIG_IDX, model.SITE_IDX, model.editCONFIG_NAME, model.editRAW_DURATION_CODE, model.editLOGGER_TYPE,

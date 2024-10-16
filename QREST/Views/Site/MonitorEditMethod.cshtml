@@ -104,11 +104,10 @@
         <div class="col-md-12">
             <a class=" btn btn-default" href="@Url.Action("MonitorEdit", new { id = Model.MONITOR_IDX } )">Cancel</a>
         </div>
-
     </div>
-
 }
 
+@Html.Partial("_PleaseWait", "Shared")
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
 

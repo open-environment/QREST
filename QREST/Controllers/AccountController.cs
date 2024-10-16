@@ -610,12 +610,9 @@ namespace QREST.Controllers
 
             int succId = db_Account.DeleteT_QREST_USER_NOTIFICATION_All_ByUserID(UserIDX);
             if (succId == 1)
-            {
-                TempData["Success"] = "Success";
                 return Json("Success");
-            }
             else
-                return Json("Unable to delete.");
+                return Json("Unable to delete");
         }
 
 

@@ -15,29 +15,29 @@
 
             @Html.ValidationSummary(true)
 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label>First Name</label>
-                    @Html.TextBoxFor(model => model.user.FNAME, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.user.FNAME)
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        @Html.TextBoxFor(model => model.user.FNAME, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.user.FNAME)
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        @Html.TextBoxFor(model => model.user.LNAME, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.user.LNAME)
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Email</label>
+                        @Html.TextBoxFor(model => model.user.Email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.user.Email)
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label>Last Name</label>
-                    @Html.TextBoxFor(model => model.user.LNAME, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.user.LNAME)
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label>Email</label>
-                    @Html.TextBoxFor(model => model.user.Email, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.user.Email)
-                </div>
-            </div>
-        </div>
 
             <p>
                 <button type="submit" class="btn btn-sm btn-primary">Save</button>
@@ -99,65 +99,65 @@
                 <div class="table-responsive">
                     @if (Model.user_orgs != null)
                     {
-                    <table class="table table-striped table-bordered" data-ride="datatables">
-                        <thead>
-                            <tr>
-                                <th style="min-width: 70px;">Edit</th>
-                                <th>Organization</th>
-                                <th>Access Level</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        @foreach (var item in Model.user_orgs)
-                        {
-                            <tr>
-                                <td>
-                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-primary modal-it" data-toggle="modal" data-orgid="@item.ORG_ID" data-accesslevel="@item.ACCESS_LEVEL" data-status="@item.STATUS_IND"><i class="fa fa-pencil"></i> Edit</a>
-                                    <div class="delete-section" style="display:inline-block">
-                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_IDX" data-delete-p="/Admin/UserOrgDelete"><b>Confirm Delete</b></div>
-                                    </div>
-                                    @Html.HiddenFor(modelItem => item.ORG_USER_IDX)
-                                    @Html.HiddenFor(modelItem => item.USER_IDX)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.ORG_NAME)
-                                </td>
-                                <td>
-                                    @if (item.ACCESS_LEVEL == "A")
-                                    {
-                                        <span class="badge bg-success"> Admin</span>
-                                    }
-                                    else if (item.ACCESS_LEVEL == "U")
-                                    {
-                                        <span class="badge bg-info"> Operator</span>
-                                    }
-                                    else if (item.ACCESS_LEVEL == "R")
-                                    {
-                                        <span class="badge bg-danger"> Read Only</span>
-                                    }
-                                    else if (item.ACCESS_LEVEL == "Q")
-                                    {
-                                        <span class="badge bg-warning"> QA Reviewer</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.STATUS_IND == "A")
-                                    {
-                                        <span class="badge bg-success"> Active</span>
-                                    }
-                                    else if (item.STATUS_IND == "P")
-                                    {
-                                        <span class="badge bg-warning"> Pending</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger"> Rejected</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </table>
+                        <table class="table table-striped table-bordered" data-ride="datatables">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 70px;">Edit</th>
+                                    <th>Organization</th>
+                                    <th>Access Level</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            @foreach (var item in Model.user_orgs)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="#modal-form" class="btn btn-rounded btn-xs btn-primary modal-it" data-toggle="modal" data-orgid="@item.ORG_ID" data-accesslevel="@item.ACCESS_LEVEL" data-status="@item.STATUS_IND"><i class="fa fa-pencil"></i> Edit</a>
+                                        <div class="delete-section" style="display:inline-block">
+                                            <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_IDX" data-delete-p="/Admin/UserOrgDelete"><b>Confirm Delete</b></div>
+                                        </div>
+                                        @Html.HiddenFor(modelItem => item.ORG_USER_IDX)
+                                        @Html.HiddenFor(modelItem => item.USER_IDX)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ORG_NAME)
+                                    </td>
+                                    <td>
+                                        @if (item.ACCESS_LEVEL == "A")
+                                        {
+                                            <span class="badge bg-success"> Admin</span>
+                                        }
+                                        else if (item.ACCESS_LEVEL == "U")
+                                        {
+                                            <span class="badge bg-info"> Operator</span>
+                                        }
+                                        else if (item.ACCESS_LEVEL == "R")
+                                        {
+                                            <span class="badge bg-danger"> Read Only</span>
+                                        }
+                                        else if (item.ACCESS_LEVEL == "Q")
+                                        {
+                                            <span class="badge bg-warning"> QA Reviewer</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.STATUS_IND == "A")
+                                        {
+                                            <span class="badge bg-success"> Active</span>
+                                        }
+                                        else if (item.STATUS_IND == "P")
+                                        {
+                                            <span class="badge bg-warning"> Pending</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger"> Rejected</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </table>
                     }
                 </div>
                 <div class="m-t-sm">
@@ -218,7 +218,7 @@
 </div>
 <!-- END MODAL FORM -->
 
-
+@Html.Partial("_PleaseWait", "Shared")
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
 

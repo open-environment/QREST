@@ -28,58 +28,58 @@
     <div class="panel-body">
         @if (Model.lessons != null)
         {
-        <div class="table-responsive">
-            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Lesson</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                @foreach (var item in Model.lessons)
-                {
-                    <tr>
-                        <td>
-                            <h4 class="font-bsold m-t-sm">@item.LESSON_SEQ</h4>
-                        </td>
-                        <td>
-                            <h4 class="font-bold m-t-sm">@Html.DisplayFor(modelItem => item.LESSON_TITLE)</h4>
-                            @Html.DisplayFor(modelItem => item.LESSON_DESC)
-                        </td>
-                        <td>
-                            @if (item.LESSON_COMP_IND == 1)
-                            {
-                                <a class="fa fa-check-square fa-3x text-success m-r-sm m-t-sm pull-left" href="@Url.Action("Course", new { id = item.COURSE_IDX })"></a>
-                                <a class="clear" style="padding-right:30px;" href="@Url.Action("Lesson", new { id = item.LESSON_IDX })"> <span class="h3 block m-t-sm font-bold m-r-md">Complete</span> <small class="text-muted">on @item.CREATE_DT</small> </a>
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Lesson</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.lessons)
+                    {
+                        <tr>
+                            <td>
+                                <h4 class="font-bsold m-t-sm">@item.LESSON_SEQ</h4>
+                            </td>
+                            <td>
+                                <h4 class="font-bold m-t-sm">@Html.DisplayFor(modelItem => item.LESSON_TITLE)</h4>
+                                @Html.DisplayFor(modelItem => item.LESSON_DESC)
+                            </td>
+                            <td>
+                                @if (item.LESSON_COMP_IND == 1)
+                                {
+                                    <a class="fa fa-check-square fa-3x text-success m-r-sm m-t-sm pull-left" href="@Url.Action("Course", new { id = item.COURSE_IDX })"></a>
+                                    <a class="clear" style="padding-right:30px;" href="@Url.Action("Lesson", new { id = item.LESSON_IDX })"> <span class="h3 block m-t-sm font-bold m-r-md">Complete</span> <small class="text-muted">on @item.CREATE_DT</small> </a>
 
-                                <div class="delete-section" style="display:inline-block">
-                                    <a class=" btn btn-rounded btn-sm btn-danger delete-link"><i class="fa fa-times"></i> Reset Progress</a>
-                                    <div class="btn btn-rounded btn-sm btn-warning delete-confirm" style="display:none" data-delete-id="@item.LESSON_IDX" data-delete-p="/Training/LessonReset" data-success-url="/Training/Course/@item.COURSE_IDX"><b>Confirm</b></div>
-                                </div>
-                            }
-                            else if (item.LESSON_STEPS_COMP > 0)
-                            {
-                                <a href="@(Url.Action("Lesson", "Training", new { id = item.LESSON_IDX }))" class="btn m-t-sm m-b-sm btn-lg btn-success">Continue <i class="fa fa-play-circle"></i></a>
-                                <small class="text-muted clear">(@item.LESSON_STEPS_COMP steps completed)</small>
-                            }
-                            else
-                            {
-                                <a href="@(Url.Action("Lesson", "Training", new { id = item.LESSON_IDX }))" class="btn m-t-sm m-b-sm btn-lg btn-success">Begin <i class="fa fa-play-circle"></i></a>
-                            }
-                        </td>
+                                    <div class="delete-section" style="display:inline-block">
+                                        <a class=" btn btn-rounded btn-sm btn-danger delete-link"><i class="fa fa-times"></i> Reset Progress</a>
+                                        <div class="btn btn-rounded btn-sm btn-warning delete-confirm" style="display:none" data-delete-id="@item.LESSON_IDX" data-delete-p="/Training/LessonReset" data-success-url="/Training/Course/@item.COURSE_IDX"><b>Confirm</b></div>
+                                    </div>
+                                }
+                                else if (item.LESSON_STEPS_COMP > 0)
+                                {
+                                    <a href="@(Url.Action("Lesson", "Training", new { id = item.LESSON_IDX }))" class="btn m-t-sm m-b-sm btn-lg btn-success">Continue <i class="fa fa-play-circle"></i></a>
+                                    <small class="text-muted clear">(@item.LESSON_STEPS_COMP steps completed)</small>
+                                }
+                                else
+                                {
+                                    <a href="@(Url.Action("Lesson", "Training", new { id = item.LESSON_IDX }))" class="btn m-t-sm m-b-sm btn-lg btn-success">Begin <i class="fa fa-play-circle"></i></a>
+                                }
+                            </td>
 
-                    </tr>
-                }
-            </table>
-            <a href="@(Url.Action("Index", "Training"))" class="btn btn-rounsded btn-default">Back</a>
+                        </tr>
+                    }
+                </table>
+                <a href="@(Url.Action("Index", "Training"))" class="btn btn-rounsded btn-default">Back</a>
 
-        </div>
+            </div>
         }
 
     </div>
 </section>
-
+@Html.Partial("_PleaseWait", "Shared")
 @section scripts {
     @Scripts.Render("~/bundles/confirm-delete")
 }

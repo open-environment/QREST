@@ -33,7 +33,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             Help Topic Name
-                            @Html.TextBoxFor(model => model.EditHelp.HELP_TITLE, new { @class = "form-control", maxlength=40 })
+                            @Html.TextBoxFor(model => model.EditHelp.HELP_TITLE, new { @class = "form-control", maxlength = 40 })
                             @Html.ValidationMessageFor(model => model.EditHelp.HELP_TITLE)
                         </div>
                     </div>
@@ -116,7 +116,7 @@
         </div>
     </div>
 </section>
-
+@Html.Partial("_PleaseWait", "Shared")
 @section Scripts{
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/areyousure")

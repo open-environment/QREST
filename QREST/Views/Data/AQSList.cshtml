@@ -73,9 +73,9 @@
                                 @Html.DisplayFor(modelItem => item.COMMENT)
                             </td>
                             <td>
-                                <a class="text-info" href="@Url.Action("AQSFileDownload", new { id = item.AQS_IDX })">Text</a> 
-                                
-                                | 
+                                <a class="text-info" href="@Url.Action("AQSFileDownload", new { id = item.AQS_IDX })">Text</a>
+
+                                |
                                 <a class="text-info" href="@Url.Action("AQSFileDownloadHeader", new { id = item.AQS_IDX })">XML</a>
                             </td>
                             <td>
@@ -167,9 +167,8 @@
     </div>
 </div>
 <!-- END EDIT MODAL -->
-
 <!-- PLEASE WAIT MODAL -->
-<div class="modal" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false"  style="display: none;">
+<div class="modal" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false" style="display: none;">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -182,10 +181,11 @@
     </div>
 </div>
 
+@Html.Partial("_PleaseWait", "Shared")
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
 
-<script type="text/javascript">
+    <script type="text/javascript">
     $(document).ready(function () {
 
         //**************load edit modal****************
@@ -260,6 +260,6 @@
 
     });
 
-</script>
+    </script>
 }
 

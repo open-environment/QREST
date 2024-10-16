@@ -3486,7 +3486,7 @@ namespace QRESTModel.DAL
                     int hour = line.SubStringPlus(12, 2).ConvertOrDefault<int>(); //hour
                     int minute = line.SubStringPlus(14, 2).ConvertOrDefault<int>(); //minute
                     DateTime dt = new DateTime(year, 1, 1).AddDays(julday - 1).AddHours(hour).AddMinutes(minute);
-                    string timePollType = config.TIME_POLL_TYPE;
+                    string timePollType = config.TIME_POLL_TYPE ?? "L";  //default assume local time type if polling config has none supplied
 
                     //read channel #
                     int channel = line.SubStringPlus(3, 2).ConvertOrDefault<int>();

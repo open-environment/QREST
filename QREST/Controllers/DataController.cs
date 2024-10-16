@@ -445,10 +445,7 @@ namespace QREST.Controllers
                     {
                         db_Air.DeleteT_QREST_DATA_IMPORTS(id.GetValueOrDefault());
                         if (SuccID == 1)
-                        {
-                            TempData["Success"] = "Deleted";
                             return Json("Success");
-                        }
                     }
                 }
 

@@ -5,58 +5,58 @@
 }
 @if (Model.notifications != null && Model.notifications.Count > 0)
 {
-<div class="delete-section pull-right">
-    <a class="btn btn-danger btn-xs delete-link" style="min-width:150px;">Delete All</a>
-    <div class="btn btn-warning btn-xs delete-confirm" style="display:none; width:150px" data-delete-id="e" data-success-url="/Account/Notifications" data-delete-p="/Account/NotificationDeleteAll">
-        <b>Confirm Delete All</b>
+    <div class="delete-section pull-right">
+        <a class="btn btn-danger btn-xs delete-link" style="min-width:150px;">Delete All</a>
+        <div class="btn btn-warning btn-xs delete-confirm" style="display:none; width:150px" data-delete-id="e" data-success-url="/Account/Notifications" data-delete-p="/Account/NotificationDeleteAll">
+            <b>Confirm Delete All</b>
+        </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-sm-12">
-        <section class="panel panel-default">
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered table-clickable" data-ride="datatables">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    @foreach (var item in Model.notifications)
-                    {
-                        <tr class="@(item.READ_IND != true ? "font-bold" : "text-grey")" data-id="@item.NOTIFICATION_IDX">
-                            <td>
-                                <a href="@Url.Action("NotificationDelete2", "Account", new { id = item.NOTIFICATION_IDX })" class="btn btn-rounded btn-xs btn-danger eee"><i class="fa fa-remove"></i></a>
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.NOTIFY_DT)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.NOTIFY_TYPE)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.NOTIFY_TITLE)
-                            </td>
-                            <td>
-                                @Html.Raw(item.NOTIFY_DESC)
-                            </td>
-                        </tr>
-                    }
-                </table>
-            </div>
-        </section>
+    <div class="row">
+        <div class="col-sm-12">
+            <section class="panel panel-default">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-clickable" data-ride="datatables">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        @foreach (var item in Model.notifications)
+                        {
+                            <tr class="@(item.READ_IND != true ? "font-bold" : "text-grey")" data-id="@item.NOTIFICATION_IDX">
+                                <td>
+                                    <a href="@Url.Action("NotificationDelete2", "Account", new { id = item.NOTIFICATION_IDX })" class="btn btn-rounded btn-xs btn-danger eee"><i class="fa fa-remove"></i></a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NOTIFY_DT)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NOTIFY_TYPE)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NOTIFY_TITLE)
+                                </td>
+                                <td>
+                                    @Html.Raw(item.NOTIFY_DESC)
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </section>
 
+        </div>
     </div>
-</div>
 }
 else
 {
     <div>You currently have no notifications. You will receive notifications if you have "In App Notification" turned on in <a href="@Url.Action("MyProfile", "Account")" class="text-info font-bold">your profile</a>, and data is polled in from your monitors that exceeds alerting thresholds.</div>
 }
-
+@Html.Partial("_PleaseWait", "Shared")
 
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")

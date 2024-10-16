@@ -68,7 +68,7 @@
                 {
                     <div class="alert alert-warning">
                         <i class="fa fa-ok-sign"></i>
-                        <strong>Validation is complete and now records are being imported.</strong> 
+                        <strong>Validation is complete and now records are being imported.</strong>
                     </div>
                 }
                 else if (Model.T_QREST_DATA_IMPORTS.SUBMISSION_STATUS == "IMPORTED")
@@ -226,7 +226,7 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
     </section>
 }
 
-
+@Html.Partial("_PleaseWait", "Shared")
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/datatables")

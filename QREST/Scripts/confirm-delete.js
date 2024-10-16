@@ -39,7 +39,7 @@
         var deleteItem = function () {
             removeEvents();
             confirmButton.fadeOut(700);
-
+            pleaseWait();
             var idval = confirmButton.attr('data-delete-array') === "Y" ? confirmButton.attr('data-delete-id').split(',') : confirmButton.attr('data-delete-id');
 
             $.ajax({
@@ -52,6 +52,7 @@
                     id2: confirmButton.attr('data-delete-id2')
                 },
                 success: function (response) {
+                    pleaseStopWaiting();
                     if (response === "Success") {
                         if (confirmButton.attr('data-success-url') != null && confirmButton.attr('data-success-url').length > 0) {
                             var redirPath = window.location.protocol + "//" + window.location.host + "/" + appPath + confirmButton.attr('data-success-url');
@@ -70,12 +71,15 @@
                         parentRow.fadeOut('slow', function () {
                             parentRow.remove();
                         });
+
+                        toastr.success("Deleted");
                     }
                     else {
                         toastr.warning(response);
                     }
                 },
                 error: function (response) {
+                    pleaseStopWaiting();
                     toastr.warning(response || "Record cannot be deleted.");
                 }
             });

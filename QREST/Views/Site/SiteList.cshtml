@@ -22,65 +22,65 @@
     <header class="panel-heading font-bold">Sites</header>
     @if (Model.ddl_Organization.Count() > 0)
     {
-    <div class="panel-body">
-        <div class="table-responsive">
-            <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
-                <thead>
-                    <tr>
-                        <th style="width: 120px;"></th>
-                        <th>Organization</th>
-                        <th>Site ID</th>
-                        <th>Site Name</th>
-                        <th>AQS Site ID</th>
-                        <th>Address</th>
-                        <th>Site Comments</th>
-                    </tr>
-                </thead>
-                @foreach (var item in Model.T_QREST_SITES)
-                {
-                    <tr>
-                        <td>
-                            <a href="@(Url.Action("SiteEdit", "Site", new { id = item.SITE_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
-                            <div class="delete-section" style="display:inline-block">
-                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SITE_IDX" data-delete-p="/Site/SiteDelete"><b>Confirm Delete</b></div>
-                            </div>
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ORG_ID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SITE_ID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SITE_NAME)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AQS_SITE_ID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ADDRESS)
-                            @Html.DisplayFor(modelItem => item.CITY)
-                            @Html.DisplayFor(modelItem => item.STATE_CD)
-                            @Html.DisplayFor(modelItem => item.ZIP_CODE)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SITE_COMMENTS)
-                        </td>
-                    </tr>
-    }
-            </table>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;"></th>
+                            <th>Organization</th>
+                            <th>Site ID</th>
+                            <th>Site Name</th>
+                            <th>AQS Site ID</th>
+                            <th>Address</th>
+                            <th>Site Comments</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.T_QREST_SITES)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@(Url.Action("SiteEdit", "Site", new { id = item.SITE_IDX }))" class="btn btn-rounded btn-xs btn-primary" style="display: inline-block;"> <i class="fa fa-pencil"></i> Edit</a>
+                                <div class="delete-section" style="display:inline-block">
+                                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SITE_IDX" data-delete-p="/Site/SiteDelete"><b>Confirm Delete</b></div>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ORG_ID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SITE_ID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SITE_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.AQS_SITE_ID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ADDRESS)
+                                @Html.DisplayFor(modelItem => item.CITY)
+                                @Html.DisplayFor(modelItem => item.STATE_CD)
+                                @Html.DisplayFor(modelItem => item.ZIP_CODE)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SITE_COMMENTS)
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+            <a href="@(Url.Action("SiteEdit", "Site"))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
+            @if (Model.ddl_Organization != null && Model.ddl_Organization.Count() == 1)
+            {
+                <a href="@(Url.Action("SiteImport", "Site", new { id = Model.ddl_Organization.FirstOrDefault().Value }))" class="btn btn-sm btn-warning btn-rounded pull-right"><i class="fa fa-plus"></i> Import Sites from AQS</a>
+            }
+            else
+            {
+                <a href="@(Url.Action("SiteImport", "Site"))" class="btn btn-sm btn-warning btn-rounded pull-right"><i class="fa fa-plus"></i> Import Sites from AQS</a>
+            }
         </div>
-        <a href="@(Url.Action("SiteEdit", "Site"))" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
-        @if (Model.ddl_Organization != null && Model.ddl_Organization.Count() == 1)
-        {
-            <a href="@(Url.Action("SiteImport", "Site", new { id = Model.ddl_Organization.FirstOrDefault().Value }))" class="btn btn-sm btn-warning btn-rounded pull-right"><i class="fa fa-plus"></i> Import Sites from AQS</a>
-        }
-        else
-        {
-            <a href="@(Url.Action("SiteImport", "Site"))" class="btn btn-sm btn-warning btn-rounded pull-right"><i class="fa fa-plus"></i> Import Sites from AQS</a>
-        }
-    </div>
     }
     else
     {
@@ -88,7 +88,7 @@
     }
 </section>
 
-
+@Html.Partial("_PleaseWait", "Shared")
 @section Scripts {
     @Scripts.Render("~/bundles/confirm-delete")
 

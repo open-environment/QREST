@@ -39,6 +39,10 @@ The following diagram illustrates the various way that tribes can get data inTO 
 
 ## Change Log
 
+- **2024-10-15**
+  - **Data Deletion Improvements:**
+    - Data Deletion (sitewide): Now when you click to delete any item in QREST, a "please wait" message displays.
+    - Delete Manual Import batches with no imported data: can now delete manual imports that have no associated records 
 - **2024-10-09**
   - **General Data Import Improvement:**
     - Fix bug when importing 5-minute records and specifying to calculate hourly data, but hourly valiation was not being run on the calculated hourly data

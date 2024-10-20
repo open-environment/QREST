@@ -902,14 +902,15 @@ namespace QREST.Controllers
                 return Json("No record selected to delete");
             else
             {
+                string UserIDX = User.Identity.GetUserId();
                 Guid idg = new Guid(id);
 
                 //reject if user doesn't have access to org
-                RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_org_ByID(idg), true);
+                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_org_ByID(idg), true);
                 if (r != null) 
                     return Json("Access Denied");
 
-                int succId = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg);
+                int succId = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg, UserIDX);
                 if (succId == 1)
                     return Json("Success");
                 else

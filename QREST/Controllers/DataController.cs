@@ -443,7 +443,14 @@ namespace QREST.Controllers
 
                     if (SuccID == 1)
                     {
+                        //log deletion
+                        string UserIDX = User.Identity.GetUserId();
+                        var _site = db_Air.GetT_QREST_SITES_ByID(_imp.SITE_IDX);
+                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("IMPORT DELETE", UserIDX, null, _site.ORG_ID + " Manual Import Deleted. Data from " + (_imp.REC_MIN_DATE != null ? _imp.REC_MIN_DATE.ToString() : " unknown ") + " to " + (_imp.REC_MAX_DATE != null ? _imp.REC_MAX_DATE.ToString() : " unknown "), null, _site.ORG_ID);
+
                         db_Air.DeleteT_QREST_DATA_IMPORTS(id.GetValueOrDefault());
+
+
                         if (SuccID == 1)
                             return Json("Success");
                     }
@@ -610,14 +617,15 @@ namespace QREST.Controllers
                 return Json("No record selected to delete");
             else
             {
+                string UserIDX = User.Identity.GetUserId();
                 Guid idg = new Guid(id);
 
                 //reject if user doesn't have access to org
-                RedirectToRouteResult r = CanAccessThisOrg(User.Identity.GetUserId(), db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_org_ByID(idg), true);
+                RedirectToRouteResult r = CanAccessThisOrg(UserIDX, db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_org_ByID(idg), true);
                 if (r != null)
                     return Json("Access Denied");
 
-                int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg);
+                int SuccID = db_Air.DeleteT_QREST_SITE_POLL_CONFIG_DTL(idg, UserIDX);
                 if (SuccID == 1)
                     return Json("Success");
                 else
@@ -1116,29 +1124,33 @@ namespace QREST.Controllers
         {
             if (ModelState.IsValid)
             {
-                //int editCount = 0;
-
                 string UserIDX = User.Identity.GetUserId();
-
 
                 //case: deleting the records
                 if (model.editDeleteRecords == true)
                 {
+                    int iCounter = 0;
                     foreach (var item in model.editRawDataIDX)
                     {
                         if (model.selDuration == "1")
                         {
+                            iCounter++;
                             int succId = db_Air.DeleteT_QREST_DATA_HOURLY(item);
                             if (succId == 0)
                                 TempData["Error"] = "Error deleting hourly record";
                         }
                         else if (model.selDuration == "H")  //five min
                         {
+                            iCounter++;
                             int succId = db_Air.DeleteT_QREST_DATA_FIVE_MIN(item);
                             if (succId == 0)
                                 TempData["Error"] = "Error deleting 5-min record";
                         }
                     }
+
+                    //log deletion
+                    if (iCounter > 0)
+                        db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("RAW DATA DELETE", UserIDX, null, iCounter + " records deleted from " + model.selMon.ORG_ID + ": " + model.editNotes, null, model.selMon.ORG_ID);
                 }
                 //case: updating records
                 else if (model.editRawDataIDX != null)

@@ -1526,7 +1526,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static int DeleteT_QREST_SITE_POLL_CONFIG_DTL(Guid id)
+        public static int DeleteT_QREST_SITE_POLL_CONFIG_DTL(Guid id, string userIDX)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1538,7 +1538,7 @@ namespace QRESTModel.DAL
                         //log activity
                         SiteMonitorDisplayType _mon = db_Air.GetT_QREST_MONITORS_ByID(_dtl.MONITOR_IDX);
                         if (_mon != null)
-                            db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", null, null, "Column mapping removed [" + _mon.PAR_CODE + "]", null, _dtl.POLL_CONFIG_IDX.ToString());
+                            db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("POLLING CONFIG", userIDX, null, "Column mapping removed [" + _mon.PAR_CODE + "]", null, _dtl.POLL_CONFIG_IDX.ToString());
 
                         ctx.Entry(_dtl).State = System.Data.Entity.EntityState.Deleted;
                         ctx.SaveChanges();
@@ -4126,6 +4126,11 @@ namespace QRESTModel.DAL
                                         {
                                             f.IMPORT_VAL_IND = false;
                                             f.IMPORT_MSG = "Seconds must be 0 for import";
+                                        }
+                                        else if (iMPORT_TYPE == "H" && dtRaw.Minute != 0)
+                                        {
+                                            f.IMPORT_VAL_IND = false;
+                                            f.IMPORT_MSG = "Minutes must be 0 for hourly import";
                                         }
                                         else
                                         {

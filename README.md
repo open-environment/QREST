@@ -39,6 +39,9 @@ The following diagram illustrates the various way that tribes can get data inTO 
 
 ## Change Log
 
+- **2024-10-29**
+  - **Manual Import Bug Fix:**
+    - Manual import: fix bug when importing data and QREST detects duplicates, and UTC and local datetimes were not displaying properly
 - **2024-10-15**
   - **Data Deletion Improvements:**
     - Data Deletion (sitewide): Now when you click to delete any item in QREST, a "please wait" message displays.

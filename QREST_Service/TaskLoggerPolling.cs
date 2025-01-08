@@ -61,7 +61,7 @@ namespace QRESTServiceCatalog
                         //****************** ZENO OR SUTRON CCSAIL DATA LOGGER *********************************************************
                         if (_config.LOGGER_TYPE == "ZENO" || _config.LOGGER_TYPE == "SUTRON")
                         {
-                            //get latest date value that was polled. If in last 10 days then send date range, otherwide query for today
+                            //get latest date value that was polled. If exists then poll in last 10 days then send date range, otherwide query for today
                             string msg = "DL" + recCount;
                             DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
                             if (latestValue!= null)

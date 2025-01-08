@@ -15,7 +15,8 @@
     </header>
     <div class="panel-body">
         <form class="form-inline m-b-sm" onsubmit="return false">
-            <input id="selSearch" name="selSearch" class="form-control" style="width:300px" />
+            <input id="selSearch" name="selSearch" class="form-control" style="width:300px"  />
+            <input id="selContinuousOnly" name="selContinuousOnly" type="checkbox" class="form-control" checked /><label for="selContinuousOnly" class="control-label"> Continuous Only</label>
             <button id="btnGo" class="btn  btn-primary">Filter</button>
         </form>
         <div class="table-responsive">
@@ -123,7 +124,8 @@
                         return $.extend({},
                             d,
                             {
-                                "selSearch": $('#selSearch').val()
+                                "selSearch": $('#selSearch').val(),
+                                "selContinuousOnly": $('#selContinuousOnly').is(':checked')
                             });
                     }
                 },

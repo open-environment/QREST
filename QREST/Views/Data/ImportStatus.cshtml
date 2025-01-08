@@ -265,20 +265,22 @@ else if (Model.ImportValDupCount > 0 && Model.T_QREST_DATA_IMPORTS.SUBMISSION_ST
                             return row.PAR_CODE + ' - ' + row.PAR_NAME;
                         }
                     },
-                    {
-                        "data": "DATA_DTTM_LOCAL",
-                        "name": "DATA_DTTM_LOCAL",
-                        render: function (d) {
-                            return moment(d).format("MM/DD/YYYY HH:mm A");
-                        }
-                    },
-                    {
-                        "data": "DATA_DTTM_UTC",
-                        "name": "DATA_DTTM_UTC",
-                        render: function (d) {
-                            return moment(d).format("MM/DD/YYYY HH:mm");
-                        }
-                    },
+                    { "data": "DATA_DTTM_LOCAL_STR", "name": "DATA_DTTM_LOCAL_STR" },
+                    { "data": "DATA_DTTM_UTC_STR", "name": "DATA_DTTM_UTC_STR" },
+                    //{
+                    //    "data": "DATA_DTTM_LOCAL",
+                    //    "name": "DATA_DTTM_LOCAL",
+                    //    render: function (d) {
+                    //        return moment(d).format("MM/DD/YYYY HH:mm A");
+                    //    }
+                    //},
+                    //{
+                    //    "data": "DATA_DTTM_UTC",
+                    //    "name": "DATA_DTTM_UTC",
+                    //    render: function (d) {
+                    //        return moment(d).utc().format("MM/DD/YYYY HH:mm");
+                    //    }
+                    //},
                     { "data": "DupOrigValue", "name": "DupOrigValue" },
                     { "data": "DATA_VALUE", "name": "DATA_VALUE" },
                     { "data": "UNIT_CODE", "name": "UNIT_CODE"},

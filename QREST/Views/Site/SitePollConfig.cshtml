@@ -45,7 +45,7 @@
                         @if (Model.editLOGGER_TYPE != "WEATHER_PWS")
                         {
                             <li data-value="1">
-                                <a id="lnkPing" href="@Url.Action("SitePollPing", "Site", new { id=Model.editPOLL_CONFIG_IDX })">Ping Connection</a>
+                                <a id="lnkPing" href="@Url.Action("SitePollPing", "Site", new { id=Model.editPOLL_CONFIG_IDX })">Test Connection</a>
                             </li>
                         }
                         <li data-value="2">
@@ -565,7 +565,6 @@
                     $("#editADJUST_FACTOR").val('');
 
                 //hide summary and rounding if hourly
-                console.log($("#editRAW_DURATION_CODE").val())
                 if ($("#editRAW_DURATION_CODE").val()=="1")
                     $(".mon5minfieldsonly").hide();
                 else

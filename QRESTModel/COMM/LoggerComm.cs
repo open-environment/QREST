@@ -434,20 +434,6 @@ namespace QRESTModel.COMM
             {
                 try
                 {
-                    //string remoteIP = "100.113.67.117"; // Replace with the remote IP address
-
-                    //System.Net.NetworkInformation.Ping pingSender = new System.Net.NetworkInformation.Ping();
-                    //System.Net.NetworkInformation.PingReply reply = pingSender.Send(remoteIP);
-                    //if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
-                    //{
-                    //    Console.WriteLine("Ping successful. Roundtrip time: " + reply.RoundtripTime + "ms");
-                    //}
-                    //else
-                    //{
-                    //    Console.WriteLine("Ping failed: " + reply.Status.ToString());
-                    //}
-
-
                     if (!client.ConnectAsync(ip, port).Wait(TimeSpan.FromSeconds(2)))
                         log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Connect", CommResponse = "" };
                     else

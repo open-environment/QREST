@@ -225,6 +225,8 @@ namespace QRESTModel.DAL
         public string PAR_CODE { get; set; }
         public string PAR_NAME { get; set; }
         public string DupOrigValue{ get; set; }
+        public string DATA_DTTM_LOCAL_STR { get; set; }
+        public string DATA_DTTM_UTC_STR { get; set; }
     }
 
 
@@ -4467,7 +4469,7 @@ namespace QRESTModel.DAL
                             {
                                 DATA_DTTM_LOCAL = a.DATA_DTTM_LOCAL,
                                 DATA_DTTM_UTC = a.DATA_DTTM_UTC,
-                                DATA_VALUE= a.DATA_VALUE,
+                                DATA_VALUE = a.DATA_VALUE,
                                 UNIT_CODE = a.UNIT_CODE,
                                 VAL_CD = a.VAL_CD,
                                 AQS_NULL_CODE = a.AQS_NULL_CODE,
@@ -4475,7 +4477,25 @@ namespace QRESTModel.DAL
                                 PAR_CODE = p.PAR_CODE,
                                 PAR_NAME = p.PAR_NAME,
                                 DupOrigValue = u.DATA_VALUE
-                            }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                            })
+                            .OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize)
+                            .AsEnumerable() // Switch to LINQ to Objects for further processing
+                            .Select(x => new T_QREST_DATA_IMPORT_TEMPDisplay
+                            {
+                                DATA_DTTM_LOCAL = x.DATA_DTTM_LOCAL,
+                                DATA_DTTM_UTC = x.DATA_DTTM_UTC,
+                                // Apply string formatting here
+                                DATA_DTTM_LOCAL_STR = x.DATA_DTTM_LOCAL?.ToString("MM/dd/yyyy HH:mm"),
+                                DATA_DTTM_UTC_STR = x.DATA_DTTM_UTC?.ToString("MM/dd/yyyy HH:mm"),
+                                DATA_VALUE = x.DATA_VALUE,
+                                UNIT_CODE = x.UNIT_CODE,
+                                VAL_CD = x.VAL_CD,
+                                AQS_NULL_CODE = x.AQS_NULL_CODE,
+                                AQS_QUAL_CODES = x.AQS_QUAL_CODES,
+                                PAR_CODE = x.PAR_CODE,
+                                PAR_NAME = x.PAR_NAME,
+                                DupOrigValue = x.DupOrigValue
+                            }).ToList();
                     else
                         return (from a in ctx.T_QREST_DATA_IMPORT_TEMP.AsNoTracking()
                                 join m in ctx.T_QREST_MONITORS on a.MONITOR_IDX equals m.MONITOR_IDX
@@ -4499,7 +4519,25 @@ namespace QRESTModel.DAL
                                     PAR_CODE = p.PAR_CODE,
                                     PAR_NAME =  p.PAR_NAME,
                                     DupOrigValue = u.DATA_VALUE
-                                }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
+                                })
+                                .OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize)
+                                .AsEnumerable() // Switch to LINQ to Objects for further processing
+                                .Select(x => new T_QREST_DATA_IMPORT_TEMPDisplay
+                                {
+                                    DATA_DTTM_LOCAL = x.DATA_DTTM_LOCAL,
+                                    DATA_DTTM_UTC = x.DATA_DTTM_UTC,
+                                    // Apply string formatting here
+                                    DATA_DTTM_LOCAL_STR = x.DATA_DTTM_LOCAL?.ToString("MM/dd/yyyy HH:mm"),
+                                    DATA_DTTM_UTC_STR = x.DATA_DTTM_UTC?.ToString("MM/dd/yyyy HH:mm"),
+                                    DATA_VALUE = x.DATA_VALUE,
+                                    UNIT_CODE = x.UNIT_CODE,
+                                    VAL_CD = x.VAL_CD,
+                                    AQS_NULL_CODE = x.AQS_NULL_CODE,
+                                    AQS_QUAL_CODES = x.AQS_QUAL_CODES,
+                                    PAR_CODE = x.PAR_CODE,
+                                    PAR_NAME = x.PAR_NAME,
+                                    DupOrigValue = x.DupOrigValue
+                                }).ToList();
                 }
                 catch (Exception ex)
                 {

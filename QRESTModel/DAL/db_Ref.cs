@@ -1382,7 +1382,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<RefParMethodDisplay> GetT_QREST_REF_PAR_METHODS_Search(string strPar, string strCollMethod, int pageSize, int? skip)
+        public static List<RefParMethodDisplay> GetT_QREST_REF_PAR_METHODS_Search(string strPar, string strCollMethod, bool onlyContinuous, int pageSize, int? skip)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1395,7 +1395,7 @@ namespace QRESTModel.DAL
                             join p in ctx.T_QREST_REF_PARAMETERS on a.PAR_CODE equals p.PAR_CODE
                             join u in ctx.T_QREST_REF_UNITS on a.STD_UNIT_CODE equals u.UNIT_CODE into lj
                             from u in lj.DefaultIfEmpty()   //left join on units
-                            where a.RECORDING_MODE == "Continuous" 
+                            where (a.RECORDING_MODE == "Continuous" || onlyContinuous == false)
                                   && (strPar.Length <= 0 || (p.PAR_NAME.Contains(strPar) || p.PAR_CODE.Contains(strPar) || a.METHOD_CODE.Contains(strPar)))
                             orderby a.PAR_CODE, a.METHOD_CODE
                             select new RefParMethodDisplay
@@ -1413,7 +1413,7 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static int GetT_QREST_REF_PAR_METHODS_Count(string strPar, string strCollMethod)
+        public static int GetT_QREST_REF_PAR_METHODS_Count(string strPar, string strCollMethod, bool onlyContinuous)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -1425,7 +1425,7 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_REF_PAR_METHODS
                             join p in ctx.T_QREST_REF_PARAMETERS on a.PAR_CODE equals p.PAR_CODE
                             where (strPar.Length > 0 ? (p.PAR_NAME.Contains(strPar) || p.PAR_CODE.Contains(strPar) || a.METHOD_CODE.Contains(strPar)) : true)
-                            && a.RECORDING_MODE == "Continuous"
+                            && (a.RECORDING_MODE == "Continuous" || onlyContinuous == false)
                             select a).Count();
                 }
                 catch (Exception ex)

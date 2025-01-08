@@ -101,7 +101,7 @@ namespace QRESTModel.DataTableGen
                                             new DataColumn("Equivalent Method")
                                            });
 
-            List<RefParMethodDisplay> _datas = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(strPar, strCollMethod, 5000, 0);
+            List<RefParMethodDisplay> _datas = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(strPar, strCollMethod, false, 5000, 0);
             foreach (var _data in _datas)
             {
                 dt.Rows.Add(_data.T_QREST_REF_PAR_METHODS.PAR_CODE, _data.PAR_NAME, _data.T_QREST_REF_PAR_METHODS.RECORDING_MODE, _data.T_QREST_REF_PAR_METHODS.METHOD_CODE,

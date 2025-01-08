@@ -14,10 +14,6 @@ namespace QREST
     // Configure the application user manager used in this application. UserManager is defined in ASP.NET Identity and is used by the application.
     public class ApplicationUserManager : UserManager<ApplicationUser>
     {
-        //public IDataProtector Protector { get; set; }
-        //public TimeSpan TokenLifespan { get; set; }
-
-
         public ApplicationUserManager(IUserStore<ApplicationUser> store)
             : base(store)
         {
@@ -50,26 +46,6 @@ namespace QREST
             manager.UserLockoutEnabledByDefault = true;
             manager.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(30);
             manager.MaxFailedAccessAttemptsBeforeLockout = 5;
-
-
-
-            // Register two factor authentication providers. This application uses Phone and Emails as a step of receiving a code for verifying the user
-            // You can write your own provider and plug it in here.
-            //manager.RegisterTwoFactorProvider("Phone Code", new PhoneNumberTokenProvider<ApplicationUser>
-            //{
-            //    MessageFormat = "Your security code is {0}"
-            //});
-            //manager.RegisterTwoFactorProvider("Email Code", new EmailTokenProvider<ApplicationUser>
-            //{
-            //    Subject = "Security Code",
-            //    BodyFormat = "Your security code is {0}"
-            //});
-
-            //manager.EmailService = new EmailService();
-            //manager.SmsService = new SmsService();
-
-
-
 
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)

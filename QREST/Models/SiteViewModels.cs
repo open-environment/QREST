@@ -249,6 +249,8 @@ namespace QREST.Models
         public string loggerData { get; set; }
         [Required]
         public int recCount { get; set; }
+
+        public DateTime? SinceDate { get; set; }
     }
 
 

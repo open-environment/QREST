@@ -210,6 +210,17 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <input id="selSearch" name="selSearch" class="form-control" style="width:300px" placeholder="Enter Method # or Name to Search" />
+                    </div>
+                    <div class="checkbox m-l-xs m-r-xs">
+                        <label>
+                            <input id="selContinuousOnly" name="selContinuousOnly" type="checkbox" checked> Continuous Methods Only
+                        </label>
+                    </div>
+                    <button id="btnGo" class="btn  btn-primary">Search</button>
+                </div>
                 <div class="table-responsive">
                     <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                         <thead>
@@ -257,8 +268,15 @@
 
         $(document).ready(function () {
 
+            //filter click
+            $('#btnGo').on('click',
+                function () {
+                    console.log('f');
+                    table.draw();
+                });
+
             // datatable initialization
-            $("#gridData").DataTable({
+            var table = $("#gridData").DataTable({
                 "responsive": true,
                 "serverSide": true,
                 "processing": true,
@@ -268,12 +286,20 @@
                 "pageLength": 10,
                 "pagingType": "full_numbers",
                 "info": false,
-                "searching": true,
+                "searching": false,
                 "dom": '<"pull-left"f><"pull-right"l>tip',
                 "ajax": {
                     "url": "@Url.Action("RefParMethodData", "Site")",
                     "type": "POST",
-                    "datatype": "json"
+                    "datatype": "json",
+                    "data": function (d) {
+                        return $.extend({},
+                            d,
+                            {
+                                "selSearch": $('#selSearch').val(),
+                                "selContinuousOnly": $('#selContinuousOnly').is(':checked')
+                            });
+                    }
                 },
                 "columns": [
                     {
@@ -295,6 +321,8 @@
                     { "data": "T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD", "name": "T_QREST_REF_PAR_METHODS.EQUIVALENT_METHOD", "autoWidth": true }
                 ]
             });
+
+
 
             //select a par/method
             $(document).on("click", ".par-meth-sel", function () {

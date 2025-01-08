@@ -1,49 +1,58 @@
 ﻿@model QREST.Models.vmSitePing
 @{
-    ViewBag.Title = "Monitor Ping Results";
+    ViewBag.Title = "Test Polling Connection";
     ViewBag.HelpLink = "Polling-Configuration";
 }
 
 <section class="panel panel-qrest">
-    <header class="panel-heading font-bold">Ping Results</header>
+    <header class="panel-heading font-bold">
+        Connection Results
+        <a class=" btn btn-default pull-right btn-xs" href="@Url.Action("SitePollConfig", new { configid = Model.POLL_CONFIG_IDX })">Return to Polling Config</a>
+    </header>
     <div class="panel-body">
         @using (Html.BeginForm("SitePollPing", "Site", FormMethod.Post, new { @id = "norepostform", role = "form" }))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(model => model.POLL_CONFIG_IDX)
+            @Html.HiddenFor(model => model.LOGGER_TYPE)
 
             <div class="row">
                 <div class="col-md-4">
                     <label class="btn ">
-                        @Html.RadioButtonFor(m => m.pingType, "Ping Only", new { @checked = "checked", @class = "form-control pinger" }) Ping Only
+                        @Html.RadioButtonFor(m => m.pingType, "Retrieve Data", new { @checked = "checked", @class = "form-control pinger" }) Retrieve Data
                     </label>
-                    <label class="btn ">
-                        @Html.RadioButtonFor(m => m.pingType, "Retrieve Data", new { @class = "form-control pinger" }) Retrieve Data
-                    </label>
+                    @if (Model.LOGGER_TYPE == "ZENO")
+                    {
+                        <label class="btn ">
+                            @Html.RadioButtonFor(m => m.pingType, "Ping Only", new { @class = "form-control pinger" }) Ping Only
+                        </label>
+                    }
                     @Html.ValidationMessageFor(m => m.pingType)
                 </div>
-
-                @if (Model.LOGGER_TYPE != "SUTRON_LEADS" && Model.LOGGER_TYPE != "ESC" && Model.LOGGER_TYPE != "MET_ONE_BAM")
-                {
-                <div class="col-md-4 poll-data" style="display:none;">
-                    <label>Last X Records</label>
-                    @Html.TextBoxFor(model => model.recCount, new { @class = "form-control", @maxlength = "3" })
+                <div class="col-md-4 poll-data">
+                    @if (Model.LOGGER_TYPE == "SUTRON_LEADS" || Model.LOGGER_TYPE == "ESC" || Model.LOGGER_TYPE == "MET_ONE_BAM")
+                    {
+                        <label>Today's Records</label>
+                        <input class="form-control" id="ignore" name="ignore1" readonly="readonly" type="text" value="Today">
+                    }
+                    else
+                    {
+                        <label>Last X Records</label>
+                        @Html.TextBoxFor(model => model.recCount, new { @class = "form-control", @maxlength = "3" })
+                    }
                     @Html.ValidationMessageFor(model => model.recCount)
                 </div>
-                }
-                else
+                @if (Model.LOGGER_TYPE == "SUTRON")
                 {
-            <div class="col-md-4 poll-data" style="display:none;">
-                <label>Today's Records</label>
-                <input class="form-control" id="ignore" name="ignore1" readonly="readonly" type="text" value="Today">
-                @Html.ValidationMessageFor(model => model.recCount)
-            </div>                    
+                    <div class="col-md-4">
+                        <label>Or X Records Starting this date</label>
+                        @Html.TextBoxFor(m => m.SinceDate, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control", @maxlength = "10" })
+                    </div>
                 }
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <button id="btnSave" type="submit" class="btn btn-primary">Ping</button>
-                    <a class=" btn btn-default pull-right" href="@Url.Action("SitePollConfig", new { configid = Model.POLL_CONFIG_IDX })">Back to Polling Config</a>
+                    <button id="btnSave" type="submit" class="btn btn-primary">Test</button>
                 </div>
             </div>
         }
@@ -91,7 +100,7 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         Data Returned
-                        @Html.TextAreaFor(model => model.loggerData, new { @class = "form-control", @rows = "15", @style="font-family: monospace;" })
+                        @Html.TextAreaFor(model => model.loggerData, new { @class = "form-control", @rows = "15", @style = "font-family: monospace;" })
                     </div>
                 </div>
             </div>
@@ -109,15 +118,13 @@
         $(document).ready(function () {
 
 
-            //update the saved lat/long coordinates back to main form
+            //display options depending on ping type
             $('.pinger').change(function () {
                 if (this.value == "Ping Only") {
                     $(".poll-data").hide();
-                    $("#btnSave").html("Ping");
                 }
                 else {
                     $(".poll-data").show();
-                    $("#btnSave").html("Retrieve");
                 }
             });
 

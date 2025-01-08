@@ -1043,7 +1043,7 @@ namespace QREST.Controllers
 
             //THIS PAGE ONLY WORKS WITH SPECIFIED LOGGERS
             if (_config?.LOGGER_TYPE != "ZENO" && _config?.LOGGER_TYPE != "SUTRON" && _config?.LOGGER_TYPE != "ESC" && _config?.LOGGER_TYPE != "SUTRON_LEADS" && _config?.LOGGER_TYPE != "MET_ONE_BAM" && _config?.LOGGER_TYPE != "MET_BAM_1022")
-                ModelState.AddModelError("pingType", "Ping currently only available for Zeno, Sutron, or ESC dataloggers, or MetOne BAM.");
+                ModelState.AddModelError("pingType", "Ping currently only available for Zeno, Sutron, ESC dataloggers, or MetOne BAM.");
 
 
             //ONLY ZENO LOGGERS ALLOW THE PING-ONLY OPTION
@@ -1102,17 +1102,24 @@ namespace QREST.Controllers
                     {
                         //get latest date value that was polled. If in last 10 days then send date range, otherwide query for today
                         string msg = "DL" + model.recCount;
-                        DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
 
 
-                        //latestValue = new DateTime(2024, 7, 19);
-                        if (latestValue != null)
-                            msg = "DA" + latestValue.Value.ToString("yyMMddHHmm") + "00" + model.recCount.ToString("D2");
-                        //msg = "DA24072617550099";
-                        //fix weird bug in zeno logger where if pulling 
-                        if (msg.Substring(10, 2) == "55")
-                            msg = msg.Substring(0, 11) + '0' + msg.Substring(12);
-                        
+                        //****************************************************************************************
+                        //optional case to grab all records since last record (currently commented out)
+                        if (model.SinceDate != null)
+                        {
+                            //DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
+                            DateTime? latestValue = model.SinceDate;
+                            //latestValue = new DateTime(2024, 12, 19);
+                            msg = "DA" + latestValue.Value.ToString("yyMMddHHmm") + "00" + (model.recCount > 99 ? 99 : model.recCount).ToString("D2");
+                            //msg = "DA25010517550099";
+                            //fix weird bug in zeno logger where if polling on the 55th minute?
+                            if (msg.Length > 6 && msg.Substring(10, 2) == "55")
+                                msg = msg.Substring(0, 11) + '0' + msg.Substring(12);
+
+                        }
+                        //****************************************************************************************
+
                         _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), msg + ",", siteID, _config.LOGGER_RESP_DELAY_MS);
                         if (_log.CommMessageStatus)
                             model.loggerData = msg + Environment.NewLine + LoggerComm.stripMessage(_log.CommResponse, "#0001" + siteID);
@@ -1433,7 +1440,7 @@ namespace QREST.Controllers
                 model.PAR_CODE = _monitor.PAR_CODE;
                 model.METHOD_CODE = _monitor.METHOD_CODE;
 
-                model.PerMethods = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(model.PAR_CODE, null, 1000, null);
+                model.PerMethods = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(model.PAR_CODE, null, true, 1000, null);
 
                 //populate site name
                 if (model.SITE_IDX != null)
@@ -1655,14 +1662,21 @@ namespace QREST.Controllers
         public ActionResult RefParMethodData()
         {
             var draw = Request.Form.GetValues("draw")?.FirstOrDefault();  //pageNum
-            string search = Request.Form.GetValues("search[value]")?.FirstOrDefault(); //search value
-            if (search.Length > 2)
+
+            //data filters
+            string selSearch = Request.Form.GetValues("selSearch")?.FirstOrDefault();
+            string selContinuousOnly = Request.Form.GetValues("selContinuousOnly")?.FirstOrDefault();
+            bool selContinuouslyOnlyBool = selContinuousOnly == "true";
+
+            //string search = Request.Form.GetValues("search[value]")?.FirstOrDefault(); //search value
+            if (selSearch.Length > 2)
             {
                 int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
                 int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
 
-                List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(search, null, pageSize, start);
-                var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(search, null);
+
+                List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(selSearch, null, selContinuouslyOnlyBool, pageSize, start);
+                var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(selSearch, null, selContinuouslyOnlyBool);
                 return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
             }
             else

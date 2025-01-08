@@ -379,9 +379,11 @@ namespace QREST.Controllers
 
             //data filters
             string selSearch = Request.Form.GetValues("selSearch")?.FirstOrDefault();
+            string selContinuousOnly = Request.Form.GetValues("selContinuousOnly")?.FirstOrDefault();
+            bool selContinuouslyOnlyBool = selContinuousOnly == "true";
 
-            List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(selSearch, null, pageSize, start);
-            var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(selSearch, null);
+            List<RefParMethodDisplay> data = db_Ref.GetT_QREST_REF_PAR_METHODS_Search(selSearch, null, selContinuouslyOnlyBool, pageSize, start);
+            var recordsTotal = db_Ref.GetT_QREST_REF_PAR_METHODS_Count(selSearch, null, selContinuouslyOnlyBool);
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
 

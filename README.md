@@ -39,6 +39,9 @@ The following diagram illustrates the various way that tribes can get data inTO 
 
 ## Change Log
 
+- **2025-01-07**
+  - **Sutron Loggers Test Connection Improvement:**
+    - When testing polling configuration for Sutron loggers, can now retrieve X latest values or X values since a date
 - **2024-12-16**
   - **Non-Continuous Method Support:**
     - Can now add intermittent parameter methods

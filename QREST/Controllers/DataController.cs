@@ -738,9 +738,14 @@ namespace QREST.Controllers
                     var uniqueAuditLevels = model.AssessmentDetails.Where(f => f.audit_level_int != null).Where(g => g.audit_level_int > 0).Select(p => p.audit_level_int).Distinct().Count();
                     model.AuditLevelDistinctCount = uniqueAuditLevels;
                 }
+
+                //only admin and operator can add or edit these
+                model.CanEdit = db_Account.IsOrgLvl1(UserIDX, model.ORG_ID);
             }
-
-
+            else  //new entry
+                model.CanEdit = db_Account.IsOrgLvl1_ForAny(UserIDX);   //provide save button if they are Lvl1 or admin for at least 1 org
+            
+            
             return View(model);
         }
 

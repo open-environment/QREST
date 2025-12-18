@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity.Validation;
+using System.Runtime.CompilerServices;
 
 namespace QRESTModel.DAL
 {
@@ -9,7 +10,7 @@ namespace QRESTModel.DAL
         /// General purpose logging of any Entity Framework methods to database
         /// </summary>
         /// <param name="ex">Exception to log</param>
-        public static void LogEFException(Exception ex)
+        public static void LogEFException(Exception ex, [CallerMemberName] string caller = "")
         {
             string err = "";
 
@@ -31,7 +32,7 @@ namespace QRESTModel.DAL
                 err = realerror.Message ?? "Unknown error";
             }
 
-            db_Ref.CreateT_QREST_SYS_LOG(null, "ERROR", err);
+            db_Ref.CreateT_QREST_SYS_LOG(null, "ERROR", $"[EF][{caller}]: {err}");
         }
     }
 }

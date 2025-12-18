@@ -551,5 +551,54 @@ namespace QRESTModel.DataTableGen
             return _dt;
         }
 
+
+        //admin reports
+        public static DataTable GetUsers()
+        {
+            DataTable dt = new DataTable("Users");
+            dt.Columns.AddRange(new DataColumn[9] {
+                                            new DataColumn("Email"),
+                                            new DataColumn("First Name"),
+                                            new DataColumn("Last Name"),
+                                            new DataColumn("Create Date"),
+                                            new DataColumn("Last Login Date"),
+                                            new DataColumn("Tribal Admin"),
+                                            new DataColumn("Tribal QA"),
+                                            new DataColumn("Tribal Operator"),
+                                            new DataColumn("Tribal Readonly")
+                                           });
+
+            List<UserListDisplayType> _datas = db_Account.GetT_QREST_USERS(null, 1000, 0, "LNAME");
+            foreach (var _data in _datas)
+            {
+                dt.Rows.Add(_data.EMAIL, _data.FNAME, _data.LNAME, _data.CREATE_DT.GetValueOrDefault().Date, _data.LAST_LOGIN_DT.GetValueOrDefault().Date, _data.IS_TRIBAL_ADMIN == true ? "Yes":"", _data.IS_TRIBAL_QA == true ? "Yes" : "", 
+                    _data.IS_TRIBAL_OPERATOR == true ? "Yes" : "", _data.IS_READONLY == true ? "Yes" : "");
+
+            }
+            return dt;
+        }
+
+
+
+        public static DataTable GetOrgUsersByOrg(string orgID)
+        {
+            DataTable dt = new DataTable("OrganizationUsers");
+            dt.Columns.AddRange(new DataColumn[6] {
+                                            new DataColumn("Organization"),
+                                            new DataColumn("User"),
+                                            new DataColumn("Email"),
+                                            new DataColumn("Access Level"),
+                                            new DataColumn("Status"),
+                                            new DataColumn("Added Date")
+                                           });
+
+            List<UserOrgDisplayType> _datas = db_Account.GetT_QREST_ORG_USERS_ByOrgID(orgID, null, null);
+            foreach (var _data in _datas)
+            {
+                dt.Rows.Add(_data.ORG_ID, _data.USER_NAME, _data.USER_EMAIL, _data.ACCESS_LEVEL_DESC, _data.STATUS_IND_DESC, _data.CREATE_DT.GetValueOrDefault().Date);
+
+            }
+            return dt;
+        }
     }
 }

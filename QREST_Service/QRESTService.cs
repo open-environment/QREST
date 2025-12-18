@@ -100,7 +100,7 @@ namespace QREST_Service
                     }
                 }
                 else
-                    General.WriteToFile("No QREST tasks need to run.");
+                    General.WriteToFile("---");
             }
             catch {
                 General.WriteToFile("ERROR getting execution time information from database.");

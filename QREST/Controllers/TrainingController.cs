@@ -1,15 +1,10 @@
 ﻿using Microsoft.AspNet.Identity;
 using QRESTModel.DAL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using QREST.Models;
 using Microsoft.AspNet.Identity.Owin;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Net.Http.Headers;
 using QREST.App_Logic;
 
 namespace QREST.Controllers
@@ -88,6 +83,7 @@ namespace QREST.Controllers
                 return File(_ms, "application/pdf", (_course.COURSE_NAME ?? "QREST_course") + ".pdf");
             }
             catch (Exception ex) {
+                db_Ref.CreateT_QREST_SYS_LOG(null, "TRAINING", "Error generating Course PDF " + ex.Message);
             }
             return null;
         }
@@ -178,40 +174,6 @@ namespace QREST.Controllers
             }
 
             return View(model);
-        }
-
-
-        public async Task<ActionResult> Test()
-        {
-
-            //*************STEP 1: SEND POST TO RETRIEVE AUTH TOKEN *************************
-            HttpClient client = new HttpClient();
-            var values = new Dictionary<string, string>
-            {
-                { "email", "testperson@yahoo.com" },
-                { "password", "test" }
-            };
-
-            var content = new FormUrlEncodedContent(values);
-            var response = await client.PostAsync("http://api.stevens-connect.com/authenticate", content);
-            var responseString = await response.Content.ReadAsStringAsync();
-
-
-            //***************STEP 2: CALL GET ON WEB API  ********************************
-            //pseudo code:
-            string bearerToken = "extractFromAboveCode";  //get from the json response in responseString above
-
-            //base URL but change URI parameters in the string below with what is wanted
-            string myGetUrl = "http://api.stevens-connect.com/project/{project_id}/readings?channel_ids={channel_id,channel_id...}&range_type=relative&start_date=null&end_date=null&minutes=1440&transformation=none";  
-
-            using (var requestMessage =
-            new HttpRequestMessage(HttpMethod.Get, myGetUrl))
-            {
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
-                var apiResponse = await client.SendAsync(requestMessage);
-            }
-
-            return View();
         }
     }
 }

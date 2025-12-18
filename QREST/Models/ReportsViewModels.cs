@@ -11,6 +11,7 @@ namespace QREST.Models
     public class vmReportsExport
     {
         public string selOrgID { get; set; }
+        public string selOrgIDAdmin { get; set; }
         public Guid? selMon { get; set; }
         public string selType { get; set; }
         public string selDate { get; set; }
@@ -83,8 +84,13 @@ namespace QREST.Models
         public int? HourlyCnt { get; set; }
         public int? FiveMinCnt { get; set; }
         public int? OrgCnt { get; set; }
-        public List<MONTHLY_USAGE_HOURLY> HourlyCnts { get; set; }
-        public List<MONTHLY_USAGE_FIVEMIN> FiveMinCnts { get; set; }
+        public List<GlobalHourlyUsage> HourlyCnts { get; set; }
+        public List<GlobalHourlyUsage> FiveMinCnts { get; set; }
+        public int? RD_cnt { get; set; }
+        public int? RD_sum { get; set; }
+        public int? QA_cnt { get; set; }
+        public int? QA_sum { get; set; }
+
     }
 
 
@@ -118,5 +124,23 @@ namespace QREST.Models
 
     }
 
+
+    public class vmReportsRefParUnit
+    {
+        [Required]
+        public string editPAR_CODE { get; set; }
+
+        [Required]
+        public string editUNIT_CODE { get; set; }
+
+        public IEnumerable<SelectListItem> ddl_units { get; set; }
+        public IEnumerable<SelectListItem> ddl_par { get; set; }
+
+        public vmReportsRefParUnit()
+        {
+            ddl_units = ddlHelpers.get_ddl_ref_units(null);
+            ddl_par = ddlHelpers.get_ddl_ref_par();
+        }
+    }
 
 }

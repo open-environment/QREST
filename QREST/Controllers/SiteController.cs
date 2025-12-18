@@ -1092,7 +1092,7 @@ namespace QREST.Controllers
                     }
                     else if (_config.LOGGER_TYPE == "MET_BAM_1022")
                     {
-                        _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), model.recCount);
+                        _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, _config.LOGGER_PORT.ConvertOrDefault<ushort>(), "4 " + model.recCount);
                         if (_log.CommMessageStatus)
                             model.loggerData = _log.CommResponse;
                         else
@@ -1245,7 +1245,7 @@ namespace QREST.Controllers
                     hrs = difference.TotalHours.ConvertOrDefault<int>();
                     if (hrs > 2000) hrs = -1;
                 }
-                CommMessageLog _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, hrs);
+                CommMessageLog _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, "4 " + hrs);
                 if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
                 {
                     //send the entire text response to the file parser routine
@@ -1429,7 +1429,7 @@ namespace QREST.Controllers
             if (_monitor != null)
             {
                 //reject if user doesn't have access to site
-                RedirectToRouteResult r = CanAccessThisSite(UserIDX, _monitor.T_QREST_MONITORS.SITE_IDX, false);
+                RedirectToRouteResult r = CanAccessThisSite(UserIDX, _monitor.T_QREST_MONITORS.SITE_IDX, true);
                 if (r != null) return r;
 
                 model.MONITOR_IDX = _monitor.T_QREST_MONITORS.MONITOR_IDX;
@@ -1531,7 +1531,7 @@ namespace QREST.Controllers
 
 
                 //grab remote JSON file from EPA AQS API
-                using (var httpClient = new HttpClient())
+                using (var httpClient = new System.Net.Http.HttpClient())
                 {
                     try
                     {
@@ -1597,21 +1597,6 @@ namespace QREST.Controllers
         public ActionResult MonitorImport(vmSiteMonitorImport model)
         {
             string UserIDX = User.Identity.GetUserId();
-
-            //// check security (whether can update)
-            //if (db_Account.CanAccessThisOrg(UserIDX, model.selOrgID, true) == false)
-            //{
-            //    TempData["Error"] = "You don't have rights to edit this agency.";
-            //    return RedirectToAction("SiteList", "Site");
-            //}
-
-            ////lookup to get the AQS Tribal Code for 
-            //T_QREST_ORGANIZATIONS _org = db_Ref.GetT_QREST_ORGANIZATION_ByID(model.selOrgID);
-            //if (_org == null)
-            //{
-            //    TempData["Error"] = "Organization not found";
-            //    return View(model);
-            //}
 
             int i = 0;
             foreach (var item in model.ImportMonitors)

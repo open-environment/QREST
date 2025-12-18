@@ -3,6 +3,7 @@ using QRESTModel.BLL;
 using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -364,11 +365,8 @@ namespace QRESTModel.COMM
                                 }
                                 else
                                 {
-                                    //set pointer (how many hours of data to retrieve
-                                    string _goPointer = SendReceiveMessage(stream, "9", 700, 700, false);  //hit 9 for ...
-                                    //byte[] bytestosend = { 0x1B };
-                                    string _ignore1 = SendReceiveMessage(stream, "3 6\r", 700, 700, false, true);  //hit escape then 3 is the hourly data file, then 6 is number of hours
-                                    string _ignore2 = SendReceiveMessage(stream, "\r\n\r\n\r\n", 700, 700, false);  //hit enter 3 times to return to menu
+                                    //string _ignore1 = SendReceiveMessage(stream, "3 6\r", 700, 700, false, true);  //hit 3 is the hourly data file, then 6 is number of hours
+                                    //string _ignore2 = SendReceiveMessage(stream, "\r\n\r\n\r\n", 700, 700, false);  //hit enter 3 times to return to menu
                                     string _csvdata = SendReceiveMessage(stream, "6\r\n", 700, 700, false);  //hit 6 for CSV data then 3 to get data
                                     string _csvdata2 = SendReceiveMessage(stream, "3\r\n ", 700, 700, false);  //3 to get new data
                                     if (_csvdata2 != null && _csvdata2.Length > 10)
@@ -422,76 +420,71 @@ namespace QRESTModel.COMM
         /// <param name="ip">Data logger IP address</param>
         /// <param name="port">Data logger port</param>
         /// <returns></returns>
-        public static CommMessageLog ConnectTcpBAM1022(string ip, ushort port, int? numRecs)
+        public static CommMessageLog ConnectTcpBAM1022(string ip, ushort port, string recsCommand)
         {
-            var log = new CommMessageLog();
+            TcpClient client = null;
+            NetworkStream stream = null;
 
-            // This dictates that the socket will not longer open after the socket is closed
-            LingerOption lingerOption = new LingerOption(true, 0);
-
-            //Create a TCPClient object at the IP and port
-            using (TcpClient client = new TcpClient { SendTimeout = 2000, ReceiveTimeout = 2000, LingerState = lingerOption })
+            try
             {
-                try
+                // Initialize and connect
+                client = new TcpClient { SendTimeout = 5000, ReceiveTimeout = 5000 };
+                client.Connect(ip, port);
+
+                // Acquire network stream for communication
+                stream = client.GetStream();
+
+                // Send initial login / wakeup sequence
+                string response = SendReceiveMessageNew(stream, "\r\n\r\n\r\n", 700, 700, false);
+                if (response == null || !response.Contains("*"))
+                    return new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password or device wakeup failed", CommResponse = "" };
+
+                // Send record retrieval command
+                //hit 4 10 to retrieve last 10 records
+                //hit 4 YYYY-MM-DD HH to retrieve all records since date
+                // or hit 2 to retrieve all records
+                string _csvdata = SendReceiveMessageNew(stream, (recsCommand ?? "4 10") + "\r", 700, 700, false);
+                if (_csvdata != null && _csvdata.Length > 10)
                 {
-                    if (!client.ConnectAsync(ip, port).Wait(TimeSpan.FromSeconds(2)))
-                        log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Connect", CommResponse = "" };
-                    else
-                    {
-                        // Get a client stream for reading and writing.
-                        using (NetworkStream stream = client.GetStream())
-                        {
-                            //*************** send three enters *****************************
-                            string _usrResp = SendReceiveMessage(stream, "\r\n\r\n\r\n", 700, 700, false);
-                            if (_usrResp != null && _usrResp.Contains("*"))
-                            {
-                                string numRecsStr = (numRecs ?? 10).ToString();
-                                //if numrecs == -1, then query all
-                                string recsCommand = numRecs == -1 ? "2\r" : "4 " + numRecsStr + "\r";
-                                //set pointer (how many hours of data to retrieve
-                                string _csvdata2 = SendReceiveMessage(stream, recsCommand, 700, 700, false);  //hit 4 10 to retrieve last 10 records
-                                if (_csvdata2 != null && _csvdata2.Length > 10)
-                                {
-                                    string[] lines = _csvdata2.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
-                                    _csvdata2 = string.Join(Environment.NewLine, lines);
-
-                                    log = new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = _csvdata2 };
-                                }
-                                else
-                                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = _csvdata2, CommResponse = "" };
-
-                            }
-                            else
-                                log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password failed", CommResponse = "" };
-
-                            //disconnect
-                            client.Client.Close();
-                            System.Threading.Thread.Sleep(250);
-                            client.Close();
-                        }
-                    }
-
+                    //retrieve data success
+                    string[] lines = _csvdata.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
+                    return new CommMessageLog { CommMessageStatus = true, CommMessageType = "Data", CommResponse = string.Join(Environment.NewLine, lines) };
                 }
-                catch (SocketException sex)
-                {
-                    //disconnect if exception
-                    client.Client.Close();
-                    System.Threading.Thread.Sleep(250);
-                    client.Close();
-                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping Socket Exception 1", CommResponse = sex.Message };
-                }
-                catch (Exception ex)
-                {
-                    //disconnect if exception
-                    client.Client.Close();
-                    System.Threading.Thread.Sleep(250);
-                    client.Close();
-
-                    log = new CommMessageLog { CommMessageStatus = false, CommMessageType = "Ping General Exception 2", CommResponse = ex.Message };
-                }
+                else
+                    return new CommMessageLog { CommMessageStatus = false, CommMessageType = _csvdata, CommResponse = "" };
             }
+            catch (SocketException sex)
+            {
+                return new CommMessageLog { CommMessageStatus = false, CommMessageType = "Socket Exception", CommResponse = sex.Message };
+            }
+            catch (Exception ex)
+            {
+                return new CommMessageLog { CommMessageStatus = false, CommMessageType = "General Exception", CommResponse = ex.Message };
+            }
+            finally
+            {
+                // ---- CLEANUP SEQUENCE ----
+                // Try to flush any buffered data to ensure no pending bytes remain unsent.
+                // On some devices, unflushed data may cause half-open socket states.
+                try { stream?.Flush(); } catch { /* ignore errors */ }
 
-            return log;
+                // Close the network stream to signal the end of communication cleanly.
+                // This also triggers a graceful shutdown of the underlying TCP connection.
+                try { stream?.Close(); } catch { /* ignore errors */ }
+
+                // Close the underlying socket directly to forcefully release any OS-level handle.
+                // Ensures no lingering TCP socket remains in TIME_WAIT or CLOSE_WAIT state.
+                try { client?.Client.Close(); } catch { /* ignore errors */ }
+
+                // Brief pause to allow the OS to finalize socket closure.
+                // Especially important when communicating with embedded hardware
+                // that may not immediately detect the TCP FIN packet.
+                Thread.Sleep(250);
+
+                // Fully close the TcpClient wrapper to release all managed resources.
+                // This ensures the connection is completely disposed at the .NET layer.
+                try { client?.Close(); } catch { /* ignore errors */ }
+            }
         }
 
 
@@ -564,6 +557,84 @@ namespace QRESTModel.COMM
             return "TIMEOUT:" + resp;
         }
 
+
+        /// <summary>
+        /// Rewritten in 2025. Sends a message on NetworkStream and listens for response. Continues listening until response stops writing or cancelation token is reached. 
+        /// </summary>
+        /// <param name="stream">Established network stream / socket</param>
+        /// <param name="message">Message to send</param>
+        /// <param name="msWaitPreSend">Wait in milliseconds before sending message</param>
+        /// <param name="msWaitPostSend">Wait in milliseconds between sending message and reading response</param>
+        /// <param name="appendEOFInd">Indicates whether an End Of File ascii character should be appended to the end of the message</param>
+        /// <returns>Network stream response</returns>
+        public static string SendReceiveMessageNew(NetworkStream stream, string message, int? msWaitPreSend, int? msWaitPostSend, bool appendEOFInd, bool prependEscape = false)
+        {
+            //wait for socket to be ready write data
+            Thread.Sleep(msWaitPreSend ?? 100);
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                // ****************Prepare message to send ********************************
+                byte[] bytesToSend = Encoding.ASCII.GetBytes(message);
+
+                if (appendEOFInd)
+                {
+                    //******** ADD MODULO-100 CHECKSUM **************
+                    int byteSum = 0;
+                    for (int i = 1; i <= bytesToSend.Length - 1; i++)
+                        byteSum += bytesToSend[i];
+                    int mod = byteSum % 100;
+
+                    var ascii = Encoding.ASCII;
+                    bytesToSend = Encoding.ASCII.GetBytes(message + mod.ToString())
+                        .Concat(ascii.GetBytes(new[] { (char)3 }))
+                        .ToArray();
+                }
+
+                if (prependEscape)
+                {
+                    byte[] newValues = new byte[bytesToSend.Length + 1];
+                    newValues[0] = 0x1B;                                // set the prepended value
+                    Array.Copy(bytesToSend, 0, newValues, 1, bytesToSend.Length); // copy the old values
+                    bytesToSend = newValues;
+                }
+
+                // ****************Send message to device ********************************
+                stream.Write(bytesToSend, 0, bytesToSend.Length);
+
+                // ****************Read response after the send command ********************************
+                Thread.Sleep(msWaitPostSend ?? 100); //wait for socket to begin writing response
+
+                //read response
+                var buffer = new byte[8192];
+                var received = new List<byte>();
+                var sw = Stopwatch.StartNew();
+
+                while (sw.ElapsedMilliseconds < 5000)
+                {
+                    if (stream.DataAvailable)
+                    {
+                        int read = stream.Read(buffer, 0, buffer.Length);
+                        if (read > 0)
+                        {
+                            received.AddRange(buffer.Take(read));
+                            sw.Restart(); // reset inter-byte timeout
+                        }
+                    }
+                    else
+                    {
+                        // wait a short inter-byte period before checking again
+                        Thread.Sleep(50);
+                    }
+                }
+
+                return Encoding.ASCII.GetString(received.ToArray());
+            }
+            else
+                return "init";
+
+
+        }
 
         public static async Task<string> SendReceiveMessageAsync(NetworkStream stream, string message, int? msWaitPreSend, int? msWaitPostSend, bool appendEOFInd, bool prependEscape = false)
         {
@@ -685,7 +756,7 @@ namespace QRESTModel.COMM
                 {
                     while ((line = sr.ReadLine()) != null)
                     {
-                        if (line.Length > 20 && line.Contains("ConcR") == false)
+                        if (line.Length > 20 && line.Contains("ConcR") == false && line.Contains("ConcS") == false)
                         {
                             //FIVE MINUTE RAW DATA
                             if (config.RAW_DURATION_CODE == "H" || overrideConfigDuration == true)
@@ -697,25 +768,10 @@ namespace QRESTModel.COMM
                             {
                                 SuccInd = db_Air.InsertT_QREST_DATA_HOURLY_fromLine(line, config, _config_dtl, _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
                             }
-                            //ONE MINUTE RAW DATA
-                            //if (config.RAW_DURATION_CODE == "G")
-                            //    db_Air.InsertT_QREST_DATA_ONE_MIN_fromLine(line, config, config_dtl);
                         }
                     }
                 }
                 
-
-                if (updateNextRunTime)
-                {
-                    //update next run for the site
-                    DateTime nextrun = System.DateTime.Now.AddMinutes(15);  //default to 15 minutes next run
-                    if (config.POLLING_FREQ_TYPE == "M")
-                        nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
-
-                    db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null, null);
-                }
-
                 return SuccInd;
             }
             catch (Exception ex)
@@ -760,18 +816,6 @@ namespace QRESTModel.COMM
                     }
                 }
 
-
-                if (updateNextRunTime)
-                {
-                    //update next run for the site
-                    DateTime nextrun = System.DateTime.Now.AddMinutes(15);  //default to 15 minutes next run
-                    if (config.POLLING_FREQ_TYPE == "M")
-                        nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
-
-                    db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null, null);
-                }
-
                 return SuccInd;
             }
             catch (Exception ex)
@@ -808,18 +852,6 @@ namespace QRESTModel.COMM
                             SuccInd = db_Air.InsertT_QREST_DATA_HOURLY_fromLine_BAM(line, config, _config_dtl, _site.LOCAL_TIMEZONE.ConvertOrDefault<int>());
                         }
                     }
-                }
-
-
-                if (updateNextRunTime)
-                {
-                    //update next run for the site
-                    DateTime nextrun = System.DateTime.Now.AddMinutes(15);  //default to 15 minutes next run
-                    if (config.POLLING_FREQ_TYPE == "M")
-                        nextrun = System.DateTime.Now.AddMinutes(config.POLLING_FREQ_NUM ?? 15);
-
-                    db_Air.InsertUpdatetT_QREST_SITES(config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                        System.DateTime.Now, nextrun, null, null, null, null, null, null, null, null, null, null);
                 }
 
                 return SuccInd;
@@ -887,7 +919,7 @@ namespace QRESTModel.COMM
                     }
                 }
                 catch {
-                    db_Ref.CreateT_QREST_SYS_LOG("SYSTEM", "POLLING ERROR", "FAILURE ON POLLING WEATHER STATION - unreadable format");
+                    db_Ref.CreateT_QREST_SYS_LOG("SYSTEM", "POLLING", "FAILURE ON POLLING WEATHER STATION - unreadable format");
                     return false;
                 }
 

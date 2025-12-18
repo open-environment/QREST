@@ -120,8 +120,8 @@ namespace QREST.Models
             _list.Add(new SelectListItem() { Value = "SUTRON", Text = "Sutron" });
             _list.Add(new SelectListItem() { Value = "SUTRON_LEADS", Text = "Sutron w/LEADS" });
             _list.Add(new SelectListItem() { Value = "ESC", Text = "Agilaire/ESC" });
-            _list.Add(new SelectListItem() { Value = "MET_ONE_BAM", Text = "Met One BAM 1020" });
-            _list.Add(new SelectListItem() { Value = "MET_BAM_1022", Text = "Met One BAM 1022" });
+            _list.Add(new SelectListItem() { Value = "MET_ONE_BAM", Text = "Met One BAM 1020 (older soft key)" });
+            _list.Add(new SelectListItem() { Value = "MET_BAM_1022", Text = "Met One BAM 1020/1022 (touch screen)" });
             _list.Add(new SelectListItem() { Value = "WEATHER_PWS", Text = "Weather.com Personal Weather Station" });
             return _list;
         }
@@ -343,6 +343,15 @@ namespace QREST.Models
             {
                 Value = x.DURATION_CODE,
                 Text = x.DURATION_DESC
+            });
+        }
+
+        public static IEnumerable<SelectListItem> get_ddl_ref_par()
+        {
+            return db_Ref.GetT_QREST_REF_PARAMETERS().Select(x => new SelectListItem
+            {
+                Value = x.PAR_CODE,
+                Text = x.PAR_CODE + " - " + x.PAR_NAME
             });
         }
 

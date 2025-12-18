@@ -23,7 +23,7 @@ namespace QRESTModel.AQSHelper
         public static Guid? AQSGeneration_Orchestrator(string org_id, Guid siteIDX, IList<Guid> selMons, DateTime startDt, DateTime endDt, string UserIDX, string actionCd, string format)
         {
             //Step 1: Create tracking record
-            Guid? _aqsid = db_Air.InsertUpdateT_QREST_AQS(null, org_id, siteIDX, null, startDt, endDt, null, null, null, "Started", UserIDX, null, null, null);
+            Guid? _aqsid = db_Air.InsertUpdateT_QREST_AQS(null, org_id, siteIDX, null, startDt, endDt, null, null, null, "Started", UserIDX, null, null, null, null, "RD");
 
             //Step 2: Generate file and store to the previously created record
             if (_aqsid != null)
@@ -35,7 +35,7 @@ namespace QRESTModel.AQSHelper
         public static Guid? AQS_QA_Generation_Orchestrator(string org_id, Guid siteIDX, Guid qC_ASSESS_IDX, string UserIDX, string actionCd, string format)
         {
             //Step 1: Create tracking record
-            Guid? _aqsid = db_Air.InsertUpdateT_QREST_AQS(null, org_id, siteIDX, null, null, null, null, null, null, "Started", UserIDX, null, null, null);
+            Guid? _aqsid = db_Air.InsertUpdateT_QREST_AQS(null, org_id, siteIDX, null, null, null, null, null, null, "Started", UserIDX, null, null, null, null, "QA");
 
             //Step 2: Generate file and store to the previously created record
             if (_aqsid != null)
@@ -199,7 +199,7 @@ namespace QRESTModel.AQSHelper
                             string ext = format == "X" ? ".xml" : ".txt";
                             string fileName = "AQS_QA_" + dt + ext;
 
-                            Guid? SuccID = db_Air.InsertUpdateT_QREST_AQS(aqsIDX, null, null, fileName, null, null, zipbyteArray, null, null, "File Created", null, fileText, null, null);
+                            Guid? SuccID = db_Air.InsertUpdateT_QREST_AQS(aqsIDX, null, null, fileName, _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_DT, _assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_DT, zipbyteArray, null, null, "File Created", null, fileText, null, null);
                             return SuccID;
                         }
                     }

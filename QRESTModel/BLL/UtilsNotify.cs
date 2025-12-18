@@ -49,12 +49,12 @@ namespace QRESTModel.BLL
                 }
 
                 //sms
-                if (u.NOTIFY_SMS_IND == true)
-                {
-                    bool smsStatus = UtilsSMS.sendSMS(uSER_IDX, nOTIFY_DESC);
-                    if (smsStatus == false)
-                        overallStatus = false;
-                }
+                //if (u.NOTIFY_SMS_IND == true)
+                //{
+                //    bool smsStatus = UtilsSMS.sendSMS(uSER_IDX, nOTIFY_DESC);
+                //    if (smsStatus == false)
+                //        overallStatus = false;
+                //}
 
                 return overallStatus;
             }

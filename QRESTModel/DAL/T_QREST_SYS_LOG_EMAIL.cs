@@ -22,5 +22,6 @@ namespace QRESTModel.DAL
         public string EMAIL_SUBJ { get; set; }
         public string EMAIL_MSG { get; set; }
         public string EMAIL_TYPE { get; set; }
+        public string APP_ID { get; set; }
     }
 }

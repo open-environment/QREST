@@ -4,7 +4,6 @@ using QREST.App_Logic.BusinessLogicLayer;
 using QREST.Models;
 using QRESTModel.AQSHelper;
 using QRESTModel.DAL;
-using QRESTModel.DataTableGen;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,12 +13,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using QRESTModel.COMM;
-using Renci.SshNet;
-using System.Net.Http.Headers;
-using Newtonsoft.Json.Linq;
-using System.Net.Http;
-using System.Text;
 
 namespace QREST.Controllers
 {
@@ -1294,30 +1287,6 @@ namespace QREST.Controllers
             return RedirectToAction("AppSettings");
 
         }
-        
-        public ActionResult Testing()
-        {
-
-
-
-            using (var client = new System.Net.Http.HttpClient())
-            {
-
-                var url = "https://api.quant-aq.com/v1/account";
-                url = "https://api.quant-aq.com/v1/devices/MOD-PM-00624";
-                url = "https://api.quant-aq.com/v1/networks";
-                url = "https://api.quant-aq.com/v1/devices/MOD-PM-00624/data-by-date/raw/2024-05-10";
-                url = "https://api.quant-aq.com/v1/data/most-recent/?sn=MOD-PM-00624";
-
-                var byteArray = Encoding.ASCII.GetBytes("REMOVED:");
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-                var response = client.GetAsync(url).Result;
-                var result = response.Content.ReadAsStringAsync();
-
-            }
-
-            return View();
-        }
-
+      
     }
 }

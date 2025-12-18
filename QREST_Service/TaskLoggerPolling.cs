@@ -1,4 +1,5 @@
 ﻿using QREST_Service;
+using QRESTModel.BLL;
 using QRESTModel.COMM;
 using QRESTModel.DAL;
 using System;
@@ -49,12 +50,17 @@ namespace QRESTServiceCatalog
             List<SitePollingConfigType> _configs = db_Air.GetT_QREST_SITES_POLLING_CONFIG_ReadyToPoll();
             if (_configs != null && _configs.Count > 0)
             {
+                General.WriteToFile("About to poll. " + _configs.Count + " sites at " + System.DateTime.UtcNow + " as listed here");
+                foreach (SitePollingConfigType _config in _configs) {
+                    General.WriteToFile("  -  [" + _config.ORG_ID + "][" + _config.SITE_ID + "] : " + _config.LOGGER_TYPE + " next poll:" + _config.POLLING_NEXT_RUN_DT);
+                }
+
                 foreach (SitePollingConfigType _config in _configs)
                 {
                     List<SitePollingConfigDetailType> _config_dtl = db_Air.GetT_QREST_SITE_POLL_CONFIG_DTL_ByID_Simple(_config.POLL_CONFIG_IDX, true);
                     if (_config_dtl != null && _config_dtl.Count > 0)
                     {
-                        General.WriteToFile("Start poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);
+                        General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Start logging: " + _config.LOGGER_TYPE);
 
                         //****************** ZENO OR SUTRON CCSAIL DATA LOGGER *********************************************************
                         //****************** ZENO OR SUTRON CCSAIL DATA LOGGER *********************************************************
@@ -68,10 +74,13 @@ namespace QRESTServiceCatalog
                                 msg = "DA" + latestValue.Value.ToString("yyMMddHHmm") + "0060";
 
                             //fix weird bug in zeno logger where if polling on the 55th minute? 
-                            if (msg.Substring(10, 2) == "55")
-                                msg = msg.Substring(0, 11) + '0' + msg.Substring(12);
+                            try
+                            {
+                                if (msg.SubStringPlus(10, 2) == "55")
+                                    msg = msg.SubStringPlus(0, 11) + '0' + msg.Substring(12);
+                            } catch { }
 
-                            General.WriteToFile("ZENO/SUTRON message: " + msg);
+                            General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] ZENO/SUTRON command: " + msg);
 
                             CommMessageLog _log = LoggerComm.ConnectTcpClientSailer(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, msg + ",", _config.SITE_ID, _config.LOGGER_RESP_DELAY_MS);
                             if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
@@ -83,7 +92,7 @@ namespace QRESTServiceCatalog
                                 General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
                             }
                             else
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+                                General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Error in polling ###" + _log.CommMessageType + ":" + _log.CommResponse);
 
                         }
                         //****************** SUTRON WITH LEADS DATA LOGGER *********************************************************
@@ -111,7 +120,7 @@ namespace QRESTServiceCatalog
                                 General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
                             }
                             else
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+                                General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Error in polling ###" + _log.CommMessageType + ":" + _log.CommResponse);
 
                         }
                         //****************** ESC/AGILAIRE LOGGER *********************************************************
@@ -136,12 +145,12 @@ namespace QRESTServiceCatalog
                                 General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
                             }
                             else
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+                                General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Error in polling ###" + _log.CommMessageType + ":" + _log.CommResponse);
 
                         }
-                        //****************** MET ONE BAM*********************************************************
-                        //****************** MET ONE BAM*********************************************************
-                        //****************** MET ONE BAM*********************************************************
+                        //****************** MET ONE BAM (1020 older models)*********************************************************
+                        //****************** MET ONE BAM (1020 older models)*********************************************************
+                        //****************** MET ONE BAM (1020 older models)*********************************************************
                         else if (_config.LOGGER_TYPE == "MET_ONE_BAM")
                         {
                             CommMessageLog _log = LoggerComm.ConnectTcpBAM(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT);
@@ -154,28 +163,26 @@ namespace QRESTServiceCatalog
                                 General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
                             }
                             else
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+                                General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Error in polling ###" + _log.CommMessageType + ":" + _log.CommResponse);
                         }
-                        //****************** MET ONE BAM 1022*********************************************************
-                        //****************** MET ONE BAM 1022*********************************************************
-                        //****************** MET ONE BAM 1022*********************************************************
+                        //****************** MET ONE BAM 1022 (and newer 1020 models)*********************************************************
+                        //****************** MET ONE BAM 1022 (and newer 1020 models)*********************************************************
+                        //****************** MET ONE BAM 1022 (and newer 1020 models)*********************************************************
                         else if (_config.LOGGER_TYPE == "MET_BAM_1022")
                         {
-                            General.WriteToFile("MET_BAM_1022 logging happening for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "");
-
-                            //find how many records to retrieve
-                            int hrs = -1;
+                            //find out last hour of data to determine the command to send
+                            string command = "4 720"; //no polling at this site yet, so retrieve 720 records (24 * 30 days)
                             DateTime? latestValue = db_Air.SP_LATEST_POLLED_DATE(_config.SITE_IDX, _config.RAW_DURATION_CODE, _config.TIME_POLL_TYPE);
                             if (latestValue != null)
                             {
                                 TimeSpan difference = DateTime.Now - latestValue.Value;
-                                hrs = ((int)difference.TotalHours);
-                                if (hrs > 2000) hrs = -1;
+                                //if latest date is in the past 
+                                if (difference.TotalHours < 720)
+                                    command = "4 " + latestValue.Value.AddHours(1).ToString("yyyy-MM-dd HH");
                             }
+                            General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] MET_BAM will send command: " + command);
 
-                            General.WriteToFile("MET_BAM_1022 will retrieve for hours count (-1 means all):" + hrs);
-
-                            CommMessageLog _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, hrs);
+                            CommMessageLog _log = LoggerComm.ConnectTcpBAM1022(_config.LOGGER_SOURCE, (ushort)_config.LOGGER_PORT, command);
                             if (_log.CommMessageStatus && _log.CommResponse != null && _log.CommResponse.Length > 20)
                             {
                                 //send the entire text response to the file parser routine
@@ -185,7 +192,7 @@ namespace QRESTServiceCatalog
                                 General.WriteToPollingFile(_log.CommResponse, _config.SITE_ID);
                             }
                             else
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###" + _log.CommMessageType + ":" + _log.CommResponse);
+                                General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Error in polling ###" + _log.CommMessageType + ":" + _log.CommResponse);
                         }
                         //****************** WEATHER.COM WEATHER STATION *********************************************************
                         //****************** WEATHER.COM WEATHER STATION *********************************************************
@@ -195,7 +202,7 @@ namespace QRESTServiceCatalog
                             T_QREST_SITE_POLL_CONFIG _c = db_Air.GetT_QREST_SITE_POLL_CONFIG_ByID(_config.POLL_CONFIG_IDX);
                             bool xxx = LoggerComm.RetrieveWeatherCompanyPWS(_c).Result;
                             if (xxx == false)
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###Unreadable weather station format");
+                                General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Error in polling ###Unreadable weather station format");
 
                         }
                         //****************** CAMPBELL SCIENTIFIC DATA LOGGER *********************************************************
@@ -203,17 +210,15 @@ namespace QRESTServiceCatalog
                         //****************** CAMPBELL SCIENTIFIC DATA LOGGER *********************************************************
                         else if (_config.LOGGER_TYPE == "CAMPBELL")
                         {
-                            General.WriteToFile("Campbell logging happening for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "");
-
                             //retrieve the file from the poll directory
                             string _file = LoggerComm.RetrieveCampbell(_config);
 
                             if (_file == null)
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###NO FILE");
+                                General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] ###NO FILE");
                             else if (_file.Length > 10)
                             {
                                 //send the entire text response to the file parser routine
-                                General.WriteToFile("Campbell data found for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "###" + _file.Substring(1, 10));
+                                General.WriteToFile("Campbell data found for:" + _config.ORG_ID + " site: " + _config.SITE_ID + "###" + _file.SubStringPlus(1, 10));
 
                                 bool ParseSuccessInd = LoggerComm.ParseFlatFile(_file, _config, _config_dtl, true); 
                                 if (ParseSuccessInd)
@@ -222,16 +227,25 @@ namespace QRESTServiceCatalog
                                     General.ArchiveCampbellPollingFile(_config.SITE_ID);
                                 }
                                 else
-                                    General.WriteToFile("Campbell data parse failed:" + _config.ORG_ID + " site: " + _config.SITE_ID + "###" + _file.Substring(1, 10));
+                                    General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Campbell data parse failed: " + _file.SubStringPlus(1, 10));
 
                             }
                             else
-                                General.WriteToFile("Error in polling:" + _config.ORG_ID + " site: " + _config.SITE_ID + " ###NO DATA");
+                                General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Error in polling: ###NO DATA");
                         }
                         else
-                            General.WriteToFile("Logger type not found for:" + _config.ORG_ID + " site: " + _config.SITE_ID);
+                            General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] Logger type not found");
 
-                        General.WriteToFile("End poll for org:" + _config.ORG_ID + " site: " + _config.SITE_ID);
+
+                        //update next run for the site
+                        DateTime nextrun = System.DateTime.UtcNow.AddMinutes(15);  //default to 15 minutes next run
+                        if (_config.POLLING_FREQ_TYPE == "M")
+                            nextrun = System.DateTime.Now.AddMinutes(_config.POLLING_FREQ_NUM ?? 15);
+                        db_Air.InsertUpdatetT_QREST_SITES(_config.SITE_IDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 
+                            System.DateTime.UtcNow, nextrun, null, null, null, null, null, null, null, null, null, null);
+
+
+                        General.WriteToFile("[" + _config.ORG_ID + "][" + _config.SITE_ID + "] End logging");
                     }
                     else
                     {
@@ -239,14 +253,12 @@ namespace QRESTServiceCatalog
                             "No column mappings found for polling configuration [" + _config.ORG_ID + "]. Site polling taken offline");
 
                         db_Air.InsertUpdatetT_QREST_SITES(_config.SITE_IDX, null, null, null, null, null, null, null,
-                            null, null, null, null, null, null, null, false, null, null, 
-                            null, null, null,
-                            null, null, null, null, null, null, null, null, null);
+                            null, null, null, null, null, null, null, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
                     }
                 }
             }
             else
-                General.WriteToFile("No sites to poll.");
+                General.WriteToFile("No sites to poll. " + System.DateTime.UtcNow);
 
 
             bExecutingGenLedSvcStatus = false;

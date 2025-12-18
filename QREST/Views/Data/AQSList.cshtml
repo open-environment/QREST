@@ -28,8 +28,9 @@
                 <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
                     <thead>
                         <tr>
-                            <th style="width: 120px;"></th>
+                            <th style="width: 90px;"></th>
                             <th>Site</th>
+                            <th></th>
                             <th>Submission Name</th>
                             <th>Submission Date (UTC)</th>
                             <th>Data Date Range</th>
@@ -53,8 +54,12 @@
                                 </div>
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.SITE_ID)
+                                [@Html.DisplayFor(modelItem => item.SITE_ID)]
                                 @Html.DisplayFor(modelItem => item.SITE_NAME)
+                            </td>
+
+                            <td style="background-color:@(item.AQS_TRANS_TYPE == "RD" ? "#e0f7fa" : item.AQS_TRANS_TYPE == "QA" ? "#fff3e0" : "transparent")">
+                                @Html.DisplayFor(modelItem => item.AQS_TRANS_TYPE)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.AQS_SUBMISSION_NAME)
@@ -63,8 +68,15 @@
                                 @Html.DisplayFor(modelItem => item.CREATE_DT)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.START_DT) -
-                                @Html.DisplayFor(modelItem => item.END_DT)
+                                @if (item.START_DT.Year > 1)
+                                {
+                                    @Html.DisplayFor(modelItem => item.START_DT)
+                                    if (item.START_DT != item.END_DT)
+                                    {
+                                        <span>-</span>
+                                        @Html.DisplayFor(modelItem => item.END_DT)
+                                    }
+                                }
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.SUBMITTER)
@@ -80,6 +92,28 @@
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.SUBMISSION_STATUS)
+                                @if (item.SUBMISSION_STATUS == "Completed" && item.STAGE_CNT != null)
+                                {
+                                    if (item.STAGE_CNT > 0)
+                                    {
+                                        <span class="font-bold text-success" style="display:block;">Staged: @item.STAGE_CNT</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="font-bold text-danger" style="display:block;">Staged: @item.STAGE_CNT</span>
+                                    }
+                                }
+                                @if (item.SUBMISSION_STATUS == "Completed" && item.LOAD_CNT != null)
+                                {
+                                    if (item.LOAD_CNT > 0 && item.LOAD_CNT == item.STAGE_CNT)
+                                    {
+                                        <span class="font-bold text-success" style="display:block;">Loaded: @item.LOAD_CNT</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="font-bold text-danger" style="display:block;">Loaded: @item.LOAD_CNT</span>
+                                    }
+                                }
                             </td>
                             <td>
                                 @if (item.SUBMISSION_STATUS == "File Created")

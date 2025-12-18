@@ -30,7 +30,7 @@ namespace QREST_Service
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\Polls\\Poll_" + SiteID + DateTime.Now.Date.ToShortDateString().Replace('/', '_') + ".txt";
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\Polls\\Poll_" + SiteID + "_" + DateTime.Now.Date.ToShortDateString().Replace('/', '_') + ".txt";
             if (!File.Exists(filepath))
             {
                 using (StreamWriter sw = File.CreateText(filepath))

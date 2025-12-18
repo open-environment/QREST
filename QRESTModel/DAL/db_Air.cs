@@ -1,15 +1,14 @@
-﻿using System;
+﻿using EntityFramework.BulkInsert;
+using EntityFramework.BulkInsert.Extensions;
+using QRESTModel.BLL;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
-using QRESTModel.BLL;
-using EntityFramework.BulkInsert;
-using EntityFramework.BulkInsert.Extensions;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using System.Data.Entity;
-using QRESTModel.net.epacdxnode.testngn;
-using System.Runtime.Remoting.Contexts;
 
 namespace QRESTModel.DAL
 {
@@ -128,6 +127,7 @@ namespace QRESTModel.DAL
         public string SITE_ID { get; set; }
         public string PAR_NAME { get; set; }
         public string ORG_ID { get; set; }
+        public bool CanDelete { get; set; }
 
     }
 
@@ -247,6 +247,9 @@ namespace QRESTModel.DAL
         public string SITE_ID { get; set; }
         public string SITE_NAME { get; set; }
         public string SUBMITTER { get; set; }
+        public int? STAGE_CNT { get; set; }
+        public int? LOAD_CNT { get; set; }
+        public string AQS_TRANS_TYPE { get; set; }
     }
 
     public class ImportListDisplay
@@ -301,6 +304,13 @@ namespace QRESTModel.DAL
         public string METHOD_CODE { get; set; }
         public string UNIT_CODE { get; set; }
         public string FLOW_UNIT_CODE { get; set; }
+    }
+
+    public class GlobalHourlyUsage
+    {
+        public int YR { get; set; }
+        public int MN { get; set; }
+        public int CNT { get; set; }
     }
 
     public static class db_Air
@@ -981,7 +991,7 @@ namespace QRESTModel.DAL
                                && b.TIME_COL != null
                                && b.DELIMITER != ""
                                && (a.POLLING_NEXT_RUN_DT < System.DateTime.Now || a.POLLING_NEXT_RUN_DT == null)
-                               orderby a.SITE_ID
+                               orderby a.ORG_ID, a.SITE_ID
                                select new SitePollingConfigType
                                {
                                    SITE_IDX = a.SITE_IDX,
@@ -1909,6 +1919,7 @@ namespace QRESTModel.DAL
             {
                 try
                 {
+                    //this will only return monitors that the user has admin or operator rights 
                     var xxx = (from a in ctx.T_QREST_MONITORS.AsNoTracking()
                                join s in ctx.T_QREST_SITES.AsNoTracking() on a.SITE_IDX equals s.SITE_IDX
                                join r in ctx.T_QREST_REF_PAR_METHODS.AsNoTracking() on a.PAR_METHOD_IDX equals r.PAR_METHOD_IDX
@@ -1919,6 +1930,7 @@ namespace QRESTModel.DAL
                                into lj from unit in lj.DefaultIfEmpty() //left join on monitor's unit
                                where u.USER_IDX == UserIDX
                                && u.STATUS_IND == "A"
+                               && (u.ACCESS_LEVEL == "A" || u.ACCESS_LEVEL == "U")
                                && q.ASSESSMENT_TYPE == QCType
                                select new SiteMonitorDisplayTypeSmall
                                {
@@ -2185,7 +2197,8 @@ namespace QRESTModel.DAL
                                    ASSESSED_BY = a.ASSESSED_BY,
                                    SITE_ID = s.SITE_ID,
                                    PAR_NAME = p.PAR_NAME + " (" + pm.PAR_CODE + ")",
-                                   ORG_ID = s.ORG_ID
+                                   ORG_ID = s.ORG_ID,
+                                   CanDelete = (u.ACCESS_LEVEL == "A" || u.ACCESS_LEVEL == "U")
                                }).OrderBy(orderCol, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
 
                     return xxx;
@@ -3485,9 +3498,15 @@ namespace QRESTModel.DAL
                     //date
                     int year = DateTime.Now.Year;  //year
                     int julday = line.SubStringPlus(9, 3).ConvertOrDefault<int>();  //day
+
+                    //BUG FIX, if it is currently january and the Julian day on the reading is decemberm assume it is reading last year data
+                    if (DateTime.Now.Month == 1 && julday > 350)
+                        year = year - 1;
+
                     int hour = line.SubStringPlus(12, 2).ConvertOrDefault<int>(); //hour
                     int minute = line.SubStringPlus(14, 2).ConvertOrDefault<int>(); //minute
                     DateTime dt = new DateTime(year, 1, 1).AddDays(julday - 1).AddHours(hour).AddMinutes(minute);
+
                     string timePollType = config.TIME_POLL_TYPE ?? "L";  //default assume local time type if polling config has none supplied
 
                     //read channel #
@@ -3668,7 +3687,7 @@ namespace QRESTModel.DAL
 
 
                         if (uNIT_CODE != null) e.UNIT_CODE = uNIT_CODE;
-                        if (nOTES != null) e.NOTES = nOTES;
+                        if (nOTES != null) e.NOTES = nOTES.SubStringPlus(0,100);
 
                         if (dATA_VALUE != null && dATA_VALUE != "-999") 
                         { 
@@ -4973,7 +4992,10 @@ namespace QRESTModel.DAL
                                 DOWNLOAD_FILE_IND = (a.DOWNLOAD_FILE != null),
                                 SITE_ID = b.SITE_ID,
                                 SITE_NAME = b.SITE_NAME,
-                                SUBMITTER = u.FNAME + " " + u.LNAME
+                                SUBMITTER = u.FNAME + " " + u.LNAME,
+                                STAGE_CNT = a.STAGE_CNT,
+                                LOAD_CNT = a.LOAD_CNT,
+                                AQS_TRANS_TYPE = a.AQS_TRANS_TYPE
                             }).ToList();
                 }
                 catch (Exception ex)
@@ -5003,7 +5025,7 @@ namespace QRESTModel.DAL
         }
 
         public static Guid? InsertUpdateT_QREST_AQS(Guid? aQS_IDX, string oRG_ID, Guid? sITE_IDX, string aQS_SUBMISSION_NAME, DateTime? sTART_DT, DateTime? eND_DT, 
-            byte[] aQS_CONTENT, int? dOC_SIZE, string cOMMENT, string sUBMISSION_STATUS, string UserIDX, string aQS_CONTENT_XML, string tRANS_ID, byte[] dOWNLOAD_FILE, string sUBMISSION_SUBSTATUS = null)
+            byte[] aQS_CONTENT, int? dOC_SIZE, string cOMMENT, string sUBMISSION_STATUS, string UserIDX, string aQS_CONTENT_XML, string tRANS_ID, byte[] dOWNLOAD_FILE, string sUBMISSION_SUBSTATUS = null, string aQS_TRANS_TYPE = null)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
@@ -5041,7 +5063,44 @@ namespace QRESTModel.DAL
                     if (aQS_CONTENT_XML != null) e.AQS_CONTENT_XML = aQS_CONTENT_XML;
                     if (tRANS_ID != null) e.CDX_TOKEN = tRANS_ID;
                     if (dOWNLOAD_FILE != null) e.DOWNLOAD_FILE = dOWNLOAD_FILE;
+                    if (aQS_TRANS_TYPE != null) e.AQS_TRANS_TYPE = aQS_TRANS_TYPE;
+
                     if (sUBMISSION_SUBSTATUS != null) e.SUBMISSION_SUBSTATUS = sUBMISSION_SUBSTATUS;
+
+                    //parsing EPA AQS response to get staged records
+                    if (sUBMISSION_SUBSTATUS != null && sUBMISSION_SUBSTATUS.Contains("staged:"))
+                    {
+                        var tag = "staged:";
+                        var start = sUBMISSION_SUBSTATUS.IndexOf(tag, StringComparison.Ordinal);
+                        if (start > 0) {
+                            start += tag.Length;
+                            var end = sUBMISSION_SUBSTATUS.IndexOf('.', start);
+                            if (end > 0)
+                            {
+                                var slice = sUBMISSION_SUBSTATUS.Substring(start, end - start).Trim();
+                                if (int.TryParse(slice, out var stageCount))
+                                    e.STAGE_CNT = stageCount;
+                            }
+                        }                        
+                    }
+
+                    //parsing EPA AQS response to get staged records
+                    if (sUBMISSION_SUBSTATUS != null && sUBMISSION_SUBSTATUS.Contains("loaded:"))
+                    {
+                        var tag = "loaded:";
+                        var start = sUBMISSION_SUBSTATUS.IndexOf(tag, StringComparison.Ordinal);
+                        if (start > 0)
+                        {
+                            start += tag.Length;
+                            var end = sUBMISSION_SUBSTATUS.IndexOf('.', start);
+                            if (end > 0)
+                            {
+                                var slice = sUBMISSION_SUBSTATUS.Substring(start, end - start).Trim();
+                                if (int.TryParse(slice, out var loadCount))
+                                    e.LOAD_CNT = loadCount;
+                            }
+                        }
+                    }
 
                     if (insInd)
                         ctx.T_QREST_AQS.Add(e);
@@ -5056,7 +5115,6 @@ namespace QRESTModel.DAL
                 }
             }
         }
-
 
         public static int DeleteT_QREST_AQS(Guid id)
         {
@@ -5078,8 +5136,53 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static (int, int) GetT_QREST_AQS_RD_Count_By_Year(int year)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var nextYr = year + 1;
+                    var q = ctx.T_QREST_AQS
+                        .Where(x => x.CREATE_DT >= new DateTime(year, 1, 1)
+                        && x.CREATE_DT < new DateTime(nextYr, 1, 1)
+                        && x.AQS_TRANS_TYPE == "RD");
+                    
+                    var sum = q.Sum(x => x.LOAD_CNT) ?? 0;
+                    var count = q.Count();
+                    return (sum, count);
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return (0,0);
+                }
+            }
+        }
 
+        public static (int, int) GetT_QREST_AQS_QA_Count_By_Year(int year)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var nextYr = year + 1;
+                    var q = ctx.T_QREST_AQS
+                        .Where(x => x.CREATE_DT >= new DateTime(year, 1, 1)
+                        && x.CREATE_DT < new DateTime(nextYr, 1, 1)
+                        && x.AQS_TRANS_TYPE == "QA");
 
+                    var sum = q.Sum(x => x.LOAD_CNT) ?? 0;
+                    var count = q.Count();
+                    return (sum, count);
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return (0, 0);
+                }
+            }
+        }
 
 
 
@@ -5143,43 +5246,6 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<MONTHLY_USAGE_HOURLY> GetMONTHLY_USAGE_HOURLY(int yr)
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    return (from a in ctx.MONTHLY_USAGE_HOURLY.AsNoTracking()
-                            where a.YR == yr
-                            orderby a.MN
-                            select a).ToList();
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return null;
-                }
-            }
-        }
-
-        public static List<MONTHLY_USAGE_FIVEMIN> GetMONTHLY_USAGE_FIVEMIN(int yr)
-        {
-            using (QRESTEntities ctx = new QRESTEntities())
-            {
-                try
-                {
-                    return (from a in ctx.MONTHLY_USAGE_FIVEMIN.AsNoTracking()
-                            where a.YR == yr
-                            orderby a.MN
-                            select a).ToList();
-                }
-                catch (Exception ex)
-                {
-                    logEF.LogEFException(ex);
-                    return null;
-                }
-            }
-        }
 
 
         //*****************STORED PROCEDURES**********************************
@@ -5465,5 +5531,62 @@ namespace QRESTModel.DAL
                 }
             }
         }
+
+
+        public static List<GlobalHourlyUsage> SP_RPT_GLOBAL_USAGE_HOURLY(int yr)
+        {
+
+
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    ctx.Database.CommandTimeout = 60;
+
+                    // Calling the stored procedure
+                    var yearParam = new SqlParameter("@Year", yr);
+
+                    var results = ctx.Database.SqlQuery<GlobalHourlyUsage>(
+                        "EXEC dbo.SP_RPT_GLOBAL_USAGE_HOURLY @Year", yearParam)
+                        .ToList();
+                    return results;
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
+        public static List<GlobalHourlyUsage> SP_RPT_GLOBAL_USAGE_FIVE_MIN(int yr)
+        {
+
+
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    ctx.Database.CommandTimeout = 60;
+
+                    // Calling the stored procedure
+                    var yearParam = new SqlParameter("@Year", yr);
+
+                    var results = ctx.Database.SqlQuery<GlobalHourlyUsage>(
+                        "EXEC dbo.SP_RPT_GLOBAL_USAGE_FIVE_MIN @Year", yearParam)
+                        .ToList();
+                    return results;
+
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
     }
 }

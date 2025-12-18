@@ -23,6 +23,7 @@ namespace QREST.Controllers
         }
 
 
+        //************************************* EXPORT DATA************************************************************
         public ActionResult Export()
         {
             string UserIDX = User.Identity.GetUserId();
@@ -117,7 +118,51 @@ namespace QREST.Controllers
             }
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult ExportAdmin(string[] exportadmindata, vmReportsExport model)
+        {
+            //****validation **************
+            if (exportadmindata == null)
+            {
+                TempData["Error"] = "You must select at least one option.";
+                return RedirectToAction("Export", "Reports");
+            }
+            //***end validation ***********
 
+            var _dts = new List<DataTable>();
+
+            string UserIDX = User.Identity.GetUserId();
+
+            if (exportadmindata.Contains("Users"))
+                _dts.Add(DataTableGen.GetUsers());
+
+            if (exportadmindata.Contains("UserOrgs"))
+                _dts.Add(DataTableGen.GetOrgUsersByOrg(model.selOrgIDAdmin));
+
+            DataSet dsExport = DataTableGen.DataSetFromDataTables(_dts);
+            if (dsExport.Tables.Count > 0)
+            {
+                MemoryStream ms = ExcelGen.GenExcelFromDataSet(dsExport);
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=QRESTUsersExport.xlsx");
+                ms.WriteTo(Response.OutputStream);
+                Response.Flush();
+                Response.End();
+
+                return null;
+            }
+            else
+            {
+                TempData["Error"] = "No data found to export";
+                return RedirectToAction("Export");
+            }
+        }
+
+
+        //************************************* REPORTS************************************************************
         public ActionResult Daily(string org, Guid? mon, string typ, string timtyp, string sDate)
         {
             string UserIDX = User.Identity.GetUserId();
@@ -211,6 +256,7 @@ namespace QREST.Controllers
 
 
         //************************************* USAGE STATS ************************************************************
+        [Authorize(Roles = "GLOBAL ADMIN")]
         public ActionResult UsageStats(int? yr)
         {
             var model = new vmReportUsageStats {
@@ -218,11 +264,16 @@ namespace QREST.Controllers
                 selYear = yr ?? System.DateTime.Now.Year
             };
 
-            if (model.selYear != null)
-            {
-                model.HourlyCnts = db_Air.GetMONTHLY_USAGE_HOURLY(model.selYear.GetValueOrDefault());
-                model.FiveMinCnts = db_Air.GetMONTHLY_USAGE_FIVEMIN(model.selYear.GetValueOrDefault());
-            }
+            model.HourlyCnts = db_Air.SP_RPT_GLOBAL_USAGE_HOURLY(model.selYear.GetValueOrDefault());
+            model.FiveMinCnts = db_Air.SP_RPT_GLOBAL_USAGE_FIVE_MIN(model.selYear.GetValueOrDefault());
+
+            var AQS_RD = db_Air.GetT_QREST_AQS_RD_Count_By_Year(model.selYear.GetValueOrDefault());
+            model.RD_sum = AQS_RD.Item1;
+            model.RD_cnt = AQS_RD.Item2;
+            var AQS_QA = db_Air.GetT_QREST_AQS_QA_Count_By_Year(model.selYear.GetValueOrDefault());
+            model.QA_sum = AQS_QA.Item1;
+            model.QA_cnt = AQS_QA.Item2;
+
             return View(model);
         }
 
@@ -337,7 +388,7 @@ namespace QREST.Controllers
                 if (succId == 1)
                     return Json("Success");
                 else
-                    return Json("This record cannot be deleted. There may be data or a monitor configure to use it.");
+                    return Json("This parameter cannot be deleted. There may be raw data or a monitor configured to use it.");
             }
         }
 
@@ -440,7 +491,8 @@ namespace QREST.Controllers
 
         public ActionResult RefParUnit()
         {
-            return View();
+            var model = new vmReportsRefParUnit();
+            return View(model);
         }
 
 
@@ -451,6 +503,7 @@ namespace QREST.Controllers
             int pageSize = Request.Form.GetValues("length").FirstOrDefault().ConvertOrDefault<int>();  //pageSize
             int? start = Request.Form.GetValues("start")?.FirstOrDefault().ConvertOrDefault<int?>();  //starting record #
             int orderCol = Request.Form.GetValues("order[0][column]").FirstOrDefault().ConvertOrDefault<int>();  //ordering column
+            if (orderCol == 0) orderCol = 2;
             string orderColName = Request.Form.GetValues("columns[" + orderCol + "][name]").FirstOrDefault();
             string orderDir = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); //ordering direction
 
@@ -458,6 +511,44 @@ namespace QREST.Controllers
             var recordsTotal = db_Ref.GetT_QREST_REF_PAR_UNITS_count();
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult RefParUnitEdit(vmReportsRefParUnit model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool succInd = db_Ref.InsertT_QREST_REF_PAR_UNITS(model.editPAR_CODE, model.editUNIT_CODE, User.Identity.GetUserId());
+
+                if (succInd)
+                    TempData["Success"] = "Record updated";
+                else
+                    TempData["Error"] = "Error updating record.";
+            }
+            else
+                TempData["Error"] = "Error updating record";
+
+            return RedirectToAction("RefParUnit", "Reports");
+        }
+
+        [HttpPost]
+        public JsonResult RefParUnitDelete(string id, string id2)
+        {
+            if (!User.IsInRole("GLOBAL ADMIN"))
+                return Json("Access denied");
+
+            if (id == null || id2 == null)
+                return Json("No record selected to delete");
+            else
+            {
+                int succId = db_Ref.DeleteT_QREST_REF_PAR_UNITS(id, id2);
+                if (succId == 1)
+                    return Json("Success");
+                else
+                    return Json("This record cannot be deleted.");
+            }
+        }
+
 
 
         public ActionResult RefUnit()

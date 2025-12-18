@@ -1,49 +1,46 @@
-﻿using QRESTModel.DAL;
-using System;
-using System.Linq;
-using Twilio;
-using Twilio.Rest.Api.V2010.Account;
-
+﻿
 namespace QRESTModel.BLL
 {
-    public class UtilsSMS
-    {
+    //*****************TWILIO SUPPORT REMOVED 2025 ****************************
 
-        public static bool sendSMS(string userIDX, string msg)
-        {
-            try
-            {
-                //retrieve user profile
-                T_QREST_USERS u = db_Account.GetT_QREST_USERS_ByID(userIDX);
-                if (u != null)
-                {
-                    string justNumbers = new String(u.PhoneNumber.Where(Char.IsDigit).ToArray());
+    //public class UtilsSMS
+    //{
 
-                    if (justNumbers.Length == 10)
-                        justNumbers = "1" + justNumbers;
+    //    public static bool sendSMS(string userIDX, string msg)
+    //    {
+    //        try
+    //        {
+    //            //retrieve user profile
+    //            T_QREST_USERS u = db_Account.GetT_QREST_USERS_ByID(userIDX);
+    //            if (u != null)
+    //            {
+    //                string justNumbers = new String(u.PhoneNumber.Where(Char.IsDigit).ToArray());
 
-                    //************* GET SMTP SERVER SETTINGS ****************************
-                    string accountSid = db_Ref.GetT_QREST_APP_SETTING("SMS_SID");
-                    string authToken = db_Ref.GetT_QREST_APP_SETTING("SMS_AUTH_TOKEN");
-                    string phoneFrom = db_Ref.GetT_QREST_APP_SETTING("SMS_PHONE_NUM");
+    //                if (justNumbers.Length == 10)
+    //                    justNumbers = "1" + justNumbers;
 
-                    TwilioClient.Init(accountSid, authToken);
+    //                //************* GET SMTP SERVER SETTINGS ****************************
+    //                string accountSid = db_Ref.GetT_QREST_APP_SETTING("SMS_SID");
+    //                string authToken = db_Ref.GetT_QREST_APP_SETTING("SMS_AUTH_TOKEN");
+    //                string phoneFrom = db_Ref.GetT_QREST_APP_SETTING("SMS_PHONE_NUM");
 
-                    var message = MessageResource.Create(
-                        body: msg,
-                        from: new Twilio.Types.PhoneNumber("+" + phoneFrom),
-                        to: new Twilio.Types.PhoneNumber("+" + justNumbers)
-                    );
-                    return true;
-                }
-                else
-                    return false;
-            }
-            catch (Exception ex)
-            {
-                db_Ref.CreateT_QREST_SYS_LOG(userIDX, "SMS ERR", ex.Message);
-                return false;
-            }
-        }
-    }
+    //                TwilioClient.Init(accountSid, authToken);
+
+    //                var message = MessageResource.Create(
+    //                    body: msg,
+    //                    from: new Twilio.Types.PhoneNumber("+" + phoneFrom),
+    //                    to: new Twilio.Types.PhoneNumber("+" + justNumbers)
+    //                );
+    //                return true;
+    //            }
+    //            else
+    //                return false;
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            db_Ref.CreateT_QREST_SYS_LOG(userIDX, "SMS ERR", ex.Message);
+    //            return false;
+    //        }
+    //    }
+    //}
 }

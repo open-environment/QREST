@@ -539,26 +539,34 @@ namespace QRESTModel.DAL
             {
                 try
                 {
-                    return (from uo in ctx.T_QREST_ORG_USERS.AsNoTracking()
-                            join u in ctx.T_QREST_USERS.AsNoTracking() on uo.USER_IDX equals u.USER_IDX
-                            join a in ctx.T_QREST_REF_ACCESS_LEVEL.AsNoTracking() on uo.ACCESS_LEVEL equals a.ACCESS_LEVEL
-                            join s in ctx.T_QREST_REF_USER_STATUS.AsNoTracking() on uo.STATUS_IND equals s.STATUS_IND
-                            where uo.ORG_ID == oRG_ID
-                            && (sTATUS == null ? true : uo.STATUS_IND == sTATUS)
-                            && (aCCESS_LEVEL == null ? true : uo.ACCESS_LEVEL == aCCESS_LEVEL)
-                            select new UserOrgDisplayType
-                            {
-                                ORG_USER_IDX = uo.ORG_USER_IDX,
-                                USER_IDX = uo.USER_IDX,
-                                USER_EMAIL = u.Email,
-                                ORG_ID = uo.ORG_ID,
-                                ACCESS_LEVEL = uo.ACCESS_LEVEL,
-                                ACCESS_LEVEL_DESC = a.ACCESS_LEVEL_DESC,
-                                STATUS_IND = uo.STATUS_IND,
-                                STATUS_IND_DESC = s.STATUS_IND_DESC,
-                                CREATE_DT = uo.CREATE_DT,
-                                USER_NAME = u.FNAME + " " + u.LNAME
-                            }).ToList();
+                    var xxx = (from uo in ctx.T_QREST_ORG_USERS.AsNoTracking()
+                               join u in ctx.T_QREST_USERS.AsNoTracking() on uo.USER_IDX equals u.USER_IDX
+                               join a in ctx.T_QREST_REF_ACCESS_LEVEL.AsNoTracking() on uo.ACCESS_LEVEL equals a.ACCESS_LEVEL
+                               join s in ctx.T_QREST_REF_USER_STATUS.AsNoTracking() on uo.STATUS_IND equals s.STATUS_IND
+                               select new UserOrgDisplayType
+                               {
+                                   ORG_USER_IDX = uo.ORG_USER_IDX,
+                                   USER_IDX = uo.USER_IDX,
+                                   USER_EMAIL = u.Email,
+                                   ORG_ID = uo.ORG_ID,
+                                   ACCESS_LEVEL = uo.ACCESS_LEVEL,
+                                   ACCESS_LEVEL_DESC = a.ACCESS_LEVEL_DESC,
+                                   STATUS_IND = uo.STATUS_IND,
+                                   STATUS_IND_DESC = s.STATUS_IND_DESC,
+                                   CREATE_DT = uo.CREATE_DT,
+                                   USER_NAME = u.FNAME + " " + u.LNAME
+                               });
+
+                    if (!string.IsNullOrEmpty(oRG_ID))
+                        xxx = xxx.Where(x => x.ORG_ID == oRG_ID);
+
+                    if (!string.IsNullOrEmpty(sTATUS))
+                        xxx = xxx.Where(x => x.STATUS_IND == sTATUS);
+
+                    if (!string.IsNullOrEmpty(aCCESS_LEVEL))
+                        xxx = xxx.Where(x => x.ACCESS_LEVEL == aCCESS_LEVEL);
+
+                    return xxx.OrderBy(x=>x.ORG_ID).ThenBy(x=>x.USER_NAME).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -637,6 +645,36 @@ namespace QRESTModel.DAL
                                   && (a.ACCESS_LEVEL == "A" || a.ACCESS_LEVEL == "U")
                                   && a.STATUS_IND == "A"
                                   && a.ORG_ID == oRG_ID
+                                  select a).Count();
+
+                    return iCount > 0;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Checks if the user has Level 1 rights to any organization
+        /// </summary>
+        /// <param name="uSER_IDX"></param>
+        /// <param name="oRG_ID"></param>
+        /// <returns></returns>
+        /// 
+        public static bool IsOrgLvl1_ForAny(string uSER_IDX)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    int iCount = (from a in ctx.T_QREST_ORG_USERS
+                                  where a.USER_IDX == uSER_IDX
+                                  && (a.ACCESS_LEVEL == "A" || a.ACCESS_LEVEL == "U")
+                                  && a.STATUS_IND == "A"
                                   select a).Count();
 
                     return iCount > 0;

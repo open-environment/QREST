@@ -27,6 +27,8 @@ namespace QREST.Models
 
         public string ORG_ID { get; set; }
 
+        public bool CanEdit { get; set; }
+
         public Guid? QC_ASSESS_IDX { get; set; }
         [Required]
         public Guid? MONITOR_IDX { get; set; }

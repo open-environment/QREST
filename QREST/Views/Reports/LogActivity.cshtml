@@ -11,6 +11,8 @@
         <i class="fa fa-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" data-title="ajax to load the data."></i>
     </header>
     <div class="panel-body">
+        @if (Model.ddl_Organization != null && Model.ddl_Organization.Count() > 0)
+        {
         <form class="form-inline m-b-sm" onsubmit="return false">
             @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, new { @class = "form-control" })
             <input id="mini" class="form-control date-cleave" placeholder="Date From" />
@@ -27,6 +29,11 @@
                 </tr>
             </thead>
         </table>
+        }
+        else
+        {
+            <span>This feature is only available to Tribal Admins.</span>
+        }
     </div>
 </section>
 

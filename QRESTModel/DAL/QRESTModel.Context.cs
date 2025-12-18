@@ -84,12 +84,10 @@ namespace QRESTModel.DAL
         public virtual DbSet<T_QREST_TRAIN_LESSON_STEP> T_QREST_TRAIN_LESSON_STEP { get; set; }
         public virtual DbSet<T_QREST_TRAIN_LESSON_STEP_USER> T_QREST_TRAIN_LESSON_STEP_USER { get; set; }
         public virtual DbSet<T_QREST_TRAIN_LESSON_USER> T_QREST_TRAIN_LESSON_USER { get; set; }
-        public virtual DbSet<SITE_HEALTH> SITE_HEALTH { get; set; }
         public virtual DbSet<T_QREST_REF_QUAL_DISALLOW> T_QREST_REF_QUAL_DISALLOW { get; set; }
         public virtual DbSet<TRAINING_SNAPSHOT> TRAINING_SNAPSHOT { get; set; }
-        public virtual DbSet<MONTHLY_USAGE_FIVEMIN> MONTHLY_USAGE_FIVEMIN { get; set; }
-        public virtual DbSet<MONTHLY_USAGE_HOURLY> MONTHLY_USAGE_HOURLY { get; set; }
         public virtual DbSet<USERLIST_DISPLAY_VIEW> USERLIST_DISPLAY_VIEW { get; set; }
+        public virtual DbSet<SITE_HEALTH> SITE_HEALTH { get; set; }
     
         public virtual ObjectResult<SP_RPT_MONTHLY_Result> SP_RPT_MONTHLY(Nullable<System.Guid> monid, Nullable<int> mn, Nullable<int> yr, string timetype)
         {

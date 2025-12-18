@@ -252,7 +252,7 @@ namespace QRESTModel.DAL
                 {
                     return (from r in ctx.T_QREST_APP_TASKS
                             where r.STATUS != "Running"
-                            && System.DateTime.Now >= r.NEXT_RUN_DT
+                            && System.DateTime.UtcNow >= r.NEXT_RUN_DT
                             select r).ToList();
                 }
                 catch (Exception ex)
@@ -403,28 +403,23 @@ namespace QRESTModel.DAL
                     x.STATUS = "Completed";
 
                     //set next run
-                    DateTime _nextRun = x.NEXT_RUN_DT;
-                    if (x.FREQ_TYPE == "D")
+                    DateTime nowUtc = DateTime.UtcNow;
+                    DateTime nextRun = x.NEXT_RUN_DT;
+
+                    // Keep adding frequency until nextRun is in the future
+                    while (nextRun <= nowUtc)
                     {
-                        _nextRun = x.NEXT_RUN_DT.AddDays(x.FREQ_NUM);
-                        if (_nextRun < System.DateTime.Now)
-                            _nextRun = System.DateTime.Now.AddDays(x.FREQ_NUM);
-                    }
-                    else if (x.FREQ_TYPE == "H")
-                    {
-                        _nextRun = x.NEXT_RUN_DT.AddHours(x.FREQ_NUM);
-                        if (_nextRun < System.DateTime.Now)
-                            _nextRun = System.DateTime.Now.AddHours(x.FREQ_NUM);
-                    }
-                    else if (x.FREQ_TYPE == "M")
-                    {
-                        _nextRun = x.NEXT_RUN_DT.AddMinutes(x.FREQ_NUM);
-                        if (_nextRun < System.DateTime.Now)
-                            _nextRun = System.DateTime.Now.AddMinutes(x.FREQ_NUM);
+                        if (x.FREQ_TYPE == "D") 
+                            nextRun = nextRun.AddDays(x.FREQ_NUM);
+                        else if (x.FREQ_TYPE == "H")
+                            nextRun = nextRun.AddHours(x.FREQ_NUM);
+                        else if (x.FREQ_TYPE == "M")
+                            nextRun = nextRun.AddMinutes(x.FREQ_NUM);
                     }
 
-                    x.NEXT_RUN_DT = _nextRun;
-                    x.LAST_RUN_DT = System.DateTime.Now;
+                    x.NEXT_RUN_DT = nextRun;
+                    x.LAST_RUN_DT = nowUtc;
+                    
                     ctx.SaveChanges();
                     return true;
                 }
@@ -1501,7 +1496,59 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static bool InsertT_QREST_REF_PAR_UNITS(string pAR_CODE, string uNIT_CODE, string cREATE_USER)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_REF_PAR_UNITS e = (from c in ctx.T_QREST_REF_PAR_UNITS
+                                                where c.PAR_CODE == pAR_CODE
+                                                && c.UNIT_CODE == uNIT_CODE
+                                                select c).FirstOrDefault();
 
+                    if (e == null)
+                    {
+                        e = new T_QREST_REF_PAR_UNITS();
+                        e.PAR_CODE = pAR_CODE;
+                        e.UNIT_CODE = uNIT_CODE;
+                        e.MODIFY_DT = System.DateTime.Now;
+                        e.MODIFY_USER_IDX = cREATE_USER;
+                        
+                        ctx.T_QREST_REF_PAR_UNITS.Add(e);
+                        ctx.SaveChanges();
+                        return true;
+                    }
+                    else
+                        return true;  //don't insert if record already exists
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+        public static int DeleteT_QREST_REF_PAR_UNITS(string id, string id2)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    T_QREST_REF_PAR_UNITS rec = new T_QREST_REF_PAR_UNITS { PAR_CODE = id, UNIT_CODE = id2 };
+                    ctx.Entry(rec).State = System.Data.Entity.EntityState.Deleted;
+                    ctx.SaveChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return 0;
+                }
+            }
+        }
 
         //***************** REF_PARAMETERS ******************************
         public static List<T_QREST_REF_PARAMETERS> GetT_QREST_REF_PARAMETERS()
@@ -2211,10 +2258,11 @@ namespace QRESTModel.DAL
                 {
                     T_QREST_SYS_LOG a = new T_QREST_SYS_LOG
                     {
-                        LOG_DT = System.DateTime.Now,
+                        LOG_DT = System.DateTime.UtcNow,
                         LOG_TYP = lOG_TYPE ?? "ERROR",
                         LOG_USERID = lOG_USERID,
-                        LOG_MSG = lOG_MSG.SubStringPlus(0, 2000)
+                        LOG_MSG = lOG_MSG.SubStringPlus(0, 2000),
+                        APP_ID = "QREST"
                     };
 
                     ctx.T_QREST_SYS_LOG.Add(a);
@@ -2243,6 +2291,7 @@ namespace QRESTModel.DAL
                             from d in lj.DefaultIfEmpty() //left join on user
                             where a.LOG_DT >= DateFromDt
                             && a.LOG_DT <= DateToDt
+                            && a.APP_ID == "QREST" || a.APP_ID == null 
                             select new LogDisplayType
                             {
                                 LOG_ID = a.LOG_ID,
@@ -2250,7 +2299,7 @@ namespace QRESTModel.DAL
                                 LOG_MSG = a.LOG_MSG,
                                 LOG_TYP = a.LOG_TYP,
                                 LOG_USERID = a.LOG_USERID,
-                                LOG_USER_NAME = d.Email
+                                LOG_USER_NAME = d != null ? d.Email : null 
                             }).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
 
                 }
@@ -2273,6 +2322,7 @@ namespace QRESTModel.DAL
                     var xxx = (from a in ctx.T_QREST_SYS_LOG
                                where a.LOG_DT >= DateFromDt
                                && a.LOG_DT <= DateToDt
+                               && (a.APP_ID == "QREST" || a.APP_ID == null)
                                select a).Count();
 
                     return xxx;
@@ -2304,7 +2354,8 @@ namespace QRESTModel.DAL
                         ACTIVITY_DT = lOG_DT ?? System.DateTime.Now,
                         ACTIVITY_DESC = aCTIVITY_DESC.SubStringPlus(0, 2000),
                         IP_ADDRESS = iP_ADDRESS,
-                        SUPPORTING_ID = sUPPORTING_ID
+                        SUPPORTING_ID = sUPPORTING_ID,
+                        APP_ID = "QREST"
                     };
 
                     ctx.T_QREST_SYS_LOG_ACTIVITY.Add(a);
@@ -2332,6 +2383,7 @@ namespace QRESTModel.DAL
                             && a.ACTIVITY_USER == user.ToUpper()
                             && (activity_desc != null ? a.ACTIVITY_DESC == activity_desc : true)
                             && a.ACTIVITY_DT >= startDtTime
+                            && (a.APP_ID == "QREST" || a.APP_ID == null)
                             select a).ToList().Count;
                 }
                 catch (Exception ex)
@@ -2357,6 +2409,7 @@ namespace QRESTModel.DAL
                                 from d in lj.DefaultIfEmpty() //left join on user
                                 where a.ACTIVITY_DT >= DateFromDt
                                 && a.ACTIVITY_DT <= DateToDt
+                                && (a.APP_ID == "QREST" || a.APP_ID == null)
                                 select new LogDisplayType
                                 {
                                     LOG_ID = a.LOG_ACTIVITY_IDX,
@@ -2409,6 +2462,7 @@ namespace QRESTModel.DAL
                                 from d in lj.DefaultIfEmpty() //left join on user
                                 where a.ACTIVITY_DT >= DateFromDt
                                 && a.ACTIVITY_DT <= DateToDt
+                                && (a.APP_ID == "QREST" || a.APP_ID == null)
                                 select new LogDisplayType
                                 {
                                     LOG_ID = a.LOG_ACTIVITY_IDX,
@@ -2464,7 +2518,8 @@ namespace QRESTModel.DAL
                         EMAIL_CC = eMAIL_CC,
                         EMAIL_SUBJ = eMAIL_SUBJ,
                         EMAIL_MSG = eMAIL_MSG.SubStringPlus(0, 2000),
-                        EMAIL_TYPE = eMAIL_TYPE
+                        EMAIL_TYPE = eMAIL_TYPE,
+                        APP_ID = "QREST"
                     };
                     ctx.T_QREST_SYS_LOG_EMAIL.Add(a);
                     ctx.SaveChanges();
@@ -2490,6 +2545,7 @@ namespace QRESTModel.DAL
                     return (from a in ctx.T_QREST_SYS_LOG_EMAIL
                             where a.EMAIL_DT >= DateFromDt
                             && a.EMAIL_DT <= DateToDt
+                            && (a.APP_ID == "QREST" || a.APP_ID == null)
                             orderby a.LOG_EMAIL_ID descending
                             select a).OrderBy(orderBy, orderDir).Skip(skip ?? 0).Take(pageSize).ToList();
                 }
@@ -2513,6 +2569,7 @@ namespace QRESTModel.DAL
                     var xxx = (from a in ctx.T_QREST_SYS_LOG_EMAIL
                                where a.EMAIL_DT >= DateFromDt
                                && a.EMAIL_DT <= DateToDt
+                               && (a.APP_ID == "QREST" || a.APP_ID == null)
                                select a).Count();
 
                     return xxx;

@@ -137,6 +137,8 @@
                                         else if (dtLastPoll < dtCurTime.AddHours(-5))
                                         {
                                             <span><i class="fa fa-warning"></i> Polling has been down for 5 or more hours <i class="fa fa-warning"></i></span>
+                                            <a href="@Url.Action("SitePollPing", "Site", new { id = item.POLL_CONFIG_IDX })" class="btn btn-rounded btn-xs btn-primary" 
+                                               style="display: inline-block;">Test</a>
                                         }
 
                                     </td>

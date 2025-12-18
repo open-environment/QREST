@@ -90,10 +90,6 @@ namespace QREST.App_Logic
                             table2.AddCell(cell2);
                             document.Add(table2);
 
-                            //document.Add(new Paragraph("Lesson Step " + _lesson.LESSON_SEQ + "." + _step.LESSON_STEP_SEQ, font_small));                            
-                            //iTextSharp.text.pdf.draw.LineSeparator ls = new iTextSharp.text.pdf.draw.LineSeparator();
-                            //document.Add(new Chunk(ls));
-
                             //Add html to the PDF START ******************************************
                             HTMLWorker worker = new HTMLWorker(document);
                             worker.StartDocument();
@@ -140,8 +136,6 @@ namespace QREST.App_Logic
 
                         }
                     }
-
-
 
                     // Close the document
                     document.Close();

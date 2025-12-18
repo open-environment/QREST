@@ -122,10 +122,13 @@
                                     <tr>
                                         @Html.HiddenFor(model => model.AssessmentDetails[i].QC_ASSESS_DTL_IDX)
                                         <td>
-                                            <div class="delete-section" style="display:inline-block">
-                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
-                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@Html.ValueFor(model => model.AssessmentDetails[i].QC_ASSESS_DTL_IDX)" data-delete-p="/Data/QCDtlDelete"><b>Confirm Delete</b></div>
-                                            </div>
+                                            @if (Model.CanEdit)
+                                            {
+                                                <div class="delete-section" style="display:inline-block">
+                                                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
+                                                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@Html.ValueFor(model => model.AssessmentDetails[i].QC_ASSESS_DTL_IDX)" data-delete-p="/Data/QCDtlDelete"><b>Confirm Delete</b></div>
+                                                </div>
+                                            }
                                         </td>
                                         <td style="padding:0">
                                             @Html.TextBoxFor(model => model.AssessmentDetails[i].ASSESS_KNOWN_CONCENTRATION, new { @class = "form-control input", @autocomplete = "off" })
@@ -192,14 +195,17 @@
         </div>
     }
 
-    <p>
+<p>
+    @if (Model.CanEdit)
+    {
         <button id="btnSave" type="submit" disabled class="btn btn-primary ">Save</button>
-        <a class=" btn btn-default" href="@Url.Action("QCList", new { selOrgID = Model.ORG_ID })">Back to List</a>
-        @if (Model.QC_ASSESS_IDX != null)
-        {
-            <a class=" btn btn-danger pull-right" href="@Url.Action("AQSGenQA", new { typ = "QA", qid=Model.QC_ASSESS_IDX })">Send to AQS</a>
-        }
-    </p>
+    }
+    <a class=" btn btn-default" href="@Url.Action("QCList", new { selOrgID = Model.ORG_ID })">Back to List</a>
+    @if (Model.QC_ASSESS_IDX != null && Model.CanEdit)
+    {
+        <a class=" btn btn-danger pull-right" href="@Url.Action("AQSGenQA", new { typ = "QA", qid=Model.QC_ASSESS_IDX })">Send to AQS</a>
+    }
+</p>
 
 }
 

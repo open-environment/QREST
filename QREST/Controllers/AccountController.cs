@@ -99,7 +99,6 @@ namespace QREST.Controllers
                     else
                     {
                         db_Ref.CreateT_QREST_SYS_LOG_ACTIVITY("LOGIN", user.Id, System.DateTime.Now, "User logged in", GetIP.GetLocalIPAddress(System.Web.HttpContext.Current), null);
-
                         return RedirectToLocal(returnUrl);
                     }
                 case SignInStatus.LockedOut:
@@ -191,7 +190,7 @@ namespace QREST.Controllers
                 }
 
                 // ******************** AGENCY VALIDATION ******************************
-                if (model.selOrgID != null)
+                if (!string.IsNullOrEmpty(model.selOrgID))
                 {
                     //see if the agency filters registration by email rule 
                     List<T_QREST_ORG_EMAIL_RULE> emails = db_Account.GetT_QREST_ORG_EMAIL_RULE(model.selOrgID);
@@ -199,12 +198,28 @@ namespace QREST.Controllers
                     {
                         if (db_Account.IsValidT_QREST_ORG_EMAIL(model.Email, model.selOrgID) == false)
                         {
+                            await Task.Delay(5000); // Wait for 5 seconds
                             TempData["Error"] = "Registration for this organization is restricted by email. Please contact ITEP or the tribal representative to obtain an account.";
+                            db_Ref.CreateT_QREST_SYS_LOG(null, "REGISTER", model.Email + "Failed to register - email not valid for tribe " + model.selOrgID + " " + GetIP.GetLocalIPAddress(System.Web.HttpContext.Current));
                             return RedirectToAction("QRESTRegister", "Account");
                         }
                     }
+                    else
+                    {
+                        await Task.Delay(5000); // Wait for 5 seconds
+                        TempData["Error"] = "Registration for this organization is not allowed at this time. (Ref: email settings).";
+                        db_Ref.CreateT_QREST_SYS_LOG(null, "REGISTER", model.Email + " Failed to register for org [" + model.selOrgID + "] no email rule " + GetIP.GetLocalIPAddress(System.Web.HttpContext.Current));
+                        return RedirectToAction("QRESTRegister", "Account");
+                    }
 
 
+                }
+                else
+                {
+                    await Task.Delay(5000); // Wait for 5 seconds
+                    TempData["Error"] = "QREST is intended for tribal users only. Please select the tribe you wish to register with.";
+                    db_Ref.CreateT_QREST_SYS_LOG(null, "REGISTER", model.Email + "Failed to register by not selecting any tribe " + GetIP.GetLocalIPAddress(System.Web.HttpContext.Current));
+                    return RedirectToAction("QRESTRegister", "Account");
                 }
                 // ****************** END AGENCY VALIDATION ******************************
 
@@ -545,7 +560,7 @@ namespace QREST.Controllers
                 user.LNAME = model.LNAME;
                 user.NOTIFY_APP_IND = model.NOTIFY_APP_IND;
                 user.NOTIFY_EMAIL_IND = model.NOTIFY_EMAIL_IND;
-                user.NOTIFY_SMS_IND = model.NOTIFY_SMS_IND;
+                user.NOTIFY_SMS_IND = false;// model.NOTIFY_SMS_IND;
                 user.PhoneNumber = model.PhoneNumber ?? "";
                 user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
 
@@ -559,19 +574,22 @@ namespace QREST.Controllers
             return View(model);
         }
 
+        ///// <summary>
+        ///// Twilio removed from QREST in 2025
+        ///// </summary>
+        ///// <returns></returns>
+        //[Authorize]
+        //public ActionResult TestSMS()
+        //{
+        //    string UserIDX = User.Identity.GetUserId();
+        //    bool SuccInd = UtilsSMS.sendSMS(UserIDX, "This is a test message from QREST. You can now receive QREST alerts directly to your phone.");
+        //    if (SuccInd)
+        //        TempData["Success"] = "Text message sent.";
+        //    else
+        //        TempData["Error"] = "Unable to send text message.";
 
-        [Authorize]
-        public ActionResult TestSMS()
-        {
-            string UserIDX = User.Identity.GetUserId();
-            bool SuccInd = UtilsSMS.sendSMS(UserIDX, "This is a test message from QREST. You can now receive QREST alerts directly to your phone.");
-            if (SuccInd)
-                TempData["Success"] = "Text message sent.";
-            else
-                TempData["Error"] = "Unable to send text message.";
-
-            return RedirectToAction("MyProfile");
-        }
+        //    return RedirectToAction("MyProfile");
+        //}
 
 
         [Authorize]

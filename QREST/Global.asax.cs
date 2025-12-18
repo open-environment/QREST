@@ -6,6 +6,8 @@ using System.Web.Routing;
 using QRESTModel.DAL;
 using QREST.Controllers;
 using Microsoft.AspNet.Identity;
+using QREST.App_Logic.BusinessLogicLayer;
+using System.Linq;
 
 
 namespace QREST
@@ -15,7 +17,7 @@ namespace QREST
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
-            System.Web.Http.GlobalConfiguration.Configure(WebApiConfig.Register);  //adding web api support to QREST
+            //System.Web.Http.GlobalConfiguration.Configure(WebApiConfig.Register);  //adding web api support to QREST
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
@@ -26,8 +28,30 @@ namespace QREST
         /// </summary>
         protected void Application_Error(object sender, EventArgs e)
         {
+            // Get the context
+            var httpContext = HttpContext.Current;
+
             // Grab information about the last error occurred 
             var ex = Server.GetLastError();
+
+            var httpException = ex as HttpException;
+            var statusCode = httpException?.GetHttpCode() ?? 500;
+
+            // List of ignorable 404 paths
+            var requestPath = httpContext?.Request?.Url?.AbsolutePath.ToLowerInvariant();
+
+            var ignored404s = new[] {
+                "/favicon.ico",
+                "/robots.txt",
+                "/.well-known/traffic-advice"
+            };
+
+            if (statusCode == 404 && requestPath != null && ignored404s.Contains(requestPath))
+            {
+                // Don't log these
+                Server.ClearError();
+                return;
+            }
 
             //keep going to inner exception
             Exception realerror = ex;
@@ -36,13 +60,12 @@ namespace QREST
 
             //try getting current user
             string userIDX = (Request.IsAuthenticated ? User.Identity.GetUserId() : "PublicUser");
+            string IP = GetIP.GetLocalIPAddress(System.Web.HttpContext.Current);
 
             //log error
-            db_Ref.CreateT_QREST_SYS_LOG(userIDX, null, realerror.Message);
+            db_Ref.CreateT_QREST_SYS_LOG(userIDX, null, realerror.Message + IP );
 
-            // Get the context
-            var httpContext = ((MvcApplication)sender).Context;
-
+            //var httpContext = ((MvcApplication)sender).Context;
 
             //get current MVC route
             var currentController = " ";

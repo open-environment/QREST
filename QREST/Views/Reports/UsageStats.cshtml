@@ -39,7 +39,7 @@
                                 @Html.DisplayFor(modelItem => item.MN)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.CNT)
+                                @item.CNT.ToString("N0") 
                             </td>
                         </tr>
                     }
@@ -58,19 +58,23 @@
                             <th>Count</th>
                         </tr>
                     </thead>
-                    @foreach (var item in Model.FiveMinCnts)
+                    @if (Model.FiveMinCnts != null)
                     {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.YR)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.MN)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CNT)
-                            </td>
-                        </tr>
+                        foreach (var item in Model.FiveMinCnts)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.YR)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.MN)
+                                </td>
+                                <td>
+                                    @item.CNT.ToString("N0")
+                                </td>
+                            </tr>
+                        }
+
                     }
                 </table>
             </div>
@@ -79,8 +83,41 @@
         <div class="col-md-4">
             <h4>AQS Submissions</h4>
             <div class="table-responsive">
-
+                <table id="gridData" class="table table-striped table-bordered" data-ride="datatables" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Number of Submissions</th>
+                            <th>Number of Records Loaded</th>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td>
+                            Raw Data
+                        </td>
+                        <td>
+                            @Model.RD_cnt
+                        </td>
+                        <td>
+                            @(Model.RD_sum?.ToString("N0") ?? "")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            QA
+                        </td>
+                        <td>
+                            @Model.QA_cnt
+                        </td>
+                        <td>
+                            @Model.QA_sum
+                        </td>
+                    </tr>
+                </table>
             </div>
+            <p>Note: submissions and counts based on submission to EPA date (not monitoring date).</p>
+            <p>Note: # of records loaded only counts data where user in QREST has performed GetStatus to get Load count.</p>
+
         </div>
     </div>
         }

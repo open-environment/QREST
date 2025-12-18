@@ -4,9 +4,7 @@
     ViewBag.SubTitle = "Export your data to Excel.";
 }
 
-@using (Html.BeginForm("Export2", "Reports", FormMethod.Post, new { @class = "", enctype = "multipart/form-data", @id = "" }))
-{
-    @Html.AntiForgeryToken()
+
 
     <section class="panel panel-qrest ">
         <div class="panel-heading">
@@ -14,44 +12,71 @@
         </div>
         <div class="panel-body">
             <div class="row">
-                <div class="col-md-12">
-                    <div class="form-inline m-b-sm raw" style="padding-left:20px">
-                        @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "Filter Organization (optional)", new { @class = "form-control" })
-                    </div>
+                @using (Html.BeginForm("Export2", "Reports", FormMethod.Post, new { @class = "", enctype = "multipart/form-data", @id = "" }))
+                {
+                    @Html.AntiForgeryToken()
 
-                    <div class="form-group">
-                        <input type="checkbox" name="exportdata" value="Sites" class="checkbox-inline checkbox-lg" /> <span style="font-size:16px">Sites</span>
-                        <br />
-                        <input type="checkbox" name="exportdata" value="Monitors" class="checkbox-inline checkbox-lg" />  <span style="font-size:16px">Monitors</span>
-                        <br />
-                        <input type="checkbox" name="exportdata" value="PollingConfig" class="checkbox-inline checkbox-lg" />  <span style="font-size:16px">Polling Configurations</span>
-                        <br />
-                        <input id="export1" type="checkbox" name="exportdata" value="Data" class="checkbox-inline checkbox-lg" data-toggle="collapse" data-target="#divData" disabled="disabled" />  <span style="font-size:16px">Air Data</span>
-                        <br />
-                    </div>
-                    <div id="divData" class="form-inline m-b-sm raw collapse" style="padding-left:20px;">
-                        @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, "Filter Monitor (optional)", new { @class = "form-control" })
-                        <br />
-                        <select id="selType" name="selType" class="form-control">
-                            <option value="H">Hourly</option>
-                            <option value="F">5-Minute</option>
-                        </select>
-                        <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
-                        @Html.DropDownListFor(model => model.selTimeType, Model.ddl_TimeType, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.selTimeType)
-                        <br />
-                        <div id="chkDivStats" class="checkboxes" style="display:none;">
-                            <label>@Html.CheckBoxFor(model => model.chkDaily) Include Daily Averages</label>
-                            <br />
-                            <label>@Html.CheckBoxFor(model => model.chkMonthly) Include Monthly Summary</label>
+                    <div class="col-md-6">
+                        <div class="form-inline m-b-sm raw" style="padding-left:20px">
+                            @Html.DropDownListFor(model => model.selOrgID, Model.ddl_Organization, "Filter Organization (optional)", new { @class = "form-control" })
                         </div>
+
+                        <div class="form-group">
+                            <input type="checkbox" name="exportdata" value="Sites" class="checkbox-inline checkbox-lg" /> <span style="font-size:16px">Sites</span>
+                            <br />
+                            <input type="checkbox" name="exportdata" value="Monitors" class="checkbox-inline checkbox-lg" />  <span style="font-size:16px">Monitors</span>
+                            <br />
+                            <input type="checkbox" name="exportdata" value="PollingConfig" class="checkbox-inline checkbox-lg" />  <span style="font-size:16px">Polling Configurations</span>
+                            <br />
+                            <input id="export1" type="checkbox" name="exportdata" value="Data" class="checkbox-inline checkbox-lg" data-toggle="collapse" data-target="#divData" disabled="disabled" />  <span style="font-size:16px">Air Data</span>
+                            <br />
+                        </div>
+                        <div id="divData" class="form-inline m-b-sm raw collapse" style="padding-left:20px;">
+                            @Html.DropDownListFor(model => model.selMon, Model.ddl_Monitor, "Filter Monitor (optional)", new { @class = "form-control" })
+                            <br />
+                            <select id="selType" name="selType" class="form-control">
+                                <option value="H">Hourly</option>
+                                <option value="F">5-Minute</option>
+                            </select>
+                            <input id="selDate" name="selDate" class="form-control" style="width:300px" data-start="" data-end="" />
+                            @Html.DropDownListFor(model => model.selTimeType, Model.ddl_TimeType, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.selTimeType)
+                            <br />
+                            <div id="chkDivStats" class="checkboxes" style="display:none;">
+                                <label>@Html.CheckBoxFor(model => model.chkDaily) Include Daily Averages</label>
+                                <br />
+                                <label>@Html.CheckBoxFor(model => model.chkMonthly) Include Monthly Summary</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Export Data</button>
                     </div>
-                    <button type="submit" class="btn btn-primary">Export Data</button>
-                </div>
+                }
+                @if (User.IsInRole("GLOBAL ADMIN"))
+                {
+                    using (Html.BeginForm("ExportAdmin", "Reports", FormMethod.Post, new { @class = "", enctype = "multipart/form-data", @id = "" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="col-md-6">
+                            <h3>Global Admin Export Options</h3>
+                            <div class="form-group">
+                                <input type="checkbox" name="exportadmindata" value="Users" class="checkbox-inline checkbox-lg" /> <span style="font-size:16px">Users</span>
+                                <br />
+                                <input type="checkbox" name="exportadmindata" value="UserOrgs" class="checkbox-inline checkbox-lg" />  <span style="font-size:16px">Organization Users</span>
+                                <br />
+                                <div class="form-inline m-b-sm raw" style="padding-left:20px">
+                                    @Html.DropDownListFor(model => model.selOrgIDAdmin, Model.ddl_Organization, "Filter Organization (optional)", new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Export Data</button>
+                        </div>
+                    }
+
+                }
+
             </div>
         </div>
     </section>
-}
 
 
 @section Scripts {

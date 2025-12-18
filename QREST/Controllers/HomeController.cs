@@ -25,6 +25,11 @@ namespace QREST.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public ActionResult Index(vmHomeIndex model)
+        {
+            return RedirectToAction("Index");
+        }
 
         [HttpGet]
         public ActionResult SignUp()
@@ -43,7 +48,7 @@ namespace QREST.Controllers
         [HttpGet]
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Your contact page." + System.DateTime.Now;
 
             return View();
         }

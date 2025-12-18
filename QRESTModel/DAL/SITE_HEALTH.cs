@@ -31,5 +31,6 @@ namespace QRESTModel.DAL
         public string RAW_DURATION_CODE { get; set; }
         public Nullable<System.DateTime> LAST_UTC_POLL { get; set; }
         public System.DateTime CURR_UTC { get; set; }
+        public System.Guid POLL_CONFIG_IDX { get; set; }
     }
 }

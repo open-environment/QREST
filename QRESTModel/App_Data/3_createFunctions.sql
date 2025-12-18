@@ -240,34 +240,31 @@ PC.LOGGER_TYPE, PC.TIME_POLL_TYPE, PC.[RAW_DURATION_CODE]
 	(select max([DATA_DTTM]) from T_QREST_DATA_FIVE_MIN F, T_QREST_MONITORS M where F.MONITOR_IDX=M.MONITOR_IDX and M.SITE_IDX = S.SITE_IDX and F.DATA_DTTM>getdate()-10) 
 	else null end
 	as LAST_UTC_POLL
-,GETUTCDATE() as CURR_UTC
+,GETUTCDATE() as CURR_UTC, PC.POLL_CONFIG_IDX
 from T_QREST_SITES S, T_QREST_SITE_POLL_CONFIG PC
 where PC.SITE_IDX=S.SITE_IDX
 and PC.ACT_IND=1
 and S.POLLING_ONLINE_IND=1
-GO
-
-
-GO
-CREATE OR ALTER VIEW MONTHLY_USAGE_HOURLY
-as
-select 
-isnull(year([DATA_DTTM_LOCAL]),0) as YR, isnull(month(Data_dttm_local),0) as MN, count(*) as CNT
-from [T_QREST_DATA_HOURLY] 
-group by year([DATA_DTTM_LOCAL]), month(Data_dttm_local)
 
 GO
 
-CREATE OR ALTER VIEW MONTHLY_USAGE_FIVEMIN
-as
-select isnull(year([DATA_DTTM]),0) as YR, isnull(month([DATA_DTTM]),0) as MN, count(*) as CNT
-from T_QREST_DATA_FIVE_MIN 
-group by year([DATA_DTTM]), month([DATA_DTTM])
-GO
+--THESE BOTH HAVE BEEN REPLACED BY STORED PROC
+--CREATE OR ALTER VIEW MONTHLY_USAGE_HOURLY
+--as
+--select 
+--isnull(year([DATA_DTTM_LOCAL]),0) as YR, isnull(month(Data_dttm_local),0) as MN, count(*) as CNT
+--from [T_QREST_DATA_HOURLY] 
+--group by year([DATA_DTTM_LOCAL]), month(Data_dttm_local)
+--
+--GO
 
 
-
-GO
+--CREATE OR ALTER VIEW MONTHLY_USAGE_FIVEMIN
+--as
+--select isnull(year([DATA_DTTM]),0) as YR, isnull(month([DATA_DTTM]),0) as MN, count(*) as CNT
+--from T_QREST_DATA_FIVE_MIN 
+--group by year([DATA_DTTM]), month([DATA_DTTM])
+--GO
 
 
 
@@ -1488,6 +1485,64 @@ END;
 GO
 
 
+
+
+
+CREATE PROCEDURE SP_RPT_GLOBAL_USAGE_HOURLY
+  @Year INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+	--DOUG 11/2025  
+	--PURPOSE: TO PERFORM GLOBAL COUNT OF HOURLY DATA, BROKEN DOWN BY MONTH AND YEAR. 
+	--         PERFORMANCE OPTIMIZED TO UTILIZE EXISTING INDEX
+
+
+	DECLARE @startdt DATETIME = DATEFROMPARTS(@Year,1,1);
+	DECLARE @enddt DATETIME   = DATEFROMPARTS(@Year+1,1,1);
+	
+	SELECT 
+		@Year AS YR,
+		MONTH(DATA_DTTM_UTC) AS MN,
+		COUNT(*) AS CNT
+	FROM dbo.T_QREST_DATA_HOURLY 
+	WHERE DATA_DTTM_UTC >= @startdt
+	  AND DATA_DTTM_UTC < @enddt
+	GROUP BY MONTH(DATA_DTTM_UTC)
+	ORDER BY MN;
+
+END
+
+
+GO
+
+
+CREATE PROCEDURE [dbo].[SP_RPT_GLOBAL_USAGE_FIVE_MIN]
+  @Year INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+	--DOUG 11/2025  
+	--PURPOSE: TO PERFORM GLOBAL COUNT OF FIVE MIN DATA, BROKEN DOWN BY MONTH AND YEAR. 
+	--         PERFORMANCE OPTIMIZED TO UTILIZE EXISTING INDEX
+	--DECLARE @Year int = 2024;
+	DECLARE @startdt DATETIME = DATEFROMPARTS(@Year,1,1);
+	DECLARE @enddt DATETIME   = DATEFROMPARTS(@Year+1,1,1);
+	
+	SELECT 
+		@Year AS YR,
+		MONTH(DATA_DTTM) AS MN,
+		COUNT(*) AS CNT
+	FROM dbo.T_QREST_DATA_FIVE_MIN
+	WHERE DATA_DTTM >= @startdt
+	  AND DATA_DTTM < @enddt
+	GROUP BY MONTH(DATA_DTTM)
+	ORDER BY MN;
+
+END
+
+
+GO
 --&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   TRAINING     &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 --&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   TRAINING     &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 --&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   TRAINING     &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

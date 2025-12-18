@@ -19,5 +19,6 @@ namespace QRESTModel.DAL
         public string LOG_TYP { get; set; }
         public string LOG_USERID { get; set; }
         public string LOG_MSG { get; set; }
+        public string APP_ID { get; set; }
     }
 }

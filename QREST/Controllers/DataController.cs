@@ -999,6 +999,9 @@ namespace QREST.Controllers
                 selMode = md
             };
 
+            if (model.selMon == null)
+                return RedirectToAction("DataReviewSummary");
+
             //security check
             if (db_Account.CanAccessThisOrg(UserIDX, model.selMon.ORG_ID, false) == false)
             {
@@ -1023,7 +1026,14 @@ namespace QREST.Controllers
             if (dur == "H")
                 model.RawData = db_Air.GetT_QREST_DATA_FIVE_MIN(null, null, monid, sdt, edt, 25000, 0, 3, "asc", "L");
             else if (dur == "1")
+            {
                 model.RawData = db_Air.GetT_QREST_DATA_HOURLY_ManVal(monid.GetValueOrDefault(), model.selDtStart, model.selDtEnd);
+ 
+                //check if any records need to have level 0 rerun
+                var first = model.RawData.Where(r => r.VAL_IND == false && r.IMPORT_IDX != null).OrderBy(r => r.DATA_DTTM).FirstOrDefault();
+                model.MissingLvl0ValidationImportIDX = first?.IMPORT_IDX;
+
+            }
 
             //supp parameters
             if (supp1 != null)
@@ -1123,6 +1133,25 @@ namespace QREST.Controllers
 
         }
 
+
+        /// <summary>
+        /// Runs Level 0 validation on an Import IDX
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RunLevelZero(Guid id)
+        {
+            int SuccID = db_Air.SP_VALIDATE_HOURLY_IMPORT(id);
+            if (SuccID!=0)
+                return Json(new { success = true });
+            else
+            {
+                Response.StatusCode = 500;
+                return Json(new { success = false, message = "Level zero validation failed." });
+            }
+        }
 
         [HttpPost]
         public ActionResult DataReview2(vmDataReview2 model)

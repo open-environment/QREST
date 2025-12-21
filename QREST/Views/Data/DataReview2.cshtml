@@ -64,6 +64,15 @@
             <a class=" btn btn-default" href="@Url.Action("DataReviewSummary", new { id = Model.selMon.T_QREST_MONITORS.SITE_IDX, month = Model.selDtStart.Month, year = Model.selDtStart.Year })">Back</a>
         }
 
+        @if (Model.MissingLvl0ValidationImportIDX != null)
+        {
+            <a id="runLevelZero" class=" btn btn-danger" data-id="@Model.MissingLvl0ValidationImportIDX">
+                Run Level 0 Validation
+            </a>
+        }
+
+
+
         @if (Model.isReadOnly == false)
         {
             <a id="divBulk" class="btn btn-success" href="#modal-form1" data-toggle="modal" style="display:none;">Review/Edit Selected Records</a>
@@ -438,6 +447,27 @@
                 $("#editLvl2_2").parent().removeClass("active");
             }
         });
+
+        //conditionally display button for rerunning Level 0 validation
+        $('#runLevelZero').on('click', function () {
+            $.ajax({
+                url: '@Url.Action("RunLevelZero","Data")',
+                type: 'POST',
+                data: {
+                    id: $(this).data('id'),
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                }
+            })
+            .done(function (r) {
+                if (r.success) {
+                    location.reload();
+                }
+            })
+            .fail(function (xhr) {
+                alert(xhr.responseJSON?.message || 'Validation failed.');
+            });
+        });
+
 
         moment.updateLocale(moment.locale(), { invalidDate: "" });
 

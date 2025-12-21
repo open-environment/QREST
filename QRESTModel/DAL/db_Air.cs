@@ -188,6 +188,7 @@ namespace QRESTModel.DAL
         public DateTime? LVL2_VAL_DT { get; set; }
         public string NOTES { get; set; }
         public bool AQSReadyInd { get; set; }
+        public Guid? IMPORT_IDX { get; set; }
 
     }
 
@@ -3186,6 +3187,7 @@ namespace QRESTModel.DAL
                                 LVL2_VAL_USER = u2.FNAME + " " + u2.LNAME,
                                 LVL2_VAL_DT = a.LVL2_VAL_DT,
                                 NOTES = a.NOTES,
+                                IMPORT_IDX = a.IMPORT_IDX,
                                 AQSReadyInd = ((a.DATA_VALUE_NUM != null && u3.UNIT_CODE != null) || a.AQS_NULL_CODE != null)
                             }).ToList();
                 }

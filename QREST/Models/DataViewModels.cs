@@ -312,6 +312,10 @@ namespace QREST.Models
 
         public List<Guid> editRawDataIDX { get; set; }
 
+
+        //need for Level 0 validation
+        public Guid? MissingLvl0ValidationImportIDX { get; set; }
+
         //initialize
         public vmDataReview2()
         {

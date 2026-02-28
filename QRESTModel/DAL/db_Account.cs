@@ -53,6 +53,7 @@ namespace QRESTModel.DAL
             {
                 try
                 {
+                    var now1 = System.DateTime.UtcNow;
                     return (from u in ctx.USERLIST_DISPLAY_VIEW.AsNoTracking()
                             where userType == 1 ? u.Name == "1" : true
                             && userType == 2 ? u.TribalAdmin > 0 : true
@@ -66,7 +67,7 @@ namespace QRESTModel.DAL
                                 FNAME = u.FNAME,
                                 LNAME = u.LNAME,
                                 LAST_LOGIN_DT = u.LAST_LOGIN_DT,
-                                LOCKOUTEND = u.LockoutEndDateUtc,
+                                LOCKOUTEND = u.LockoutEndDateUtc > now1 ? u.LockoutEndDateUtc : null,
                                 EMAILCONFIRMED = u.EmailConfirmed,
                                 CREATE_DT = u.CREATE_DT,
                                 ISGLOBALADMIN = u.Name == "1" ? true : false,

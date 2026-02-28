@@ -171,11 +171,11 @@
                     {
                         "render": function (data, type, row) {
                             var xxx = '<span class="label label-success"> Active</span>';
-                            if (row.LockoutEnd != null) {
+                            if (row.LOCKOUTEND != null) {
                                 xxx = '<span class="label label-warning"> Locked Out</span>';
                             }
                             else {
-                                if (row.EmailConfirmed == false) {
+                                if (row.EMAILCONFIRMED == false) {
                                     xxx = '<span class="label label-warning"> Awaiting Email Confirmation</span>';
                                 }
                             }

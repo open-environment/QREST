@@ -383,9 +383,9 @@
                                                 </div>
                                             </td>
                                         }
-                                    <td>
-                                        <a class="font-bold" href="@Url.Action("DataDocsDownload", "Data", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-2x @UtilsText.getFontAwesomeIconFromMIME(item.DOC_FILE_TYPE) text-dark"></i> <u>@item.DOC_NAME</u></a>
-                                    </td>
+                                        <td>
+                                            <a class="font-bold" href="@Url.Action("DataDocsDownload", "Data", new { id = item.ASSESS_DOC_IDX })"><i class="fa fa-2x @UtilsText.getFontAwesomeIconFromMIME(item.DOC_FILE_TYPE) text-dark"></i> <u>@item.DOC_NAME</u></a>
+                                        </td>
                                         <td>@Html.DisplayFor(modelItem => item.DOC_COMMENT)</td>
                                     </tr>
                                 }
@@ -394,7 +394,7 @@
                     }
                     @if (Model.CanEdit)
                     {
-                    <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-primary btn-sm"><i class="fa fa-plus"></i> Upload</a>
+                        <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-primary btn-sm"><i class="fa fa-plus"></i> Upload</a>
                     }
 
                 </div>
@@ -527,6 +527,7 @@
 @Html.Partial("_PleaseWait", "Shared")
 
 @section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/confirm-delete")
     @Scripts.Render("~/bundles/areyousure")
     @Scripts.Render("~/bundles/cleave")

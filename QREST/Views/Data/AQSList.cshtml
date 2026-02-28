@@ -45,6 +45,8 @@
                     {
                         <tr>
                             <td>
+                                @if (Model.CanEdit)
+                                {
                                 <a href="#modal-form" data-toggle="modal" data-id="@item.AQS_IDX" data-comment="@item.COMMENT" data-name="@item.AQS_SUBMISSION_NAME" class="btn btn-rounded btn-xs btn-primary modal-it" style="display: inline-block;"> <i class="fa fa-pencil"></i></a>
                                 <div class="delete-section" style="display:inline-block">
                                     <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="fa fa-times"></i></a>
@@ -52,6 +54,7 @@
                                         <b>Confirm Delete</b>
                                     </div>
                                 </div>
+                                }
                             </td>
                             <td>
                                 [@Html.DisplayFor(modelItem => item.SITE_ID)]
@@ -116,7 +119,7 @@
                                 }
                             </td>
                             <td>
-                                @if (item.SUBMISSION_STATUS == "File Created")
+                                @if (item.SUBMISSION_STATUS == "File Created" && Model.CanEdit)
                                 {
                                     <a id="btnResult" href="@(Url.Action("AQSSubmitToEPA", "Data", new { id = item.AQS_IDX }))" class="btn btn-rounded btn-sm btn-danger" style="display: inline-block;">Submit to EPA</a>
                                 }
@@ -153,6 +156,7 @@
                 </table>
             </div>
         }
+
         <a href="@Url.Action("AQSGen", "Data")" class="btn btn-sm btn-primary btn-rounded"><i class="fa fa-plus"></i> Add</a>
 
     </div>

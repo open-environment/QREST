@@ -335,6 +335,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Docs\QREST Users Guide.docx" />
+    <Content Include="Content\Docs\QREST Campbell Logger Setup Guide.docx" />
     <None Include="Properties\PublishProfiles\qrest - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\qrest-test - Web Deploy.pubxml" />
     <None Include="Properties\Settings.settings">

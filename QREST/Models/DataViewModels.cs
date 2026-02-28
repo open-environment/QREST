@@ -363,6 +363,7 @@ namespace QREST.Models
 
     public class vmDataAQSList {
         public string selOrgID { get; set; }
+        public bool CanEdit { get; set; }//can this user edit based on the selected selOrgID? (only for org Admins)
         public IEnumerable<SelectListItem> ddl_Organization { get; set; }
 
         public List<AQSDisplay> T_QREST_AQS { get; set; }
@@ -377,6 +378,7 @@ namespace QREST.Models
     {
         public string selAQSTransType { get; set; }
         public string selOrgID { get; set; }
+        public bool CanEdit { get; set; }  //can this user edit based on the selOrgID (only for Admins)
         public Guid? selSite { get; set; }
         public Guid? selQid { get; set; }
         public IList<Guid> selMons{ get; set; }

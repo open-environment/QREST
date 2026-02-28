@@ -233,8 +233,6 @@ namespace QRESTModel.DAL
 
     public class AQSDisplay
     {
-        //public T_QREST_AQS T_QREST_AQS { get; set; }
-
         public Guid AQS_IDX { get; set; }
         public string COMMENT { get; set; }
         public string AQS_SUBMISSION_NAME { get; set; }
@@ -616,20 +614,23 @@ namespace QRESTModel.DAL
             }
         }
 
-        public static List<T_QREST_SITES> GetT_QREST_SITES_Sampled_ByUser(string UserIDX, bool AdminAndOperatorOnly)
+        public static List<T_QREST_SITES> GetT_QREST_SITES_Sampled_ByUser(string UserIDX, bool AdminAndOperatorOnly, bool AdminOnly)
         {
             using (QRESTEntities ctx = new QRESTEntities())
             {
                 try
                 {
-                    return (from a in ctx.T_QREST_SITES.AsNoTracking()
+                    var xxx = (from a in ctx.T_QREST_SITES.AsNoTracking()
                                join b in ctx.T_QREST_MONITORS.AsNoTracking() on a.SITE_IDX equals b.SITE_IDX
                                join c in ctx.T_QREST_DATA_HOURLY.AsNoTracking() on b.MONITOR_IDX equals c.MONITOR_IDX
                                join u in ctx.T_QREST_ORG_USERS.AsNoTracking() on a.ORG_ID equals u.ORG_ID
                                where u.USER_IDX == UserIDX
                                && u.STATUS_IND == "A"
                                && (AdminAndOperatorOnly == false || (u.ACCESS_LEVEL == "A" || u.ACCESS_LEVEL == "U"))
+                               && (!AdminOnly || u.ACCESS_LEVEL == "A")
                                select a).Distinct().ToList();
+
+                    return xxx;
                 }
                 catch (Exception ex)
                 {

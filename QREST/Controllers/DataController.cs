@@ -1474,8 +1474,10 @@ namespace QREST.Controllers
         public ActionResult AQSList(string selOrgID)
         {
             string UserIDX = User.Identity.GetUserId();
-            var model = new vmDataAQSList {
+            var model = new vmDataAQSList
+            {
                 ddl_Organization = ddlHelpers.get_ddl_my_organizations_aqs_submission(UserIDX),
+                CanEdit = false
             };
 
             //autopopulate if only rights to 1 org that has made aqs submission
@@ -1483,9 +1485,15 @@ namespace QREST.Controllers
                 model.selOrgID = model.ddl_Organization.First().Value;
 
             if (selOrgID != null)
+            {
                 model.selOrgID = selOrgID;
+                model.T_QREST_AQS = db_Air.GetT_QREST_AQS_byORG_ID(model.selOrgID);
 
-            model.T_QREST_AQS = db_Air.GetT_QREST_AQS_byORG_ID(model.selOrgID);
+                //only admin and operator can add or edit these
+                model.CanEdit = db_Account.IsAnOrgAdmin(UserIDX, selOrgID);
+
+            }
+
 
             return View(model);
         }
@@ -1566,7 +1574,7 @@ namespace QREST.Controllers
             string UserIDX = User.Identity.GetUserId();
 
             var model = new vmDataAQSGen {
-                ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(UserIDX, true),
+                ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(UserIDX, false, true),
                 selAQSTransType = typ ?? "RD",
                 selDtStart = sDt ?? new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddMonths(-1),
                 selDtEnd = eDt ?? new DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).AddHours(-1),
@@ -1600,7 +1608,7 @@ namespace QREST.Controllers
             AQSGenDataReview(model);
 
             //repopulate model before returning
-            model.ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(User.Identity.GetUserId(), true);
+            model.ddl_Sites = ddlHelpers.get_ddl_my_sites_sampled(User.Identity.GetUserId(), false, true);
 
             return View(model);
         }

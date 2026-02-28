@@ -197,14 +197,15 @@ namespace QREST.Models
             });
         }
 
-        public static IEnumerable<SelectListItem> get_ddl_my_sites_sampled(string UserIDX, bool AdminAndOperatorOnly)
+        public static IEnumerable<SelectListItem> get_ddl_my_sites_sampled(string UserIDX, bool AdminAndOperatorOnly, bool AdminOnly)
         {
-            return db_Air.GetT_QREST_SITES_Sampled_ByUser(UserIDX, AdminAndOperatorOnly).Select(x => new SelectListItem
+            return db_Air.GetT_QREST_SITES_Sampled_ByUser(UserIDX, AdminAndOperatorOnly, AdminOnly).Select(x => new SelectListItem
             {
                 Value = x.SITE_IDX.ToString(),
                 Text = x.SITE_ID + " " + x.SITE_NAME
             });
         }
+
 
 
         /// <summary>

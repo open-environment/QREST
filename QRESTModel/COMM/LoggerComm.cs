@@ -437,7 +437,7 @@ namespace QRESTModel.COMM
                 // Send initial login / wakeup sequence
                 string response = SendReceiveMessageNew(stream, "\r\n\r\n\r\n", 700, 700, false);
                 if (response == null || !response.Contains("*"))
-                    return new CommMessageLog { CommMessageStatus = false, CommMessageType = "Username/password or device wakeup failed", CommResponse = "" };
+                    return new CommMessageLog { CommMessageStatus = false, CommMessageType = "Device did not respond during wakeup", CommResponse = "" };
 
                 // Send record retrieval command
                 //hit 4 10 to retrieve last 10 records

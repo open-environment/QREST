@@ -125,7 +125,7 @@
                                         </div>
                                     </div>
                                     <div class="row loggerOnly">
-                                        <div class="col-md-6 hideWeather hideCampbell">
+                                        <div class="col-md-6 hideWeather hideCampbell hideBAM">
                                             <div class="form-group ">
                                                 Username
                                                 @Html.TextBoxFor(model => model.editLOGGER_USERNAME, new { @class = "form-control", @maxlength = "150" })
@@ -133,7 +133,7 @@
                                                 <span class="help-block">If your instrument only requires a password, then leave this blank.</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 hideCampbell">
+                                        <div class="col-md-6 hideCampbell hideBAM">
                                             <div class="form-group">
                                                 Password
                                                 @Html.PasswordFor(model => model.editLOGGER_PASSWORD, new { @class = "form-control", @maxlength = "150", @placeholder = "***************" })
@@ -523,6 +523,7 @@
                 $('.hideWeather').show();
                 $('.hideCampbell').show();
                 $('.hideESC').show();
+                $('.hideBAM').show();
                 $('.showLeads').hide();
 
 
@@ -544,6 +545,9 @@
                 }
                 else if (xxx == "SUTRON_LEADS") {
                     $('.showLeads').show();
+                }
+                else if (xxx == "MET_ONE_BAM" || xxx == "MET_BAM_1022") {
+                    $('.hideBAM').hide();
                 }
 
                 if (!$('#editLOGGER_PORT').val()) {

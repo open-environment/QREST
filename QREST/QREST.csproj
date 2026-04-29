@@ -207,6 +207,7 @@
     <Compile Include="Controllers\apiController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\DataController.cs" />
+    <Compile Include="Controllers\HealthController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
@@ -720,6 +721,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Default\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\tinymce\tinymce.d.ts" />

@@ -84,13 +84,16 @@ namespace QREST.Controllers
 
                     _dts.Add(DataTableGen.RawData(model.selType, model.selOrgID, null, model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType));
 
-                    //daily averages
-                    if (model.chkDaily)
-                        _dts.Add(DataTableGen.DailyAverages(model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType));
+                    if (model.selMon != null && model.selMon != Guid.Empty)
+                    {
+                        //daily averages
+                        if (model.chkDaily)
+                            _dts.Add(DataTableGen.DailyAverages(model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType));
 
-                    //monthly stats
-                    if (model.chkMonthly)
-                        _dts.Add(DataTableGen.MonthlyStatistics(model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType));
+                        //monthly stats
+                        if (model.chkMonthly)
+                            _dts.Add(DataTableGen.MonthlyStatistics(model.selMon, d1.GetValueOrDefault(), d2.GetValueOrDefault(), model.selTimeType));
+                    }
                 }
             }
 

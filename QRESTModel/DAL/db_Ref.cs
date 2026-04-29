@@ -106,6 +106,23 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static bool AnyT_QREST_APP_SETTING()
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    return ctx.T_QREST_APP_SETTINGS.Any();
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return false;
+                }
+            }
+        }
+
+
         public static int InsertOrUpdateT_QREST_APP_SETTINGS(int sETTING_IDX, string sETTING_NAME, string sETTING_VALUE, bool? eNCRYPT_IND, string sETTING_VALUE_SALT, string cREATE_USER)
         {
 

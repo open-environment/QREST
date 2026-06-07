@@ -173,7 +173,7 @@ namespace QRESTModel.AQSHelper
                                 }
                             }
                             //*************** SEMI ANNUAL FLOW RATE AUDIT **************************************
-                            else if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "Semi-Annual Flow Rate Audit	")
+                            else if (_assess.T_QREST_QC_ASSESSMENT.ASSESSMENT_TYPE == "Semi-Annual Flow Rate Audit")
                             {
                                 List<QC_ASSESSMENT_DTLDisplay> _dtls = db_Air.GetT_QREST_QC_ASSESSMENT_DTL_ByAssessID(_assess.T_QREST_QC_ASSESSMENT.QC_ASSESS_IDX);
                                 foreach (QC_ASSESSMENT_DTLDisplay _dtl in _dtls)

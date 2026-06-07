@@ -1,18 +1,38 @@
-﻿using QRESTModel.DAL;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+﻿using Newtonsoft.Json;
+using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace QRESTModel.BLL
 {
+    public class ResendEmailPayload
+    {
+        public string from { get; set; }
+        public string[] to { get; set; }
+        public string subject { get; set; }
+
+        public string html { get; set; }
+        public string text { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string[] cc { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string[] bcc { get; set; }
+    }
+
+
     public class UtilsEmail
     {
+        private static readonly HttpClient _client = new HttpClient();
+
         public static Tuple<string, string> GetSubjBody(string emailTemplateName, Dictionary<string, string> emailParams)
         {
             //************GET EMAIL CONTENT FROM TEMPLATE******************************
@@ -53,19 +73,30 @@ namespace QRESTModel.BLL
             {
                 //************* GET SMTP SERVER SETTINGS ****************************
                 string mailServer = db_Ref.GetT_QREST_APP_SETTING("EMAIL_SERVER");
-                string Port = db_Ref.GetT_QREST_APP_SETTING("EMAIL_PORT") ?? "25";
-                string smtpUser = db_Ref.GetT_QREST_APP_SETTING("EMAIL_SECURE_USER");
                 string smtpUserPwd = db_Ref.GetT_QREST_APP_SETTING("EMAIL_SECURE_PWD");
 
                 //*************SET MESSAGE SENDER IF NOT SUPPLIED*********************  
                 from = from ?? db_Ref.GetT_QREST_APP_SETTING("EMAIL_FROM");
 
+
+                //******************** VALIDATION ********************************************
+                var foo = new EmailAddressAttribute();
+                if (foo.IsValid(from) == false)
+                {
+                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Invalid FROM email. Check global config.");
+                    return false;
+                }
+
+
                 //************** SEND EMAIL EITHER USING SENDGRID OR LOCAL SMTP ******
                 bool SendStatus = false;
-                if (mailServer == "smtp.sendgrid.net")
-                    SendStatus = SendGridEmail(from, to, cc, bcc, subj, null, smtpUserPwd, body).GetAwaiter().GetResult();
+                //if (mailServer == "smtp.sendgrid.net")
+                //    SendStatus = SendGridEmail(from, to, cc, bcc, subj, null, smtpUserPwd, body).GetAwaiter().GetResult();
+                if (mailServer == "api.resend.com")
+                    SendStatus = ResendEmail(from, to, cc, bcc, subj, null, smtpUserPwd, body).GetAwaiter().GetResult();
                 else
                     SendStatus = SendSMTPEmail(from, to, cc, bcc, attach, attachFileName, mailServer, subj, body);
+
 
                 //*************LOG EMAIL SENT****************************************
                 db_Ref.CreateT_QREST_SYS_LOG_EMAIL(from, to, null, subj, body, "EMAIL");
@@ -139,61 +170,48 @@ namespace QRESTModel.BLL
             return true;
         }
 
+
+
         /// <summary>
         /// Sends out an email using SendGrid. 
         /// </summary>
         /// <returns>true if successful</returns>
-        private static async Task<bool> SendGridEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, string apiKey, string bodyHTML = null)
+        private static async Task<bool> ResendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, string apiKey, string bodyHTML = null)
         {
             try
             {
-                //******************** VALIDATION ********************************************
-                var foo = new EmailAddressAttribute();
-                if (foo.IsValid(from) == false)
+                // Prepare Email Data
+                var payload = new ResendEmailPayload
                 {
-                    db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Invalid FROM email. Check global config.");
-                    return false;
-                }
+                    from = from,
+                    to = new[] { to },
+                    subject = subj,
+                    html = !string.IsNullOrWhiteSpace(bodyHTML) ? bodyHTML : null,
+                    text = string.IsNullOrWhiteSpace(bodyHTML) ? body : null,
+                    cc = (cc != null && cc.Count > 0) ? cc.ToArray() : null,
+                    bcc = (bcc != null && bcc.Count > 0) ? bcc.ToArray() : null
+                };
 
-                var client = new SendGridClient(apiKey);
+                var request = new HttpRequestMessage(HttpMethod.Post, "https://api.resend.com/emails");
+                request.Headers.Add("Authorization", $"Bearer {apiKey}");
 
-                //******************** CONSTRUCT EMAIL ********************************************
-                // Create the email object first, then add the properties.
-                var msg = new SendGridMessage();
+                request.Content = new StringContent(
+                    JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
 
-                // Add message properties.
-                msg.Subject = subj;
-                if (bodyHTML == null)
-                    msg.AddContent(MimeType.Text, body);
-                else
-                {
-                    bodyHTML = bodyHTML.Replace("\r\n", "<br>");
-                    msg.AddContent(MimeType.Html, bodyHTML);
-                }
-                msg.From = new EmailAddress(from, "QREST");
-                msg.AddTo(to);
-
-                foreach (string cc1 in cc ?? Enumerable.Empty<string>())
-                    msg.AddCc(cc1);
-
-                foreach (string bcc1 in bcc ?? Enumerable.Empty<string>())
-                    msg.AddBcc(bcc1);
-
-
-                //******************** SEND EMAIL ****************************************************
-                var response = await client.SendEmailAsync(msg).ConfigureAwait(false);
-
+                // Send Request
+                var response = await _client.SendAsync(request).ConfigureAwait(false);
 
                 //******************** RETURN RESPONSE ***********************************************
-                if (response.StatusCode == HttpStatusCode.Accepted)
+                if (response.IsSuccessStatusCode)
                     return true;
                 else if (response.StatusCode == HttpStatusCode.Unauthorized)
                     db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Sendgrid call fails authorization");
                 else
                     db_Ref.CreateT_QREST_SYS_LOG(from, "EMAIL ERR", "Unknown send error: " + response.StatusCode);
-
                 return false;
-                //************************************************************************************
 
             }
             catch (Exception ex)
@@ -206,6 +224,10 @@ namespace QRESTModel.BLL
                 return false;
             }
         }
+
+
+
+
 
     }
 }

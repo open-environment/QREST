@@ -156,7 +156,6 @@
     <Compile Include="BLL\UtilsEmail.cs" />
     <Compile Include="BLL\UtilsSMS.cs" />
     <Compile Include="BLL\UtilsText.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="DAL\AIRNOW_LAST_HOUR.cs">
       <DependentUpon>QRESTModel.tt</DependentUpon>
     </Compile>

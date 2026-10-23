@@ -17,7 +17,7 @@ namespace QREST
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
-            //System.Web.Http.GlobalConfiguration.Configure(WebApiConfig.Register);  //adding web api support to QREST
+            System.Web.Http.GlobalConfiguration.Configure(WebApiConfig.Register);  //adding web api support to QREST
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);

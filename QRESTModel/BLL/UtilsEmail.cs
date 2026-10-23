@@ -88,7 +88,7 @@ namespace QRESTModel.BLL
                 }
 
 
-                //************** SEND EMAIL EITHER USING SENDGRID OR LOCAL SMTP ******
+                //************** SEND EMAIL EITHER USING RESEND OR LOCAL SMTP ******
                 bool SendStatus = false;
                 //if (mailServer == "smtp.sendgrid.net")
                 //    SendStatus = SendGridEmail(from, to, cc, bcc, subj, null, smtpUserPwd, body).GetAwaiter().GetResult();
@@ -173,7 +173,7 @@ namespace QRESTModel.BLL
 
 
         /// <summary>
-        /// Sends out an email using SendGrid. 
+        /// Sends out an email using Resend (www.resend.com). 
         /// </summary>
         /// <returns>true if successful</returns>
         private static async Task<bool> ResendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, string apiKey, string bodyHTML = null)

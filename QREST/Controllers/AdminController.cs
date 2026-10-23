@@ -330,7 +330,10 @@ namespace QREST.Controllers
                     null, null, model.AQS_AGENCY_CODE, model.SELF_REG_IND, true, "", null, null, null);
 
                 if (succId == 1)
+                {
                     TempData["Success"] = "Record updated";
+                    return RedirectToAction("OrgEdit", new { id = model.ORG_ID });
+                }
                 else
                     TempData["Error"] = "Error updating record.";
 

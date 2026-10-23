@@ -1536,7 +1536,7 @@ namespace QREST.Controllers
                     try
                     {
                         //https://aqs.epa.gov/data/api/monitors/bySite?email=info@open-environment.org&key=dunhawk56&bdate=20000101&edate=20251231&state=04&county=013&site=5100
-                        Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=info@open-environment.org&key=dunhawk56&bdate=20000101&edate=20251231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
+                        Uri myUri = new Uri("https://aqs.epa.gov/data/api/monitors/bySite?email=info@open-environment.org&key=dunhawk56&bdate=20000101&edate=20281231&state=" + _site.STATE_CD + "&county=" + _site.COUNTY_CD + "&site=" + _site.AQS_SITE_ID, UriKind.Absolute);
                         var json = httpClient.GetStringAsync(myUri).Result;
                         dynamic stuff = JsonConvert.DeserializeObject(json);
 

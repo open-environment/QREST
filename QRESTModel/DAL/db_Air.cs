@@ -192,6 +192,22 @@ namespace QRESTModel.DAL
 
     }
 
+    /// <summary>
+    /// Used for API
+    /// </summary>
+    public class HourlyDataDisp
+    {
+        public Guid DATA_RAW_IDX { get; set; }
+        public string PAR_CODE { get; set; }
+        public string METHOD_CODE { get; set; }
+        public int? POC { get; set; }
+        public string UNIT_CODE { get; set; }
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy HH:mm}", ApplyFormatInEditMode = true)]
+        public DateTime? DATA_DTTM { get; set; }
+        public string DATA_VALUE { get; set; }
+
+    }
+
     public class AssessDocDisplay
     {
         public Guid ASSESS_DOC_IDX { get; set; }
@@ -3099,6 +3115,49 @@ namespace QRESTModel.DAL
             }
         }
 
+        public static List<HourlyDataDisp> GetT_QREST_DATA_HOURLY_MostRecentHourlyDataForSite(Guid? site)
+        {
+            using (QRESTEntities ctx = new QRESTEntities())
+            {
+                try
+                {
+                    var latestHour =
+                    (
+                        from h in ctx.T_QREST_DATA_HOURLY
+                        join m in ctx.T_QREST_MONITORS on h.MONITOR_IDX equals m.MONITOR_IDX
+                        where m.SITE_IDX == site
+                        select h.DATA_DTTM_UTC
+                    ).Max();
+
+                    var results =
+                    (
+                        from h in ctx.T_QREST_DATA_HOURLY
+                        join m in ctx.T_QREST_MONITORS on h.MONITOR_IDX equals m.MONITOR_IDX
+                        join pm in ctx.T_QREST_REF_PAR_METHODS on m.PAR_METHOD_IDX equals pm.PAR_METHOD_IDX
+                        where m.SITE_IDX == site
+                        && h.DATA_DTTM_UTC == latestHour
+                        select new HourlyDataDisp
+                        {
+                            DATA_RAW_IDX = h.DATA_HOURLY_IDX,
+                            PAR_CODE = pm.PAR_CODE,
+                            METHOD_CODE = pm.METHOD_CODE,
+                            POC = m.POC,
+                            UNIT_CODE = h.UNIT_CODE,
+                            DATA_DTTM = h.DATA_DTTM_UTC,
+                            DATA_VALUE = h.DATA_VALUE
+                        }).ToList();
+
+                    return results;
+                }
+                catch (Exception ex)
+                {
+                    logEF.LogEFException(ex);
+                    return null;
+                }
+            }
+        }
+
+
 
         public static int GetT_QREST_DATA_HOURLYcountByMon(Guid? mon)
         {
@@ -3374,16 +3433,17 @@ namespace QRESTModel.DAL
                     if (dATA_VALUE != null)
                     {
                         //numeric
-                        if (Decimal.TryParse(dATA_VALUE, out var valNum))
+                        if (decimal.TryParse(dATA_VALUE, out var valNum))
                         {
-                            //remove leading zeroes and any plus symbols
-                            e.DATA_VALUE = dATA_VALUE.Replace("+","").TrimStart(new Char[] { '0' });
-
-                            //if negative with leading zeroes, just write the numeric as string
-                            if (dATA_VALUE.Length > 1 && dATA_VALUE.Substring(0, 2) == "-0")
-                                e.DATA_VALUE = valNum.ToString();
-
                             e.DATA_VALUE_NUM = valNum;
+                            e.DATA_VALUE = valNum.ToString();
+
+                            ////remove leading zeroes and any plus symbols
+                            //e.DATA_VALUE = dATA_VALUE.Replace("+","").TrimStart(new Char[] { '0' });
+
+                            ////if negative with leading zeroes, just write the numeric as string
+                            //if (dATA_VALUE.Length > 1 && dATA_VALUE.Substring(0, 2) == "-0")
+                            //    e.DATA_VALUE = valNum.ToString();
                         }
                         else  //non-numeric
                         {

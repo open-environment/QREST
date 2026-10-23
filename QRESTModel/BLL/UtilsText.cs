@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -110,6 +111,94 @@ namespace QRESTModel.BLL
             const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+
+        /// <summary>
+        /// Returns random numeric digits of specified length.
+        /// </summary>
+        public static string RandomDigits(int length)
+        {
+            var r = new Random();
+            string s = string.Empty;
+            for (int i = 0; i < length; i++)
+                s = String.Concat(s, r.Next(10).ToString());
+            return s;
+        }
+
+
+        public static string Truncate(this string value, int length)
+            => (value != null && value.Length > length) ? value.Substring(0, length) : value;
+
+
+        /// <summary>
+        ///  Helper method to convert a string value to a nullable DateTime
+        /// </summary>
+        public static DateTime? ConvertStringToDate(string dt) => DateTime.TryParse(dt, out var date) ? date : (DateTime?)null;
+
+
+        /// <summary>
+        /// Converts memorystream to byte array.
+        /// </summary>
+        public static byte[] ConvertMemoryStreamToByteArray(MemoryStream stream)
+        {
+            return stream.ToArray();
+        }
+
+
+        /// <summary>
+        /// Converts generic stream to byte array.
+        /// </summary>
+        public static byte[] ConvertStreamToByteArray(Stream stream)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                stream.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+
+
+        /// <summary>
+        /// Better implementation of split when parsing CSV files - this handles situations where there are commas inside of quotes
+        /// </summary>
+        /// <param name="csvString">one line of csv file</param>
+        public static IEnumerable<string> SplitCSV(string csvString)
+        {
+            var sb = new StringBuilder();
+            bool quoted = false;
+
+            foreach (char c in csvString)
+            {
+                if (quoted)
+                {
+                    if (c == '"')
+                        quoted = false;
+                    else
+                        sb.Append(c);
+                }
+                else
+                {
+                    if (c == '"')
+                    {
+                        quoted = true;
+                    }
+                    else if (c == ',')
+                    {
+                        yield return sb.ToString();
+                        sb.Length = 0;
+                    }
+                    else
+                    {
+                        sb.Append(c);
+                    }
+                }
+            }
+
+            if (quoted)
+                throw new ArgumentException("csvString", "Unterminated quotation mark.");
+
+            yield return sb.ToString();
         }
     }
 }

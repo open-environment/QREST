@@ -23,7 +23,7 @@ QREST (Quality Review and Exchange System for Tribes) is a tribal air-quality da
 - `Controllers/`: one controller per functional area (`Site`, `Data`, `Admin`, `Reports`, `Dashboard`, `Account`, `Training`, …). Large files (e.g. `DataController`, `SiteController`) are split into sections with `//*****` banner comments.
 - `Controllers/apiController.cs`: `QRESTapiController : ApiController` at `api/{controller}/{action}/{id}`. It authenticates with `Authorization: Bearer <api_key>`, which is matched to `T_QREST_ORG_USERS` via `db_Account.GetT_QREST_ORG_USERS_ByAPIKey`.
 - `Models/*ViewModels.cs`: one file per controller. View model classes are named `vm<Controller><Action>` (e.g. `vmSiteOrgEdit`). `ddlHelpers.cs` builds `SelectList`s for dropdowns.
-- `App_Logic/`: web-only helpers (Excel/PDF generation, HTML helpers, `GetIP`).
+- `App_Logic/`: web-only helpers (Excel/PDF generation, HTML helpers, HTML sanitizing in `UtilsHtml`, `GetIP`). General string and conversion helpers (`ConvertOrDefault`, `Truncate`, `SubStringPlus`, stream converters, …) live in `QRESTModel/BLL/UtilsText.cs`. Put new ones there, not in the web project.
 - `App_Start/`: routing, bundles, filters, Identity config, and a custom `QREST.AuthorizeAttribute`, which sends authenticated-but-unauthorized users to `Error/AccessDenied`.
 - `Views/<Controller>/`: Razor views. Shared layouts are `_Layout`, `_LayoutPub` (public site), `_LayoutLogin` and `_LayoutHelp`. `_Alerts` shows `TempData` messages.
 - `Global.asax.cs`: global `Application_Error` logs to `T_QREST_SYS_LOG` and renders through `ErrorController`.

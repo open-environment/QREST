@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using QRESTModel.BLL;
 using QRESTModel.DAL;
 using System;
 using System.Collections.Generic;

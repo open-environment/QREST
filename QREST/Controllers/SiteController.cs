@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using QREST.App_Logic.BusinessLogicLayer;
 using QREST.Models;
+using QRESTModel.BLL;
 using QRESTModel.COMM;
 using QRESTModel.DAL;
 using QRESTModel.Units;

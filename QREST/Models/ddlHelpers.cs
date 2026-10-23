@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using QRESTModel.BLL;
 using QRESTModel.DAL;
 using QREST.App_Logic.BusinessLogicLayer;
 

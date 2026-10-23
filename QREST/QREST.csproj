@@ -193,7 +193,7 @@
     <Compile Include="App_Logic\HTMLHelpers.cs" />
     <Compile Include="App_Logic\iTextSharpHelper.cs" />
     <Compile Include="App_Logic\PDFHelper.cs" />
-    <Compile Include="App_Logic\UtilsText.cs" />
+    <Compile Include="App_Logic\UtilsHtml.cs" />
     <Compile Include="App_Start\AuthorizeAttribute.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CustomPasswordValidator.cs" />
